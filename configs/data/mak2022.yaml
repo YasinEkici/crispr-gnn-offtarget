@@ -1,0 +1,15 @@
+dataset:
+  name: mak2022
+  raw_path: data/raw/260520_putative_nucleosomal.parquet
+  processed_path: data/processed/mak2022.parquet
+  sample_path: data/sample/mak2022_sample.csv
+  source: Mak et al. 2022 crisprSQL-derived epigenetic dataset
+  large_files_committed: false
+
+labels:
+  primary_scheme: scheme_a
+  cleavage_threshold: 1.0e-5
+
+split_rules:
+  test_measured_only: true
+  val_measured_preferred: true

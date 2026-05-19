@@ -1,0 +1,33 @@
+title: 'CRISPRoffT: comprehensive database of CRISPR/Cas off-targets'
+authors:
+- Grant Wang
+- Xiaona Liu
+- Aoqi Wang
+- Jianguo Wen
+- Pora Kim
+- Qianqian Song
+- Xiaona Liu
+- Xiaobo Zhou
+abstract: The CRISPR (clustered regularly interspaced short palindromic repeats)/Cas
+  (CRISPR-associated protein) programmable nuclease system continues to evolve, with
+  in vivo therapeutic gene editing increasingly applied in clinical settings. However,
+  off-target effects remain a significant challenge, hindering its broader clinical
+  application. To enhance the development of gene-editing therapies and the accuracy
+  of prediction algorithms, we developed CRISPRoffT [https://ccsm.uth.edu/CRISPRoffT/].
+  Users can access a comprehensive repository of off-target regions predicted and
+  validated by a diverse range of technologies across various cell lines, Cas enzyme
+  variants, engineered sgRNAs (single guide RNAs) and CRISPR editing systems. CRISPRoffT
+  integrates results of off-target analysis from 74 studies, encompassing 29 experimental
+  prediction techniques, 368 guide sequences, 226164 potential guide and off-target
+  pairs and 8840 validated off-targets. CRISPRoffT features off-target data from different
+  CRISPR approaches (knockout, base editing and prime editing) applied under diverse
+  experimental conditions, including 85 different Cas/guide RNA (gRNA) combinations
+  used across 34 different human and mouse cell lines. CRISPRoffT provides results
+  of comparative analyses for individual guide sequences, genes, cell types, techniques
+  and Cas/gRNA combinations under different conditions. CRISPRoffT is a unique resource
+  providing valuable insights that facilitate the safety-driven design of CRISPR-based
+  therapeutics, inform experimental design, advance the development of computational
+  off-target prediction algorithms and guide RNA design algorithms.
+keywords: []
+journal: Nucleic Acids Research
+year: 2025

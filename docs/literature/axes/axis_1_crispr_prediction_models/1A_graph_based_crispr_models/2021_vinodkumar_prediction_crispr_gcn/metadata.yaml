@@ -1,0 +1,31 @@
+title: Prediction of sgRNA Off-Target Activity in CRISPR/Cas9 Gene Editing Using Graph
+  Convolution Network
+authors:
+- Prasoon Kumar Vinodkumar
+- Cagri Ozcinar
+- Gholamreza Anbarjafari
+abstract: CRISPR/Cas9 is a powerful genome-editing technology that has been widely
+  applied in targeted gene repair and gene expression regulation. One of the main
+  challenges for the CRISPR/Cas9 system is the occurrence of unexpected cleavage at
+  some sites (off-targets) and predicting them is necessary due to its relevance in
+  gene editing research. Very few deep learning models have been developed so far
+  to predict the off-target propensity of single guide RNA (sgRNA) at specific DNA
+  fragments by using artificial feature extract operations and machine learning techniques;
+  however, this is a convoluted process that is difficult to understand and implement
+  for researchers. In this research work, we introduce a novel graph-based approach
+  to predict off-target efficacy of sgRNA in the CRISPR/Cas9 system that is easy to
+  understand and replicate for researchers. This is achieved by creating a graph with
+  sequences as nodes and by using a link prediction method to predict the presence
+  of links between sgRNA and off-target inducing target DNA sequences. Features for
+  the sequences are extracted from within the sequences. We used HEK293 and K562 t
+  datasets in our experiments. GCN predicted the off-target gene knockouts (using
+  link prediction) by predicting the links between sgRNA and off-target sequences
+  with an auROC value of 0.987.
+keywords:
+- gene editing
+- deep learning
+- graph convolutional network
+- sgRNA
+- link prediction
+journal: '*Entropy*'
+year: 2021

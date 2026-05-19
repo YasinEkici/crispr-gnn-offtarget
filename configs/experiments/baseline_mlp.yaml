@@ -1,0 +1,29 @@
+experiment_name: baseline_mlp
+seed: 42
+
+data:
+  dataset: mak2022
+  config: configs/data/mak2022.yaml
+  label_scheme: scheme_a
+  split: debug
+
+features:
+  sequence: true
+  mismatch: true
+  experimental_epigenetic: false
+  computed_nucleosome: false
+  binding_energy: false
+
+model:
+  name: baseline_mlp
+  hidden_dims: [128, 64]
+  dropout: 0.2
+
+training:
+  loss: weighted_bce
+  batch_size: 1024
+  max_epochs: 100
+
+metrics:
+  primary: auprc
+  secondary: [auroc, f1, mcc]

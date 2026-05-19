@@ -1,0 +1,24 @@
+title: 'Graph-CRISPR: a gene editing efficiency prediction model based on graph neural
+  network with integrated sequence and secondary structure feature extraction'
+authors:
+- Yaojia Jiang
+- Bohao Li
+- Jiankang Xiong
+- Xiuqin Liu
+abstract: Clustered regularly interspaced short palindromic repeats (CRISPR) gene-editing
+  technology has transformed molecular biology. Predicting editing efficiency is crucial
+  for optimization, and numerous computational models have been created. However,
+  many current models struggle to generalize across diverse editing systems, often
+  experiencing performance drops with varying conditions or systems. Additionally,
+  most models focus on ribonucleic acid (RNA) sequence and thermodynamic features,
+  overlooking the importance of secondary structure information. Here, we present
+  the first graph-based model (Graph-CRISPR) that integrates both sequence and secondary
+  structure features of single guide RNA enhancing editing efficiency prediction.
+keywords:
+- CRISPR-Cas9
+- gene editing efficiency
+- secondary structure
+- graph neural network
+- on-target
+journal: Briefings in Bioinformatics
+year: 2025

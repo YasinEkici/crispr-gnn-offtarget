@@ -1,0 +1,28 @@
+title: Data imbalance in CRISPR off-target prediction
+authors:
+- Yuli Gao
+- Guohui Chuai
+- Weichuan Yu
+- Shen Qu
+- Qi Liu
+abstract: For genome-wide CRISPR off-target cleavage sites (OTS) prediction, an important
+  issue is data imbalance—the number of true OTS recognized by whole-genome off-target
+  detection techniques is much smaller than that of all possible nucleotide mismatch
+  loci, making the training of machine learning model very challenging. Therefore,
+  computational models proposed for OTS prediction and scoring should be carefully
+  designed and properly evaluated in order to avoid bias. In our study, two tools
+  are taken as examples to further emphasize the data imbalance issue in CRISPR off-target
+  prediction to achieve better sensitivity and specificity for optimized CRISPR gene
+  editing. We would like to indicate that (1) the benchmark of CRISPR off-target prediction
+  should be properly evaluated and not overestimated by considering data imbalance
+  issue; (2) incorporation of efficient computational techniques (including ensemble
+  learning and data synthesis techniques) can help to address the data imbalance issue
+  and improve the performance of CRISPR off-target prediction. Taking together, we
+  call for more efforts to address the data imbalance issue in CRISPR off-target prediction
+  to facilitate clinical utility of CRISPR-based gene editing techniques.
+keywords:
+- CRISPR
+- off-target prediction
+- data imbalance
+journal: Briefings in Bioinformatics
+year: 2020

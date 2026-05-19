@@ -2,7 +2,9 @@
 __pycache__/
 *.py[cod]
 .venv/
+.uv-cache/
 .pytest_cache/
+pytest-cache-files-*/
 .ruff_cache/
 
 # Environment / secrets
@@ -14,6 +16,15 @@ __pycache__/
 data/raw/
 data/interim/
 data/processed/
+
+# Literature source PDFs and extracted heavy assets
+docs/literature/**/original.pdf
+docs/literature/**/*.pdf
+docs/literature/**/assets/
+docs/literature/**/assets/**
+docs/literature/**/*.jpg
+docs/literature/**/*.jpeg
+docs/literature/**/*.png
 
 # Outputs
 outputs/runs/

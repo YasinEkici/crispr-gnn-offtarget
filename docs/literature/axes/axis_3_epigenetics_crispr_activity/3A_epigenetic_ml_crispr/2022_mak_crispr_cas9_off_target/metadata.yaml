@@ -1,0 +1,25 @@
+title: Comprehensive computational analysis of epigenetic descriptors afecting CRISPR-Cas9
+  of-target activity
+authors:
+- Jefrey K. Mak
+- Florian Störtz
+- Peter Minary
+abstract: A common issue in CRISPR-Cas9 genome editing is of-target activity, which
+  prevents the widespread use of CRISPR-Cas9 in medical applications. Among other
+  factors, primary chromatin structure and epigenetics may infuence of-target activity.
+  In this work, we utilize crisprSQL, an of-target database, to analyze the efect
+  of 19 epigenetic descriptors on CRISPR-Cas9 of-target activity. Termed as 19 epigenetic
+  features/scores, they consist of 6 experimental epigenetic and 13 computed nucleosome
+  organization-related features. In terms of novel features, 15 of the epigenetic
+  scores are newly considered... Our comprehensive computational analysis helps the
+  CRISPR-Cas9 community better understand the relationship between epigenetic features
+  and CRISPR-Cas9 of-target activity.
+keywords:
+- CRISPR-Cas9
+- Of-target activity
+- Nucleosome
+- crisprSQL
+- Gene editing
+- Machine Learning
+journal: ''
+year: 2022

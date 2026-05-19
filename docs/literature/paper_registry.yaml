@@ -1,0 +1,309 @@
+axes:
+  - id: axis_1_crispr_prediction_models
+    title: "EKSEN 1 - GNN-tabanli ve sequence-tabanli CRISPR off-target / on-target tahmin modelleri"
+    sections:
+      - id: 1A_graph_based_crispr_models
+        title: "1A. CRISPR icin cizge-tabanli modeller"
+      - id: 1B_sequence_based_dl_baselines
+        title: "1B. Sequence-tabanli derin ogrenme baseline'lari"
+  - id: axis_2_imbalance_cost_sensitive_learning
+    title: "EKSEN 2 - CRISPR ve genomikte sinif dengesizligi / maliyet-duyarli ogrenme"
+    sections:
+      - id: 2A_crispr_specific_imbalance
+        title: "2A. CRISPR'a ozgu dengesizlik calismalari"
+      - id: 2B_general_imbalance_foundations
+        title: "2B. Genel dengesizlik / maliyet-duyarli ogrenme temelleri"
+  - id: axis_3_epigenetics_crispr_activity
+    title: "EKSEN 3 - Epigenetik ozellikler ve CRISPR-Cas9 aktivitesi"
+    sections:
+      - id: 3A_epigenetic_ml_crispr
+        title: "3A. Epigenetigi entegre eden hesaplamali / ML makaleleri"
+      - id: 3B_chromatin_epigenetics_cas9_biology
+        title: "3B. Temel biyoloji - kromatin / epigenetik ve Cas9 aktivitesi"
+
+papers:
+  - id: 2017_kipf_classification_with_gcn
+    title: "Semi-Supervised Classification with Graph Convolutional Networks"
+    year: 2017
+    authors:
+      - Thomas N. Kipf
+      - Max Welling
+    axis: axis_1_crispr_prediction_models
+    section: 1A_graph_based_crispr_models
+    project_role: gcn_foundation
+    priority: must_read
+    local_dir: docs/literature/axes/axis_1_crispr_prediction_models/1A_graph_based_crispr_models/2017_kipf_classification_with_gcn
+    local_md: docs/literature/axes/axis_1_crispr_prediction_models/1A_graph_based_crispr_models/2017_kipf_classification_with_gcn/paper.md
+    local_pdf: docs/literature/axes/axis_1_crispr_prediction_models/1A_graph_based_crispr_models/2017_kipf_classification_with_gcn/original.pdf
+    metadata: docs/literature/axes/axis_1_crispr_prediction_models/1A_graph_based_crispr_models/2017_kipf_classification_with_gcn/metadata.yaml
+    assets_dir: docs/literature/axes/axis_1_crispr_prediction_models/1A_graph_based_crispr_models/2017_kipf_classification_with_gcn/assets
+    tags: [gcn, graph_neural_network, foundation]
+
+  - id: 2021_vinodkumar_prediction_crispr_gcn
+    title: "Prediction of sgRNA Off-Target Activity in CRISPR/Cas9 Gene Editing Using Graph Convolution Network"
+    year: 2021
+    authors:
+      - Prasoon Kumar Vinodkumar
+      - Cagri Ozcinar
+      - Gholamreza Anbarjafari
+    axis: axis_1_crispr_prediction_models
+    section: 1A_graph_based_crispr_models
+    project_role: gnn_off_target_baseline
+    priority: must_read
+    local_dir: docs/literature/axes/axis_1_crispr_prediction_models/1A_graph_based_crispr_models/2021_vinodkumar_prediction_crispr_gcn
+    local_md: docs/literature/axes/axis_1_crispr_prediction_models/1A_graph_based_crispr_models/2021_vinodkumar_prediction_crispr_gcn/paper.md
+    local_pdf: docs/literature/axes/axis_1_crispr_prediction_models/1A_graph_based_crispr_models/2021_vinodkumar_prediction_crispr_gcn/original.pdf
+    metadata: docs/literature/axes/axis_1_crispr_prediction_models/1A_graph_based_crispr_models/2021_vinodkumar_prediction_crispr_gcn/metadata.yaml
+    assets_dir: docs/literature/axes/axis_1_crispr_prediction_models/1A_graph_based_crispr_models/2021_vinodkumar_prediction_crispr_gcn/assets
+    tags: [crispr, off_target, gcn, link_prediction]
+
+  - id: 2025_liu_graphcrispr_efficiency_prediction_gnn
+    title: "Graph-CRISPR: a gene editing efficiency prediction model based on graph neural network with integrated sequence and secondary structure feature extraction"
+    year: 2025
+    authors:
+      - Yaojia Jiang
+      - Bohao Li
+      - Jiankang Xiong
+      - Xiuqin Liu
+    axis: axis_1_crispr_prediction_models
+    section: 1A_graph_based_crispr_models
+    project_role: graph_crispr_secondary_structure_reference
+    priority: later
+    local_dir: docs/literature/axes/axis_1_crispr_prediction_models/1A_graph_based_crispr_models/2025_liu_graphcrispr_efficiency_prediction_gnn
+    local_md: docs/literature/axes/axis_1_crispr_prediction_models/1A_graph_based_crispr_models/2025_liu_graphcrispr_efficiency_prediction_gnn/paper.md
+    local_pdf: docs/literature/axes/axis_1_crispr_prediction_models/1A_graph_based_crispr_models/2025_liu_graphcrispr_efficiency_prediction_gnn/original.pdf
+    metadata: docs/literature/axes/axis_1_crispr_prediction_models/1A_graph_based_crispr_models/2025_liu_graphcrispr_efficiency_prediction_gnn/metadata.yaml
+    assets_dir: docs/literature/axes/axis_1_crispr_prediction_models/1A_graph_based_crispr_models/2025_liu_graphcrispr_efficiency_prediction_gnn/assets
+    tags: [crispr, on_target, gnn, secondary_structure]
+
+  - id: 2018_chuai_deepcrispr_guide_rna_deeplearning
+    title: "DeepCRISPR: optimized CRISPR guide RNA design by deep learning"
+    year: 2018
+    authors:
+      - Guohui Chuai
+      - Hanhui Ma
+      - Jifang Yan
+      - Ming Chen
+      - Qi Liu
+    axis: axis_1_crispr_prediction_models
+    section: 1B_sequence_based_dl_baselines
+    project_role: sequence_baseline
+    priority: useful
+    local_dir: docs/literature/axes/axis_1_crispr_prediction_models/1B_sequence_based_dl_baselines/2018_chuai_deepcrispr_guide_rna_deeplearning
+    local_md: docs/literature/axes/axis_1_crispr_prediction_models/1B_sequence_based_dl_baselines/2018_chuai_deepcrispr_guide_rna_deeplearning/paper.md
+    local_pdf: docs/literature/axes/axis_1_crispr_prediction_models/1B_sequence_based_dl_baselines/2018_chuai_deepcrispr_guide_rna_deeplearning/original.pdf
+    metadata: docs/literature/axes/axis_1_crispr_prediction_models/1B_sequence_based_dl_baselines/2018_chuai_deepcrispr_guide_rna_deeplearning/metadata.yaml
+    assets_dir: docs/literature/axes/axis_1_crispr_prediction_models/1B_sequence_based_dl_baselines/2018_chuai_deepcrispr_guide_rna_deeplearning/assets
+    tags: [crispr, sequence_model, deep_learning, baseline]
+
+  - id: 2020_lin_crisprnet_rcn_mismatch_indels
+    title: "CRISPR-Net: A Recurrent Convolutional Network Quantifies CRISPR Off-Target Activities with Mismatches and Indels"
+    year: 2020
+    authors:
+      - Jiecong Lin
+      - Zhaolei Zhang
+      - Shixiong Zhang
+      - Junyi Chen
+      - Ka-Chun Wong
+    axis: axis_1_crispr_prediction_models
+    section: 1B_sequence_based_dl_baselines
+    project_role: sequence_baseline
+    priority: must_read
+    local_dir: docs/literature/axes/axis_1_crispr_prediction_models/1B_sequence_based_dl_baselines/2020_lin_crisprnet_rcn_mismatch_indels
+    local_md: docs/literature/axes/axis_1_crispr_prediction_models/1B_sequence_based_dl_baselines/2020_lin_crisprnet_rcn_mismatch_indels/paper.md
+    local_pdf: docs/literature/axes/axis_1_crispr_prediction_models/1B_sequence_based_dl_baselines/2020_lin_crisprnet_rcn_mismatch_indels/original.pdf
+    metadata: docs/literature/axes/axis_1_crispr_prediction_models/1B_sequence_based_dl_baselines/2020_lin_crisprnet_rcn_mismatch_indels/metadata.yaml
+    assets_dir: docs/literature/axes/axis_1_crispr_prediction_models/1B_sequence_based_dl_baselines/2020_lin_crisprnet_rcn_mismatch_indels/assets
+    tags: [crispr, off_target, sequence_model, mismatch, indel]
+
+  - id: 2020_gao_data_imbalance_off_target_prediction
+    title: "Data imbalance in CRISPR off-target prediction"
+    year: 2020
+    authors:
+      - Yuli Gao
+      - Guohui Chuai
+      - Weichuan Yu
+      - Shen Qu
+      - Qi Liu
+    axis: axis_2_imbalance_cost_sensitive_learning
+    section: 2A_crispr_specific_imbalance
+    project_role: crispr_imbalance_reference
+    priority: must_read
+    local_dir: docs/literature/axes/axis_2_imbalance_cost_sensitive_learning/2A_crispr_specific_imbalance/2020_gao_data_imbalance_off_target_prediction
+    local_md: docs/literature/axes/axis_2_imbalance_cost_sensitive_learning/2A_crispr_specific_imbalance/2020_gao_data_imbalance_off_target_prediction/paper.md
+    local_pdf: docs/literature/axes/axis_2_imbalance_cost_sensitive_learning/2A_crispr_specific_imbalance/2020_gao_data_imbalance_off_target_prediction/original.pdf
+    metadata: docs/literature/axes/axis_2_imbalance_cost_sensitive_learning/2A_crispr_specific_imbalance/2020_gao_data_imbalance_off_target_prediction/metadata.yaml
+    assets_dir: docs/literature/axes/axis_2_imbalance_cost_sensitive_learning/2A_crispr_specific_imbalance/2020_gao_data_imbalance_off_target_prediction/assets
+    tags: [crispr, off_target, imbalance]
+
+  - id: 2024_guan_solving_data_imbalance_off_target_prediction
+    title: "A systematic method for solving data imbalance in CRISPR off-target prediction tasks"
+    year: 2024
+    authors:
+      - Zengrui Guan
+      - Zhenran Jiang
+    axis: axis_2_imbalance_cost_sensitive_learning
+    section: 2A_crispr_specific_imbalance
+    project_role: crispr_imbalance_reference
+    priority: useful
+    local_dir: docs/literature/axes/axis_2_imbalance_cost_sensitive_learning/2A_crispr_specific_imbalance/2024_guan_solving_data_imbalance_off_target_prediction
+    local_md: docs/literature/axes/axis_2_imbalance_cost_sensitive_learning/2A_crispr_specific_imbalance/2024_guan_solving_data_imbalance_off_target_prediction/paper.md
+    local_pdf: docs/literature/axes/axis_2_imbalance_cost_sensitive_learning/2A_crispr_specific_imbalance/2024_guan_solving_data_imbalance_off_target_prediction/original.pdf
+    metadata: docs/literature/axes/axis_2_imbalance_cost_sensitive_learning/2A_crispr_specific_imbalance/2024_guan_solving_data_imbalance_off_target_prediction/metadata.yaml
+    assets_dir: docs/literature/axes/axis_2_imbalance_cost_sensitive_learning/2A_crispr_specific_imbalance/2024_guan_solving_data_imbalance_off_target_prediction/assets
+    tags: [crispr, off_target, imbalance, benchmarking]
+
+  - id: 2017_lin_focal_loss_object_detection
+    title: "Focal Loss for Dense Object Detection"
+    year: 2017
+    authors:
+      - Tsung-Yi Lin
+      - Priya Goyal
+      - Ross Girshick
+      - Kaiming He
+      - Piotr Dollar
+    axis: axis_2_imbalance_cost_sensitive_learning
+    section: 2B_general_imbalance_foundations
+    project_role: imbalance_method
+    priority: must_read
+    local_dir: docs/literature/axes/axis_2_imbalance_cost_sensitive_learning/2B_general_imbalance_foundations/2017_lin_focal_loss_object_detection
+    local_md: docs/literature/axes/axis_2_imbalance_cost_sensitive_learning/2B_general_imbalance_foundations/2017_lin_focal_loss_object_detection/paper.md
+    local_pdf: docs/literature/axes/axis_2_imbalance_cost_sensitive_learning/2B_general_imbalance_foundations/2017_lin_focal_loss_object_detection/original.pdf
+    metadata: docs/literature/axes/axis_2_imbalance_cost_sensitive_learning/2B_general_imbalance_foundations/2017_lin_focal_loss_object_detection/metadata.yaml
+    assets_dir: docs/literature/axes/axis_2_imbalance_cost_sensitive_learning/2B_general_imbalance_foundations/2017_lin_focal_loss_object_detection/assets
+    tags: [focal_loss, imbalance, loss_function]
+
+  - id: 2017_sudre_dice_loss_deep_learning_unbalanced
+    title: "Generalised Dice overlap as a deep learning loss function for highly unbalanced segmentations"
+    year: 2017
+    authors:
+      - Carole H. Sudre
+      - Wenqi Li
+      - Tom Vercauteren
+      - Sebastien Ourselin
+      - M. Jorge Cardoso
+    axis: axis_2_imbalance_cost_sensitive_learning
+    section: 2B_general_imbalance_foundations
+    project_role: imbalance_method
+    priority: useful
+    local_dir: docs/literature/axes/axis_2_imbalance_cost_sensitive_learning/2B_general_imbalance_foundations/2017_sudre_dice_loss_deep_learning_unbalanced
+    local_md: docs/literature/axes/axis_2_imbalance_cost_sensitive_learning/2B_general_imbalance_foundations/2017_sudre_dice_loss_deep_learning_unbalanced/paper.md
+    local_pdf: docs/literature/axes/axis_2_imbalance_cost_sensitive_learning/2B_general_imbalance_foundations/2017_sudre_dice_loss_deep_learning_unbalanced/original.pdf
+    metadata: docs/literature/axes/axis_2_imbalance_cost_sensitive_learning/2B_general_imbalance_foundations/2017_sudre_dice_loss_deep_learning_unbalanced/metadata.yaml
+    assets_dir: docs/literature/axes/axis_2_imbalance_cost_sensitive_learning/2B_general_imbalance_foundations/2017_sudre_dice_loss_deep_learning_unbalanced/assets
+    tags: [dice_loss, imbalance, loss_function]
+
+  - id: 2019_cui_class_balanced_loss
+    title: "Class-Balanced Loss Based on Effective Number of Samples"
+    year: 2019
+    authors:
+      - Yin Cui
+      - Menglin Jia
+      - Tsung-Yi Lin
+      - Yang Song
+      - Serge Belongie
+    axis: axis_2_imbalance_cost_sensitive_learning
+    section: 2B_general_imbalance_foundations
+    project_role: imbalance_method
+    priority: useful
+    local_dir: docs/literature/axes/axis_2_imbalance_cost_sensitive_learning/2B_general_imbalance_foundations/2019_cui_class_balanced_loss
+    local_md: docs/literature/axes/axis_2_imbalance_cost_sensitive_learning/2B_general_imbalance_foundations/2019_cui_class_balanced_loss/paper.md
+    local_pdf: docs/literature/axes/axis_2_imbalance_cost_sensitive_learning/2B_general_imbalance_foundations/2019_cui_class_balanced_loss/original.pdf
+    metadata: docs/literature/axes/axis_2_imbalance_cost_sensitive_learning/2B_general_imbalance_foundations/2019_cui_class_balanced_loss/metadata.yaml
+    assets_dir: docs/literature/axes/axis_2_imbalance_cost_sensitive_learning/2B_general_imbalance_foundations/2019_cui_class_balanced_loss/assets
+    tags: [class_balanced_loss, effective_number, imbalance]
+
+  - id: 2021_stortz_crisprsql_database_platform_off_target
+    title: "crisprSQL: a novel database platform for CRISPR/Cas off-target cleavage assays"
+    year: 2021
+    authors:
+      - Florian Stortz
+      - Peter Minary
+    axis: axis_3_epigenetics_crispr_activity
+    section: 3A_epigenetic_ml_crispr
+    project_role: source_database
+    priority: must_read
+    local_dir: docs/literature/axes/axis_3_epigenetics_crispr_activity/3A_epigenetic_ml_crispr/2021_stortz_crisprsql_database_platform_off_target
+    local_md: docs/literature/axes/axis_3_epigenetics_crispr_activity/3A_epigenetic_ml_crispr/2021_stortz_crisprsql_database_platform_off_target/paper.md
+    local_pdf: docs/literature/axes/axis_3_epigenetics_crispr_activity/3A_epigenetic_ml_crispr/2021_stortz_crisprsql_database_platform_off_target/original.pdf
+    metadata: docs/literature/axes/axis_3_epigenetics_crispr_activity/3A_epigenetic_ml_crispr/2021_stortz_crisprsql_database_platform_off_target/metadata.yaml
+    assets_dir: docs/literature/axes/axis_3_epigenetics_crispr_activity/3A_epigenetic_ml_crispr/2021_stortz_crisprsql_database_platform_off_target/assets
+    tags: [crisprsql, crispr, off_target, database]
+
+  - id: 2022_mak_crispr_cas9_off_target
+    title: "Comprehensive computational analysis of epigenetic descriptors affecting CRISPR-Cas9 off-target activity"
+    year: 2022
+    authors:
+      - Jeffrey K. Mak
+      - Florian Stortz
+      - Peter Minary
+    axis: axis_3_epigenetics_crispr_activity
+    section: 3A_epigenetic_ml_crispr
+    project_role: primary_dataset_and_epigenetic_features
+    priority: must_read
+    local_dir: docs/literature/axes/axis_3_epigenetics_crispr_activity/3A_epigenetic_ml_crispr/2022_mak_crispr_cas9_off_target
+    local_md: docs/literature/axes/axis_3_epigenetics_crispr_activity/3A_epigenetic_ml_crispr/2022_mak_crispr_cas9_off_target/paper.md
+    local_pdf: docs/literature/axes/axis_3_epigenetics_crispr_activity/3A_epigenetic_ml_crispr/2022_mak_crispr_cas9_off_target/original.pdf
+    metadata: docs/literature/axes/axis_3_epigenetics_crispr_activity/3A_epigenetic_ml_crispr/2022_mak_crispr_cas9_off_target/metadata.yaml
+    assets_dir: docs/literature/axes/axis_3_epigenetics_crispr_activity/3A_epigenetic_ml_crispr/2022_mak_crispr_cas9_off_target/assets
+    tags: [crispr, off_target, epigenetics, nucleosome, mak2022_dataset]
+
+  - id: 2025_yan_crisprofft_database_of_crispr_off_targets
+    title: "CRISPRoffT: comprehensive database of CRISPR/Cas off-targets"
+    year: 2025
+    authors:
+      - Grant Wang
+      - Xiaona Liu
+      - Aoqi Wang
+      - Jianguo Wen
+      - Xiaobo Zhou
+    axis: axis_3_epigenetics_crispr_activity
+    section: 3A_epigenetic_ml_crispr
+    project_role: external_validation_resource
+    priority: later
+    local_dir: docs/literature/axes/axis_3_epigenetics_crispr_activity/3A_epigenetic_ml_crispr/2025_yan_crisprofft_database_of_crispr_off_targets
+    local_md: docs/literature/axes/axis_3_epigenetics_crispr_activity/3A_epigenetic_ml_crispr/2025_yan_crisprofft_database_of_crispr_off_targets/paper.md
+    local_pdf: docs/literature/axes/axis_3_epigenetics_crispr_activity/3A_epigenetic_ml_crispr/2025_yan_crisprofft_database_of_crispr_off_targets/original.pdf
+    metadata: docs/literature/axes/axis_3_epigenetics_crispr_activity/3A_epigenetic_ml_crispr/2025_yan_crisprofft_database_of_crispr_off_targets/metadata.yaml
+    assets_dir: docs/literature/axes/axis_3_epigenetics_crispr_activity/3A_epigenetic_ml_crispr/2025_yan_crisprofft_database_of_crispr_off_targets/assets
+    tags: [crisprofft, crispr, off_target, database, external_validation]
+
+  - id: 2016_horlbeck_cas9_access_to_dna
+    title: "Nucleosomes impede Cas9 access to DNA in vivo and in vitro"
+    year: 2016
+    authors:
+      - Max A. Horlbeck
+      - Lea B. Witkowsky
+      - Benjamin Guglielmi
+      - Jonathan S. Weissman
+    axis: axis_3_epigenetics_crispr_activity
+    section: 3B_chromatin_epigenetics_cas9_biology
+    project_role: chromatin_biology_background
+    priority: must_read
+    local_dir: docs/literature/axes/axis_3_epigenetics_crispr_activity/3B_chromatin_epigenetics_cas9_biology/2016_horlbeck_cas9_access_to_dna
+    local_md: docs/literature/axes/axis_3_epigenetics_crispr_activity/3B_chromatin_epigenetics_cas9_biology/2016_horlbeck_cas9_access_to_dna/paper.md
+    local_pdf: docs/literature/axes/axis_3_epigenetics_crispr_activity/3B_chromatin_epigenetics_cas9_biology/2016_horlbeck_cas9_access_to_dna/original.pdf
+    metadata: docs/literature/axes/axis_3_epigenetics_crispr_activity/3B_chromatin_epigenetics_cas9_biology/2016_horlbeck_cas9_access_to_dna/metadata.yaml
+    assets_dir: docs/literature/axes/axis_3_epigenetics_crispr_activity/3B_chromatin_epigenetics_cas9_biology/2016_horlbeck_cas9_access_to_dna/assets
+    tags: [cas9, chromatin, nucleosome, accessibility]
+
+  - id: 2016_isaac_nucleosome_breathing_remodeling_crispr
+    title: "Nucleosome breathing and remodeling constrain CRISPR-Cas9 function"
+    year: 2016
+    authors:
+      - R. Stefan Isaac
+      - Fuguo Jiang
+      - Jennifer A. Doudna
+      - Wendell A. Lim
+      - Geeta J. Narlikar
+      - Ricardo Almeida
+    axis: axis_3_epigenetics_crispr_activity
+    section: 3B_chromatin_epigenetics_cas9_biology
+    project_role: chromatin_biology_background
+    priority: must_read
+    local_dir: docs/literature/axes/axis_3_epigenetics_crispr_activity/3B_chromatin_epigenetics_cas9_biology/2016_isaac_nucleosome_breathing_remodeling_crispr
+    local_md: docs/literature/axes/axis_3_epigenetics_crispr_activity/3B_chromatin_epigenetics_cas9_biology/2016_isaac_nucleosome_breathing_remodeling_crispr/paper.md
+    local_pdf: docs/literature/axes/axis_3_epigenetics_crispr_activity/3B_chromatin_epigenetics_cas9_biology/2016_isaac_nucleosome_breathing_remodeling_crispr/original.pdf
+    metadata: docs/literature/axes/axis_3_epigenetics_crispr_activity/3B_chromatin_epigenetics_cas9_biology/2016_isaac_nucleosome_breathing_remodeling_crispr/metadata.yaml
+    assets_dir: docs/literature/axes/axis_3_epigenetics_crispr_activity/3B_chromatin_epigenetics_cas9_biology/2016_isaac_nucleosome_breathing_remodeling_crispr/assets
+    tags: [cas9, chromatin, nucleosome, remodeling]
