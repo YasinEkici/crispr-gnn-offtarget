@@ -1,0 +1,30 @@
+[project]
+name = "crispr-gnn-offtarget"
+version = "0.1.0"
+description = "Context-aware GNN for CRISPR-Cas9 off-target prediction"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "duckdb",
+    "matplotlib",
+    "numpy",
+    "pandas",
+    "pyarrow",
+    "pyyaml",
+    "rich",
+    "scikit-learn",
+    "tqdm",
+]
+
+[dependency-groups]
+dev = [
+    "ipykernel",
+    "pytest",
+    "ruff",
+]
+
+[tool.pytest.ini_options]
+addopts = "-p no:cacheprovider"
+pythonpath = ["src"]
+testpaths = ["tests"]
+norecursedirs = [".venv", ".uv-cache", "pytest-cache-files-*"]

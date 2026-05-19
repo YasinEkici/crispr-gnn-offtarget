@@ -1,0 +1,40 @@
+experiment_name: gcn_minimal
+seed: 42
+
+data:
+  dataset: mak2022
+  config: configs/data/mak2022.yaml
+  label_scheme: scheme_a
+  split: debug
+
+features:
+  sequence: true
+  mismatch: true
+  experimental_epigenetic: false
+  computed_nucleosome: false
+  binding_energy: false
+
+graph:
+  schema: minimal_bipartite
+  similarity_edges: false
+
+model:
+  name: gcn
+  hidden_dim: 128
+  num_layers: 2
+  dropout: 0.2
+  status: placeholder_until_pytorch_geometric_is_added
+
+training:
+  loss: weighted_bce
+  batch_size: 1024
+  max_epochs: 100
+  patience: 10
+
+split_rules:
+  test_measured_only: true
+  val_measured_preferred: true
+
+metrics:
+  primary: auprc
+  secondary: [auroc, f1, mcc]

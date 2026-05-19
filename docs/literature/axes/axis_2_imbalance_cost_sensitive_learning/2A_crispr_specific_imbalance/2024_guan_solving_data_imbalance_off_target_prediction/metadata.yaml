@@ -1,0 +1,17 @@
+title: A systematic method for solving data imbalance in CRISPR off-target prediction
+  tasks
+authors:
+- Zengrui Guan
+- Zhenran Jiang
+abstract: Accurately identifying potential off-target sites in the CRISPR/Cas9 system
+  is crucial for improving the efficiency and safety of editing. However, the imbalance
+  of available off-target datasets has posed a major obstacle in enhancing prediction
+  performance... The results show that class imbalance processing methods significantly
+  improve the off-target prediction capabilities of the models across multiple testing
+  datasets.
+keywords:
+- CRISPR/Cas9 system
+- Data imbalance
+- Off-target prediction
+journal: Computers in Biology and Medicine
+year: 2024

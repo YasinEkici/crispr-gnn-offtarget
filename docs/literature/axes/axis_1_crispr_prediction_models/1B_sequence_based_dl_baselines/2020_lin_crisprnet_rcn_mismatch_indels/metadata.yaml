@@ -1,0 +1,25 @@
+title: 'CRISPR-Net: A Recurrent Convolutional Network Quantifies CRISPR Off-Target
+  Activities with Mismatches and Indels'
+authors:
+- Jiecong Lin
+- Zhaolei Zhang
+- Shixiong Zhang
+- Junyi Chen
+- Ka-Chun Wong
+abstract: The off-target effects induced by guide RNAs in the CRISPR/Cas9 gene-editing
+  system have raised substantial concerns. Many predictive models have been developed,
+  but few predict off-target activities with insertions or deletions. A recurrent
+  convolutional network named CRISPR-Net is introduced to score gRNA-target pairs
+  with mismatches and indels. Another model, CRISPR-Net-Aggregate, aggregates these
+  scores as consensus off-target scores for guide RNAs. CRISPR-Net outperforms state-of-the-art
+  methods on datasets including indels and mismatches. The source code is available
+  at Code Ocean.
+keywords:
+- CRISPR/Cas9
+- off-target effects
+- guide RNA
+- recurrent convolutional network
+- mismatched pairs
+- indel
+journal: Advanced Science
+year: 2020
