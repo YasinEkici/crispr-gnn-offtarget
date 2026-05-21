@@ -106,7 +106,7 @@ Out of scope:
 
 ## Current Status
 
-This plan remains active. Steps 1-12 are complete; Step 13 remains.
+This plan is complete. Steps 1-13 are complete.
 
 Completed implementation state:
 
@@ -146,10 +146,30 @@ Latest verification after Step 12:
 - `uv run pytest -q` passed with 15 tests.
 - `uv run python scripts/audit_dataset.py --config configs/data/mak2022.yaml --sample` passed.
 
+Step 13 finishing touches:
+
+- Updated `src/crispr_gnn/data/labels.py` so missing/NaN `cleavage_freq` values are label-ineligible by default instead of silently becoming negative labels.
+- Updated `tests/test_labels.py` to cover missing/NaN rejection, negative below-threshold behavior, strict threshold behavior, and high positive values.
+- Updated audit report generation so label threshold distributions exclude NaN `cleavage_freq` rows from supervised label counts.
+- Updated canonical docs to record the label-eligible counts:
+  - 310,064 total label-eligible rows after excluding 78 NaN `cleavage_freq` rows.
+  - 25,554 label-eligible `measured=1` rows.
+  - Scheme A label-eligible distribution: 21,365 positives and 288,699 negatives.
+
+Latest verification after Step 13:
+
+- `uv sync` initially failed inside the sandbox because the user-level uv cache was not accessible; approved `uv sync` completed successfully.
+- `uv run ruff check scripts/audit_dataset.py src tests` passed.
+- `uv run pytest -q` passed with 19 tests.
+- `uv run python scripts/audit_dataset.py --config configs/data/mak2022.yaml --sample` passed.
+- `uv run python scripts/audit_dataset.py --config configs/data/mak2022.yaml` passed and regenerated the three Step 11 reports.
+- Generated reports and canonical docs were reviewed for the updated NaN label-ineligible policy and label-eligible counts.
+- `git status --short` could not be checked in this environment because `git` was not available on PATH.
+
 Next action:
 
-- Continue with Step 13 validation and review.
-- Do not redo Steps 1-12 unless Step 13 review exposes a concrete inconsistency.
+- Start the next sprint from a new active execution plan.
+- Do not continue implementing models, splits, or graphs under this completed Sprint 1 plan.
 
 ## Files Expected To Be Modified Later
 

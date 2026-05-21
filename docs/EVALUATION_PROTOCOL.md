@@ -33,6 +33,7 @@ Final split:
 - Guide-level split.
 - Train and test guide IDs must not overlap.
 - Test rows must contain only `measured=1`.
+- Rows with NaN `cleavage_freq` must be excluded from supervised train/validation/test label generation.
 - Validation should prefer `measured=1`.
 - Training may include `measured=0` rows only as optional putative negatives with a label-noise caveat.
 - Report measured composition for every split.

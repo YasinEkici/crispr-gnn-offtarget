@@ -115,17 +115,19 @@ All expected feature groups are present:
 
 Policy implications are documented in `docs/LABEL_SCHEMES.md` and `docs/DECISIONS.md`.
 
+The 78 NaN rows are label-ineligible for supervised binary training/evaluation. Excluding them leaves 310,064 label-eligible rows overall and 25,554 label-eligible `measured=1` rows.
+
 ## Label Threshold Sensitivity
 
 Main threshold results on the full dataset:
 
 | scheme | definition | positives | negatives | imbalance | role |
 | --- | --- | ---: | ---: | ---: | --- |
-| Scheme A | `cleavage_freq > 1e-5` | 21,365 | 288,777 | 13.52:1 | primary binary label |
-| Scheme C | `cleavage_freq > 1e-3` | 8,280 | 301,862 | 36.46:1 | later robustness sensitivity |
-| High threshold | `cleavage_freq > 0.1` | 1,184 | 308,958 | 260.94:1 | audit-only sensitivity |
+| Scheme A | `cleavage_freq > 1e-5` | 21,365 | 288,699 | 13.51:1 | primary binary label |
+| Scheme C | `cleavage_freq > 1e-3` | 8,280 | 301,784 | 36.45:1 | later robustness sensitivity |
+| High threshold | `cleavage_freq > 0.1` | 1,184 | 308,880 | 260.88:1 | audit-only sensitivity |
 
-All positives under these thresholds come from `measured=1` rows in this snapshot. `measured=0` rows are putative negatives and must not be used as test ground truth.
+These threshold counts exclude NaN `cleavage_freq` rows. All positives under these thresholds come from `measured=1` rows in this snapshot. `measured=0` rows are putative negatives and must not be used as test ground truth.
 
 ## Guide-Level Split Risk
 

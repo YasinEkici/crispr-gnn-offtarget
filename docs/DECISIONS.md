@@ -30,7 +30,7 @@ Outcome: keep Mak et al. 2022 as the first working dataset; keep raw crisprSQL a
 
 Decision: use `cleavage_freq > 1e-5` as the primary binary label scheme.
 
-Reason: Sprint 1 audit confirmed `cleavage_freq` is present, transformed `CA` is absent, and Scheme A gives 21,365 positives and 288,777 negatives on the full dataset. The threshold is aligned with the paper's assay-accuracy boundary.
+Reason: Sprint 1 audit confirmed `cleavage_freq` is present and transformed `CA` is absent. After excluding 78 NaN `cleavage_freq` rows from supervised label generation, Scheme A has 310,064 label-eligible rows: 21,365 positives and 288,699 negatives. The threshold is aligned with the paper's assay-accuracy boundary.
 
 Alternatives considered:
 
@@ -52,13 +52,13 @@ Outcome: main track remains binary off-target classification plus epigenetic/con
 
 Decision:
 
-- NaN `cleavage_freq`: label-ineligible until a documented policy is approved.
+- NaN `cleavage_freq`: exclude from supervised binary train/validation/test label generation; do not silently impute as negative.
 - Negative `cleavage_freq`: below-threshold for binary sensitivity counts, but flagged as raw-label quality issue.
 - `cleavage_freq > 1`: positive for binary thresholds; do not clip for binary classification.
 
 Reason: Sprint 1 audit found 78 NaN values, 685 negative values, and 298 values above 1. Silent imputation, clipping, or dropping would make later labels hard to audit.
 
-Outcome: label generation must preserve these policies and report affected counts.
+Outcome: label generation must preserve these policies and report affected counts. `src/crispr_gnn/data/labels.py` rejects missing or NaN `cleavage_freq` by default so these rows cannot silently become negative labels.
 
 ## 2026-05-21 - Restrict test rows to measured experimental data
 

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import math
 from dataclasses import dataclass
 
 
@@ -34,10 +35,25 @@ LABEL_SCHEMES = {
 }
 
 
-def label_from_cleavage_freq(value: float | int | None, threshold: float = SCHEME_A_THRESHOLD) -> int:
-    """Return a binary label for a cleavage frequency threshold."""
+def is_label_eligible(value: float | int | None) -> bool:
+    """Return True when a cleavage frequency can be used as a supervised label."""
     if value is None:
-        return 0
+        return False
+    try:
+        numeric_value = float(value)
+    except (TypeError, ValueError):
+        return False
+    return not math.isnan(numeric_value)
+
+
+def label_from_cleavage_freq(value: float | int | None, threshold: float = SCHEME_A_THRESHOLD) -> int:
+    """Return a binary label for a cleavage frequency threshold.
+
+    Missing or NaN cleavage frequencies are label-ineligible and must be filtered
+    before supervised training/evaluation rather than silently mapped to zero.
+    """
+    if not is_label_eligible(value):
+        raise ValueError("cleavage_freq is missing or NaN and cannot be converted to a binary label")
     return int(float(value) > threshold)
 
 

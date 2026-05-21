@@ -28,15 +28,15 @@ Role:
 
 Full-dataset audit result:
 
-| positives | negatives | positive_rate | imbalance |
-| ---: | ---: | ---: | ---: |
-| 21,365 | 288,777 | 0.068888 | 13.52:1 |
+| label-eligible rows | positives | negatives | positive_rate | imbalance |
+| ---: | ---: | ---: | ---: | ---: |
+| 310,064 | 21,365 | 288,699 | 0.068905 | 13.51:1 |
 
 Measured-only audit result:
 
-| measured rows | positives | negatives | positive_rate |
-| ---: | ---: | ---: | ---: |
-| 25,632 | 21,365 | 4,267 | 0.833528 |
+| measured rows | label-eligible rows | positives | negatives | positive_rate |
+| ---: | ---: | ---: | ---: | ---: |
+| 25,632 | 25,554 | 21,365 | 4,189 | 0.836073 |
 
 ## Scheme B - Later-Only Paper Comparison
 
@@ -79,15 +79,15 @@ Role:
 
 Full-dataset audit result:
 
-| positives | negatives | positive_rate | imbalance |
-| ---: | ---: | ---: | ---: |
-| 8,280 | 301,862 | 0.026697 | 36.46:1 |
+| label-eligible rows | positives | negatives | positive_rate | imbalance |
+| ---: | ---: | ---: | ---: | ---: |
+| 310,064 | 8,280 | 301,784 | 0.026704 | 36.45:1 |
 
 Measured-only audit result:
 
-| measured rows | positives | negatives | positive_rate |
-| ---: | ---: | ---: | ---: |
-| 25,632 | 8,280 | 17,352 | 0.323034 |
+| measured rows | label-eligible rows | positives | negatives | positive_rate |
+| ---: | ---: | ---: | ---: | ---: |
+| 25,632 | 25,554 | 8,280 | 17,274 | 0.324020 |
 
 ## High Threshold Audit Sensitivity
 
@@ -104,9 +104,9 @@ Role:
 
 Full-dataset audit result:
 
-| positives | negatives | positive_rate | imbalance |
-| ---: | ---: | ---: | ---: |
-| 1,184 | 308,958 | 0.003818 | 260.94:1 |
+| label-eligible rows | positives | negatives | positive_rate | imbalance |
+| ---: | ---: | ---: | ---: | ---: |
+| 310,064 | 1,184 | 308,880 | 0.003819 | 260.88:1 |
 
 ## Scheme D - Reserved Regression Track
 
@@ -126,7 +126,7 @@ Status:
 
 | case | audit count | policy |
 | --- | ---: | --- |
-| NaN `cleavage_freq` | 78 | Label-ineligible until a documented policy is approved; do not silently impute. |
+| NaN `cleavage_freq` | 78 | Exclude from supervised binary train/validation/test label generation; do not silently impute as negative. |
 | Negative `cleavage_freq` | 685 | Below-threshold for binary sensitivity counts; flag as raw-label quality issue. |
 | `cleavage_freq > 1` | 298 | Positive for binary thresholds; do not clip for binary classification. |
 | `measured=0` rows | 284,510 | Training-only optional noisy negatives; never test ground truth. |
@@ -136,6 +136,7 @@ Status:
 ## Split Implications
 
 - Test rows must be `measured=1` only.
+- Rows with NaN `cleavage_freq` must be excluded before supervised label generation.
 - Validation should prefer `measured=1`.
 - Training may include `measured=0` rows only as optional putative negatives with a label-noise caveat.
 - Report measured composition for every split.

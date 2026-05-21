@@ -306,10 +306,12 @@ def report_step_5(df: pd.DataFrame, columns: list[str]) -> pd.Series:
 
 
 def report_threshold_distribution(df: pd.DataFrame, cleavage: pd.Series, label: str, threshold: float) -> None:
-    labels = cleavage > threshold
+    label_eligible = cleavage.notna()
+    eligible_count = int(label_eligible.sum())
+    labels = cleavage[label_eligible] > threshold
     positives = int(labels.sum())
-    negatives = int((~labels).sum())
-    positive_rate = positives / len(labels)
+    negatives = eligible_count - positives
+    positive_rate = positives / eligible_count
     expected = EXPECTED_THRESHOLDS[label]
 
     print_check(
@@ -329,17 +331,20 @@ def report_threshold_distribution(df: pd.DataFrame, cleavage: pd.Series, label: 
             tolerance=max(0.75, expected["imbalance"] * 0.05),
         ),
     )
-    print(f"  total={len(labels)} positives={positives} negatives={negatives} positive_rate={positive_rate:.6f}")
+    print(
+        f"  label_eligible_total={eligible_count} excluded_nan={int(cleavage.isna().sum())} "
+        f"positives={positives} negatives={negatives} positive_rate={positive_rate:.6f}"
+    )
 
     measured = df["measured"]
     for measured_value in [1, 0]:
-        mask = measured == measured_value
-        subgroup_labels = labels[mask]
+        mask = label_eligible & (measured == measured_value)
+        subgroup_labels = cleavage[mask] > threshold
         subgroup_positive = int(subgroup_labels.sum())
-        subgroup_negative = int((~subgroup_labels).sum())
+        subgroup_negative = int(mask.sum()) - subgroup_positive
         print(
             f"  measured={measured_value}: positives={subgroup_positive} "
-            f"negatives={subgroup_negative} total={int(mask.sum())}"
+            f"negatives={subgroup_negative} label_eligible_total={int(mask.sum())}"
         )
 
 
@@ -377,8 +382,7 @@ def report_step_7(df: pd.DataFrame, cleavage: pd.Series) -> None:
     policies = {
         "NaN cleavage_freq": (
             nan_count,
-            "Mark label-ineligible for supervised training/evaluation until a documented policy is approved; "
-            "do not silently impute as negative.",
+            "Exclude from supervised binary train/validation/test label generation; do not silently impute as negative.",
         ),
         "negative cleavage_freq": (
             negative_count,
@@ -502,20 +506,23 @@ def report_step_9(df: pd.DataFrame, feature_parse_counts: dict[str, dict[str, in
 
 def label_counts_for_measured_rows(df: pd.DataFrame, cleavage: pd.Series) -> pd.DataFrame:
     measured_mask = df["measured"] == 1
+    label_eligible_mask = measured_mask & cleavage.notna()
+    eligible_count = int(label_eligible_mask.sum())
     rows = []
     for name, config in EXPECTED_THRESHOLDS.items():
         threshold = config["threshold"]
-        labels = cleavage[measured_mask] > threshold
+        labels = cleavage[label_eligible_mask] > threshold
         positives = int(labels.sum())
-        negatives = int((~labels).sum())
+        negatives = eligible_count - positives
         rows.append(
             {
                 "scheme": name,
                 "threshold": threshold,
                 "measured_rows": int(measured_mask.sum()),
+                "label_eligible_rows": eligible_count,
                 "positives": positives,
                 "negatives": negatives,
-                "positive_rate": positives / int(measured_mask.sum()),
+                "positive_rate": positives / eligible_count if eligible_count else np.nan,
                 "imbalance": ratio_text(negatives, positives),
             }
         )
