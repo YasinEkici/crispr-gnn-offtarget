@@ -106,7 +106,7 @@ Out of scope:
 
 ## Current Status
 
-This plan remains active. Steps 1-11 are complete; Steps 12-13 remain.
+This plan remains active. Steps 1-12 are complete; Step 13 remains.
 
 Completed implementation state:
 
@@ -116,6 +116,12 @@ Completed implementation state:
   - `outputs/reports/label_threshold_sensitivity.md`
   - `outputs/reports/feature_missingness.md`
 - Step 11.5 completed a behavior-preserving refactor of `scripts/audit_dataset.py` before Step 12 documentation updates.
+- Step 12 updated the canonical docs:
+  - `docs/DATASET_AUDIT.md`
+  - `docs/LABEL_SCHEMES.md`
+  - `docs/FEATURE_PARSING.md`
+  - `docs/DECISIONS.md`
+  - `docs/EVALUATION_PROTOCOL.md`
 
 Step 11.5 refactor details:
 
@@ -134,10 +140,16 @@ Latest verification after Step 11.5:
 - `uv run python scripts/audit_dataset.py --config configs/data/mak2022.yaml` passed and regenerated the three Step 11 reports.
 - `git status --short` could not be checked in this environment because `git` was not available on PATH.
 
+Latest verification after Step 12:
+
+- `uv run ruff check scripts/audit_dataset.py src tests` passed.
+- `uv run pytest -q` passed with 15 tests.
+- `uv run python scripts/audit_dataset.py --config configs/data/mak2022.yaml --sample` passed.
+
 Next action:
 
-- Continue with Step 12 canonical documentation updates.
-- Do not redo Steps 1-11 unless a Step 12 documentation review exposes a concrete inconsistency.
+- Continue with Step 13 validation and review.
+- Do not redo Steps 1-12 unless Step 13 review exposes a concrete inconsistency.
 
 ## Files Expected To Be Modified Later
 
