@@ -10,6 +10,15 @@ This repository implements a context-aware GNN workflow for CRISPR-Cas9 off-targ
 4. `docs/DATASET_AUDIT.md`
 5. `docs/LABEL_SCHEMES.md`
 6. `docs/EVALUATION_PROTOCOL.md`
+7. `docs/literature/literature_index.md`
+
+For feature parsing or epigenetic/nucleosome feature work, also read:
+
+- `docs/FEATURE_PARSING.md`
+
+For implementation decisions and previous rationale, also check:
+
+- `docs/DECISIONS.md`
 
 ## Ground rules
 
@@ -22,6 +31,10 @@ This repository implements a context-aware GNN workflow for CRISPR-Cas9 off-targ
 - Final evaluation must use guide-level splits and AUPRC as the primary metric.
 - Test rows must be `measured=1` only.
 - Update `docs/DECISIONS.md` when changing labels, splits, datasets, or evaluation rules.
+- Implementation choices must follow the current project plan, evaluation protocol, and documented best practices.
+- When implementing a model, feature, loss, graph schema, or evaluation rule, consult the task-relevant literature notes under `docs/literature/`.
+- Do not copy or reproduce a paper’s method blindly. If a design is inspired by a paper, document the adaptation clearly in code comments, configs, or relevant docs.
+- Do not claim that an implementation reproduces a paper unless the dataset, split, target, metrics, and architecture match the paper’s setup.
 
 ## Task workflow
 

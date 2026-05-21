@@ -104,6 +104,41 @@ Out of scope:
 - Putting core logic in notebooks.
 - Adding large raw, interim, processed, checkpoint, PDF, or extracted asset files to Git.
 
+## Current Status
+
+This plan remains active. Steps 1-11 are complete; Steps 12-13 remain.
+
+Completed implementation state:
+
+- Steps 1-10 completed the raw dataset audit, label sensitivity audit, computed-feature parser validation, missingness analysis, and split-policy implications.
+- Step 11 generated the required report artifacts:
+  - `outputs/reports/dataset_audit.md`
+  - `outputs/reports/label_threshold_sensitivity.md`
+  - `outputs/reports/feature_missingness.md`
+- Step 11.5 completed a behavior-preserving refactor of `scripts/audit_dataset.py` before Step 12 documentation updates.
+
+Step 11.5 refactor details:
+
+- `scripts/audit_dataset.py` is now a small CLI runner.
+- Audit constants, expected references, and feature-group definitions live in `src/crispr_gnn/data/schemas.py`.
+- Console audit logic lives in `src/crispr_gnn/data/audit_console.py`.
+- Markdown report generation lives in `src/crispr_gnn/data/audit_reports.py`.
+- Feature parsing remains in `src/crispr_gnn/data/parsers.py`.
+- The refactor did not change label policy, split policy, report semantics, or the project decision to keep Mak CA / Box-Cox reproduction as a later paper-comparison track only.
+
+Latest verification after Step 11.5:
+
+- `uv run ruff check scripts/audit_dataset.py src tests` passed.
+- `uv run pytest -q` passed with 15 tests.
+- `uv run python scripts/audit_dataset.py --config configs/data/mak2022.yaml --sample` passed.
+- `uv run python scripts/audit_dataset.py --config configs/data/mak2022.yaml` passed and regenerated the three Step 11 reports.
+- `git status --short` could not be checked in this environment because `git` was not available on PATH.
+
+Next action:
+
+- Continue with Step 12 canonical documentation updates.
+- Do not redo Steps 1-11 unless a Step 12 documentation review exposes a concrete inconsistency.
+
 ## Files Expected To Be Modified Later
 
 Code and tests:
