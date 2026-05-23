@@ -235,6 +235,16 @@ Implementation order:
 4. MLP after the tabular pipeline is stable.
 5. CnnCrispr-inspired sequence model after split and metrics are locked.
 
+Current status:
+
+- Dummy/prevalence and unweighted scikit-learn Logistic Regression are implemented for F1-F4 in `scripts/train.py` via `configs/experiments/baseline_logistic_regression.yaml`.
+- The run writes `outputs/results/baseline_results.csv`.
+- The run writes report-ready figures under `outputs/figures/sprint2/`:
+  - `logistic_regression_feature_set_auprc.png`
+  - `logistic_regression_pr_curves.png`
+  - `logistic_regression_roc_curves.png`
+- The initial Logistic Regression result is a wiring/debug baseline, not the expected strongest Sprint 2 model. AUPRC is interpreted against the measured-only test prevalence baseline.
+
 ## Metrics And Thresholding
 
 Primary metric:

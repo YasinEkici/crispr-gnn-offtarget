@@ -8,7 +8,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
-from crispr_gnn.utils.config import load_yaml
+from crispr_gnn.utils.config import load_yaml  # noqa: E402
 
 
 def parse_args() -> argparse.Namespace:

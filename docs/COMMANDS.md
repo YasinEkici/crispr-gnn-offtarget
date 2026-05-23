@@ -40,6 +40,12 @@ uv run python scripts/build_splits.py --config configs/data/mak2022.yaml
 uv run python scripts/build_features.py --config configs/data/mak2022.yaml
 ```
 
+## Sprint 2 dummy and Logistic Regression baselines
+
+```bash
+uv run python scripts/train.py --config configs/experiments/baseline_logistic_regression.yaml
+```
+
 ## Later sprint command pattern
 
 ```bash

@@ -61,6 +61,24 @@ class GuideSplit:
         }
 
 
+def load_split_manifest(path: str | Path) -> GuideSplit:
+    manifest_path = Path(path)
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    config_data = manifest["config"]
+    config = GuideSplitConfig(
+        split_id=config_data["split_id"],
+        seed=int(config_data["seed"]),
+        guide_column=config_data["guide_column"],
+        label_threshold=float(config_data["label_threshold"]),
+        train_fraction=float(config_data["train_fraction"]),
+        val_fraction=float(config_data["val_fraction"]),
+        test_fraction=float(config_data["test_fraction"]),
+        exclude_experiment_id=config_data["exclude_experiment_id"],
+        search_iterations=int(config_data["search_iterations"]),
+    )
+    return GuideSplit(config=config, guides=manifest["guides"], score=float(manifest["score"]))
+
+
 def validate_split_fractions(config: GuideSplitConfig) -> None:
     total = config.train_fraction + config.val_fraction + config.test_fraction
     if not np.isclose(total, 1.0):
