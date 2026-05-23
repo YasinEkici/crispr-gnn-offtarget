@@ -82,7 +82,7 @@ Latest split verification:
   - train: 8,010 rows, 98 guides, 7,109 positives, 901 negatives.
   - validation: 1,734 rows, 23 guides, 1,511 positives, 223 negatives.
   - test: 1,702 rows, 29 guides, 1,533 positives, 169 negatives.
-- Large-guide caveat: because final evaluation splits by guide rather than row, a few guides with many rows can dominate split-level metrics. The largest guide accounts for 27.6% of train rows, 28.7% of validation rows, and 24.0% of test rows. This is a dataset-shape limitation, not a known leakage issue, and must be considered when interpreting AUPRC and secondary metrics.
+- Expected guide-size caveat: the project already requires guide-level evaluation and the Sprint 1 audit documented highly uneven guide sizes. As an expected consequence, a few high-row-count guides can dominate split-level metrics. In the locked split, the largest guide accounts for 27.6% of train rows, 28.7% of validation rows, and 24.0% of test rows. This is the known tradeoff of leakage-safe guide-level evaluation on this dataset, not evidence of a split bug, and must be considered when interpreting AUPRC and secondary metrics.
 
 Next step:
 
@@ -155,9 +155,9 @@ Hard checks:
 - Each split has nonzero positives and negatives.
 - Row counts, guide counts, positive/negative counts, measured composition, genome distribution, and largest-guide contribution are reported.
 
-Interpretation caveat:
+Expected guide-size caveat:
 
-- Guide-level splitting prevents guide leakage, but it does not make all guides equally weighted. The Mak 2022 main-clean dataset has highly uneven guide sizes, so a high-row-count guide can strongly influence split-level metrics. Reports must include `largest_guide_share` and avoid overinterpreting small metric differences without considering large-guide dominance.
+- Guide-level splitting prevents guide leakage, but it does not make all guides equally weighted. The Mak 2022 main-clean dataset is known to have highly uneven guide sizes from the Sprint 1 audit, so a high-row-count guide can strongly influence split-level metrics. Reports must include `largest_guide_share` and avoid overinterpreting small metric differences without considering large-guide dominance.
 
 Repeated guide-level seeds are optional robustness work and do not block Sprint 2 acceptance.
 
