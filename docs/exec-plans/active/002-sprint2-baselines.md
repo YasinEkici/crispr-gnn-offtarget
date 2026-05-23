@@ -243,6 +243,12 @@ Current status:
   - `logistic_regression_feature_set_auprc.png`
   - `logistic_regression_pr_curves.png`
   - `logistic_regression_roc_curves.png`
+- The run writes diagnostic tables and figures under `outputs/diagnostics/sprint2/`:
+  - score-direction checks
+  - fixed-threshold metrics at 0.5
+  - per-genome metrics
+  - per-guide test metrics
+  - score-decile lift tables and plots
 - The initial Logistic Regression result is a wiring/debug baseline, not the expected strongest Sprint 2 model. AUPRC is interpreted against the measured-only test prevalence baseline.
 
 ## Metrics And Thresholding

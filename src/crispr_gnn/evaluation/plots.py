@@ -52,7 +52,7 @@ def _write_auprc_bar(results: pd.DataFrame, path: Path) -> Path:
 def _write_pr_curves(predictions: list[dict[str, object]], path: Path) -> Path:
     fig, ax = plt.subplots(figsize=(7, 5))
     for row in predictions:
-        if row["model_name"] != "logistic_regression":
+        if row["model_name"] != "logistic_regression" or row.get("split", "test") != "test":
             continue
         PrecisionRecallDisplay.from_predictions(
             row["y_true"],
@@ -71,7 +71,7 @@ def _write_pr_curves(predictions: list[dict[str, object]], path: Path) -> Path:
 def _write_roc_curves(predictions: list[dict[str, object]], path: Path) -> Path:
     fig, ax = plt.subplots(figsize=(7, 5))
     for row in predictions:
-        if row["model_name"] != "logistic_regression":
+        if row["model_name"] != "logistic_regression" or row.get("split", "test") != "test":
             continue
         RocCurveDisplay.from_predictions(
             row["y_true"],

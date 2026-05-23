@@ -11,6 +11,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
 from crispr_gnn.data.splits import assign_measured_splits, load_split_manifest  # noqa: E402
+from crispr_gnn.evaluation.diagnostics import write_logistic_regression_diagnostics  # noqa: E402
 from crispr_gnn.evaluation.plots import write_baseline_plots  # noqa: E402
 from crispr_gnn.features.tabular import FEATURE_SET_ORDER  # noqa: E402
 from crispr_gnn.training.baselines import BaselineRunConfig, run_dummy_and_logistic_baselines  # noqa: E402
@@ -51,6 +52,7 @@ def run_sprint2_dummy_logistic(config: dict[str, object]) -> int:
     split_path = ROOT / str(config.get("split_manifest", "outputs/splits/sprint2_guides.json"))
     results_path = ROOT / str(config.get("results_path", "outputs/results/baseline_results.csv"))
     figures_dir = ROOT / str(config.get("figures_dir", "outputs/figures/sprint2"))
+    diagnostics_dir = ROOT / str(config.get("diagnostics_dir", "outputs/diagnostics/sprint2"))
     if not raw_path.exists():
         print(f"Dataset not found: {raw_path}")
         return 1
@@ -82,10 +84,15 @@ def run_sprint2_dummy_logistic(config: dict[str, object]) -> int:
     results_path.parent.mkdir(parents=True, exist_ok=True)
     results.to_csv(results_path, index=False)
     figure_paths = write_baseline_plots(results, predictions, figures_dir)
+    diagnostic_tables, diagnostic_figures = write_logistic_regression_diagnostics(assigned, predictions, diagnostics_dir)
 
     print(f"Results written: {results_path.relative_to(ROOT)}")
     for path in figure_paths:
         print(f"Figure written: {path.relative_to(ROOT)}")
+    for path in diagnostic_tables:
+        print(f"Diagnostic table written: {path.relative_to(ROOT)}")
+    for path in diagnostic_figures:
+        print(f"Diagnostic figure written: {path.relative_to(ROOT)}")
     print(results[["model_name", "feature_set", "test_auprc", "test_auroc", "test_f1", "test_mcc"]].to_string(index=False))
     return 0
 

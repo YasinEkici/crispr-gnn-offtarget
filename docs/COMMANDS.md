@@ -46,6 +46,12 @@ uv run python scripts/build_features.py --config configs/data/mak2022.yaml
 uv run python scripts/train.py --config configs/experiments/baseline_logistic_regression.yaml
 ```
 
+This command also writes Logistic Regression diagnostics under:
+
+```text
+outputs/diagnostics/sprint2/
+```
+
 ## Later sprint command pattern
 
 ```bash

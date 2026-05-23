@@ -51,13 +51,25 @@ def run_dummy_and_logistic_baselines(
                 threshold_policy=selection.policy,
             )
             rows.append(row)
-            predictions.append(
-                {
-                    "model_name": model_name,
-                    "feature_set": feature_set,
-                    "y_true": split_data["y_test"],
-                    "y_score": test_scores,
-                }
+            predictions.extend(
+                [
+                    {
+                        "model_name": model_name,
+                        "feature_set": feature_set,
+                        "split": "val",
+                        "row_index": split_data["val_index"],
+                        "y_true": split_data["y_val"],
+                        "y_score": val_scores,
+                    },
+                    {
+                        "model_name": model_name,
+                        "feature_set": feature_set,
+                        "split": "test",
+                        "row_index": split_data["test_index"],
+                        "y_true": split_data["y_test"],
+                        "y_score": test_scores,
+                    },
+                ]
             )
     return pd.DataFrame(rows), predictions
 
@@ -80,6 +92,9 @@ def _prepared_feature_split(assigned: pd.DataFrame, feature_set: FeatureSetName)
         "y_train": train[LABEL_COLUMN].to_numpy(dtype=int),
         "y_val": val[LABEL_COLUMN].to_numpy(dtype=int),
         "y_test": test[LABEL_COLUMN].to_numpy(dtype=int),
+        "train_index": train.index.to_numpy(),
+        "val_index": val.index.to_numpy(),
+        "test_index": test.index.to_numpy(),
         "feature_columns": feature_columns,
     }
 

@@ -45,6 +45,7 @@ def test_dummy_and_logistic_baselines_write_result_rows() -> None:
     assert set(results["model_name"]) == {"dummy_prior", "logistic_regression"}
     assert set(results["feature_set"]) == {"F1", "F2"}
     assert results.shape[0] == 4
-    assert len(predictions) == 4
+    assert len(predictions) == 8
+    assert {prediction["split"] for prediction in predictions} == {"val", "test"}
     assert results["threshold_policy"].eq("validation_max_f1").all()
     assert results["test_rows"].eq(6).all()
