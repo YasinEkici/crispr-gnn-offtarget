@@ -123,6 +123,20 @@ Alternatives considered:
 
 Outcome: Sprint 2 may add PyTorch and implement non-graph sequence models, but must not add PyTorch Geometric or start graph construction/modeling work. Any CUDA or Colab-specific setup notes must be documented rather than handled through ad-hoc install commands.
 
+## 2026-05-23 - Use named Sprint 2 feature ladder with train-only F4 imputation
+
+Decision: Sprint 2 uses a named feature ladder: `F1` sequence/mismatch features, `F2` adds binding energy, `F3` adds experimental epigenetic scalars, and `F4` adds aggregated computed nucleosome features plus missingness indicators. Missing computed aggregate values in `F4` are imputed during model preprocessing using train-only statistics. Rows are not dropped from the main `F1`-`F4` comparison because computed nucleosome arrays are missing.
+
+Reason: Sprint 2 needs fair same-split baselines that can show whether each feature family adds value. Dropping rows only for `F4` would change the evaluation population and make `F1`-`F4` comparisons harder to interpret. Keeping missingness indicators makes imputed computed-context values explicit.
+
+Alternatives considered:
+
+- Drop rows missing computed nucleosome arrays for `F4`.
+- Omit computed nucleosome features from required Sprint 2 baselines.
+- Use full 299-dimensional position-resolved computed features as the required Sprint 2 context representation.
+
+Outcome: `F4` uses aggregated computed features as the required Sprint 2 context feature set. Full 299-dimensional position-resolved computed features remain optional/later. Raw identifiers, genome labels, cell-line labels, and coordinates are not predictive features in Sprint 2 main baselines.
+
 ## 2026-05-21 - Keep non-human genomes by default with explicit reporting
 
 Decision: do not drop non-`hg19` genomes by default.

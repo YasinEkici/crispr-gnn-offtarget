@@ -91,6 +91,35 @@ Later feature builders must choose and document one of these policies before usi
 
 Any imputation must be fit on training data only.
 
+Sprint 2 policy:
+
+- `F4` uses aggregated computed nucleosome features plus explicit missingness indicators.
+- Rows missing computed nucleosome arrays are not dropped from the main `F1`-`F4` comparison.
+- Missing computed aggregates are imputed during model preprocessing using train-only statistics.
+- Missingness indicators are kept as predictive numeric features so models can distinguish imputed values from observed values.
+- Full 299-dimensional position-resolved computed features are optional/later and are not required for Sprint 2 acceptance.
+
+The locked Sprint 2 split has 789 rows with missing computed nucleosome aggregates before train-only imputation.
+
+## Sprint 2 Feature Sets
+
+Sprint 2 uses a named feature ladder so models can be compared while adding feature families step by step:
+
+| feature set | contents | current columns |
+| --- | --- | ---: |
+| `F1` | sequence and mismatch engineered numeric features | 33 |
+| `F2` | `F1` + binding-energy scalar features | 38 |
+| `F3` | `F2` + 6 experimental epigenetic scalar features | 44 |
+| `F4` | `F3` + aggregated computed nucleosome features + missingness indicators | 135 |
+
+Raw identifiers and reporting fields are not predictive features in Sprint 2:
+
+- guide ID,
+- experiment ID,
+- target coordinates,
+- genome label,
+- cell-line label.
+
 ## Dimensionality Strategies For Later Sprints
 
 Position-resolved:
