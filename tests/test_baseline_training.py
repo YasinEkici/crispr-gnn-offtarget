@@ -2,7 +2,14 @@ import pandas as pd
 
 from crispr_gnn.data.splits import LABEL_COLUMN, SPLIT_COLUMN
 from crispr_gnn.data.schemas import COMPUTED_NUCLEOSOME_FEATURES
-from crispr_gnn.training.baselines import BaselineRunConfig, XGBoostRunConfig, run_dummy_and_logistic_baselines, run_xgboost_baselines
+from crispr_gnn.training.baselines import (
+    BaselineRunConfig,
+    MLPRunConfig,
+    XGBoostRunConfig,
+    run_dummy_and_logistic_baselines,
+    run_tabular_mlp_baselines,
+    run_xgboost_baselines,
+)
 
 
 def make_assigned_feature_rows() -> pd.DataFrame:
@@ -71,4 +78,29 @@ def test_xgboost_baseline_writes_result_rows() -> None:
     assert results["feature_set"].eq("F1").all()
     assert len(predictions) == 4
     assert not feature_importance.empty
+    assert not feature_audit["is_forbidden"].any()
+
+
+def test_tabular_mlp_baseline_writes_result_rows() -> None:
+    results, predictions, training_summary, feature_audit = run_tabular_mlp_baselines(
+        assigned=make_assigned_feature_rows(),
+        feature_sets=["F1"],
+        config=MLPRunConfig(
+            sprint="sprint2",
+            split_id="test_split",
+            seed=7,
+            hidden_dims=(8,),
+            max_epochs=5,
+            min_epochs=1,
+            patience=2,
+            batch_size=4,
+        ),
+        include_balanced=True,
+        balanced_feature_sets=["F1"],
+    )
+
+    assert set(results["model_name"]) == {"tabular_mlp_unweighted", "tabular_mlp_balanced_train_weights"}
+    assert results["feature_set"].eq("F1").all()
+    assert len(predictions) == 4
+    assert set(training_summary["model_name"]) == {"tabular_mlp_unweighted", "tabular_mlp_balanced_train_weights"}
     assert not feature_audit["is_forbidden"].any()

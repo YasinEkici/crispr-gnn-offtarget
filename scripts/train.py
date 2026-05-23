@@ -12,9 +12,9 @@ sys.path.insert(0, str(ROOT / "src"))
 
 from crispr_gnn.data.splits import assign_measured_splits, load_split_manifest  # noqa: E402
 from crispr_gnn.evaluation.diagnostics import write_logistic_regression_diagnostics, write_model_diagnostics  # noqa: E402
-from crispr_gnn.evaluation.plots import write_baseline_plots, write_xgboost_plots  # noqa: E402
+from crispr_gnn.evaluation.plots import write_baseline_plots, write_mlp_plots, write_xgboost_plots  # noqa: E402
 from crispr_gnn.features.tabular import FEATURE_SET_ORDER  # noqa: E402
-from crispr_gnn.training.baselines import BaselineRunConfig, XGBoostRunConfig, run_dummy_and_logistic_baselines, run_xgboost_baselines  # noqa: E402
+from crispr_gnn.training.baselines import BaselineRunConfig, MLPRunConfig, XGBoostRunConfig, run_dummy_and_logistic_baselines, run_tabular_mlp_baselines, run_xgboost_baselines  # noqa: E402
 from crispr_gnn.utils.config import load_yaml  # noqa: E402
 
 
@@ -30,8 +30,13 @@ def main() -> int:
     args = parse_args()
     config = load_yaml(args.config)
     experiment_name = config.get("experiment_name", Path(args.config).stem)
-    max_epochs = args.max_epochs or config.get("training", {}).get("max_epochs", 1)
     task = config.get("task", "placeholder")
+    if args.max_epochs is not None:
+        if task == "sprint2_mlp":
+            config.setdefault("mlp", {})["max_epochs"] = args.max_epochs
+        else:
+            config.setdefault("training", {})["max_epochs"] = args.max_epochs
+    max_epochs = _display_max_epochs(config, task)
 
     print(f"Experiment: {experiment_name}")
     print(f"Task: {task}")
@@ -42,9 +47,22 @@ def main() -> int:
         return run_sprint2_dummy_logistic(config)
     if task == "sprint2_xgboost":
         return run_sprint2_xgboost(config)
+    if task == "sprint2_mlp":
+        return run_sprint2_mlp(config)
 
     print("Training placeholder: this config does not yet map to an implemented task.")
     return 0 if args.debug else 1
+
+
+def _display_max_epochs(config: dict[str, object], task: object) -> object:
+    if task == "sprint2_mlp":
+        mlp_config = config.get("mlp", {})
+        if isinstance(mlp_config, dict):
+            return mlp_config.get("max_epochs", "n/a")
+    training_config = config.get("training", {})
+    if isinstance(training_config, dict):
+        return training_config.get("max_epochs", "n/a")
+    return "n/a"
 
 
 def run_sprint2_dummy_logistic(config: dict[str, object]) -> int:
@@ -175,6 +193,90 @@ def run_sprint2_xgboost(config: dict[str, object]) -> int:
 
     print(f"Results upserted: {results_path.relative_to(ROOT)}")
     print(f"Feature importance written: {feature_importance_path.relative_to(ROOT)}")
+    print(f"Feature audit written: {feature_audit_path.relative_to(ROOT)}")
+    for path in figure_paths:
+        print(f"Figure written: {path.relative_to(ROOT)}")
+    for path in diagnostic_tables:
+        print(f"Diagnostic table written: {path.relative_to(ROOT)}")
+    for path in diagnostic_figures:
+        print(f"Diagnostic figure written: {path.relative_to(ROOT)}")
+    print(results[["model_name", "feature_set", "test_auprc", "test_auroc", "test_f1", "test_mcc"]].to_string(index=False))
+    return 0
+
+
+def run_sprint2_mlp(config: dict[str, object]) -> int:
+    data_config = load_yaml(str(config["data_config"]))
+    dataset = data_config.get("dataset", {})
+    raw_path = ROOT / Path(str(dataset.get("raw_path", "")))
+    split_path = ROOT / str(config.get("split_manifest", "outputs/splits/sprint2_guides.json"))
+    results_path = ROOT / str(config.get("results_path", "outputs/results/baseline_results.csv"))
+    figures_dir = ROOT / str(config.get("figures_dir", "outputs/figures/sprint2"))
+    diagnostics_dir = ROOT / str(config.get("diagnostics_dir", "outputs/diagnostics/sprint2"))
+    if not raw_path.exists():
+        print(f"Dataset not found: {raw_path}")
+        return 1
+    if not split_path.exists():
+        print(f"Split manifest not found: {split_path}")
+        return 1
+
+    split = load_split_manifest(split_path)
+    df = pd.read_parquet(raw_path)
+    assigned = assign_measured_splits(df, split)
+    feature_sets = list(config.get("feature_sets", FEATURE_SET_ORDER))
+    mlp_config = config.get("mlp", {})
+    if not isinstance(mlp_config, dict):
+        raise ValueError("mlp config must be a mapping")
+    baseline_config = MLPRunConfig(
+        sprint=str(config.get("sprint", "sprint2")),
+        split_id=split.config.split_id,
+        seed=int(config.get("seed", split.config.seed)),
+        hidden_dims=tuple(int(value) for value in mlp_config.get("hidden_dims", [128, 64])),
+        learning_rate=float(mlp_config.get("learning_rate", 1e-3)),
+        alpha=float(mlp_config.get("alpha", 1e-4)),
+        batch_size=int(mlp_config.get("batch_size", 512)),
+        max_epochs=int(mlp_config.get("max_epochs", 200)),
+        min_epochs=int(mlp_config.get("min_epochs", 20)),
+        patience=int(mlp_config.get("patience", 25)),
+    )
+
+    results, predictions, training_summary, feature_audit = run_tabular_mlp_baselines(
+        assigned=assigned,
+        feature_sets=feature_sets,
+        config=baseline_config,
+        include_balanced=bool(config.get("include_balanced_train_weights", True)),
+        balanced_feature_sets=list(config.get("balanced_feature_sets", ["F3", "F4"])),
+    )
+
+    write_results_table(results, results_path)
+    diagnostics_dir.mkdir(parents=True, exist_ok=True)
+    training_summary_path = diagnostics_dir / "tabular_mlp_training_summary.csv"
+    feature_audit_path = diagnostics_dir / "tabular_mlp_feature_column_audit.csv"
+    training_summary.to_csv(training_summary_path, index=False)
+    feature_audit.to_csv(feature_audit_path, index=False)
+    if feature_audit["is_forbidden"].any():
+        forbidden = feature_audit.loc[feature_audit["is_forbidden"], "feature"].unique().tolist()
+        raise ValueError(f"Forbidden columns found in tabular MLP feature audit: {forbidden}")
+    figure_paths = write_mlp_plots(results, predictions, figures_dir)
+    diagnostic_tables: list[Path] = []
+    diagnostic_figures: list[Path] = []
+    for model_name, display_name in [
+        ("tabular_mlp_unweighted", "Tabular MLP unweighted"),
+        ("tabular_mlp_balanced_train_weights", "Tabular MLP balanced train weights"),
+    ]:
+        if model_name in set(results["model_name"]):
+            tables, figures = write_model_diagnostics(
+                assigned,
+                predictions,
+                diagnostics_dir,
+                model_name=model_name,
+                artifact_prefix=model_name,
+                display_name=display_name,
+            )
+            diagnostic_tables.extend(tables)
+            diagnostic_figures.extend(figures)
+
+    print(f"Results upserted: {results_path.relative_to(ROOT)}")
+    print(f"Training summary written: {training_summary_path.relative_to(ROOT)}")
     print(f"Feature audit written: {feature_audit_path.relative_to(ROOT)}")
     for path in figure_paths:
         print(f"Figure written: {path.relative_to(ROOT)}")

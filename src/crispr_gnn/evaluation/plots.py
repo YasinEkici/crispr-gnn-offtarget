@@ -59,6 +59,41 @@ def write_xgboost_plots(
     ]
 
 
+def write_mlp_plots(
+    results: pd.DataFrame,
+    predictions: Iterable[dict[str, object]],
+    output_dir: str | Path,
+) -> list[Path]:
+    output_path = Path(output_dir)
+    output_path.mkdir(parents=True, exist_ok=True)
+    prediction_rows = list(predictions)
+    paths = [
+        _write_auprc_bar(
+            results,
+            output_path / "tabular_mlp_feature_set_auprc.png",
+            model_names=["tabular_mlp_unweighted", "tabular_mlp_balanced_train_weights"],
+        ),
+        _write_pr_curves(prediction_rows, output_path / "tabular_mlp_unweighted_pr_curves.png", model_name="tabular_mlp_unweighted"),
+        _write_roc_curves(prediction_rows, output_path / "tabular_mlp_unweighted_roc_curves.png", model_name="tabular_mlp_unweighted"),
+    ]
+    if any(row["model_name"] == "tabular_mlp_balanced_train_weights" for row in prediction_rows):
+        paths.extend(
+            [
+                _write_pr_curves(
+                    prediction_rows,
+                    output_path / "tabular_mlp_balanced_train_weights_pr_curves.png",
+                    model_name="tabular_mlp_balanced_train_weights",
+                ),
+                _write_roc_curves(
+                    prediction_rows,
+                    output_path / "tabular_mlp_balanced_train_weights_roc_curves.png",
+                    model_name="tabular_mlp_balanced_train_weights",
+                ),
+            ]
+        )
+    return paths
+
+
 def _write_auprc_bar(results: pd.DataFrame, path: Path, *, model_names: list[str]) -> Path:
     rows = results.loc[results["model_name"].isin(model_names)].copy()
     rows = rows.sort_values(["model_name", "feature_set"])
@@ -123,6 +158,8 @@ def _model_color(model_name: str) -> str:
         "logistic_regression": "#2a7f62",
         "xgboost_unweighted": "#2b6cb0",
         "xgboost_balanced_train_weights": "#b7791f",
+        "tabular_mlp_unweighted": "#6b46c1",
+        "tabular_mlp_balanced_train_weights": "#d53f8c",
     }
     return colors.get(model_name, "#4a5568")
 
@@ -132,5 +169,7 @@ def _display_model_name(model_name: str) -> str:
         "logistic_regression": "Logistic Regression",
         "xgboost_unweighted": "XGBoost unweighted",
         "xgboost_balanced_train_weights": "XGBoost balanced train weights",
+        "tabular_mlp_unweighted": "Tabular MLP unweighted",
+        "tabular_mlp_balanced_train_weights": "Tabular MLP balanced train weights",
     }
     return names.get(model_name, model_name)

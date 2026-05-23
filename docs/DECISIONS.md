@@ -131,6 +131,20 @@ Alternatives considered:
 
 Outcome: Sprint 2 may add PyTorch and implement non-graph sequence models, but must not add PyTorch Geometric or start graph construction/modeling work. Any CUDA or Colab-specific setup notes must be documented rather than handled through ad-hoc install commands.
 
+## 2026-05-23 - Use scikit-learn MLPClassifier for the Sprint 2 tabular MLP
+
+Decision: implement the Sprint 2 tabular MLP baseline with `sklearn.neural_network.MLPClassifier`, trained through the existing config-driven `scripts/train.py` path.
+
+Reason: the tabular MLP is a neural non-graph tabular baseline, not the required sequence deep-learning baseline. Keeping it in scikit-learn avoids unnecessary PyTorch/XGBoost native runtime interaction in the tabular baseline process and keeps the same train-only preprocessing, validation-only early stopping, feature audit, diagnostics, and result-table schema used by the other Sprint 2 tabular baselines. PyTorch remains available for the later CnnCrispr-inspired sequence baseline where it is necessary.
+
+Alternatives considered:
+
+- Implement the tabular MLP in PyTorch immediately.
+- Defer the tabular MLP until the sequence-model PyTorch infrastructure exists.
+- Omit the tabular MLP and rely only on Logistic Regression plus XGBoost.
+
+Outcome: `tabular_mlp_unweighted` runs on F1-F4. `tabular_mlp_balanced_train_weights` is a focused F3/F4 sensitivity. XGBoost remains the current strongest tabular baseline unless later diagnostics show otherwise.
+
 ## 2026-05-23 - Use named Sprint 2 feature ladder with train-only F4 imputation
 
 Decision: Sprint 2 uses a named feature ladder: `F1` sequence/mismatch features, `F2` adds binding energy, `F3` adds experimental epigenetic scalars, and `F4` adds aggregated computed nucleosome features plus missingness indicators. Missing computed aggregate values in `F4` are imputed during model preprocessing using train-only statistics. Rows are not dropped from the main `F1`-`F4` comparison because computed nucleosome arrays are missing.

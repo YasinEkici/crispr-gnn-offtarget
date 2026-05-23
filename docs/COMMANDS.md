@@ -65,6 +65,19 @@ outputs/diagnostics/sprint2/xgboost_feature_column_audit.csv
 outputs/diagnostics/sprint2/xgboost_feature_importance.csv
 ```
 
+## Sprint 2 tabular MLP baselines
+
+```bash
+uv run python scripts/train.py --config configs/experiments/baseline_mlp.yaml
+```
+
+This command also writes:
+
+```text
+outputs/diagnostics/sprint2/tabular_mlp_training_summary.csv
+outputs/diagnostics/sprint2/tabular_mlp_feature_column_audit.csv
+```
+
 ## Later sprint command pattern
 
 ```bash

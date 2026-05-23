@@ -1,0 +1,7 @@
+model_name,feature_set,best_epoch,epochs_ran,best_val_auprc,final_train_loss,hidden_dims,learning_rate,alpha,batch_size,patience,implementation
+tabular_mlp_unweighted,F1,17,42,0.955709101587181,0.1323163921462958,"128,64",0.001,0.0001,512,25,sklearn.neural_network.MLPClassifier
+tabular_mlp_unweighted,F2,16,41,0.9573803973144503,0.1276610809615349,"128,64",0.001,0.0001,512,25,sklearn.neural_network.MLPClassifier
+tabular_mlp_unweighted,F3,27,52,0.9732764232335709,0.08231953262413506,"128,64",0.001,0.0001,512,25,sklearn.neural_network.MLPClassifier
+tabular_mlp_balanced_train_weights,F3,17,42,0.9739208614480633,0.13339000789904074,"128,64",0.001,0.0001,512,25,sklearn.neural_network.MLPClassifier
+tabular_mlp_unweighted,F4,21,46,0.9606566426567262,0.04466564153653992,"128,64",0.001,0.0001,512,25,sklearn.neural_network.MLPClassifier
+tabular_mlp_balanced_train_weights,F4,15,40,0.960287152377221,0.06051902555663731,"128,64",0.001,0.0001,512,25,sklearn.neural_network.MLPClassifier

@@ -101,7 +101,7 @@ Completed after split lock:
 
 Next step:
 
-- Implement metrics/result-table support and run the dummy + Logistic Regression baseline on F1-F4.
+- Implement the same-split sequence CNN/BiLSTM baseline.
 
 ## Scope
 
@@ -265,6 +265,16 @@ Current status:
   - `xgboost_feature_column_audit.csv` confirms no forbidden target, split, measured, genome, cell-line, experiment, guide, coordinate, or raw identifier columns are predictive features.
   - `xgboost_feature_importance.csv` records feature/family importance for every XGBoost feature set and training variant.
   - In the current unweighted F4 run, computed nucleosome missingness indicators have zero total gain; F4's added computed nucleosome aggregate features contribute a smaller lift than the F3 experimental epigenetic scalars.
+- Tabular MLP has been implemented with scikit-learn `MLPClassifier` via `configs/experiments/baseline_mlp.yaml`.
+  - `tabular_mlp_unweighted` runs on F1-F4.
+  - `tabular_mlp_balanced_train_weights` runs as a focused F3/F4 training-weight sensitivity.
+  - The run writes `tabular_mlp_training_summary.csv`, `tabular_mlp_feature_column_audit.csv`, PR/ROC/AUPRC plots, score-direction diagnostics, fixed-threshold diagnostics, per-genome/per-guide diagnostics, and score-decile diagnostics.
+  - In the current measured-only run, the strongest MLP result is `tabular_mlp_unweighted` on F3:
+    - test AUPRC: 0.959889
+    - test AUROC: 0.735388
+    - test MCC: 0.220770
+    - confusion matrix at validation-selected threshold: TN=31, FP=138, FN=46, TP=1487
+  - The MLP improves over Logistic Regression on context-rich features but does not surpass XGBoost F3/F4. XGBoost remains the current strongest non-graph tabular baseline.
 
 ## Metrics And Thresholding
 
@@ -381,5 +391,4 @@ Sprint 2 is complete when:
 - Choose the exact guide-level split balancing heuristic after inspecting guide row/positive distributions.
 - Choose the exact F4 aggregation recipe before implementation.
 - Decide whether XGBoost class weighting or scale-pos-weight is part of the default baseline after split composition is known.
-- Decide whether the MLP uses scikit-learn or PyTorch once the PyTorch sequence baseline infrastructure is introduced.
 - Decide whether to run optional putative augmentation in Sprint 2 or defer it until after measured-only baselines are stable.
