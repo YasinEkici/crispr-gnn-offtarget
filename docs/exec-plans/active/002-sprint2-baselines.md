@@ -56,6 +56,37 @@ Sprint 2 decisions locked on 2026-05-23:
 - Add XGBoost as the official boosted-tree tabular baseline dependency.
 - Add PyTorch for non-graph sequence baselines only; defer PyTorch Geometric.
 
+## Current Status
+
+Completed:
+
+- Sprint 2 baseline dependencies were added and validated:
+  - `torch`
+  - `xgboost`
+- Guide-level split infrastructure was added:
+  - `src/crispr_gnn/data/splits.py`
+  - `scripts/build_splits.py`
+  - `tests/test_splits.py`
+- Locked Sprint 2 split artifacts were generated:
+  - `outputs/splits/sprint2_guides.json`
+  - `outputs/splits/sprint2_split_summary.csv`
+
+Latest split verification:
+
+- Split ID: `sprint2_main_seed42`.
+- Main split excludes `experiment_id=18`.
+- Train/validation/test guides are disjoint.
+- Validation and test contain `measured=1` rows only.
+- Every split contains both positive and negative Scheme A labels.
+- Current measured-only main split sizes:
+  - train: 8,010 rows, 98 guides, 7,109 positives, 901 negatives.
+  - validation: 1,734 rows, 23 guides, 1,511 positives, 223 negatives.
+  - test: 1,702 rows, 29 guides, 1,533 positives, 169 negatives.
+
+Next step:
+
+- Build the Sprint 2 feature ladder (`F1`-`F4`) on top of the locked split.
+
 ## Scope
 
 In scope:

@@ -28,6 +28,12 @@ uv run python scripts/train.py --config configs/experiments/gcn_minimal.yaml --d
 uv run python scripts/evaluate.py --config configs/experiments/gcn_minimal.yaml --debug
 ```
 
+## Sprint 2 split artifacts
+
+```bash
+uv run python scripts/build_splits.py --config configs/data/mak2022.yaml
+```
+
 ## Later sprint command pattern
 
 ```bash
