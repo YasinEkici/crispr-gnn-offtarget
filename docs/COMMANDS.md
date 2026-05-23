@@ -6,6 +6,14 @@
 uv sync
 ```
 
+### macOS XGBoost runtime
+
+XGBoost requires the OpenMP runtime on macOS. If `import xgboost` fails with a missing `libomp.dylib`, install:
+
+```bash
+brew install libomp
+```
+
 ## Tests
 
 ```bash
