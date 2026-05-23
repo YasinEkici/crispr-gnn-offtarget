@@ -98,6 +98,8 @@ def write_sequence_plots(
     results: pd.DataFrame,
     predictions: Iterable[dict[str, object]],
     output_dir: str | Path,
+    *,
+    artifact_prefix: str = "sequence",
 ) -> list[Path]:
     output_path = Path(output_dir)
     output_path.mkdir(parents=True, exist_ok=True)
@@ -106,7 +108,7 @@ def write_sequence_plots(
     paths = [
         _write_auprc_bar(
             results,
-            output_path / "sequence_feature_set_auprc.png",
+            output_path / f"{artifact_prefix}_feature_set_auprc.png",
             model_names=model_names,
         )
     ]

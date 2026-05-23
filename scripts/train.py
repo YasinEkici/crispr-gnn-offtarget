@@ -32,7 +32,7 @@ def main() -> int:
     experiment_name = config.get("experiment_name", Path(args.config).stem)
     task = config.get("task", "placeholder")
     if args.max_epochs is not None:
-        if task in {"sprint2_mlp", "sprint2_sequence"}:
+        if task in {"sprint2_mlp", "sprint2_sequence", "sprint2_sequence_late_fusion"}:
             key = "mlp" if task == "sprint2_mlp" else "sequence"
             config.setdefault(key, {})["max_epochs"] = args.max_epochs
         else:
@@ -52,6 +52,8 @@ def main() -> int:
         return run_sprint2_mlp(config)
     if task == "sprint2_sequence":
         return run_sprint2_sequence(config)
+    if task == "sprint2_sequence_late_fusion":
+        return run_sprint2_sequence_late_fusion(config)
 
     print("Training placeholder: this config does not yet map to an implemented task.")
     return 0 if args.debug else 1
@@ -62,7 +64,7 @@ def _display_max_epochs(config: dict[str, object], task: object) -> object:
         mlp_config = config.get("mlp", {})
         if isinstance(mlp_config, dict):
             return mlp_config.get("max_epochs", "n/a")
-    if task == "sprint2_sequence":
+    if task in {"sprint2_sequence", "sprint2_sequence_late_fusion"}:
         sequence_config = config.get("sequence", {})
         if isinstance(sequence_config, dict):
             return sequence_config.get("max_epochs", "n/a")
@@ -354,6 +356,91 @@ def run_sprint2_sequence(config: dict[str, object]) -> int:
         forbidden = input_audit.loc[input_audit["is_forbidden"], "source_column"].unique().tolist()
         raise ValueError(f"Forbidden columns found in sequence input audit: {forbidden}")
     figure_paths = write_sequence_plots(results, predictions, figures_dir)
+    diagnostic_tables: list[Path] = []
+    diagnostic_figures: list[Path] = []
+    for model_name in sorted(results["model_name"].unique().tolist()):
+        display_name = model_name.replace("_", " ").title()
+        tables, figures = write_model_diagnostics(
+            assigned,
+            predictions,
+            diagnostics_dir,
+            model_name=model_name,
+            artifact_prefix=model_name,
+            display_name=display_name,
+        )
+        diagnostic_tables.extend(tables)
+        diagnostic_figures.extend(figures)
+
+    print(f"Results upserted: {results_path.relative_to(ROOT)}")
+    print(f"Training summary written: {training_summary_path.relative_to(ROOT)}")
+    print(f"Input audit written: {input_audit_path.relative_to(ROOT)}")
+    for path in figure_paths:
+        print(f"Figure written: {path.relative_to(ROOT)}")
+    for path in diagnostic_tables:
+        print(f"Diagnostic table written: {path.relative_to(ROOT)}")
+    for path in diagnostic_figures:
+        print(f"Diagnostic figure written: {path.relative_to(ROOT)}")
+    print(results[["model_name", "feature_set", "test_auprc", "test_auroc", "test_f1", "test_mcc"]].to_string(index=False))
+    return 0
+
+
+def run_sprint2_sequence_late_fusion(config: dict[str, object]) -> int:
+    from crispr_gnn.training.sequence import SequenceRunConfig, run_sequence_cnn_late_fusion_baselines
+
+    data_config = load_yaml(str(config["data_config"]))
+    dataset = data_config.get("dataset", {})
+    raw_path = ROOT / Path(str(dataset.get("raw_path", "")))
+    split_path = ROOT / str(config.get("split_manifest", "outputs/splits/sprint2_guides.json"))
+    results_path = ROOT / str(config.get("results_path", "outputs/results/baseline_results.csv"))
+    figures_dir = ROOT / str(config.get("figures_dir", "outputs/figures/sprint2"))
+    diagnostics_dir = ROOT / str(config.get("diagnostics_dir", "outputs/diagnostics/sprint2"))
+    if not raw_path.exists():
+        print(f"Dataset not found: {raw_path}")
+        return 1
+    if not split_path.exists():
+        print(f"Split manifest not found: {split_path}")
+        return 1
+
+    split = load_split_manifest(split_path)
+    df = pd.read_parquet(raw_path)
+    assigned = assign_measured_splits(df, split)
+    sequence_config = config.get("sequence", {})
+    if not isinstance(sequence_config, dict):
+        raise ValueError("sequence config must be a mapping")
+    baseline_config = SequenceRunConfig(
+        sprint=str(config.get("sprint", "sprint2")),
+        split_id=split.config.split_id,
+        seed=int(config.get("seed", split.config.seed)),
+        max_length=int(sequence_config.get("max_length", 23)),
+        batch_size=int(sequence_config.get("batch_size", 1024)),
+        max_epochs=int(sequence_config.get("max_epochs", 50)),
+        min_epochs=int(sequence_config.get("min_epochs", 8)),
+        patience=int(sequence_config.get("patience", 8)),
+        learning_rate=float(sequence_config.get("learning_rate", 1e-3)),
+        weight_decay=float(sequence_config.get("weight_decay", 1e-4)),
+        cnn_channels=int(sequence_config.get("cnn_channels", 32)),
+        dropout=float(sequence_config.get("dropout", 0.2)),
+        tabular_projection_dim=int(sequence_config.get("tabular_projection_dim", 32)),
+        device=str(sequence_config.get("device", "cpu")),
+        num_threads=int(sequence_config.get("num_threads", 4)),
+    )
+
+    results, predictions, training_summary, input_audit = run_sequence_cnn_late_fusion_baselines(
+        assigned=assigned,
+        config=baseline_config,
+        tabular_feature_sets=list(config.get("tabular_feature_sets", ["F3", "F4"])),
+    )
+
+    write_results_table(results, results_path)
+    diagnostics_dir.mkdir(parents=True, exist_ok=True)
+    training_summary_path = diagnostics_dir / "sequence_late_fusion_training_summary.csv"
+    input_audit_path = diagnostics_dir / "sequence_late_fusion_input_audit.csv"
+    training_summary.to_csv(training_summary_path, index=False)
+    input_audit.to_csv(input_audit_path, index=False)
+    if input_audit["is_forbidden"].any():
+        forbidden = input_audit.loc[input_audit["is_forbidden"], "source_column"].unique().tolist()
+        raise ValueError(f"Forbidden columns found in sequence late-fusion input audit: {forbidden}")
+    figure_paths = write_sequence_plots(results, predictions, figures_dir, artifact_prefix="sequence_late_fusion")
     diagnostic_tables: list[Path] = []
     diagnostic_figures: list[Path] = []
     for model_name in sorted(results["model_name"].unique().tolist()):

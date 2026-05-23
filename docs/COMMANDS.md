@@ -91,6 +91,19 @@ outputs/diagnostics/sprint2/sequence_input_audit.csv
 outputs/diagnostics/sprint2/sequence_training_summary.csv
 ```
 
+## Sprint 2 CNN + F3/F4 late-fusion baselines
+
+```bash
+uv run python scripts/train.py --config configs/experiments/sequence_cnn_late_fusion.yaml
+```
+
+This command also writes:
+
+```text
+outputs/diagnostics/sprint2/sequence_late_fusion_input_audit.csv
+outputs/diagnostics/sprint2/sequence_late_fusion_training_summary.csv
+```
+
 ## Later sprint command pattern
 
 ```bash

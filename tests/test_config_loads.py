@@ -24,3 +24,10 @@ def test_sequence_cnn_bilstm_config_loads() -> None:
     assert config["experiment_name"] == "sequence_cnn_bilstm"
     assert config["task"] == "sprint2_sequence"
     assert config["sequence"]["max_length"] == 23
+
+
+def test_sequence_cnn_late_fusion_config_loads() -> None:
+    config = load_yaml(ROOT / "configs" / "experiments" / "sequence_cnn_late_fusion.yaml")
+    assert config["experiment_name"] == "sequence_cnn_late_fusion"
+    assert config["task"] == "sprint2_sequence_late_fusion"
+    assert config["tabular_feature_sets"] == ["F3", "F4"]

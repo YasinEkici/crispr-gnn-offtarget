@@ -1,0 +1,28 @@
+experiment_name: sequence_cnn_late_fusion
+task: sprint2_sequence_late_fusion
+sprint: sprint2
+seed: 42
+
+data_config: configs/data/mak2022.yaml
+split_manifest: outputs/splits/sprint2_guides.json
+results_path: outputs/results/baseline_results.csv
+figures_dir: outputs/figures/sprint2
+diagnostics_dir: outputs/diagnostics/sprint2
+
+tabular_feature_sets:
+  - F3
+  - F4
+
+sequence:
+  max_length: 23
+  batch_size: 1024
+  max_epochs: 50
+  min_epochs: 8
+  patience: 8
+  learning_rate: 0.001
+  weight_decay: 0.0001
+  cnn_channels: 32
+  tabular_projection_dim: 32
+  dropout: 0.2
+  device: cpu
+  num_threads: 4

@@ -10,7 +10,7 @@ from crispr_gnn.training.baselines import (
     run_tabular_mlp_baselines,
     run_xgboost_baselines,
 )
-from crispr_gnn.training.sequence import SequenceRunConfig, run_sequence_baselines
+from crispr_gnn.training.sequence import SequenceRunConfig, run_sequence_baselines, run_sequence_cnn_late_fusion_baselines
 
 
 def make_assigned_feature_rows() -> pd.DataFrame:
@@ -132,3 +132,30 @@ def test_sequence_baseline_writes_result_rows() -> None:
     assert len(predictions) == 4
     assert set(training_summary["model_name"]) == {"sequence_cnn_unweighted", "sequence_bilstm_unweighted"}
     assert not input_audit["is_forbidden"].any()
+
+
+def test_sequence_cnn_late_fusion_writes_result_rows() -> None:
+    results, predictions, training_summary, input_audit = run_sequence_cnn_late_fusion_baselines(
+        assigned=make_assigned_feature_rows(),
+        config=SequenceRunConfig(
+            sprint="sprint2",
+            split_id="test_split",
+            seed=7,
+            max_length=23,
+            max_epochs=3,
+            min_epochs=1,
+            patience=2,
+            batch_size=4,
+            cnn_channels=8,
+            tabular_projection_dim=4,
+            num_threads=1,
+        ),
+        tabular_feature_sets=["F3"],
+    )
+
+    assert results["model_name"].tolist() == ["sequence_cnn_plus_F3_late_fusion_unweighted"]
+    assert results["feature_set"].tolist() == ["S1+F3"]
+    assert len(predictions) == 2
+    assert training_summary["feature_set"].tolist() == ["S1+F3"]
+    assert not input_audit["is_forbidden"].any()
+    assert set(input_audit["input_branch"]) == {"sequence", "tabular"}

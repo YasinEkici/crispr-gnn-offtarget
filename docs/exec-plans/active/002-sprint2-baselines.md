@@ -290,6 +290,19 @@ Current status:
     - test MCC: -0.019749
   - Sequence-only models are weak under the locked measured-only guide-level split. The BiLSTM is directionally correct on validation but inverted on test, so it should be interpreted as poor guide-held-out sequence-only generalization rather than as a strong baseline.
   - XGBoost F3/F4 remains the strongest Sprint 2 non-graph baseline.
+- A small CNN late-fusion slice has been implemented via `configs/experiments/sequence_cnn_late_fusion.yaml`.
+  - Late-fusion models combine `S1_sequence_pair` with the same train-only preprocessed F3/F4 tabular feature sets used by the tabular baselines.
+  - These rows are context-fusion neural baselines, not pure sequence baselines, because F3/F4 include engineered sequence/mismatch features as well as context features.
+  - The current run includes:
+    - `sequence_cnn_plus_F3_late_fusion_unweighted`
+    - `sequence_cnn_plus_F4_late_fusion_unweighted`
+  - The F4 late-fusion row is the better of the two:
+    - test AUPRC: 0.928996
+    - test AUROC: 0.579449
+    - test MCC: 0.000000
+    - confusion matrix at validation-selected threshold: TN=0, FP=169, FN=0, TP=1533
+  - CNN + F4 late fusion mildly improves sequence ranking over pure `sequence_cnn_unweighted`, but remains far below XGBoost F3/F4 and still behaves as an all-positive thresholded classifier under the validation-F1 threshold.
+  - Do not expand to BiLSTM late fusion or balanced late-fusion variants unless a later explicit decision reopens the Sprint 2 scope.
 
 ## Metrics And Thresholding
 

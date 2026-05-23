@@ -159,6 +159,20 @@ Alternatives considered:
 
 Outcome: `sequence_cnn_*` and `sequence_bilstm_*` rows are reported with feature set `S1`. Late-fusion sequence + F3/F4 context models remain optional and must be separately labeled if added later.
 
+## 2026-05-23 - Limit sequence late fusion to a small CNN + F3/F4 Sprint 2 slice
+
+Decision: Sprint 2 may include only the small unweighted CNN late-fusion slice: `sequence_cnn_plus_F3_late_fusion_unweighted` and `sequence_cnn_plus_F4_late_fusion_unweighted`.
+
+Reason: pure sequence CNN/BiLSTM baselines are weak, while XGBoost shows that F3/F4 context features carry most of the useful non-graph signal. A small CNN late-fusion run answers whether adding the same tabular context families helps the neural sequence baseline. It should not expand into a BiLSTM-fusion, balanced-fusion, or architecture-sweep track unless there is a clear validation-side reason.
+
+Alternatives considered:
+
+- Add BiLSTM + F3/F4 late fusion immediately.
+- Run balanced late-fusion variants.
+- Skip late fusion and freeze Sprint 2 after pure sequence.
+
+Outcome: late-fusion rows are reported separately from pure sequence rows with feature sets `S1+F3` and `S1+F4`. They are context-fusion neural baselines, not pure sequence baselines, because F3/F4 include engineered sequence/mismatch features and context features.
+
 ## 2026-05-23 - Use named Sprint 2 feature ladder with train-only F4 imputation
 
 Decision: Sprint 2 uses a named feature ladder: `F1` sequence/mismatch features, `F2` adds binding energy, `F3` adds experimental epigenetic scalars, and `F4` adds aggregated computed nucleosome features plus missingness indicators. Missing computed aggregate values in `F4` are imputed during model preprocessing using train-only statistics. Rows are not dropped from the main `F1`-`F4` comparison because computed nucleosome arrays are missing.

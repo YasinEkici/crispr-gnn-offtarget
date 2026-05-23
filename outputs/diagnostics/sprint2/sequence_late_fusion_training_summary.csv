@@ -1,0 +1,3 @@
+model_name,feature_set,input_representation,best_epoch,epochs_ran,best_val_auprc,final_train_loss,batch_size,learning_rate,weight_decay,patience,cnn_channels,tabular_projection_dim,device,num_threads
+sequence_cnn_plus_F3_late_fusion_unweighted,S1+F3,S1_sequence_pair+tabular_late_fusion,24,32,0.9436958321199789,0.21013933420181274,1024,0.001,0.0001,8,32,32,cpu,4
+sequence_cnn_plus_F4_late_fusion_unweighted,S1+F4,S1_sequence_pair+tabular_late_fusion,24,32,0.9464926336762556,0.20263587683439255,1024,0.001,0.0001,8,32,32,cpu,4
