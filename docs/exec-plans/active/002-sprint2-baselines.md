@@ -84,9 +84,24 @@ Latest split verification:
   - test: 1,702 rows, 29 guides, 1,533 positives, 169 negatives.
 - Expected guide-size caveat: the project already requires guide-level evaluation and the Sprint 1 audit documented highly uneven guide sizes. As an expected consequence, a few high-row-count guides can dominate split-level metrics. In the locked split, the largest guide accounts for 27.6% of train rows, 28.7% of validation rows, and 24.0% of test rows. This is the known tradeoff of leakage-safe guide-level evaluation on this dataset, not evidence of a split bug, and must be considered when interpreting AUPRC and secondary metrics.
 
+Completed after split lock:
+
+- Sprint 2 tabular feature ladder infrastructure was added:
+  - `src/crispr_gnn/features/tabular.py`
+  - `scripts/build_features.py`
+  - `tests/test_tabular_features.py`
+- Feature catalog artifacts were generated:
+  - `outputs/features/sprint2_feature_catalog.md`
+  - `outputs/features/sprint2_feature_summary.csv`
+- Current feature-set dimensions on the locked split:
+  - F1: 33 columns, 11,446 rows, no missing values.
+  - F2: 38 columns, 11,446 rows, no missing values.
+  - F3: 44 columns, 11,446 rows, no missing values.
+  - F4: 135 columns, 11,446 rows, 789 rows with missing computed-nucleosome aggregates before train-only imputation.
+
 Next step:
 
-- Build the Sprint 2 feature ladder (`F1`-`F4`) on top of the locked split.
+- Implement metrics/result-table support and run the dummy + Logistic Regression baseline on F1-F4.
 
 ## Scope
 

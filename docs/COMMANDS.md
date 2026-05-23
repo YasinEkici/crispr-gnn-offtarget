@@ -34,6 +34,12 @@ uv run python scripts/evaluate.py --config configs/experiments/gcn_minimal.yaml 
 uv run python scripts/build_splits.py --config configs/data/mak2022.yaml
 ```
 
+## Sprint 2 feature catalog
+
+```bash
+uv run python scripts/build_features.py --config configs/data/mak2022.yaml
+```
+
 ## Later sprint command pattern
 
 ```bash
