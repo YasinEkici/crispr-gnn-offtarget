@@ -138,7 +138,7 @@ def run_sprint2_xgboost(config: dict[str, object]) -> int:
         n_jobs=int(xgb_config.get("n_jobs", 4)),
     )
 
-    results, predictions = run_xgboost_baselines(
+    results, predictions, feature_importance, feature_audit = run_xgboost_baselines(
         assigned=assigned,
         feature_sets=feature_sets,
         config=baseline_config,
@@ -146,6 +146,14 @@ def run_sprint2_xgboost(config: dict[str, object]) -> int:
     )
 
     write_results_table(results, results_path)
+    diagnostics_dir.mkdir(parents=True, exist_ok=True)
+    feature_importance_path = diagnostics_dir / "xgboost_feature_importance.csv"
+    feature_audit_path = diagnostics_dir / "xgboost_feature_column_audit.csv"
+    feature_importance.to_csv(feature_importance_path, index=False)
+    feature_audit.to_csv(feature_audit_path, index=False)
+    if feature_audit["is_forbidden"].any():
+        forbidden = feature_audit.loc[feature_audit["is_forbidden"], "feature"].unique().tolist()
+        raise ValueError(f"Forbidden columns found in XGBoost feature audit: {forbidden}")
     figure_paths = write_xgboost_plots(results, predictions, figures_dir)
     diagnostic_tables: list[Path] = []
     diagnostic_figures: list[Path] = []
@@ -166,6 +174,8 @@ def run_sprint2_xgboost(config: dict[str, object]) -> int:
             diagnostic_figures.extend(figures)
 
     print(f"Results upserted: {results_path.relative_to(ROOT)}")
+    print(f"Feature importance written: {feature_importance_path.relative_to(ROOT)}")
+    print(f"Feature audit written: {feature_audit_path.relative_to(ROOT)}")
     for path in figure_paths:
         print(f"Figure written: {path.relative_to(ROOT)}")
     for path in diagnostic_tables:

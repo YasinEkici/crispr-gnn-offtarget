@@ -58,6 +58,13 @@ outputs/diagnostics/sprint2/
 uv run python scripts/train.py --config configs/experiments/baseline_xgboost.yaml
 ```
 
+This command also writes:
+
+```text
+outputs/diagnostics/sprint2/xgboost_feature_column_audit.csv
+outputs/diagnostics/sprint2/xgboost_feature_importance.csv
+```
+
 ## Later sprint command pattern
 
 ```bash

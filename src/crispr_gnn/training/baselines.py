@@ -14,7 +14,7 @@ from xgboost import XGBClassifier
 
 from crispr_gnn.data.splits import LABEL_COLUMN, SPLIT_COLUMN
 from crispr_gnn.evaluation.metrics import binary_classification_metrics, select_threshold_by_f1
-from crispr_gnn.features.tabular import FeatureSetName, TrainOnlyPreprocessor, build_feature_set
+from crispr_gnn.features.tabular import FeatureSetName, TrainOnlyPreprocessor, audit_feature_columns, build_feature_set, feature_family
 
 
 @dataclass(frozen=True)
@@ -84,17 +84,21 @@ def run_xgboost_baselines(
     config: XGBoostRunConfig,
     *,
     include_balanced: bool = True,
-) -> tuple[pd.DataFrame, list[dict[str, object]]]:
+) -> tuple[pd.DataFrame, list[dict[str, object]], pd.DataFrame, pd.DataFrame]:
     rows: list[dict[str, object]] = []
     predictions: list[dict[str, object]] = []
+    feature_importance_rows: list[dict[str, object]] = []
+    feature_audit_frames: list[pd.DataFrame] = []
     variants = ["xgboost_unweighted"]
     if include_balanced:
         variants.append("xgboost_balanced_train_weights")
 
     for feature_set in feature_sets:
         split_data = _prepared_feature_split(assigned, feature_set, scale=False)
+        feature_audit_frames.append(audit_feature_columns(feature_set, split_data["feature_columns"]))
         for model_name in variants:
             model = _fit_xgboost_model(model_name, split_data, config)
+            feature_importance_rows.extend(_xgboost_feature_importance_rows(model, model_name, feature_set, split_data["feature_columns"]))
             val_scores = _positive_class_scores(model, split_data["X_val"])
             test_scores = _positive_class_scores(model, split_data["X_test"])
             selection = select_threshold_by_f1(split_data["y_val"], val_scores)
@@ -111,7 +115,8 @@ def run_xgboost_baselines(
             )
             rows.append(row)
             predictions.extend(_prediction_records(model_name, feature_set, split_data, val_scores, test_scores))
-    return pd.DataFrame(rows), predictions
+    feature_audit = pd.concat(feature_audit_frames, axis=0, ignore_index=True)
+    return pd.DataFrame(rows), predictions, pd.DataFrame(feature_importance_rows), feature_audit
 
 
 def _prepared_feature_split(assigned: pd.DataFrame, feature_set: FeatureSetName, *, scale: bool = True) -> dict[str, Any]:
@@ -137,6 +142,36 @@ def _prepared_feature_split(assigned: pd.DataFrame, feature_set: FeatureSetName,
         "test_index": test.index.to_numpy(),
         "feature_columns": feature_columns,
     }
+
+
+def _xgboost_feature_importance_rows(
+    model: XGBClassifier,
+    model_name: str,
+    feature_set: FeatureSetName,
+    feature_columns: list[str],
+) -> list[dict[str, object]]:
+    booster = model.get_booster()
+    scores_by_type = {
+        importance_type: booster.get_score(importance_type=importance_type)
+        for importance_type in ["weight", "gain", "cover", "total_gain", "total_cover"]
+    }
+    rows = []
+    for index, feature in enumerate(feature_columns):
+        xgb_name = f"f{index}"
+        rows.append(
+            {
+                "model_name": model_name,
+                "feature_set": feature_set,
+                "feature": feature,
+                "family": feature_family(feature),
+                "weight": float(scores_by_type["weight"].get(xgb_name, 0.0)),
+                "gain": float(scores_by_type["gain"].get(xgb_name, 0.0)),
+                "cover": float(scores_by_type["cover"].get(xgb_name, 0.0)),
+                "total_gain": float(scores_by_type["total_gain"].get(xgb_name, 0.0)),
+                "total_cover": float(scores_by_type["total_cover"].get(xgb_name, 0.0)),
+            }
+        )
+    return rows
 
 
 def _fit_model(model_name: str, split_data: dict[str, Any], config: BaselineRunConfig) -> object:

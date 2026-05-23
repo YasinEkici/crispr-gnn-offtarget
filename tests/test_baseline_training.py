@@ -52,7 +52,7 @@ def test_dummy_and_logistic_baselines_write_result_rows() -> None:
 
 
 def test_xgboost_baseline_writes_result_rows() -> None:
-    results, predictions = run_xgboost_baselines(
+    results, predictions, feature_importance, feature_audit = run_xgboost_baselines(
         assigned=make_assigned_feature_rows(),
         feature_sets=["F1"],
         config=XGBoostRunConfig(
@@ -70,3 +70,5 @@ def test_xgboost_baseline_writes_result_rows() -> None:
     assert set(results["model_name"]) == {"xgboost_unweighted", "xgboost_balanced_train_weights"}
     assert results["feature_set"].eq("F1").all()
     assert len(predictions) == 4
+    assert not feature_importance.empty
+    assert not feature_audit["is_forbidden"].any()

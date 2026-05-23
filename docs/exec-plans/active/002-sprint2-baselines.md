@@ -261,6 +261,10 @@ Current status:
   - test MCC: 0.345198
   - confusion matrix at validation-selected threshold: TN=38, FP=131, FN=21, TP=1512
 - XGBoost diagnostics were generated under `outputs/diagnostics/sprint2/`. Results must still be interpreted with the locked split's guide/genome composition caveat and must not be used to retune the test set.
+- Follow-up XGBoost audit artifacts were added:
+  - `xgboost_feature_column_audit.csv` confirms no forbidden target, split, measured, genome, cell-line, experiment, guide, coordinate, or raw identifier columns are predictive features.
+  - `xgboost_feature_importance.csv` records feature/family importance for every XGBoost feature set and training variant.
+  - In the current unweighted F4 run, computed nucleosome missingness indicators have zero total gain; F4's added computed nucleosome aggregate features contribute a smaller lift than the F3 experimental epigenetic scalars.
 
 ## Metrics And Thresholding
 

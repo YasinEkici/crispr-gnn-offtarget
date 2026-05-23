@@ -3,8 +3,10 @@ import pandas as pd
 import pytest
 
 from crispr_gnn.features.tabular import (
+    FORBIDDEN_PREDICTIVE_COLUMNS,
     RAW_ID_COLUMNS,
     TrainOnlyPreprocessor,
+    audit_feature_columns,
     build_computed_nucleosome_features,
     build_feature_set,
 )
@@ -53,6 +55,14 @@ def test_feature_ladder_increases_columns_without_raw_id_leakage() -> None:
     assert set(f4.columns).isdisjoint(RAW_ID_COLUMNS)
     assert "mismatch_count" in f1.columns
     assert f1.loc[0, "mismatch_count"] == 2
+    assert set(f4.columns).isdisjoint(FORBIDDEN_PREDICTIVE_COLUMNS)
+
+
+def test_feature_column_audit_flags_forbidden_features() -> None:
+    audit = audit_feature_columns("F1", ["mismatch_count", "genome", "cleavage_freq"])
+
+    flagged = set(audit.loc[audit["is_forbidden"], "feature"])
+    assert flagged == {"genome", "cleavage_freq"}
 
 
 def test_computed_features_add_missingness_indicators() -> None:

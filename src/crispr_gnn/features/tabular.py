@@ -36,6 +36,18 @@ RAW_ID_COLUMNS = {
     "cell_line",
     "genome",
 }
+FORBIDDEN_PREDICTIVE_COLUMNS = RAW_ID_COLUMNS | {
+    "cleavage_freq",
+    "label",
+    "measured",
+    "split",
+    "prediction_split",
+    "y_true",
+    "y_score",
+    "score",
+    "CA",
+    "ca",
+}
 
 
 @dataclass(frozen=True)
@@ -214,10 +226,53 @@ def build_feature_set(df: pd.DataFrame, feature_set: FeatureSetName) -> pd.DataF
         parts.append(build_computed_nucleosome_features(df))
 
     features = pd.concat(parts, axis=1)
-    leaked = sorted(set(features.columns).intersection(RAW_ID_COLUMNS))
+    leaked = sorted(set(features.columns).intersection(FORBIDDEN_PREDICTIVE_COLUMNS))
     if leaked:
-        raise ValueError(f"Raw identifier columns leaked into features: {leaked}")
+        raise ValueError(f"Forbidden columns leaked into features: {leaked}")
     return features
+
+
+def feature_family(feature_name: str) -> str:
+    if feature_name.startswith("mismatch_pos_"):
+        return "mismatch_position"
+    if feature_name in {
+        "guide_length",
+        "target_length",
+        "length_delta",
+        "guide_gc_fraction",
+        "target_gc_fraction",
+        "target_pam_gc_fraction",
+        "target_protospacer_gc_fraction",
+        "aligned_length",
+        "mismatch_count",
+        "mismatch_rate",
+    }:
+        return "sequence_summary"
+    if feature_name in BINDING_ENERGY_FEATURES:
+        return "binding_energy"
+    if feature_name in EXPERIMENTAL_EPIGENETIC_FEATURES:
+        return "experimental_epigenetic"
+    for computed_feature in COMPUTED_NUCLEOSOME_FEATURES:
+        if feature_name == f"{computed_feature}_missing":
+            return "computed_nucleosome_missingness"
+        if feature_name.startswith(f"{computed_feature}_"):
+            return "computed_nucleosome_aggregates"
+    return "unknown"
+
+
+def audit_feature_columns(feature_set: FeatureSetName, feature_columns: list[str]) -> pd.DataFrame:
+    forbidden = set(feature_columns).intersection(FORBIDDEN_PREDICTIVE_COLUMNS)
+    return pd.DataFrame(
+        [
+            {
+                "feature_set": feature_set,
+                "feature": feature,
+                "family": feature_family(feature),
+                "is_forbidden": feature in forbidden,
+            }
+            for feature in feature_columns
+        ]
+    )
 
 
 def feature_catalog_rows() -> list[dict[str, object]]:
