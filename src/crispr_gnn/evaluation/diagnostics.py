@@ -22,24 +22,43 @@ def write_logistic_regression_diagnostics(
     predictions: Iterable[dict[str, object]],
     output_dir: str | Path,
 ) -> tuple[list[Path], list[Path]]:
+    return write_model_diagnostics(
+        assigned,
+        predictions,
+        output_dir,
+        model_name="logistic_regression",
+        artifact_prefix="logistic_regression",
+        display_name="Logistic Regression",
+    )
+
+
+def write_model_diagnostics(
+    assigned: pd.DataFrame,
+    predictions: Iterable[dict[str, object]],
+    output_dir: str | Path,
+    *,
+    model_name: str,
+    artifact_prefix: str,
+    display_name: str,
+) -> tuple[list[Path], list[Path]]:
     output_path = Path(output_dir)
     output_path.mkdir(parents=True, exist_ok=True)
     prediction_df = _prediction_frame(assigned, predictions)
-    logistic = prediction_df.loc[prediction_df["model_name"] == "logistic_regression"].copy()
-    if logistic.empty:
-        raise ValueError("No Logistic Regression predictions available for diagnostics")
+    model_predictions = prediction_df.loc[prediction_df["model_name"] == model_name].copy()
+    if model_predictions.empty:
+        raise ValueError(f"No {display_name} predictions available for diagnostics")
 
     tables = [
-        _write_score_direction_table(logistic, output_path / "logistic_regression_score_direction.csv"),
-        _write_fixed_threshold_table(logistic, output_path / "logistic_regression_fixed_threshold_metrics.csv"),
-        _write_per_genome_table(logistic, output_path / "logistic_regression_per_genome_metrics.csv"),
-        _write_per_guide_table(logistic, output_path / "logistic_regression_test_per_guide_metrics.csv"),
-        _write_decile_table(logistic, output_path / "logistic_regression_score_deciles.csv"),
+        _write_score_direction_table(model_predictions, output_path / f"{artifact_prefix}_score_direction.csv"),
+        _write_fixed_threshold_table(model_predictions, output_path / f"{artifact_prefix}_fixed_threshold_metrics.csv"),
+        _write_per_genome_table(model_predictions, output_path / f"{artifact_prefix}_per_genome_metrics.csv"),
+        _write_per_guide_table(model_predictions, output_path / f"{artifact_prefix}_test_per_guide_metrics.csv"),
+        _write_decile_table(model_predictions, output_path / f"{artifact_prefix}_score_deciles.csv"),
     ]
     figures = [
-        _write_f4_score_histogram(logistic, output_path / "logistic_regression_f4_score_histograms.png"),
-        _write_test_decile_lift(logistic, output_path / "logistic_regression_test_decile_lift.png"),
-        _write_test_per_genome_auroc(logistic, output_path / "logistic_regression_test_per_genome_auroc.png"),
+        _write_f4_score_histogram(model_predictions, output_path / f"{artifact_prefix}_f4_score_histograms.png", display_name=display_name),
+        _write_test_decile_lift(model_predictions, output_path / f"{artifact_prefix}_test_decile_lift.png", display_name=display_name),
+        _write_test_per_genome_auroc(model_predictions, output_path / f"{artifact_prefix}_test_per_genome_auroc.png", display_name=display_name),
     ]
     return tables, figures
 
@@ -165,14 +184,14 @@ def _write_decile_table(df: pd.DataFrame, path: Path) -> Path:
     return path
 
 
-def _write_f4_score_histogram(df: pd.DataFrame, path: Path) -> Path:
+def _write_f4_score_histogram(df: pd.DataFrame, path: Path, *, display_name: str) -> Path:
     f4 = df.loc[df["feature_set"] == "F4"].copy()
     fig, axes = plt.subplots(1, 2, figsize=(11, 4), sharey=True)
     for ax, split_name in zip(axes, ["val", "test"], strict=True):
         part = f4.loc[f4["prediction_split"] == split_name]
         ax.hist(part.loc[part["y_true"] == 1, "score"], bins=30, alpha=0.65, label="positive", color="#2a7f62")
         ax.hist(part.loc[part["y_true"] == 0, "score"], bins=30, alpha=0.65, label="negative", color="#9b4d48")
-        ax.set_title(f"F4 scores: {split_name}")
+        ax.set_title(f"{display_name} F4 scores: {split_name}")
         ax.set_xlabel("Predicted probability for class 1")
         ax.set_ylabel("Rows")
         ax.legend()
@@ -182,7 +201,7 @@ def _write_f4_score_histogram(df: pd.DataFrame, path: Path) -> Path:
     return path
 
 
-def _write_test_decile_lift(df: pd.DataFrame, path: Path) -> Path:
+def _write_test_decile_lift(df: pd.DataFrame, path: Path, *, display_name: str) -> Path:
     deciles_path = path.with_suffix(".tmp.csv")
     _write_decile_table(df, deciles_path)
     deciles = pd.read_csv(deciles_path)
@@ -195,7 +214,7 @@ def _write_test_decile_lift(df: pd.DataFrame, path: Path) -> Path:
     ax.axhline(prevalence, color="#555555", linestyle="--", linewidth=1.2, label="test prevalence")
     ax.set_xlabel("Score decile (1 = highest scores)")
     ax.set_ylabel("Positive rate")
-    ax.set_title("Logistic Regression test decile lift")
+    ax.set_title(f"{display_name} test decile lift")
     ax.set_xticks(range(1, 11))
     ax.legend()
     fig.tight_layout()
@@ -204,7 +223,7 @@ def _write_test_decile_lift(df: pd.DataFrame, path: Path) -> Path:
     return path
 
 
-def _write_test_per_genome_auroc(df: pd.DataFrame, path: Path) -> Path:
+def _write_test_per_genome_auroc(df: pd.DataFrame, path: Path, *, display_name: str) -> Path:
     per_genome_path = path.with_suffix(".tmp.csv")
     _write_per_genome_table(df, per_genome_path)
     per_genome = pd.read_csv(per_genome_path)
@@ -215,7 +234,7 @@ def _write_test_per_genome_auroc(df: pd.DataFrame, path: Path) -> Path:
     pivot.plot(kind="bar", ax=ax)
     ax.axhline(0.5, color="#555555", linestyle="--", linewidth=1.2, label="random")
     ax.set_ylabel("AUROC")
-    ax.set_title("Logistic Regression test AUROC by genome")
+    ax.set_title(f"{display_name} test AUROC by genome")
     ax.tick_params(axis="x", labelrotation=0)
     fig.tight_layout()
     fig.savefig(path, dpi=180)

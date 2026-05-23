@@ -52,6 +52,12 @@ This command also writes Logistic Regression diagnostics under:
 outputs/diagnostics/sprint2/
 ```
 
+## Sprint 2 XGBoost baselines
+
+```bash
+uv run python scripts/train.py --config configs/experiments/baseline_xgboost.yaml
+```
+
 ## Later sprint command pattern
 
 ```bash

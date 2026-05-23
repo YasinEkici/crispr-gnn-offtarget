@@ -109,6 +109,14 @@ Alternatives considered:
 
 Outcome: dependency updates must be made through `uv` / `pyproject.toml`, not `requirements.txt`. If XGBoost installation or runtime fails in a target environment, the fallback must be documented and Random Forest or a scikit-learn boosted-tree model may be used as a clearly labeled fallback.
 
+## 2026-05-23 - Report unweighted XGBoost primary and balanced XGBoost sensitivity
+
+Decision: Sprint 2 reports `xgboost_unweighted` as the primary boosted-tree baseline. `xgboost_balanced_train_weights` is reported as a separately labeled training-weight sensitivity, not as a replacement chosen from test performance.
+
+Reason: the measured-only main split is positive-heavy, but the negative class is scientifically important. The unweighted run is the clearest primary comparison to the unweighted Logistic Regression debug baseline. The balanced train-weight run is useful for checking whether inverse-frequency training weights improve negative-class recognition, but it changes the training objective and must therefore be interpreted separately.
+
+Outcome: XGBoost runs use the same Scheme A labels, locked guide-level split, measured-only validation/test rows, `experiment_id=18` exclusion, F1-F4 feature ladder, train-only preprocessing, validation-only threshold selection, and no test-set tuning. Test diagnostics are for interpretation only, not feature-set or hyperparameter selection.
+
 ## 2026-05-23 - Add PyTorch in Sprint 2 for sequence baselines only
 
 Decision: Sprint 2 will introduce PyTorch for non-graph neural baselines, specifically the required CnnCrispr-inspired sequence CNN/BiLSTM baseline. PyTorch Geometric remains deferred until the graph-model sprint.

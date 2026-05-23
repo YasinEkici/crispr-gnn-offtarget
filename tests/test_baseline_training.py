@@ -2,7 +2,7 @@ import pandas as pd
 
 from crispr_gnn.data.splits import LABEL_COLUMN, SPLIT_COLUMN
 from crispr_gnn.data.schemas import COMPUTED_NUCLEOSOME_FEATURES
-from crispr_gnn.training.baselines import BaselineRunConfig, run_dummy_and_logistic_baselines
+from crispr_gnn.training.baselines import BaselineRunConfig, XGBoostRunConfig, run_dummy_and_logistic_baselines, run_xgboost_baselines
 
 
 def make_assigned_feature_rows() -> pd.DataFrame:
@@ -49,3 +49,24 @@ def test_dummy_and_logistic_baselines_write_result_rows() -> None:
     assert {prediction["split"] for prediction in predictions} == {"val", "test"}
     assert results["threshold_policy"].eq("validation_max_f1").all()
     assert results["test_rows"].eq(6).all()
+
+
+def test_xgboost_baseline_writes_result_rows() -> None:
+    results, predictions = run_xgboost_baselines(
+        assigned=make_assigned_feature_rows(),
+        feature_sets=["F1"],
+        config=XGBoostRunConfig(
+            sprint="sprint2",
+            split_id="test_split",
+            seed=7,
+            n_estimators=10,
+            max_depth=2,
+            early_stopping_rounds=2,
+            n_jobs=1,
+        ),
+        include_balanced=True,
+    )
+
+    assert set(results["model_name"]) == {"xgboost_unweighted", "xgboost_balanced_train_weights"}
+    assert results["feature_set"].eq("F1").all()
+    assert len(predictions) == 4

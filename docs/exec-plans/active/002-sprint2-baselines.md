@@ -250,6 +250,17 @@ Current status:
   - per-guide test metrics
   - score-decile lift tables and plots
 - The initial Logistic Regression result is a wiring/debug baseline, not the expected strongest Sprint 2 model. AUPRC is interpreted against the measured-only test prevalence baseline.
+- XGBoost is the next implementation step. It should upsert results into the shared `outputs/results/baseline_results.csv` without removing the dummy/Logistic Regression rows, and it should use:
+  - `xgboost_unweighted` as the primary XGBoost baseline.
+  - `xgboost_balanced_train_weights` as a separately labeled negative-class sensitivity.
+  - validation-only early stopping/model selection.
+  - the same F1-F4 feature sets and diagnostic artifact style as Logistic Regression.
+- XGBoost F1-F4 has been implemented and run. The strongest current measured-only result is `xgboost_unweighted` on `F4`:
+  - test AUPRC: 0.992522
+  - test AUROC: 0.938416
+  - test MCC: 0.345198
+  - confusion matrix at validation-selected threshold: TN=38, FP=131, FN=21, TP=1512
+- XGBoost diagnostics were generated under `outputs/diagnostics/sprint2/`. Results must still be interpreted with the locked split's guide/genome composition caveat and must not be used to retune the test set.
 
 ## Metrics And Thresholding
 

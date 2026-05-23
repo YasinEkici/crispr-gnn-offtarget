@@ -1,0 +1,32 @@
+experiment_name: baseline_xgboost
+task: sprint2_xgboost
+sprint: sprint2
+seed: 42
+
+data_config: configs/data/mak2022.yaml
+split_manifest: outputs/splits/sprint2_guides.json
+results_path: outputs/results/baseline_results.csv
+figures_dir: outputs/figures/sprint2
+diagnostics_dir: outputs/diagnostics/sprint2
+
+feature_sets:
+  - F1
+  - F2
+  - F3
+  - F4
+
+include_balanced_train_weights: true
+
+xgboost:
+  n_estimators: 400
+  max_depth: 3
+  learning_rate: 0.05
+  subsample: 0.9
+  colsample_bytree: 0.9
+  min_child_weight: 5.0
+  reg_alpha: 0.0
+  reg_lambda: 1.0
+  early_stopping_rounds: 30
+  eval_metric: aucpr
+  tree_method: hist
+  n_jobs: 4
