@@ -81,6 +81,48 @@ Reason: Sprint 1 audit found all 14,108 missing `cell_line` rows concentrated in
 
 Outcome: future split and evaluation docs must avoid hiding this subset inside main reported performance.
 
+## 2026-05-23 - Exclude `experiment_id=18` from Sprint 2 main baselines
+
+Decision: Sprint 2 main baseline runs will exclude `experiment_id=18` from train, validation, and test rows. The subset may be used only for a separately labeled no-cell-line / high-missingness sensitivity analysis if enough label-eligible measured rows exist.
+
+Reason: Sprint 1 identified `experiment_id=18` as the concentrated source of missing `cell_line` values and a major source of computed nucleosome missingness. Sprint 2 is intended to create clean, fair non-graph baselines for later GNN comparison, not to maximize data volume by mixing a known high-missingness subset into the primary benchmark.
+
+Alternatives considered:
+
+- Allow `experiment_id=18` in training while excluding it from validation/test.
+- Include it in all splits and report a flag.
+- Exclude it only from feature sets that use computed nucleosome features.
+
+Outcome: the active Sprint 2 execution plan must define a `main_clean` evaluation universe that excludes `experiment_id=18` before splitting. Any reported `experiment_id=18` result is sensitivity-only and must not be mixed into the headline baseline table.
+
+## 2026-05-23 - Use XGBoost as the Sprint 2 boosted-tree baseline
+
+Decision: add `xgboost` as a Sprint 2 dependency and use it as the official boosted-tree tabular baseline. Random Forest remains an optional scikit-learn fallback or sanity baseline.
+
+Reason: the project plan explicitly calls for "XGBoost or Random Forest" in Sprint 2, and Mak et al. used XGBoost in their modeling track. XGBoost is a classical ML dependency, not a graph or PyTorch dependency, and gives the tabular baseline more credibility than relying only on a Random Forest.
+
+Alternatives considered:
+
+- Use only `RandomForestClassifier` from scikit-learn.
+- Use scikit-learn `HistGradientBoostingClassifier` as an XGBoost-like substitute.
+- Defer boosted trees until later.
+
+Outcome: dependency updates must be made through `uv` / `pyproject.toml`, not `requirements.txt`. If XGBoost installation or runtime fails in a target environment, the fallback must be documented and Random Forest or a scikit-learn boosted-tree model may be used as a clearly labeled fallback.
+
+## 2026-05-23 - Add PyTorch in Sprint 2 for sequence baselines only
+
+Decision: Sprint 2 will introduce PyTorch for non-graph neural baselines, specifically the required CnnCrispr-inspired sequence CNN/BiLSTM baseline. PyTorch Geometric remains deferred until the graph-model sprint.
+
+Reason: the current project plan makes a same-split sequence-based deep learning baseline a Sprint 2 must-have. An sklearn MLP is a tabular neural baseline and does not satisfy the sequence-based DL requirement. Adding PyTorch now resolves that requirement while still keeping graph-specific dependencies and graph-model implementation out of Sprint 2.
+
+Alternatives considered:
+
+- Defer PyTorch and replace the sequence DL baseline with an sklearn MLP.
+- Add both PyTorch and PyTorch Geometric immediately.
+- Use only published paper-reported sequence baseline metrics.
+
+Outcome: Sprint 2 may add PyTorch and implement non-graph sequence models, but must not add PyTorch Geometric or start graph construction/modeling work. Any CUDA or Colab-specific setup notes must be documented rather than handled through ad-hoc install commands.
+
 ## 2026-05-21 - Keep non-human genomes by default with explicit reporting
 
 Decision: do not drop non-`hg19` genomes by default.
