@@ -12,7 +12,7 @@ sys.path.insert(0, str(ROOT / "src"))
 
 from crispr_gnn.data.splits import assign_measured_splits, load_split_manifest  # noqa: E402
 from crispr_gnn.evaluation.diagnostics import write_logistic_regression_diagnostics, write_model_diagnostics  # noqa: E402
-from crispr_gnn.evaluation.plots import write_baseline_plots, write_mlp_plots, write_xgboost_plots  # noqa: E402
+from crispr_gnn.evaluation.plots import write_baseline_plots, write_mlp_plots, write_sequence_plots, write_xgboost_plots  # noqa: E402
 from crispr_gnn.features.tabular import FEATURE_SET_ORDER  # noqa: E402
 from crispr_gnn.training.baselines import BaselineRunConfig, MLPRunConfig, XGBoostRunConfig, run_dummy_and_logistic_baselines, run_tabular_mlp_baselines, run_xgboost_baselines  # noqa: E402
 from crispr_gnn.utils.config import load_yaml  # noqa: E402
@@ -32,8 +32,9 @@ def main() -> int:
     experiment_name = config.get("experiment_name", Path(args.config).stem)
     task = config.get("task", "placeholder")
     if args.max_epochs is not None:
-        if task == "sprint2_mlp":
-            config.setdefault("mlp", {})["max_epochs"] = args.max_epochs
+        if task in {"sprint2_mlp", "sprint2_sequence"}:
+            key = "mlp" if task == "sprint2_mlp" else "sequence"
+            config.setdefault(key, {})["max_epochs"] = args.max_epochs
         else:
             config.setdefault("training", {})["max_epochs"] = args.max_epochs
     max_epochs = _display_max_epochs(config, task)
@@ -49,6 +50,8 @@ def main() -> int:
         return run_sprint2_xgboost(config)
     if task == "sprint2_mlp":
         return run_sprint2_mlp(config)
+    if task == "sprint2_sequence":
+        return run_sprint2_sequence(config)
 
     print("Training placeholder: this config does not yet map to an implemented task.")
     return 0 if args.debug else 1
@@ -59,6 +62,10 @@ def _display_max_epochs(config: dict[str, object], task: object) -> object:
         mlp_config = config.get("mlp", {})
         if isinstance(mlp_config, dict):
             return mlp_config.get("max_epochs", "n/a")
+    if task == "sprint2_sequence":
+        sequence_config = config.get("sequence", {})
+        if isinstance(sequence_config, dict):
+            return sequence_config.get("max_epochs", "n/a")
     training_config = config.get("training", {})
     if isinstance(training_config, dict):
         return training_config.get("max_epochs", "n/a")
@@ -278,6 +285,93 @@ def run_sprint2_mlp(config: dict[str, object]) -> int:
     print(f"Results upserted: {results_path.relative_to(ROOT)}")
     print(f"Training summary written: {training_summary_path.relative_to(ROOT)}")
     print(f"Feature audit written: {feature_audit_path.relative_to(ROOT)}")
+    for path in figure_paths:
+        print(f"Figure written: {path.relative_to(ROOT)}")
+    for path in diagnostic_tables:
+        print(f"Diagnostic table written: {path.relative_to(ROOT)}")
+    for path in diagnostic_figures:
+        print(f"Diagnostic figure written: {path.relative_to(ROOT)}")
+    print(results[["model_name", "feature_set", "test_auprc", "test_auroc", "test_f1", "test_mcc"]].to_string(index=False))
+    return 0
+
+
+def run_sprint2_sequence(config: dict[str, object]) -> int:
+    from crispr_gnn.training.sequence import SequenceRunConfig, run_sequence_baselines
+
+    data_config = load_yaml(str(config["data_config"]))
+    dataset = data_config.get("dataset", {})
+    raw_path = ROOT / Path(str(dataset.get("raw_path", "")))
+    split_path = ROOT / str(config.get("split_manifest", "outputs/splits/sprint2_guides.json"))
+    results_path = ROOT / str(config.get("results_path", "outputs/results/baseline_results.csv"))
+    figures_dir = ROOT / str(config.get("figures_dir", "outputs/figures/sprint2"))
+    diagnostics_dir = ROOT / str(config.get("diagnostics_dir", "outputs/diagnostics/sprint2"))
+    if not raw_path.exists():
+        print(f"Dataset not found: {raw_path}")
+        return 1
+    if not split_path.exists():
+        print(f"Split manifest not found: {split_path}")
+        return 1
+
+    split = load_split_manifest(split_path)
+    df = pd.read_parquet(raw_path)
+    assigned = assign_measured_splits(df, split)
+    sequence_config = config.get("sequence", {})
+    if not isinstance(sequence_config, dict):
+        raise ValueError("sequence config must be a mapping")
+    baseline_config = SequenceRunConfig(
+        sprint=str(config.get("sprint", "sprint2")),
+        split_id=split.config.split_id,
+        seed=int(config.get("seed", split.config.seed)),
+        max_length=int(sequence_config.get("max_length", 23)),
+        batch_size=int(sequence_config.get("batch_size", 512)),
+        max_epochs=int(sequence_config.get("max_epochs", 120)),
+        min_epochs=int(sequence_config.get("min_epochs", 15)),
+        patience=int(sequence_config.get("patience", 20)),
+        learning_rate=float(sequence_config.get("learning_rate", 1e-3)),
+        weight_decay=float(sequence_config.get("weight_decay", 1e-4)),
+        cnn_channels=int(sequence_config.get("cnn_channels", 64)),
+        lstm_hidden_dim=int(sequence_config.get("lstm_hidden_dim", 64)),
+        lstm_layers=int(sequence_config.get("lstm_layers", 1)),
+        dropout=float(sequence_config.get("dropout", 0.2)),
+        device=str(sequence_config.get("device", "cpu")),
+        num_threads=int(sequence_config.get("num_threads", 1)),
+    )
+
+    results, predictions, training_summary, input_audit = run_sequence_baselines(
+        assigned=assigned,
+        config=baseline_config,
+        models=list(config.get("models", ["sequence_cnn", "sequence_bilstm"])),
+        include_balanced=bool(config.get("include_balanced_train_weights", False)),
+    )
+
+    write_results_table(results, results_path)
+    diagnostics_dir.mkdir(parents=True, exist_ok=True)
+    training_summary_path = diagnostics_dir / "sequence_training_summary.csv"
+    input_audit_path = diagnostics_dir / "sequence_input_audit.csv"
+    training_summary.to_csv(training_summary_path, index=False)
+    input_audit.to_csv(input_audit_path, index=False)
+    if input_audit["is_forbidden"].any():
+        forbidden = input_audit.loc[input_audit["is_forbidden"], "source_column"].unique().tolist()
+        raise ValueError(f"Forbidden columns found in sequence input audit: {forbidden}")
+    figure_paths = write_sequence_plots(results, predictions, figures_dir)
+    diagnostic_tables: list[Path] = []
+    diagnostic_figures: list[Path] = []
+    for model_name in sorted(results["model_name"].unique().tolist()):
+        display_name = model_name.replace("_", " ").title()
+        tables, figures = write_model_diagnostics(
+            assigned,
+            predictions,
+            diagnostics_dir,
+            model_name=model_name,
+            artifact_prefix=model_name,
+            display_name=display_name,
+        )
+        diagnostic_tables.extend(tables)
+        diagnostic_figures.extend(figures)
+
+    print(f"Results upserted: {results_path.relative_to(ROOT)}")
+    print(f"Training summary written: {training_summary_path.relative_to(ROOT)}")
+    print(f"Input audit written: {input_audit_path.relative_to(ROOT)}")
     for path in figure_paths:
         print(f"Figure written: {path.relative_to(ROOT)}")
     for path in diagnostic_tables:

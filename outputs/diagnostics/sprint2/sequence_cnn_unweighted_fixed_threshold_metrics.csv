@@ -1,0 +1,3 @@
+model_name,feature_set,split,threshold,rows,positive_rate,f1,mcc,tn,fp,fn,tp
+sequence_cnn_unweighted,S1,test,0.5,1702,0.900705052878966,0.9477588871715611,0.0,0,169,0,1533
+sequence_cnn_unweighted,S1,val,0.5,1734,0.8713956170703575,0.9312788906009245,0.0,0,223,0,1511

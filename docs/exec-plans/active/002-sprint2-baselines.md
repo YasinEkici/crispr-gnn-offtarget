@@ -101,7 +101,7 @@ Completed after split lock:
 
 Next step:
 
-- Implement the same-split sequence CNN/BiLSTM baseline.
+- Draft the Sprint 2 baseline report from the completed tabular and sequence baseline artifacts.
 
 ## Scope
 
@@ -275,6 +275,21 @@ Current status:
     - test MCC: 0.220770
     - confusion matrix at validation-selected threshold: TN=31, FP=138, FN=46, TP=1487
   - The MLP improves over Logistic Regression on context-rich features but does not surpass XGBoost F3/F4. XGBoost remains the current strongest non-graph tabular baseline.
+- Sequence-only CNN/BiLSTM baselines have been implemented via `configs/experiments/sequence_cnn_bilstm.yaml`.
+  - Feature set `S1` uses `S1_sequence_pair`: guide one-hot channels, target one-hot channels, and aligned mismatch channel over 23 positions.
+  - The sequence input audit confirms only `grna_target_sequence` and `target_sequence` are used as source columns.
+  - Pure sequence models do not receive binding energy, epigenetic/context features, genome/cell-line labels, experiment IDs, guide IDs, coordinates, measured flags, labels, or cleavage values.
+  - The current run includes:
+    - `sequence_cnn_unweighted`
+    - `sequence_bilstm_unweighted`
+    - `sequence_cnn_balanced_train_weights`
+    - `sequence_bilstm_balanced_train_weights`
+  - The strongest sequence-only result is `sequence_cnn_unweighted`:
+    - test AUPRC: 0.920075
+    - test AUROC: 0.535711
+    - test MCC: -0.019749
+  - Sequence-only models are weak under the locked measured-only guide-level split. The BiLSTM is directionally correct on validation but inverted on test, so it should be interpreted as poor guide-held-out sequence-only generalization rather than as a strong baseline.
+  - XGBoost F3/F4 remains the strongest Sprint 2 non-graph baseline.
 
 ## Metrics And Thresholding
 

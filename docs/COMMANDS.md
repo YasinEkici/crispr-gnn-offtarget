@@ -78,6 +78,19 @@ outputs/diagnostics/sprint2/tabular_mlp_training_summary.csv
 outputs/diagnostics/sprint2/tabular_mlp_feature_column_audit.csv
 ```
 
+## Sprint 2 sequence-only CNN/BiLSTM baselines
+
+```bash
+uv run python scripts/train.py --config configs/experiments/sequence_cnn_bilstm.yaml
+```
+
+This command also writes:
+
+```text
+outputs/diagnostics/sprint2/sequence_input_audit.csv
+outputs/diagnostics/sprint2/sequence_training_summary.csv
+```
+
 ## Later sprint command pattern
 
 ```bash

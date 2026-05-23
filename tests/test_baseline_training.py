@@ -10,6 +10,7 @@ from crispr_gnn.training.baselines import (
     run_tabular_mlp_baselines,
     run_xgboost_baselines,
 )
+from crispr_gnn.training.sequence import SequenceRunConfig, run_sequence_baselines
 
 
 def make_assigned_feature_rows() -> pd.DataFrame:
@@ -104,3 +105,30 @@ def test_tabular_mlp_baseline_writes_result_rows() -> None:
     assert len(predictions) == 4
     assert set(training_summary["model_name"]) == {"tabular_mlp_unweighted", "tabular_mlp_balanced_train_weights"}
     assert not feature_audit["is_forbidden"].any()
+
+
+def test_sequence_baseline_writes_result_rows() -> None:
+    results, predictions, training_summary, input_audit = run_sequence_baselines(
+        assigned=make_assigned_feature_rows(),
+        config=SequenceRunConfig(
+            sprint="sprint2",
+            split_id="test_split",
+            seed=7,
+            max_length=23,
+            max_epochs=3,
+            min_epochs=1,
+            patience=2,
+            batch_size=4,
+            cnn_channels=8,
+            lstm_hidden_dim=8,
+            num_threads=1,
+        ),
+        models=["sequence_cnn", "sequence_bilstm"],
+        include_balanced=False,
+    )
+
+    assert set(results["model_name"]) == {"sequence_cnn_unweighted", "sequence_bilstm_unweighted"}
+    assert results["feature_set"].eq("S1").all()
+    assert len(predictions) == 4
+    assert set(training_summary["model_name"]) == {"sequence_cnn_unweighted", "sequence_bilstm_unweighted"}
+    assert not input_audit["is_forbidden"].any()

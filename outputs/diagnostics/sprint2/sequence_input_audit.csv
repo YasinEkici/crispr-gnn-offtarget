@@ -1,0 +1,3 @@
+input_representation,feature_set,source_column,is_forbidden,max_length,channels,policy
+S1_sequence_pair,S1,grna_target_sequence,False,23,11,"one-hot guide bases, one-hot target bases, and aligned mismatch channel"
+S1_sequence_pair,S1,target_sequence,False,23,11,"one-hot guide bases, one-hot target bases, and aligned mismatch channel"

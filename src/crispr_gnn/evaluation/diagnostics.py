@@ -55,8 +55,14 @@ def write_model_diagnostics(
         _write_per_guide_table(model_predictions, output_path / f"{artifact_prefix}_test_per_guide_metrics.csv"),
         _write_decile_table(model_predictions, output_path / f"{artifact_prefix}_score_deciles.csv"),
     ]
+    histogram_feature_set = _preferred_histogram_feature_set(model_predictions)
     figures = [
-        _write_f4_score_histogram(model_predictions, output_path / f"{artifact_prefix}_f4_score_histograms.png", display_name=display_name),
+        _write_score_histogram(
+            model_predictions,
+            output_path / f"{artifact_prefix}_{histogram_feature_set.lower()}_score_histograms.png",
+            display_name=display_name,
+            feature_set=histogram_feature_set,
+        ),
         _write_test_decile_lift(model_predictions, output_path / f"{artifact_prefix}_test_decile_lift.png", display_name=display_name),
         _write_test_per_genome_auroc(model_predictions, output_path / f"{artifact_prefix}_test_per_genome_auroc.png", display_name=display_name),
     ]
@@ -184,14 +190,14 @@ def _write_decile_table(df: pd.DataFrame, path: Path) -> Path:
     return path
 
 
-def _write_f4_score_histogram(df: pd.DataFrame, path: Path, *, display_name: str) -> Path:
-    f4 = df.loc[df["feature_set"] == "F4"].copy()
+def _write_score_histogram(df: pd.DataFrame, path: Path, *, display_name: str, feature_set: str) -> Path:
+    selected = df.loc[df["feature_set"] == feature_set].copy()
     fig, axes = plt.subplots(1, 2, figsize=(11, 4), sharey=True)
     for ax, split_name in zip(axes, ["val", "test"], strict=True):
-        part = f4.loc[f4["prediction_split"] == split_name]
+        part = selected.loc[selected["prediction_split"] == split_name]
         ax.hist(part.loc[part["y_true"] == 1, "score"], bins=30, alpha=0.65, label="positive", color="#2a7f62")
         ax.hist(part.loc[part["y_true"] == 0, "score"], bins=30, alpha=0.65, label="negative", color="#9b4d48")
-        ax.set_title(f"{display_name} F4 scores: {split_name}")
+        ax.set_title(f"{display_name} {feature_set} scores: {split_name}")
         ax.set_xlabel("Predicted probability for class 1")
         ax.set_ylabel("Rows")
         ax.legend()
@@ -199,6 +205,15 @@ def _write_f4_score_histogram(df: pd.DataFrame, path: Path, *, display_name: str
     fig.savefig(path, dpi=180)
     plt.close(fig)
     return path
+
+
+def _preferred_histogram_feature_set(df: pd.DataFrame) -> str:
+    feature_sets = sorted(df["feature_set"].astype(str).unique().tolist())
+    if "F4" in feature_sets:
+        return "F4"
+    if "S1" in feature_sets:
+        return "S1"
+    return feature_sets[-1]
 
 
 def _write_test_decile_lift(df: pd.DataFrame, path: Path, *, display_name: str) -> Path:

@@ -94,6 +94,32 @@ def write_mlp_plots(
     return paths
 
 
+def write_sequence_plots(
+    results: pd.DataFrame,
+    predictions: Iterable[dict[str, object]],
+    output_dir: str | Path,
+) -> list[Path]:
+    output_path = Path(output_dir)
+    output_path.mkdir(parents=True, exist_ok=True)
+    prediction_rows = list(predictions)
+    model_names = sorted(results["model_name"].unique().tolist())
+    paths = [
+        _write_auprc_bar(
+            results,
+            output_path / "sequence_feature_set_auprc.png",
+            model_names=model_names,
+        )
+    ]
+    for model_name in model_names:
+        paths.extend(
+            [
+                _write_pr_curves(prediction_rows, output_path / f"{model_name}_pr_curves.png", model_name=model_name),
+                _write_roc_curves(prediction_rows, output_path / f"{model_name}_roc_curves.png", model_name=model_name),
+            ]
+        )
+    return paths
+
+
 def _write_auprc_bar(results: pd.DataFrame, path: Path, *, model_names: list[str]) -> Path:
     rows = results.loc[results["model_name"].isin(model_names)].copy()
     rows = rows.sort_values(["model_name", "feature_set"])
@@ -160,6 +186,10 @@ def _model_color(model_name: str) -> str:
         "xgboost_balanced_train_weights": "#b7791f",
         "tabular_mlp_unweighted": "#6b46c1",
         "tabular_mlp_balanced_train_weights": "#d53f8c",
+        "sequence_cnn_unweighted": "#0f766e",
+        "sequence_bilstm_unweighted": "#7c2d12",
+        "sequence_cnn_balanced_train_weights": "#14b8a6",
+        "sequence_bilstm_balanced_train_weights": "#f97316",
     }
     return colors.get(model_name, "#4a5568")
 
@@ -171,5 +201,9 @@ def _display_model_name(model_name: str) -> str:
         "xgboost_balanced_train_weights": "XGBoost balanced train weights",
         "tabular_mlp_unweighted": "Tabular MLP unweighted",
         "tabular_mlp_balanced_train_weights": "Tabular MLP balanced train weights",
+        "sequence_cnn_unweighted": "Sequence CNN unweighted",
+        "sequence_bilstm_unweighted": "Sequence BiLSTM unweighted",
+        "sequence_cnn_balanced_train_weights": "Sequence CNN balanced train weights",
+        "sequence_bilstm_balanced_train_weights": "Sequence BiLSTM balanced train weights",
     }
     return names.get(model_name, model_name)

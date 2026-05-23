@@ -1,0 +1,3 @@
+model_name,feature_set,split,threshold,rows,positive_rate,f1,mcc,tn,fp,fn,tp
+sequence_cnn_balanced_train_weights,S1,test,0.5,1702,0.900705052878966,0.2658643326039387,-0.11785982042951955,117,52,1290,243
+sequence_cnn_balanced_train_weights,S1,val,0.5,1734,0.8713956170703575,0.2106495026331188,0.04042858383787747,205,18,1331,180

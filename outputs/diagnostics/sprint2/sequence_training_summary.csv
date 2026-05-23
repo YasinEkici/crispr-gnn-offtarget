@@ -1,0 +1,5 @@
+model_name,feature_set,input_representation,best_epoch,epochs_ran,best_val_auprc,final_train_loss,batch_size,learning_rate,weight_decay,patience,device,num_threads
+sequence_cnn_unweighted,S1,S1_sequence_pair,1,9,0.9029919248225643,0.33206450566649437,1024,0.001,0.0001,8,cpu,4
+sequence_bilstm_unweighted,S1,S1_sequence_pair,17,25,0.9334632254332137,0.23796476610004902,1024,0.001,0.0001,8,cpu,4
+sequence_cnn_balanced_train_weights,S1,S1_sequence_pair,11,19,0.897142070670201,0.31677036359906197,1024,0.001,0.0001,8,cpu,4
+sequence_bilstm_balanced_train_weights,S1,S1_sequence_pair,9,17,0.9214176354721999,0.3670131005346775,1024,0.001,0.0001,8,cpu,4

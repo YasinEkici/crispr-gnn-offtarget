@@ -13,7 +13,6 @@ from sklearn.dummy import DummyClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.neural_network import MLPClassifier
 from sklearn.utils.class_weight import compute_sample_weight
-from xgboost import XGBClassifier
 
 from crispr_gnn.data.splits import LABEL_COLUMN, SPLIT_COLUMN
 from crispr_gnn.evaluation.metrics import binary_classification_metrics, select_threshold_by_f1
@@ -214,7 +213,7 @@ def _prepared_feature_split(assigned: pd.DataFrame, feature_set: FeatureSetName,
 
 
 def _xgboost_feature_importance_rows(
-    model: XGBClassifier,
+    model: Any,
     model_name: str,
     feature_set: FeatureSetName,
     feature_columns: list[str],
@@ -259,7 +258,9 @@ def _fit_model(model_name: str, split_data: dict[str, Any], config: BaselineRunC
     return model
 
 
-def _fit_xgboost_model(model_name: str, split_data: dict[str, Any], config: XGBoostRunConfig) -> XGBClassifier:
+def _fit_xgboost_model(model_name: str, split_data: dict[str, Any], config: XGBoostRunConfig) -> Any:
+    from xgboost import XGBClassifier
+
     if model_name == "xgboost_unweighted":
         sample_weight = None
     elif model_name == "xgboost_balanced_train_weights":

@@ -1,0 +1,31 @@
+experiment_name: sequence_cnn_bilstm
+task: sprint2_sequence
+sprint: sprint2
+seed: 42
+
+data_config: configs/data/mak2022.yaml
+split_manifest: outputs/splits/sprint2_guides.json
+results_path: outputs/results/baseline_results.csv
+figures_dir: outputs/figures/sprint2
+diagnostics_dir: outputs/diagnostics/sprint2
+
+models:
+  - sequence_cnn
+  - sequence_bilstm
+
+include_balanced_train_weights: true
+
+sequence:
+  max_length: 23
+  batch_size: 1024
+  max_epochs: 50
+  min_epochs: 8
+  patience: 8
+  learning_rate: 0.001
+  weight_decay: 0.0001
+  cnn_channels: 32
+  lstm_hidden_dim: 32
+  lstm_layers: 1
+  dropout: 0.2
+  device: cpu
+  num_threads: 4

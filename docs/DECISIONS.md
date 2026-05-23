@@ -145,6 +145,20 @@ Alternatives considered:
 
 Outcome: `tabular_mlp_unweighted` runs on F1-F4. `tabular_mlp_balanced_train_weights` is a focused F3/F4 sensitivity. XGBoost remains the current strongest tabular baseline unless later diagnostics show otherwise.
 
+## 2026-05-23 - Use S1 sequence-pair input for pure sequence baselines
+
+Decision: Sprint 2 sequence-only CNN/BiLSTM baselines use `S1_sequence_pair`: aligned guide and target sequence inputs encoded as guide-base one-hot channels, target-base one-hot channels, and one aligned mismatch channel over 23 positions.
+
+Reason: the sequence baseline should answer how well a neural model performs from guide-target sequence relationship alone. It must not receive binding-energy scalars, epigenetic/context scalars, computed nucleosome features, genome/cell-line labels, experiment IDs, guide IDs, target coordinates, measured flags, labels, or cleavage values. Keeping this pure sequence input separates sequence-model evidence from the context-rich F3/F4 tabular baselines.
+
+Alternatives considered:
+
+- Add F3/F4 late-fusion context immediately.
+- Use only engineered F1 mismatch features instead of raw aligned sequence channels.
+- Include genome or cell-line metadata as sequence-model context.
+
+Outcome: `sequence_cnn_*` and `sequence_bilstm_*` rows are reported with feature set `S1`. Late-fusion sequence + F3/F4 context models remain optional and must be separately labeled if added later.
+
 ## 2026-05-23 - Use named Sprint 2 feature ladder with train-only F4 imputation
 
 Decision: Sprint 2 uses a named feature ladder: `F1` sequence/mismatch features, `F2` adds binding energy, `F3` adds experimental epigenetic scalars, and `F4` adds aggregated computed nucleosome features plus missingness indicators. Missing computed aggregate values in `F4` are imputed during model preprocessing using train-only statistics. Rows are not dropped from the main `F1`-`F4` comparison because computed nucleosome arrays are missing.
