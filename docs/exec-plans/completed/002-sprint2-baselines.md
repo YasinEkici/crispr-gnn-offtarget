@@ -99,9 +99,12 @@ Completed after split lock:
   - F3: 44 columns, 11,446 rows, no missing values.
   - F4: 135 columns, 11,446 rows, 789 rows with missing computed-nucleosome aggregates before train-only imputation.
 
-Next step:
+Final modeling/report status:
 
-- Draft the Sprint 2 baseline report from the completed tabular and sequence baseline artifacts.
+- Logistic Regression, XGBoost, tabular MLP, sequence CNN/BiLSTM, and CNN + F3/F4 late-fusion baselines were trained and evaluated.
+- `outputs/results/baseline_results.csv` contains the completed Sprint 2 baseline result table.
+- `outputs/reports/baseline_report.md` summarizes the final Sprint 2 results, diagnostics, limitations, and future GNN comparison baseline.
+- Sprint 2 modeling is frozen. XGBoost F3/F4 is the primary non-graph benchmark for future graph work.
 
 ## Scope
 
@@ -382,13 +385,15 @@ Required commands before marking Sprint 2 complete:
 
 ```bash
 uv sync
+uv run ruff check scripts src tests
 uv run pytest -q
 uv run python scripts/build_splits.py --config configs/data/mak2022.yaml
+uv run python scripts/build_features.py --config configs/data/mak2022.yaml
 uv run python scripts/train.py --config configs/experiments/baseline_logistic_regression.yaml
 uv run python scripts/train.py --config configs/experiments/baseline_xgboost.yaml
 uv run python scripts/train.py --config configs/experiments/baseline_mlp.yaml
 uv run python scripts/train.py --config configs/experiments/sequence_cnn_bilstm.yaml
-uv run python scripts/evaluate.py --config configs/experiments/baseline_xgboost.yaml
+uv run python scripts/train.py --config configs/experiments/sequence_cnn_late_fusion.yaml
 ```
 
 Exact command flags may change during implementation, but all commands must use `uv run`.
@@ -414,9 +419,10 @@ Sprint 2 is complete when:
 - Relevant docs are updated for dependency and evaluation policy changes.
 - `uv run pytest -q` passes.
 
-## Open Follow-Ups
+## Closed Or Deferred Follow-Ups
 
-- Choose the exact guide-level split balancing heuristic after inspecting guide row/positive distributions.
-- Choose the exact F4 aggregation recipe before implementation.
-- Decide whether XGBoost class weighting or scale-pos-weight is part of the default baseline after split composition is known.
-- Decide whether to run optional putative augmentation in Sprint 2 or defer it until after measured-only baselines are stable.
+- Guide-level split balancing heuristic: completed for `sprint2_main_seed42`; guide-size caveat is documented.
+- F4 aggregation recipe: completed as aggregated computed nucleosome features plus missingness indicators.
+- XGBoost class weighting: completed as `xgboost_balanced_train_weights` sensitivity; `xgboost_unweighted` remains the primary boosted-tree baseline.
+- Putative `measured=0` augmentation: deferred beyond Sprint 2. Required Sprint 2 results use measured-only training, validation, and test rows.
+- Full 299-dimensional position-resolved computed features: deferred to later feature-ablation work.

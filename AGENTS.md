@@ -27,7 +27,7 @@ For implementation decisions and previous rationale, also check:
 - Keep core logic under `src/crispr_gnn/`.
 - Colab is a runner only; notebooks must not contain final model logic.
 - Do not commit large data, checkpoints, or run artifacts.
-- Do not add PyTorch or PyTorch Geometric until the graph-model sprint.
+- PyTorch is allowed for Sprint 2 non-graph sequence baselines as documented in `docs/DECISIONS.md`; do not add PyTorch Geometric or graph-specific dependencies until the graph-model sprint.
 - Final evaluation must use guide-level splits and AUPRC as the primary metric.
 - Test rows must be `measured=1` only.
 - Update `docs/DECISIONS.md` when changing labels, splits, datasets, or evaluation rules.

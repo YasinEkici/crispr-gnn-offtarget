@@ -113,7 +113,7 @@ Rules:
 - Add dev dependencies with `uv add --dev ...`.
 - Use `uv run ...` for scripts and tests.
 - Generate `requirements.txt` only if a specific external environment requires it.
-- Treat PyTorch/PyG GPU installation as the one possible special-case setup note.
+- Treat PyTorch/PyG GPU installation as a documented special-case setup note when a GPU runner needs it.
 - Do not require a Makefile; use documented `uv run ...` commands so the workflow stays OS-friendly.
 
 ### 7. Keep the project lightweight
@@ -446,9 +446,9 @@ uv run python scripts/audit_dataset.py --config configs/data/mak2022.yaml
 uv run pytest -q
 ```
 
-### Suggested initial dependency split
+### Initial dependency split
 
-For Sprint 1, keep dependencies lightweight. Do not install PyTorch/PyG until graph training begins.
+Sprint 1 kept dependencies lightweight. Sprint 2 later added `xgboost` for boosted-tree baselines and `torch` for non-graph sequence baselines. PyTorch Geometric remains deferred until graph-model implementation.
 
 ```toml
 [project]
@@ -479,7 +479,7 @@ dev = [
 
 ### Torch / PyG note
 
-Add PyTorch and PyTorch Geometric later, when Sprint 4 or graph-model training starts. CUDA/Colab may need a documented GPU-specific install workaround. Keep that workaround in `docs/DECISIONS.md` or `colab/README.md`; do not make ad-hoc `pip install` commands the default repo setup.
+PyTorch is allowed for Sprint 2 non-graph sequence baselines as documented in `docs/DECISIONS.md`. Add PyTorch Geometric later, when graph-model training starts. CUDA/Colab may need a documented GPU-specific install workaround. Keep that workaround in `docs/DECISIONS.md` or `colab/README.md`; do not make ad-hoc `pip install` commands the default repo setup.
 
 ---
 

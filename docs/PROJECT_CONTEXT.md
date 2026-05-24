@@ -4,7 +4,9 @@ This project builds an epigenetic-context-aware GNN framework for CRISPR-Cas9 of
 
 The first working dataset is the Mak et al. 2022 crisprSQL-derived epigenetic/nucleosome dataset. Large data files live outside git under `data/raw/`, `data/interim/`, or `data/processed/`.
 
-Sprint 0 initializes a reproducible, uv-based repository. It does not implement real ML models. The near-term path is dataset audit, label scheme validation, non-GNN baselines, graph construction, then GCN/GAT experiments.
+Sprint 1 completed the dataset audit, label scheme validation, and feature parsing policy. Sprint 2 completed fair same-split non-GNN and sequence baselines under the locked guide-level measured-only evaluation protocol. The strongest current non-graph baseline is `xgboost_unweighted / F4`; future graph models should compare against it under the same split, label, feature, and metric policy.
+
+The near-term path is graph construction and leakage control, then GCN/GAT experiments.
 
 Core rules:
 
@@ -14,3 +16,4 @@ Core rules:
 - Keep notebooks exploratory or runner-only.
 - Use guide-level evaluation for final results.
 - Treat random splits as debug-only.
+- Keep PyTorch Geometric deferred until graph-model implementation; PyTorch is already allowed for non-graph sequence baselines.
