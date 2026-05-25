@@ -1,0 +1,34 @@
+sprint: sprint3
+split_manifest: outputs/splits/sprint2_guides.json
+visibility_policy: strict_inductive_primary
+
+paths:
+  artifact_dir: data/processed/graphs/sprint3
+  report_path: outputs/reports/graph_schema_report.md
+
+representation:
+  max_length: 23
+  physical_target_key_fields:
+    - genome
+    - target_chr
+    - target_start
+    - target_end
+    - target_strand
+  candidate_edge_key: id
+
+graph_a:
+  name: graph_a_minimal_physical_target
+  context_placement: candidate_pair_edge
+
+graph_b:
+  name: graph_b_guide_similarity_control
+  role: bounded_secondary_control
+  metric: hamming
+  top_k: 5
+
+graph_c:
+  name: graph_c_context_observation
+  metric: euclidean
+  top_k: 5
+  preprocessing_fit_scope: train_only
+  context_placement: target_observation_node

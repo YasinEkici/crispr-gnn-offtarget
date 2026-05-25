@@ -31,3 +31,11 @@ def test_sequence_cnn_late_fusion_config_loads() -> None:
     assert config["experiment_name"] == "sequence_cnn_late_fusion"
     assert config["task"] == "sprint2_sequence_late_fusion"
     assert config["tabular_feature_sets"] == ["F3", "F4"]
+
+
+def test_graph_schema_ablation_config_loads() -> None:
+    config = load_yaml(ROOT / "configs" / "sweeps" / "graph_schema_ablation.yaml")
+    assert config["visibility_policy"] == "strict_inductive_primary"
+    assert config["graph_a"]["context_placement"] == "candidate_pair_edge"
+    assert config["graph_b"]["role"] == "bounded_secondary_control"
+    assert config["graph_c"]["context_placement"] == "target_observation_node"
