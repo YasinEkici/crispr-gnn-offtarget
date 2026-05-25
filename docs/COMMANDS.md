@@ -104,6 +104,26 @@ outputs/diagnostics/sprint2/sequence_late_fusion_input_audit.csv
 outputs/diagnostics/sprint2/sequence_late_fusion_training_summary.csv
 ```
 
+## Sprint 3 graph construction and leakage-control artifacts
+
+```bash
+uv run python scripts/build_graph.py --config configs/data/mak2022.yaml --schema-config configs/sweeps/graph_schema_ablation.yaml
+```
+
+This constructs dependency-light Graph A/B/C tables and manifests under:
+
+```text
+data/processed/graphs/sprint3/
+```
+
+The canonical tracked handoff report is:
+
+```text
+outputs/reports/graph_schema_report.md
+```
+
+This command does not train graph models and does not require PyTorch Geometric.
+
 ## Later sprint command pattern
 
 ```bash

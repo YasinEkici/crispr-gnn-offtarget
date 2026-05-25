@@ -71,6 +71,21 @@ Scheme B is deferred and must not be treated as directly available from the raw 
 - Do not use test labels to build target-target or sgRNA-sgRNA similarity.
 - If transductive graph access is used, document exactly which unlabeled test-time information is visible during training.
 
+## Sprint 3 Graph Visibility Rules
+
+The primary graph policy is strict-inductive and preserves the locked Sprint 2 main universe:
+
+- Candidate-pair labels and split membership inherit `sprint2_main_seed42`; train, validation, and test remain measured-only and exclude `experiment_id=18`.
+- Typed candidate-relation artifacts may contain every split with explicit masks; any later model loader must restrict supervised training edges to `split=train`.
+- Training graph views contain only training candidate relations and training-only auxiliary similarity relations.
+- Graph B validation/test guide-similarity queries may connect held-out guides only to training guides using label-free guide sequence.
+- Graph C validation/test context-similarity queries may connect held-out observations only to training observations after train-fitted imputation and scaling.
+- Auxiliary relation artifacts store visibility fragments: evaluation loads the training fragment together with the relevant validation or test fragment, never validation and test together.
+- Validation or test labels, performance diagnostics, and model scores never affect auxiliary topology.
+- Any later transductive sensitivity must be separately named, justified, and cannot replace strict-inductive primary reporting.
+
+Graph A represents physical target sites with row-varying context on candidate edges. Graph C represents context observations keyed per source row. Their comparison must acknowledge that both topology and target semantics differ.
+
 ## Reporting Rules
 
 Every model report must state:

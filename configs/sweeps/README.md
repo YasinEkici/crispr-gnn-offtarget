@@ -1,9 +1,10 @@
-# Sweeps
+# Sweeps And Schema Configs
 
-Sweep configs will live here after the baseline pipeline is stable.
+Current files:
 
-Planned files:
+- `graph_schema_ablation.yaml`: deterministic Sprint 3 Graph A/B/C construction settings; this config creates graph artifacts and does not run a model sweep.
+
+Later model-sweep candidates:
 
 - `epigenetic_ablation.yaml`
-- `graph_schema_ablation.yaml`
 - `loss_ablation.yaml`

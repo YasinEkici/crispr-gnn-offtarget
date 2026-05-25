@@ -8,6 +8,7 @@ Current status:
 
 - Sprint 1 dataset audit, label policy, and feature parsing policy are documented.
 - Sprint 2 fair non-graph baselines are complete under the locked guide-level measured-only split.
+- Sprint 3 dependency-light Graph A/B/C datasets and leakage controls are complete under the same locked split; graph-model training is not yet implemented.
 - The strongest current non-graph baseline is `xgboost_unweighted / F4`; future GNN work should compare against it under the same split, label, and metric policy.
 
 ## Setup
@@ -28,6 +29,7 @@ uv run python scripts/audit_dataset.py --config configs/data/mak2022.yaml --samp
 uv run python scripts/build_splits.py --config configs/data/mak2022.yaml
 uv run python scripts/build_features.py --config configs/data/mak2022.yaml
 uv run python scripts/train.py --config configs/experiments/baseline_xgboost.yaml
+uv run python scripts/build_graph.py --config configs/data/mak2022.yaml --schema-config configs/sweeps/graph_schema_ablation.yaml
 ```
 
 ## Data
@@ -48,6 +50,12 @@ Raw, interim, and processed datasets are ignored by git. Use `data/sample/` only
 - Split summary: `outputs/splits/sprint2_split_summary.csv`
 - Feature catalog: `outputs/features/sprint2_feature_catalog.md`
 
+## Key Sprint 3 Artifacts
+
+- Graph schema report: `outputs/reports/graph_schema_report.md`
+- Generated typed graph tables and manifests: `data/processed/graphs/sprint3/`
+- Graph schema configuration: `configs/sweeps/graph_schema_ablation.yaml`
+
 ## Current Scope
 
-The next major scope is graph construction and GNN baselines. PyTorch is present for Sprint 2 non-graph sequence baselines. PyTorch Geometric remains deferred until graph-model implementation.
+The next major scope is Sprint 4 graph-model training from the validated typed graph artifacts. PyTorch is present for Sprint 2 non-graph sequence baselines. PyTorch Geometric remains deferred until graph-model implementation.

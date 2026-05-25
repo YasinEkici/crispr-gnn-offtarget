@@ -206,3 +206,27 @@ Outcome:
 - Parser behavior lives in `src/crispr_gnn/data/parsers.py`.
 - Tests live in `tests/test_feature_parsers.py`.
 - Later feature builders must choose an explicit missingness policy before using computed features.
+
+## 2026-05-25 - Build typed Sprint 3 graph artifacts without PyTorch Geometric
+
+Decision: Sprint 3 serializes dependency-light typed node, relation, and feature tables plus graph manifests. PyTorch Geometric and `HeteroData` materialization are deferred until Sprint 4 model training is approved.
+
+Reason: graph construction and leakage validation do not require a graph-training dependency. Typed artifacts allow the graph schema, feature placement, and strict-inductive visibility policy to be tested before selecting a GNN architecture.
+
+Outcome: graph tables are generated under `data/processed/graphs/sprint3/` and the tracked handoff artifact is `outputs/reports/graph_schema_report.md`.
+
+## 2026-05-25 - Keep Graph A context on candidate edges and use genome-aware target keys
+
+Decision: Graph A physical target nodes use the key `genome + target_chr + target_start + target_end + target_strand`. Their predictive content is restricted to identity/type representation; S1/F1-F4 row-varying inputs remain candidate-pair edge features.
+
+Reason: in the locked measured-only Sprint 2 universe, repeated physical target coordinates occur across supervised splits and carry varying experimental and computed context values. Coordinates are also assembly-specific, so target identity must include genome. Storing observation context on a shared physical node would blur distinct assay observations and risk leakage across held-out guides.
+
+Outcome: Graph A is the minimal physical-target schema while preserving the Sprint 2 edge-level feature contract and train-only F4 imputation policy.
+
+## 2026-05-25 - Make Graph C the context-observation schema and Graph B a bounded control
+
+Decision: Graph C uses one `target_observation` node per source row `id`, adds context-only target-observation similarity, and follows a strict-inductive visibility policy. Graph B adds guide-sequence Hamming similarity to Graph A but is retained only as a bounded secondary control.
+
+Reason: Mak/crisprSQL context describes a measured guide-target observation and may differ at the same physical target site. Graph C represents this without forcing incompatible values into one physical node. Strict-inductive construction ensures validation/test observations connect only to training observations using train-fitted, label-free context processing. Graph B isolates inexpensive topology enrichment without expanding Sprint 4 into unnecessary schema sweeps.
+
+Outcome: Graph A and Graph C are the primary Sprint 4 schemas; Graph B may receive one controlled later run after Graph A training is stable. All later results must compare against `xgboost_unweighted / F4` under the locked Sprint 2 protocol.
