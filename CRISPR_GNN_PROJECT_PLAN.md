@@ -603,18 +603,23 @@ Goal: build trainable graph datasets and avoid leakage.
 
 Tasks:
 
-- Create sgRNA nodes, target nodes, sgRNA-target edges and labels.
-- Implement Graphs A, B, C from Section 8.
-- Implement guide-level split and random edge split for debug.
-- Build PyG `Data` or `HeteroData` objects.
+- Create leakage-controlled typed artifacts for Graphs A, B, and C from the locked Sprint 2 universe.
+- Preserve Scheme A labels, the `sprint2_main_seed42` guide-level split, measured-only main rows, and the `experiment_id=18` exclusion.
+- Implement strict-inductive auxiliary-relation visibility and deterministic, label-free graph construction.
+- Defer PyTorch Geometric and `HeteroData` materialization to Sprint 4 model work.
 
 Deliverables:
 
 ```text
 src/crispr_gnn/graph/graph_builder.py
-src/crispr_gnn/data/splits.py
+src/crispr_gnn/graph/graph_schemas.py
+scripts/build_graph.py
+tests/test_graph_builder.py
+tests/test_graph_leakage.py
 outputs/reports/graph_schema_report.md
 ```
+
+Sprint 3 reports graph schemas and leakage validation, not model performance. A compact graph-view sanity visualization may be produced during the Sprint 4 loader/model handoff, but full-network plots are not required Sprint 3 artifacts.
 
 ---
 
@@ -624,11 +629,12 @@ Goal: build the first literature-aligned GNN baseline.
 
 Tasks:
 
+- Materialize the validated typed Sprint 3 artifacts for graph-model training without changing their label, split, feature, or visibility contract.
 - Implement GCN edge classifier.
-- Train on Graph A.
-- Evaluate under random split and guide-level split.
-- Train on Graphs B and C for graph-enrichment ablation.
-- Compare against sequence DL baseline from Sprint 2.
+- Train on Graph A first and Graph C second; retain Graph B as a bounded control after the Graph A path is stable.
+- Use the locked guide-level split for headline evaluation. Any random-edge run remains debug-only and must not be presented as final performance.
+- Compare primarily against `xgboost_unweighted / F4` from Sprint 2 and also report relevant sequence-DL context.
+- Produce report-ready performance and diagnostic figures under the visualization contract below.
 
 Deliverables:
 
@@ -636,7 +642,19 @@ Deliverables:
 src/crispr_gnn/models/gcn.py
 outputs/results/gcn_results.csv
 outputs/reports/gcn_report.md
+outputs/figures/sprint4/gcn_graph_schema_auprc_comparison.png
+outputs/figures/sprint4/gcn_pr_curves.png
+outputs/figures/sprint4/gcn_roc_curves.png
+outputs/figures/sprint4/gcn_training_curves.png
+outputs/figures/sprint4/gcn_score_distributions.png
+outputs/figures/sprint4/gcn_confusion_matrices.png
+outputs/figures/sprint4/gcn_decile_lift.png
+outputs/figures/sprint4/gcn_per_genome_metrics.png
+outputs/figures/sprint4/graph_view_sanity_example.png
+outputs/figures/sprint4/gcn_sequence_position_sensitivity.png
 ```
+
+The sequence-position sensitivity figure is a focused interpretation artifact for a stable sequence-bearing GCN input path: adapt the CRISPR-Net occlusion/replacement idea by perturbing aligned guide-target positions and plotting score changes. It is interpretation-only, must not be used to tune the model, and is not required for graph configurations that do not expose a position-aligned sequence input.
 
 ---
 
@@ -658,7 +676,9 @@ Tasks:
 - Run feature ablations on best stable baseline model.
 - Prefer GCN first; repeat on GAT later if time allows.
 - Per-cell-line breakdown: does epigenetic context help more in some cell lines?
-- Optional: per-feature SHAP analysis on best model (replicates paper methodology).
+- Produce model-appropriate feature-contribution summaries for the selected stable model, adapting Mak et al.'s SHAP analysis where the explainer is technically valid.
+- Visualize context-feature distributions against Scheme A labels as a classification-track adaptation of Mak et al.'s cleavage-activity distribution analysis.
+- Optional: base-pair-resolved contribution heatmaps only if the deferred position-resolved computed-feature experiment is explicitly approved and implemented.
 
 Deliverables:
 
@@ -666,7 +686,14 @@ Deliverables:
 outputs/results/epigenetic_ablation.csv
 outputs/reports/epigenetic_ablation_report.md
 outputs/figures/sprint5/feature_set_auprc_comparison.png
+outputs/figures/sprint5/feature_set_pr_curves.png
+outputs/figures/sprint5/graph_context_gain_by_genome.png
+outputs/figures/sprint5/graph_context_gain_by_cell_line.png
+outputs/figures/sprint5/context_feature_distribution_by_label.png
+outputs/figures/sprint5/context_feature_contribution_summary.png
 ```
+
+Mak et al. used correlation/distribution plots and SHAP summaries to investigate epigenetic and nucleosome-feature contribution. This sprint adapts that interpretive intent to Scheme A classification and the locked guide-level protocol; it does not claim paper reproduction unless the Mak target, features, split, and model setup are separately reproduced.
 
 This sprint is the project's main novelty experiment. Prioritize over Sprint 6.
 
@@ -681,13 +708,23 @@ Tasks:
 - Compare Weighted BCE, Focal Loss, Dice Loss, balanced sampler.
 - Optional: hard negative mining.
 - Evaluate all under guide-level split with AUPRC as primary metric.
+- Show positive-retrieval behavior and across-guide variability, since imbalance interventions must not be judged from a single aggregate metric alone.
+- If a later approved data-level resampling method creates or discards training samples, document and visualize the changed training distribution separately; do not alter the locked evaluation population.
 
 Deliverables:
 
 ```text
 outputs/results/imbalance_comparison.csv
 outputs/reports/imbalance_report.md
+outputs/figures/sprint6/imbalance_auprc_comparison.png
+outputs/figures/sprint6/imbalance_pr_curves.png
+outputs/figures/sprint6/imbalance_threshold_metrics.png
+outputs/figures/sprint6/imbalance_score_distributions.png
+outputs/figures/sprint6/imbalance_per_guide_metric_distribution.png
+outputs/figures/sprint6/imbalance_positive_retrieval_summary.png
 ```
+
+The additional diagnostics follow the imbalance-literature warning that performance can appear inflated or unstable when evaluation composition is hidden. The primary test universe remains unchanged; visualizations compare training strategies only under the frozen main protocol.
 
 ---
 
@@ -700,7 +737,7 @@ Tasks:
 - Implement GATConv model; GATv2Conv if feasible.
 - Use same splits, same features, same graph schemas.
 - Compare GCN vs GAT vs GATv2.
-- Analyze attention weights if available.
+- Analyze attention weights if available, treating them as model interpretation signals rather than biological causal evidence.
 
 Deliverables:
 
@@ -708,7 +745,39 @@ Deliverables:
 src/crispr_gnn/models/gat.py
 outputs/results/gat_comparison.csv
 outputs/reports/gat_report.md
+outputs/figures/sprint7/gat_model_auprc_comparison.png
+outputs/figures/sprint7/gat_pr_curves.png
+outputs/figures/sprint7/gat_training_curves.png
+outputs/figures/sprint7/attention_weight_summary.png
 ```
+
+---
+
+### Visualization and Reporting Contract for Model Sprints
+
+Every sprint that trains or evaluates models must produce reproducible numerical outputs and report-ready figures. This requirement applies to Sprint 4 onward and should be retained for any stretch model experiment.
+
+Required model-reporting outputs:
+
+- A machine-readable metric/result table and a Markdown report.
+- An AUPRC comparison figure that includes positive prevalence and the strongest prior comparable baseline. For graph models, the required reference is `xgboost_unweighted / F4`.
+- Precision-recall and ROC curves on the locked reporting split.
+- Training or validation-history curves when iterative neural training occurs.
+- Score-distribution or decile-lift diagnostics.
+- Fixed-threshold diagnostics using a threshold selected from validation data only, including a confusion-matrix or equivalent summary.
+- Per-guide and per-genome diagnostic tables or figures when reporting aggregate generalization.
+- Model-specific interpretability or artifact-sanity figures where scientifically relevant, such as graph-view checks, context ablations, or attention summaries.
+- For a stable sequence-bearing neural model, a position-level perturbation/sensitivity visualization may be required to show how aligned guide-target sites affect predictions; this adapts the occlusion/replacement interpretation used by CRISPR-Net.
+- For context-feature experiments, require feature-distribution and model-contribution summaries; Mak et al.'s correlation/distribution and SHAP analyses motivate these views, but this project's Scheme A results are an adaptation rather than a paper reproduction.
+- For imbalance interventions, require positive-retrieval and subgroup/replicate variability summaries in addition to aggregate AUPRC; this reflects CRISPR imbalance literature showing that aggregate or artificially balanced reporting can obscure practical performance.
+
+Controls:
+
+- Headline figures must use the locked guide-level evaluation protocol; random-edge/debug views must be visibly labeled as debug-only.
+- Test diagnostics are interpretation outputs only and must not drive schema choice, feature selection, thresholds, hyperparameters, training duration, or model selection.
+- Figures must state or visibly include the split, label policy, graph schema/feature set, and comparator where omission could cause misinterpretation.
+- High test-set prevalence and guide/genome imbalance must remain visible in interpretation; AUPRC figures should include prevalence context.
+- Attribution, SHAP, perturbation, or attention plots are explanatory model diagnostics only. They must not be presented as causal biological evidence, and generating them from test cases must not influence model or feature selection.
 
 ---
 

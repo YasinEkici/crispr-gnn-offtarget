@@ -102,6 +102,28 @@ Every model report must state:
 - Whether `experiment_id=18` was excluded or reported separately.
 - Per-genome breakdown when claiming generalization beyond one genome.
 
+Every sprint that trains or evaluates a model must also generate report-ready visual outputs:
+
+- AUPRC comparison with positive prevalence and the strongest comparable prior baseline; graph models must include `xgboost_unweighted / F4`.
+- Precision-recall and ROC curves.
+- Training/history curves for iterative neural models.
+- Score-distribution or decile-lift diagnostics.
+- Fixed-threshold diagnostics, with thresholds selected using validation data only.
+- Per-guide and per-genome diagnostics appropriate to the reported claim.
+- Model-specific interpretation or artifact-sanity figures when relevant, such as graph-view inspection, feature ablation, or attention summaries.
+- Position-level perturbation/sensitivity views for stable sequence-bearing neural models where aligned guide-target sequence is an explicit input.
+- Feature-distribution and feature-contribution summaries for epigenetic/context ablations, using a technically appropriate attribution method and clearly distinguishing Scheme A analysis from Mak paper reproduction.
+- Positive-retrieval and across-guide variability summaries for imbalance-intervention comparisons.
+
+All headline figures must use the locked guide-level main protocol. Any random-edge or exploratory diagnostic must be visibly marked debug-only. Test-set visualizations are reporting artifacts only and must not be used to select graph schemas, features, thresholds, hyperparameters, epochs, or model variants.
+
+Interpretation figures must be treated conservatively:
+
+- Perturbation/sensitivity maps adapt the CRISPR-Net position-level interpretation approach; they describe model response to altered inputs, not causal cleavage mechanisms.
+- Context-feature contribution views adapt Mak et al.'s correlation/distribution and SHAP-style feature analysis; Scheme A classification under the locked split is not a reproduction of Mak's CA regression experiment.
+- Attention weights are model signals, not biological explanations unless supported by separate evidence.
+- Imbalance visualizations must use the unchanged main evaluation population. Data-level resampling distributions may be visualized for training audits only and may not replace evaluation on the locked test universe.
+
 ## Comparison Rules
 
 - Compare models only on the same dataset, label scheme, split, feature policy, and metrics.
