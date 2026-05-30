@@ -273,6 +273,40 @@ Reference:
 - PyTorch Geometric installation documentation:
   `https://pytorch-geometric.readthedocs.io/en/stable/install/installation.html`
 
+## 2026-05-30 - Add gradient clipping, LR scheduling, LayerNorm, and encoder activation to GCN baseline
+
+Decision: Apply five code-validated training and architecture improvements to the
+Sprint 4 Graph A GCN baseline before the first headline GPU run.
+
+Reason: Systematic validation against the actual training loop revealed five
+confirmed problems: (1) no gradient clipping after `loss.backward()`, creating
+instability risk on GPU float32; (2) fixed learning rate with no scheduler,
+reducing convergence quality; (3) no nonlinear activation after `sgrna_encoder`,
+collapsing the encoder and first GCNConv linear into one linear transformation;
+(4) no inter-layer LayerNorm, reducing training stability with multiple conv
+layers; (5) validation loss not tracked in history, limiting diagnostics.
+Two initially raised concerns were rejected: edge features not entering message
+passing is the documented GCNConv architectural choice (Sprint 7 GAT addresses
+this), and input feature normalization belongs to Sprint 5 feature ablation.
+
+Outcome:
+
+- `src/crispr_gnn/models/gcn.py`: `sgrna_encoder` changed to
+  `nn.Sequential(Linear, ReLU)`; `norms` ModuleList of `nn.LayerNorm` added and
+  applied post-conv in the forward loop.
+- `src/crispr_gnn/training/gcn.py`: `clip_grad_norm_(max_norm=1.0)` added before
+  `optimizer.step()`; `ReduceLROnPlateau(mode="max")` scheduler steps on
+  `val_auprc`; `val_loss` and `lr` added to per-epoch history dict.
+- `GCNRunConfig` extended with `clip_grad_norm`, `scheduler`,
+  `scheduler_factor`, `scheduler_patience`, `scheduler_min_lr` — all
+  config-driven with defaults matching approved Sprint 4 policy.
+- `configs/experiments/gcn_minimal.yaml` updated with the new training fields.
+- `tests/test_gcn_training_smoke.py` extended to assert `val_loss` and `lr`
+  presence and non-negativity.
+- These changes do not alter the frozen Sprint 2/3 label, split, visibility, or
+  evaluation contract. Loss function remains weighted BCE only (Sprint 6 scope
+  for focal loss). Edge feature message passing remains Sprint 7 scope.
+
 ## 2026-05-30 - Use Colab as a runner with pre-training graph artifact provenance
 
 Decision: Sprint 4 full GPU training may run on Google Colab, including Colab

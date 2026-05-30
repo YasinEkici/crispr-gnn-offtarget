@@ -53,6 +53,11 @@ class GCNRunConfig:
     num_layers: int = 2
     dropout: float = 0.2
     loss: str = "weighted_bce"
+    clip_grad_norm: float = 1.0
+    scheduler: str = "reduce_on_plateau"
+    scheduler_factor: float = 0.5
+    scheduler_patience: int = 5
+    scheduler_min_lr: float = 1e-5
     max_epochs: int = 100
     min_epochs: int = 5
     patience: int = 10
@@ -92,6 +97,9 @@ def gcn_run_config_from_mapping(config: Mapping[str, Any]) -> GCNRunConfig:
     loss = str(training.get("loss", "weighted_bce"))
     if loss != "weighted_bce":
         raise ValueError("Sprint 4 Slice 2 uses weighted BCE only")
+    scheduler = str(training.get("scheduler", "reduce_on_plateau"))
+    if scheduler not in {"reduce_on_plateau", "none"}:
+        raise ValueError("Sprint 4 scheduler must be 'reduce_on_plateau' or 'none'")
     return GCNRunConfig(
         sprint=str(config.get("sprint", "sprint4")),
         split_id=str(data.get("split_id", SPLIT_ID)),
@@ -107,6 +115,11 @@ def gcn_run_config_from_mapping(config: Mapping[str, Any]) -> GCNRunConfig:
         num_layers=int(model.get("num_layers", 2)),
         dropout=float(model.get("dropout", 0.2)),
         loss=loss,
+        clip_grad_norm=float(training.get("clip_grad_norm", 1.0)),
+        scheduler=scheduler,
+        scheduler_factor=float(training.get("scheduler_factor", 0.5)),
+        scheduler_patience=int(training.get("scheduler_patience", 5)),
+        scheduler_min_lr=float(training.get("scheduler_min_lr", 1e-5)),
         max_epochs=int(training.get("max_epochs", 100)),
         min_epochs=int(training.get("min_epochs", 5)),
         patience=int(training.get("patience", 10)),
@@ -144,6 +157,15 @@ def train_graph_a_gcn(
         dropout=config.dropout,
     ).to(device)
     optimizer = torch.optim.AdamW(model.parameters(), lr=config.learning_rate, weight_decay=config.weight_decay)
+    lr_scheduler: torch.optim.lr_scheduler.LRScheduler | None = None
+    if config.scheduler == "reduce_on_plateau":
+        lr_scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
+            optimizer,
+            mode="max",
+            factor=config.scheduler_factor,
+            patience=config.scheduler_patience,
+            min_lr=config.scheduler_min_lr,
+        )
     train_labels = _supervised_labels(train_view)
     pos_weight = _weighted_bce_pos_weight(train_labels).to(device)
     loss_fn = torch.nn.BCEWithLogitsLoss(pos_weight=pos_weight)
@@ -163,15 +185,26 @@ def train_graph_a_gcn(
         train_mask = train_view[GRAPH_A_EDGE_TYPE].supervision_mask
         loss = loss_fn(logits[train_mask], train_labels)
         loss.backward()
+        if config.clip_grad_norm > 0:
+            torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=config.clip_grad_norm)
         optimizer.step()
 
         val_labels, val_scores = _scores_for_view(model, val_view, edge_feature_attrs)
         val_auprc = _safe_average_precision(val_labels, val_scores)
+        with torch.no_grad():
+            val_logits = model(val_view, edge_feature_attrs=edge_feature_attrs)
+            val_mask = val_view[GRAPH_A_EDGE_TYPE].supervision_mask
+            val_sup_labels = val_view[GRAPH_A_EDGE_TYPE].edge_label[val_mask]
+            val_loss_value = float(loss_fn(val_logits[val_mask], val_sup_labels).detach().cpu())
+        if lr_scheduler is not None:
+            lr_scheduler.step(val_auprc)
         history.append(
             {
                 "epoch": int(epoch),
                 "train_loss": float(loss.detach().cpu()),
+                "val_loss": val_loss_value,
                 "val_auprc": float(val_auprc),
+                "lr": float(optimizer.param_groups[0]["lr"]),
                 "selection_split": "validation",
             }
         )

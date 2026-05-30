@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(Get-ChildItem -Path \"d:\\\\Python Projects\\\\Crispr_GNN_offtarget\\\\crispr-gnn-offtarget\\\\docs\\\\literature\\\\\" -Recurse -File | Select-Object FullName)"
+    ]
+  }
+}

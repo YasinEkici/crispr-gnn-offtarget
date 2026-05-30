@@ -42,9 +42,10 @@ class GraphAEdgeGCN(nn.Module):
         if edge_input_dim < 0:
             raise ValueError("edge_input_dim cannot be negative")
         self.target_representation_policy = TARGET_REPRESENTATION_POLICY
-        self.sgrna_encoder = nn.Linear(sgrna_input_dim, hidden_dim)
+        self.sgrna_encoder = nn.Sequential(nn.Linear(sgrna_input_dim, hidden_dim), nn.ReLU())
         self.physical_target_type = nn.Parameter(torch.zeros(1, hidden_dim))
         self.convs = nn.ModuleList(GCNConv(hidden_dim, hidden_dim) for _ in range(num_layers))
+        self.norms = nn.ModuleList(nn.LayerNorm(hidden_dim) for _ in range(num_layers))
         self.dropout = nn.Dropout(dropout)
         classifier_input_dim = hidden_dim * 4 + edge_input_dim
         self.edge_classifier = nn.Sequential(
@@ -64,8 +65,8 @@ class GraphAEdgeGCN(nn.Module):
             edge_index=edge_index,
             sgrna_nodes=data["sgRNA"].num_nodes,
         )
-        for conv in self.convs:
-            x = conv(x, homogeneous_edge_index).relu()
+        for conv, norm in zip(self.convs, self.norms, strict=True):
+            x = norm(conv(x, homogeneous_edge_index).relu())
             x = self.dropout(x)
         source_index = edge_index[0]
         target_index = edge_index[1] + data["sgRNA"].num_nodes

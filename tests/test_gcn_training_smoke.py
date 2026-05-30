@@ -46,6 +46,9 @@ def test_graph_a_gcn_cpu_smoke_training_preserves_validation_only_selection(tmp_
     assert "test_auprc" in results.columns
     assert "test" not in set(history["selection_split"])
     assert history["epoch"].max() <= 3
+    assert "val_loss" in history.columns, "val_loss must be tracked in training history"
+    assert "lr" in history.columns, "learning rate must be tracked in training history"
+    assert (history["val_loss"] >= 0).all(), "val_loss must be non-negative"
 
 
 def test_graph_a_gcn_saves_checkpoint_when_path_provided(tmp_path) -> None:
@@ -57,6 +60,11 @@ def test_graph_a_gcn_saves_checkpoint_when_path_provided(tmp_path) -> None:
         hidden_dim=12,
         num_layers=1,
         dropout=0.0,
+        clip_grad_norm=1.0,
+        scheduler="reduce_on_plateau",
+        scheduler_factor=0.5,
+        scheduler_patience=5,
+        scheduler_min_lr=1e-5,
         max_epochs=2,
         min_epochs=1,
         patience=2,
