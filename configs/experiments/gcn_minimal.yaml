@@ -1,40 +1,65 @@
 experiment_name: gcn_minimal
+task: sprint4_gcn
+sprint: sprint4
 seed: 42
+run_id: null
+runs_dir: outputs/runs
 
 data:
   dataset: mak2022
   config: configs/data/mak2022.yaml
   label_scheme: scheme_a
-  split: debug
+  split_id: sprint2_main_seed42
+  split_manifest: outputs/splits/sprint2_guides.json
+  graph_artifact_dir: data/processed/graphs/sprint3
 
 features:
-  sequence: true
-  mismatch: true
-  experimental_epigenetic: false
-  computed_nucleosome: false
-  binding_energy: false
+  edge_feature_sets: [s1_pair, f1]
+  feature_set: S1_pair+F1
 
 graph:
-  schema: minimal_bipartite
-  similarity_edges: false
+  schema: graph_a_minimal_physical_target
+  materialization: heterodata
+  visibility_policy: strict_inductive_primary
 
 model:
-  name: gcn
+  name: gcn_graph_a
   hidden_dim: 128
   num_layers: 2
   dropout: 0.2
-  status: placeholder_until_pytorch_geometric_is_added
+  target_node_representation: zero_type_feature
 
 training:
   loss: weighted_bce
-  batch_size: 1024
+  learning_rate: 0.001
+  weight_decay: 0.0001
   max_epochs: 100
+  min_epochs: 5
   patience: 10
+  device: cpu
+  num_threads: 1
 
 split_rules:
+  guide_disjoint: true
+  train_measured_only: true
+  validation_measured_only: true
   test_measured_only: true
-  val_measured_preferred: true
+  exclude_experiment_id: 18
+
+evaluation:
+  protocol: headline_guide_level
+  no_test_tuning: true
 
 metrics:
   primary: auprc
   secondary: [auroc, f1, mcc]
+
+baseline_reference:
+  model_name: xgboost_unweighted
+  feature_set: F4
+  test_auprc: 0.992522
+  test_auroc: 0.938416
+  test_mcc: 0.345198
+
+results_path: outputs/results/gcn_results.csv
+diagnostics_dir: outputs/diagnostics/sprint4

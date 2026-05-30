@@ -20,13 +20,16 @@ brew install libomp
 uv run pytest -q
 ```
 
-## Sprint 0 smoke commands
+## Sprint 0 audit smoke command
 
 ```bash
 uv run python scripts/audit_dataset.py --config configs/data/mak2022.yaml --sample
-uv run python scripts/train.py --config configs/experiments/gcn_minimal.yaml --debug --max-epochs 1
-uv run python scripts/evaluate.py --config configs/experiments/gcn_minimal.yaml --debug
 ```
+
+The former placeholder `gcn_minimal.yaml --debug` commands are not a current
+training workflow. As of Sprint 4 Slice 1, `gcn_minimal.yaml` declares the
+locked headline guide-level protocol and must not be used for random-edge or
+debug performance reporting.
 
 ## Sprint 2 split artifacts
 
@@ -123,6 +126,70 @@ outputs/reports/graph_schema_report.md
 ```
 
 This command does not train graph models and does not require PyTorch Geometric.
+
+## Sprint 4 graph materialization foundation validation
+
+Sprint 4 Slice 1 adds the minimum PyTorch Geometric dependency required to
+materialize validated Sprint 3 typed artifacts as strict-inductive
+`HeteroData` views. It does not train a graph model.
+
+```bash
+uv sync
+uv run pytest -q tests/test_graph_loader.py tests/test_graph_leakage.py tests/test_config_loads.py
+uv run ruff check scripts src tests
+uv run pytest -q
+```
+
+The materialization path consumes existing typed tables and manifests under:
+
+```text
+data/processed/graphs/sprint3/
+```
+
+It must not rebuild graph topology or rewrite Sprint 3 artifacts.
+
+## Sprint 4 Colab runner infrastructure validation
+
+Slice 4A prepares the Colab runner workflow only. It does not execute a full
+Graph A GPU run and does not produce final Sprint 4 performance claims.
+
+Validate a copied Sprint 3 graph artifact set before any headline Colab
+training:
+
+```bash
+uv run python scripts/validate_graph_artifacts.py --artifact-dir data/processed/graphs/sprint3 --approved-source drive_sprint3_handoff --output outputs/runs/<run_id>/graph_artifact_provenance.json
+```
+
+This command consumes serialized Sprint 3 graph tables and manifests through
+the Sprint 4 loader, validates the frozen graph contract, and records SHA256
+checksums for the artifact files. It must pass before a Graph A Colab result is
+eligible for headline reporting.
+
+Colab setup pattern:
+
+```bash
+pip install uv
+git clone <repository-url> crispr-gnn-offtarget
+cd crispr-gnn-offtarget
+git checkout <approved-sprint4-branch-or-commit>
+uv sync
+uv run python -c "import torch, torch_geometric; print('torch', torch.__version__); print('pyg', torch_geometric.__version__); print('cuda_available', torch.cuda.is_available()); print('cuda', torch.version.cuda)"
+```
+
+Colab Pro may be used for GPU capacity, but reported runs must still record the
+commit SHA, resolved config, random seed, device/runtime, graph schema, feature
+bundle, split ID, visibility policy, output paths, and artifact provenance.
+
+The canonical Graph A training command is:
+
+```bash
+uv run python scripts/train.py --config configs/experiments/gcn_minimal.yaml
+```
+
+Run this command only after local Slice 1-3 validation and the artifact
+provenance gate pass. It writes canonical Sprint 4 outputs. Use separate
+reviewed debug output paths for smoke checks; do not use canonical headline
+paths for throwaway Colab experiments.
 
 ## Later sprint command pattern
 

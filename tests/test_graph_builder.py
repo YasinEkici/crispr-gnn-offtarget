@@ -1,10 +1,17 @@
 import json
+import os
+import subprocess
+import sys
+from pathlib import Path
 
 import pandas as pd
 
 from crispr_gnn.data.schemas import COMPUTED_NUCLEOSOME_FEATURES
 from crispr_gnn.graph import GRAPH_A, GRAPH_B, GRAPH_C, GraphBuildConfig, build_graph_artifacts, write_graph_artifacts
 from crispr_gnn.graph.graph_schemas import SimilarityConfig
+
+
+ROOT = Path(__file__).resolve().parents[1]
 
 
 def make_graph_rows() -> pd.DataFrame:
@@ -46,6 +53,23 @@ def make_graph_rows() -> pd.DataFrame:
                 rows.append(row)
                 source_id += 1
     return pd.DataFrame(rows)
+
+
+def test_graph_construction_package_import_does_not_load_pyg() -> None:
+    env = os.environ.copy()
+    env["PYTHONPATH"] = str(ROOT / "src")
+    process = subprocess.run(
+        [
+            sys.executable,
+            "-c",
+            "import sys; import crispr_gnn.graph; assert 'torch_geometric' not in sys.modules",
+        ],
+        capture_output=True,
+        check=False,
+        env=env,
+        text=True,
+    )
+    assert process.returncode == 0, process.stderr
 
 
 def test_build_graph_artifacts_preserves_candidate_edges_and_context_placement() -> None:

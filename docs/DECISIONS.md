@@ -238,3 +238,64 @@ Decision: every model-training or model-evaluation sprint from Sprint 4 onward m
 Reason: aggregate metric tables alone are insufficient under the positive-heavy test set and uneven guide/genome composition. Visual PR/ROC, training-history, score/threshold, and subgroup diagnostic outputs make the result interpretable while preserving the same scientific contract. The literature notes additionally support position-level perturbation views for sequence-bearing neural predictions (CRISPR-Net), feature-distribution and SHAP-style context contribution analysis (Mak et al. 2022), and positive-retrieval/variability reporting when comparing imbalance interventions (Gao 2020; Guan 2024).
 
 Outcome: Sprint 4-7 deliverables explicitly include figures under `outputs/figures/<sprint_name>/`. Sprint 4 adds a focused position-level sensitivity artifact when its trained GCN consumes aligned sequence input; Sprint 5 adds context distribution and model-contribution artifacts; Sprint 6 adds positive-retrieval and across-guide variability artifacts. Figures remain subject to the locked guide-level split, Scheme A, measured-only main evaluation, `experiment_id=18` exclusion, validation-only threshold selection, and no test-driven model or schema selection. Random-edge or exploratory figures must be labeled debug-only. SHAP, perturbation, and attention diagnostics are interpretation-only and must not be claimed as causal biological evidence.
+
+## 2026-05-28 - Materialize Sprint 3 typed artifacts with minimal PyG `HeteroData`
+
+Decision: add `torch-geometric>=2.7.0` as the only new graph-specific dependency
+for Sprint 4 Slice 1 and materialize the validated Sprint 3 typed graph tables
+as strict-inductive PyG `HeteroData` views.
+
+Reason: Graph A/B/C are already persisted as typed node, relation, feature,
+and manifest tables. `HeteroData` provides a typed model-facing container
+without requiring topology reconstruction from raw dataset rows. The official
+PyTorch Geometric installation guidance states that basic PyG use requires
+only PyTorch and `torch_geometric`; optional compiled extension packages should
+be introduced only when a demonstrated later model/runtime need requires them.
+
+Outcome:
+
+- `src/crispr_gnn/graph/pyg_dataset.py` reads serialized Sprint 3 artifacts
+  and validates the frozen Scheme A, `sprint2_main_seed42`, manifest count,
+  feature-placement, preprocessing-scope, and strict-inductive visibility
+  contracts before exposing PyG views.
+- Train, validation, and test views retain their permitted relation fragments;
+  the training view cannot include held-out candidate supervision.
+- Raw identifiers and reporting metadata remain audit information and are not
+  inserted into predictive `x` or `edge_attr_*` tensors.
+- `configs/experiments/gcn_minimal.yaml` declares the locked headline protocol
+  rather than a debug split. Configuration validation rejects debug or
+  random-edge settings as headline evaluation.
+- This slice does not implement a GCN model, training loop, Colab GPU run, or
+  reporting figures.
+
+Reference:
+
+- PyTorch Geometric installation documentation:
+  `https://pytorch-geometric.readthedocs.io/en/stable/install/installation.html`
+
+## 2026-05-30 - Use Colab as a runner with pre-training graph artifact provenance
+
+Decision: Sprint 4 full GPU training may run on Google Colab, including Colab
+Pro when available, but Colab remains a runner only. Repository code and
+configs remain the source of truth. Before any headline Graph A run, the
+copied Sprint 3 graph artifacts must pass a repository-owned provenance gate
+that validates the frozen loader contract and records SHA256 checksums.
+
+Reason: Colab provides practical GPU runtime capacity, but notebook-local model
+logic, ad hoc dependency fixes, and unverified Drive copies would weaken the
+frozen Sprint 2/Sprint 3 contract. A checksum/provenance record makes the
+copied graph artifact identity explicit before training and gives Slice 4C a
+concrete returned artifact to inspect.
+
+Outcome:
+
+- `colab/README.md` documents the runner-only workflow, Drive copy-in/copy-out
+  policy, PyTorch/PyG/CUDA version check, required returned artifacts, and the
+  boundary between debug and canonical output paths.
+- `scripts/validate_graph_artifacts.py` validates the copied Sprint 3 graph
+  artifacts through the Sprint 4 loader and writes
+  `outputs/runs/<run_id>/graph_artifact_provenance.json`.
+- A Graph A Colab result without a passing provenance record is provisional or
+  debug-only and must not enter headline Sprint 4 reporting.
+- Any Colab-specific dependency workaround must be documented in repository
+  files before the run can support a final claim.
