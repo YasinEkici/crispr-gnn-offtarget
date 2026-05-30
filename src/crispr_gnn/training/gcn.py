@@ -65,6 +65,8 @@ class GCNRunConfig:
     weight_decay: float = 1e-4
     device: str = "cpu"
     num_threads: int = 1
+    use_compile: bool = False
+    use_amp: bool = False
 
 
 def run_gcn_graph_a_from_config(
@@ -127,6 +129,8 @@ def gcn_run_config_from_mapping(config: Mapping[str, Any]) -> GCNRunConfig:
         weight_decay=float(training.get("weight_decay", 1e-4)),
         device=str(training.get("device", "cpu")),
         num_threads=int(training.get("num_threads", 1)),
+        use_compile=bool(training.get("use_compile", False)),
+        use_amp=bool(training.get("use_amp", False)),
     )
 
 
@@ -156,6 +160,9 @@ def train_graph_a_gcn(
         num_layers=config.num_layers,
         dropout=config.dropout,
     ).to(device)
+    _use_amp = config.use_amp and device.type == "cuda"
+    if config.use_compile and device.type == "cuda" and hasattr(torch, "compile"):
+        model = torch.compile(model)
     optimizer = torch.optim.AdamW(model.parameters(), lr=config.learning_rate, weight_decay=config.weight_decay)
     lr_scheduler: torch.optim.lr_scheduler.LRScheduler | None = None
     if config.scheduler == "reduce_on_plateau":
@@ -181,9 +188,10 @@ def train_graph_a_gcn(
         final_epoch = epoch
         model.train()
         optimizer.zero_grad(set_to_none=True)
-        logits = model(train_view, edge_feature_attrs=edge_feature_attrs)
+        with torch.autocast("cuda", dtype=torch.bfloat16, enabled=_use_amp):
+            logits = model(train_view, edge_feature_attrs=edge_feature_attrs)
         train_mask = train_view[GRAPH_A_EDGE_TYPE].supervision_mask
-        loss = loss_fn(logits[train_mask], train_labels)
+        loss = loss_fn(logits[train_mask].float(), train_labels)
         loss.backward()
         if config.clip_grad_norm > 0:
             torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=config.clip_grad_norm)
@@ -192,10 +200,11 @@ def train_graph_a_gcn(
         val_labels, val_scores = _scores_for_view(model, val_view, edge_feature_attrs)
         val_auprc = _safe_average_precision(val_labels, val_scores)
         with torch.no_grad():
-            val_logits = model(val_view, edge_feature_attrs=edge_feature_attrs)
+            with torch.autocast("cuda", dtype=torch.bfloat16, enabled=_use_amp):
+                val_logits = model(val_view, edge_feature_attrs=edge_feature_attrs)
             val_mask = val_view[GRAPH_A_EDGE_TYPE].supervision_mask
             val_sup_labels = val_view[GRAPH_A_EDGE_TYPE].edge_label[val_mask]
-            val_loss_value = float(loss_fn(val_logits[val_mask], val_sup_labels).detach().cpu())
+            val_loss_value = float(loss_fn(val_logits[val_mask].float(), val_sup_labels).detach().cpu())
         if lr_scheduler is not None:
             lr_scheduler.step(val_auprc)
         history.append(
@@ -296,6 +305,8 @@ def _result_row(
         "graph_artifact_manifest_schema": materialized.manifest.get("graph_name"),
         "graph_artifact_split_id": materialized.manifest.get("split_id"),
         "weighted_bce_pos_weight": float(pos_weight),
+        "use_compile": config.use_compile,
+        "use_amp": config.use_amp,
         "notes": "Graph A minimal GCN smoke-capable path; no test-driven selection; no Graph C/B run",
         **val_metrics,
         **test_metrics,

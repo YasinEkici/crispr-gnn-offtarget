@@ -273,6 +273,32 @@ Reference:
 - PyTorch Geometric installation documentation:
   `https://pytorch-geometric.readthedocs.io/en/stable/install/installation.html`
 
+## 2026-05-30 - Enable torch.compile, bfloat16 AMP, and extended epochs for A100 GPU run
+
+Decision: enable `torch.compile`, bfloat16 mixed-precision autocast, and extended
+training epochs for the Sprint 4 Graph A GPU run on A100 hardware.
+
+Reason: A100 GPU provides tensor-core-accelerated bfloat16 and PyTorch 2.x
+compile support that are not available on CPU. These changes improve training
+efficiency without altering the frozen evaluation contract.
+
+Outcome:
+
+- `use_compile: true` in config — applies `torch.compile(model)` before the
+  training loop when `device == cuda`. Skipped silently on CPU. Adds JIT
+  compilation overhead on the first epoch; subsequent epochs are faster.
+- `use_amp: true` in config — wraps training and inline val-loss forward passes
+  with `torch.autocast("cuda", dtype=torch.bfloat16)`. Loss inputs are cast
+  to float32 before `BCEWithLogitsLoss` to preserve numerical stability.
+  Skipped silently on CPU. Eval forward passes in `_scores_for_view` remain
+  float32 for precise metric computation.
+- `max_epochs: 300`, `patience: 15` — more training time; early stopping on
+  val_auprc still protects against overfitting.
+- These changes do not affect the frozen label, split, visibility, threshold
+  selection, or evaluation contract. Results table gains `use_compile` and
+  `use_amp` provenance fields. CPU runs with `use_compile: true` and
+  `use_amp: true` in config are safe — both flags are gated on `device.type == cuda`.
+
 ## 2026-05-30 - Add gradient clipping, LR scheduling, LayerNorm, and encoder activation to GCN baseline
 
 Decision: Apply five code-validated training and architecture improvements to the

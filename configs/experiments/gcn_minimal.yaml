@@ -38,11 +38,13 @@ training:
   scheduler_min_lr: 0.00001
   learning_rate: 0.001
   weight_decay: 0.0001
-  max_epochs: 100
+  max_epochs: 300
   min_epochs: 5
-  patience: 10
+  patience: 15
   device: cpu
   num_threads: 1
+  use_compile: true
+  use_amp: true
 
 split_rules:
   guide_disjoint: true

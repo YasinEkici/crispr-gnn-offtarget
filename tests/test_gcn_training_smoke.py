@@ -26,6 +26,8 @@ def test_graph_a_gcn_cpu_smoke_training_preserves_validation_only_selection(tmp_
         edge_feature_sets=("s1_pair", "f1"),
         device="cpu",
         num_threads=1,
+        use_compile=False,
+        use_amp=False,
     )
 
     results, predictions, history = train_graph_a_gcn(materialized, config)
@@ -49,6 +51,8 @@ def test_graph_a_gcn_cpu_smoke_training_preserves_validation_only_selection(tmp_
     assert "val_loss" in history.columns, "val_loss must be tracked in training history"
     assert "lr" in history.columns, "learning rate must be tracked in training history"
     assert (history["val_loss"] >= 0).all(), "val_loss must be non-negative"
+    assert "use_compile" in results.columns, "use_compile provenance must be in results"
+    assert "use_amp" in results.columns, "use_amp provenance must be in results"
 
 
 def test_graph_a_gcn_saves_checkpoint_when_path_provided(tmp_path) -> None:
