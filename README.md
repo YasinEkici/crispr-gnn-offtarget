@@ -8,8 +8,8 @@ Current status:
 
 - Sprint 1 dataset audit, label policy, and feature parsing policy are documented.
 - Sprint 2 fair non-graph baselines are complete under the locked guide-level measured-only split.
-- Sprint 3 dependency-light Graph A/B/C datasets and leakage controls are complete under the same locked split; graph-model training is not yet implemented.
-- The strongest current non-graph baseline is `xgboost_unweighted / F4`; future GNN work should compare against it under the same split, label, and metric policy.
+- Sprint 3 dependency-light Graph A/B/C datasets and leakage controls are complete under the same locked split.
+- Sprint 4 GCN baseline training is complete: Graph A, Graph B (bounded topology-control), and Graph C all have validated Colab GPU runs under the frozen contract. None beats `xgboost_unweighted / F4` on primary test AUPRC. Consolidated comparison: `outputs/sprint4/gcn_sprint4_comparison_results.csv`.
 
 ## Setup
 
@@ -44,18 +44,22 @@ Raw, interim, and processed datasets are ignored by git. Use `data/sample/` only
 
 ## Key Sprint 2 Artifacts
 
-- Results table: `outputs/results/baseline_results.csv`
-- Baseline report: `outputs/reports/baseline_report.md`
+- Results table: `outputs/sprint2/baseline_results.csv`
+- Baseline report: `outputs/sprint2/baseline_report.md`
 - Split manifest: `outputs/splits/sprint2_guides.json`
 - Split summary: `outputs/splits/sprint2_split_summary.csv`
 - Feature catalog: `outputs/features/sprint2_feature_catalog.md`
 
 ## Key Sprint 3 Artifacts
 
-- Graph schema report: `outputs/reports/graph_schema_report.md`
+- Graph schema report: `outputs/sprint3/graph_schema_report.md`
 - Generated typed graph tables and manifests: `data/processed/graphs/sprint3/`
 - Graph schema configuration: `configs/sweeps/graph_schema_ablation.yaml`
 
 ## Current Scope
 
-The next major scope is Sprint 4 graph-model training from the validated typed graph artifacts. PyTorch is present for Sprint 2 non-graph sequence baselines. PyTorch Geometric remains deferred until graph-model implementation.
+The current Sprint 4 scope has validated Graph A and Graph C as same-contract
+GCN baselines from typed Sprint 3 artifacts. Graph C changes both topology and
+target semantics/context representation relative to Graph A, so it is not a
+topology-only comparison. Graph B remains an optional bounded control.
+PyTorch Geometric is part of the Sprint 4 graph-model implementation.

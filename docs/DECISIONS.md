@@ -213,7 +213,7 @@ Decision: Sprint 3 serializes dependency-light typed node, relation, and feature
 
 Reason: graph construction and leakage validation do not require a graph-training dependency. Typed artifacts allow the graph schema, feature placement, and strict-inductive visibility policy to be tested before selecting a GNN architecture.
 
-Outcome: graph tables are generated under `data/processed/graphs/sprint3/` and the tracked handoff artifact is `outputs/reports/graph_schema_report.md`.
+Outcome: graph tables are generated under `data/processed/graphs/sprint3/` and the tracked handoff artifact is `outputs/sprint3/graph_schema_report.md`.
 
 ## 2026-05-25 - Keep Graph A context on candidate edges and use genome-aware target keys
 
@@ -237,4 +237,346 @@ Decision: every model-training or model-evaluation sprint from Sprint 4 onward m
 
 Reason: aggregate metric tables alone are insufficient under the positive-heavy test set and uneven guide/genome composition. Visual PR/ROC, training-history, score/threshold, and subgroup diagnostic outputs make the result interpretable while preserving the same scientific contract. The literature notes additionally support position-level perturbation views for sequence-bearing neural predictions (CRISPR-Net), feature-distribution and SHAP-style context contribution analysis (Mak et al. 2022), and positive-retrieval/variability reporting when comparing imbalance interventions (Gao 2020; Guan 2024).
 
-Outcome: Sprint 4-7 deliverables explicitly include figures under `outputs/figures/<sprint_name>/`. Sprint 4 adds a focused position-level sensitivity artifact when its trained GCN consumes aligned sequence input; Sprint 5 adds context distribution and model-contribution artifacts; Sprint 6 adds positive-retrieval and across-guide variability artifacts. Figures remain subject to the locked guide-level split, Scheme A, measured-only main evaluation, `experiment_id=18` exclusion, validation-only threshold selection, and no test-driven model or schema selection. Random-edge or exploratory figures must be labeled debug-only. SHAP, perturbation, and attention diagnostics are interpretation-only and must not be claimed as causal biological evidence.
+Outcome: Sprint 4-7 deliverables explicitly include figures under `outputs/<sprint_name>/<model>/figures/`. Sprint 4 adds a focused position-level sensitivity artifact when its trained GCN consumes aligned sequence input; Sprint 5 adds context distribution and model-contribution artifacts; Sprint 6 adds positive-retrieval and across-guide variability artifacts. Figures remain subject to the locked guide-level split, Scheme A, measured-only main evaluation, `experiment_id=18` exclusion, validation-only threshold selection, and no test-driven model or schema selection. Random-edge or exploratory figures must be labeled debug-only. SHAP, perturbation, and attention diagnostics are interpretation-only and must not be claimed as causal biological evidence.
+
+## 2026-05-28 - Materialize Sprint 3 typed artifacts with minimal PyG `HeteroData`
+
+Decision: add `torch-geometric>=2.7.0` as the only new graph-specific dependency
+for Sprint 4 Slice 1 and materialize the validated Sprint 3 typed graph tables
+as strict-inductive PyG `HeteroData` views.
+
+Reason: Graph A/B/C are already persisted as typed node, relation, feature,
+and manifest tables. `HeteroData` provides a typed model-facing container
+without requiring topology reconstruction from raw dataset rows. The official
+PyTorch Geometric installation guidance states that basic PyG use requires
+only PyTorch and `torch_geometric`; optional compiled extension packages should
+be introduced only when a demonstrated later model/runtime need requires them.
+
+Outcome:
+
+- `src/crispr_gnn/graph/pyg_dataset.py` reads serialized Sprint 3 artifacts
+  and validates the frozen Scheme A, `sprint2_main_seed42`, manifest count,
+  feature-placement, preprocessing-scope, and strict-inductive visibility
+  contracts before exposing PyG views.
+- Train, validation, and test views retain their permitted relation fragments;
+  the training view cannot include held-out candidate supervision.
+- Raw identifiers and reporting metadata remain audit information and are not
+  inserted into predictive `x` or `edge_attr_*` tensors.
+- `configs/experiments/gcn_minimal.yaml` declares the locked headline protocol
+  rather than a debug split. Configuration validation rejects debug or
+  random-edge settings as headline evaluation.
+- This slice does not implement a GCN model, training loop, Colab GPU run, or
+  reporting figures.
+
+Reference:
+
+- PyTorch Geometric installation documentation:
+  `https://pytorch-geometric.readthedocs.io/en/stable/install/installation.html`
+
+## 2026-05-30 - Enable torch.compile, bfloat16 AMP, and extended epochs for A100 GPU run
+
+Decision: enable `torch.compile`, bfloat16 mixed-precision autocast, and extended
+training epochs for the Sprint 4 Graph A GPU run on A100 hardware.
+
+Reason: A100 GPU provides tensor-core-accelerated bfloat16 and PyTorch 2.x
+compile support that are not available on CPU. These changes improve training
+efficiency without altering the frozen evaluation contract.
+
+Outcome:
+
+- `use_compile: true` in config — applies `torch.compile(model)` before the
+  training loop when `device == cuda`. Skipped silently on CPU. Adds JIT
+  compilation overhead on the first epoch; subsequent epochs are faster.
+- `use_amp: true` in config — wraps training and inline val-loss forward passes
+  with `torch.autocast("cuda", dtype=torch.bfloat16)`. Loss inputs are cast
+  to float32 before `BCEWithLogitsLoss` to preserve numerical stability.
+  Skipped silently on CPU. Eval forward passes in `_scores_for_view` remain
+  float32 for precise metric computation.
+- `max_epochs: 300`, `patience: 15` — more training time; early stopping on
+  val_auprc still protects against overfitting.
+- These changes do not affect the frozen label, split, visibility, threshold
+  selection, or evaluation contract. Results table gains `use_compile` and
+  `use_amp` provenance fields. CPU runs with `use_compile: true` and
+  `use_amp: true` in config are safe — both flags are gated on `device.type == cuda`.
+
+## 2026-05-30 - Add gradient clipping, LR scheduling, LayerNorm, and encoder activation to GCN baseline
+
+Decision: Apply five code-validated training and architecture improvements to the
+Sprint 4 Graph A GCN baseline before the first headline GPU run.
+
+Reason: Systematic validation against the actual training loop revealed five
+confirmed problems: (1) no gradient clipping after `loss.backward()`, creating
+instability risk on GPU float32; (2) fixed learning rate with no scheduler,
+reducing convergence quality; (3) no nonlinear activation after `sgrna_encoder`,
+collapsing the encoder and first GCNConv linear into one linear transformation;
+(4) no inter-layer LayerNorm, reducing training stability with multiple conv
+layers; (5) validation loss not tracked in history, limiting diagnostics.
+Two initially raised concerns were rejected: edge features not entering message
+passing is the documented GCNConv architectural choice (Sprint 7 GAT addresses
+this), and input feature normalization belongs to Sprint 5 feature ablation.
+
+Outcome:
+
+- `src/crispr_gnn/models/gcn.py`: `sgrna_encoder` changed to
+  `nn.Sequential(Linear, ReLU)`; `norms` ModuleList of `nn.LayerNorm` added and
+  applied post-conv in the forward loop.
+- `src/crispr_gnn/training/gcn.py`: `clip_grad_norm_(max_norm=1.0)` added before
+  `optimizer.step()`; `ReduceLROnPlateau(mode="max")` scheduler steps on
+  `val_auprc`; `val_loss` and `lr` added to per-epoch history dict.
+- `GCNRunConfig` extended with `clip_grad_norm`, `scheduler`,
+  `scheduler_factor`, `scheduler_patience`, `scheduler_min_lr` — all
+  config-driven with defaults matching approved Sprint 4 policy.
+- `configs/experiments/gcn_minimal.yaml` updated with the new training fields.
+- `tests/test_gcn_training_smoke.py` extended to assert `val_loss` and `lr`
+  presence and non-negativity.
+- These changes do not alter the frozen Sprint 2/3 label, split, visibility, or
+  evaluation contract. Loss function remains weighted BCE only (Sprint 6 scope
+  for focal loss). Edge feature message passing remains Sprint 7 scope.
+
+## 2026-05-30 - Use Colab as a runner with pre-training graph artifact provenance
+
+Decision: Sprint 4 full GPU training may run on Google Colab, including Colab
+Pro when available, but Colab remains a runner only. Repository code and
+configs remain the source of truth. Before any headline Graph A run, the
+copied Sprint 3 graph artifacts must pass a repository-owned provenance gate
+that validates the frozen loader contract and records SHA256 checksums.
+
+Reason: Colab provides practical GPU runtime capacity, but notebook-local model
+logic, ad hoc dependency fixes, and unverified Drive copies would weaken the
+frozen Sprint 2/Sprint 3 contract. A checksum/provenance record makes the
+copied graph artifact identity explicit before training and gives Slice 4C a
+concrete returned artifact to inspect.
+
+Outcome:
+
+- `colab/README.md` documents the runner-only workflow, Drive copy-in/copy-out
+  policy, PyTorch/PyG/CUDA version check, required returned artifacts, and the
+  boundary between debug and canonical output paths.
+- `scripts/validate_graph_artifacts.py` validates the copied Sprint 3 graph
+  artifacts through the Sprint 4 loader and writes
+  `outputs/sprint4/graph_a/<run_id>/graph_artifact_provenance.json`.
+- A Graph A Colab result without a passing provenance record is provisional or
+  debug-only and must not enter headline Sprint 4 reporting.
+- Any Colab-specific dependency workaround must be documented in repository
+  files before the run can support a final claim.
+
+## 2026-06-01 - Organize generated outputs by sprint and schema
+
+Decision: Track small scientific reports, result tables, diagnostics, and
+figures under sprint-scoped output directories instead of flat
+`outputs/reports/`, `outputs/results/`, `outputs/figures/`, and
+`outputs/diagnostics/` folders. Sprint 4 graph-model outputs use a
+schema-specific layout such as `outputs/sprint4/graph_a/`, with run artifacts
+stored below `outputs/sprint4/graph_a/<run_id>/`.
+
+Reason: Sprint-scoped directories make handoff artifacts easier to audit and
+avoid mixing baseline, graph-construction, and graph-model outputs. The
+schema-level Sprint 4 layout prevents Graph A, Graph B, and Graph C files from
+overwriting one another while preserving direct comparison under the locked
+Sprint 2/Sprint 3 contract.
+
+Outcome:
+
+- Sprint 1 audit artifacts live under `outputs/sprint1/`.
+- Sprint 2 baseline reports, results, diagnostics, and figures live under
+  `outputs/sprint2/`.
+- Shared Sprint 2 split and feature handoff artifacts remain under
+  `outputs/splits/` and `outputs/features/`.
+- Sprint 3 tracked graph handoff report lives at
+  `outputs/sprint3/graph_schema_report.md`; large typed graph tables remain
+  under ignored `data/processed/graphs/sprint3/`.
+- Sprint 4 Graph A outputs live under `outputs/sprint4/graph_a/`.
+- Large run directories, checkpoints, copied graph tables, caches, and
+  Colab-local artifacts remain untracked; `.gitignore` ignores model checkpoint
+  extensions.
+- Colab full runs should preserve the repository base config and execute a
+  run-specific `resolved_config.yaml` stored under the run directory.
+
+## 2026-06-01 - Graph A Slice 4C validation passed; Graph A is the validated same-contract GCN baseline
+
+Decision: The real Colab GPU Graph A run (commit `9f17e4f`, run ID
+`sprint4_graph_a_gcn_seed42_20260601`) has passed Slice 4C artifact and
+provenance validation. Graph A is the validated first GCN baseline under
+the frozen Sprint 2/Sprint 3 contract. It does not beat `xgboost_unweighted
+/ F4`.
+
+Reason: All required artifacts are present and complete: canonical CSV,
+report, nine core figures, six diagnostic tables, and a run directory
+containing `resolved_config.yaml`, `runtime.json`,
+`graph_artifact_provenance.json`, `training_history.csv`, and `model.pt`.
+The provenance record confirms the Sprint 3 graph artifact checksums, split
+`sprint2_main_seed42`, Scheme A labels, strict-inductive visibility, seed
+42, CUDA device, and no test-driven tuning.
+
+Outcome:
+
+- Test AUPRC `0.9663`, test AUROC `0.7451`, test F1 `0.9518`, test MCC
+  `0.3008`; positive prevalence `0.9007`.
+- Graph A does not beat `xgboost_unweighted / F4` (test AUPRC `0.9925`).
+  It is a valid same-contract graph baseline, not a stronger predictive one.
+- Graph C planning may now begin. Graph B remains a bounded control pending
+  a separate approval.
+- No model, schema, epoch, threshold, or feature choice was revised from
+  test diagnostics.
+
+## 2026-06-01 - Defer sequence-position sensitivity figure to Sprint 5
+
+Decision: The `gcn_graph_a_sequence_position_sensitivity.png` conditional
+figure is deferred. It will not be produced as part of Sprint 4 Slice 4C.
+
+Reason: `S1_pair` is confirmed position-aligned (23 positions × 11 channels,
+columns `s1_pos_{pp:02d}_channel_{cc:02d}`). The exec plan §11 makes this
+figure conditional on an aligned sequence input, so the condition is met.
+However, generating a per-position occlusion or masking sensitivity map
+requires a dedicated inference pass with position-level perturbation logic
+not currently implemented in the Sprint 4 reporting path. Implementing it
+within Slice 4C would broaden the slice scope. Sprint 5 systematic feature
+ablation is the approved location for position-level attribution analysis.
+
+Outcome:
+
+- `outputs/sprint4/graph_a/figures/gcn_graph_a_sequence_position_sensitivity.png`
+  is not produced in Sprint 4 Slice 4C.
+- The nine core figures listed in exec plan §11 remain complete.
+- Position-sensitivity analysis is deferred to Sprint 5 feature ablation.
+- This deferral does not affect the Graph A headline metrics, provenance
+  validation, or the Slice 4C exit gate.
+
+## 2026-06-01 - Graph C Slice 5C validation passed; Graph C is a validated same-contract GCN comparison
+
+Decision: The real Colab GPU Graph C run (commit `3d18bec`, run ID
+`sprint4_graph_c_gcn_seed42_20260601`) has passed returned-artifact and
+provenance validation. Graph C is a validated same-contract Sprint 4 GCN
+comparison against Graph A and `xgboost_unweighted / F4`.
+
+Reason: The returned Graph C artifacts include the canonical result CSV,
+report, nine required figures, diagnostic tables, and a run directory with
+`resolved_config.yaml`, `runtime.json`, `graph_artifact_provenance.json`,
+`training_history.csv`, and an ignored `model.pt` checkpoint. The provenance
+record confirms Scheme A, `sprint2_main_seed42`, strict-inductive visibility,
+and the expected Graph C counts: `sgRNA=150`, `target_observation=11446`,
+`candidate_pair=11446`, and `context_similar_to=91754`.
+
+Outcome:
+
+- Graph C test AUPRC `0.9616`, test AUROC `0.7599`, test F1 `0.9589`, test
+  MCC `0.4537`; positive prevalence `0.9007`.
+- Graph C does not beat `xgboost_unweighted / F4` on primary test AUPRC
+  (`0.9925`) and does not beat Graph A on primary test AUPRC (`0.9663`).
+- Graph C improves MCC relative to Graph A in this run, but MCC is secondary
+  and cannot override the primary AUPRC comparison or drive test-based model
+  changes.
+- Graph C is not a topology-only comparison. Relative to Graph A, it changes
+  topology through `context_similar_to` relations and target semantics through
+  feature-bearing `target_observation` nodes instead of featureless shared
+  `physical_target_site` nodes.
+- Consolidated Sprint 4 comparison artifacts live under `outputs/sprint4/`.
+  Graph B remains optional as a bounded control and must not become an
+  uncontrolled schema sweep.
+
+## 2026-06-01 - Run Graph B as bounded topology-ablation control for thesis ablation story
+
+Decision: Graph B was run as a bounded secondary control after validated
+Graph A and Graph C results. It is not a primary result, not a tuning branch,
+and does not affect any model, threshold, feature, schema, or reporting choice.
+
+Reason: The three-way ablation (Graph A → Graph B → Graph C) isolates topology
+contribution from Graph C's combined topology + target-semantics change. Graph A
+uses featureless physical targets with candidate edges only. Graph B adds
+label-free guide-similarity edges (`sequence_similar_to`, 1208 edges) without
+changing target representation or candidate features. Graph C changes both
+topology (context-similarity edges) and target semantics (feature-bearing
+`target_observation` nodes). Without Graph B, a reviewer cannot distinguish
+topology contribution from feature contribution in the Graph A → Graph C gap.
+This ablation is scientifically necessary for the thesis comparison table.
+
+Outcome:
+
+- Graph B provides a clean topology-only reference point in the Graph A/B/C
+  ablation. It was run once and its results are interpretation-only.
+- Graph B must not be treated as a primary result or used to open new
+  schema tuning.
+
+## 2026-06-01 - Graph B Slice 6C validation passed; Graph B is a validated bounded secondary control
+
+Decision: The real Colab GPU Graph B run (commit `1eb494aa`, run ID
+`sprint4_graph_b_gcn_seed42_20260601`) has passed returned-artifact and
+provenance validation. Graph B is included in the consolidated Sprint 4
+comparison as a bounded secondary control only.
+
+Reason: The returned Graph B artifacts include the canonical result CSV,
+report, nine required figures, seven diagnostic tables, and a run directory
+with `resolved_config.yaml`, `runtime.json`, `graph_artifact_provenance.json`,
+`training_history.csv`, and an ignored `model.pt` checkpoint. The provenance
+record confirms Scheme A, `sprint2_main_seed42`, strict-inductive visibility,
+`zero_type_feature` target representation, and the expected Graph B counts:
+`sgRNA=150`, `physical_target_site=9880`, `candidate_pair=11446`,
+`sequence_similar_to=1208`.
+
+Outcome:
+
+- Graph B test AUPRC `0.9666`, test AUROC `0.7436`, test F1 `0.9486`, test
+  MCC `0.1266`; positive prevalence `0.9007`.
+- Graph B does not beat `xgboost_unweighted / F4` (test AUPRC `0.9925`).
+- Graph B AUPRC is similar to Graph A (`0.9663`), confirming that guide-
+  similarity topology alone does not substantially improve AUPRC over the
+  minimal physical-target baseline.
+- The low test MCC (`0.1266`) reflects the validation-selected threshold
+  (`0.0785`) producing near-total positive classification; this is
+  interpretation-only and did not drive any model or reporting decision.
+- No model, schema, threshold, or feature choice was revised from Graph B
+  test diagnostics.
+- Consolidated Sprint 4 comparison artifacts updated under `outputs/sprint4/`
+  to include Graph B as a bounded secondary control row.
+
+## 2026-06-01 - Use a single fixed guide-disjoint split instead of k-fold cross-validation for GCN evaluation
+
+Decision: Sprint 4 GCN models (Graph A, Graph B, Graph C) are evaluated on
+the single fixed split `sprint2_main_seed42` rather than k-fold
+cross-validation. Variance across seeds or folds is not reported.
+
+Reason:
+
+1. **Baseline comparison consistency.** All Sprint 2 baselines
+   (`xgboost_unweighted / F4`, CNN/BiLSTM, MLP) were evaluated on the same
+   locked split. Applying k-fold CV to GCN models while keeping the single-
+   split baselines would make the comparison apples-to-oranges. Fair
+   comparison requires the same evaluation protocol across all models; re-
+   running all Sprint 2 baselines with CV would reopen the locked Sprint 2
+   contract.
+
+2. **GNN fold complexity.** For graph models, each fold requires a different
+   graph materialization: the strict-inductive train/val/test views change,
+   auxiliary edges (`sequence_similar_to`, `context_similar_to`) must
+   respect the new fold's guide assignments, and Graph C's train-only
+   preprocessing (median imputation, standard scaling) must be re-fit for
+   each fold. This is significantly more complex than re-training a tabular
+   model on different row subsets.
+
+3. **Computational cost.** Five folds × three schemas = 15 GPU Colab runs
+   versus the 3 runs executed. Each full GPU run takes multiple hours. This
+   cost is not justified given that the primary scientific question (topology
+   vs. context ablation) does not require variance estimates to reach a
+   conclusion.
+
+4. **Primary metric is threshold-free.** AUPRC — the primary metric — is
+   insensitive to threshold selection and relatively stable across folds at
+   this positive prevalence (~90%). The main conclusion (no GCN schema beats
+   `xgboost_unweighted / F4`) holds across any reasonable fold partitioning
+   given the ~0.03 AUPRC gap. Threshold-dependent metrics (MCC, F1) carry
+   higher fold-to-fold variance and are therefore treated as secondary
+   interpretation outputs only; this is consistent with Gao et al. (2020)
+   who recommend PR-AUC over threshold-dependent metrics for imbalanced
+   CRISPR off-target data.
+
+Outcome:
+
+- Single-seed, single-split evaluation is reported for all Sprint 4 GCN
+  schemas.
+- Variance is acknowledged as a thesis limitation; multi-seed or CV
+  evaluation is deferred to future work.
+- MCC results — especially Graph B's `test_mcc=0.127` — should be
+  interpreted with caution as they are highly sensitive to the threshold
+  selected from the validation set and the specific negative distribution of
+  this split.
+- Threshold-free AUPRC remains the authoritative comparison metric.

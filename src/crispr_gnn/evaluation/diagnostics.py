@@ -17,6 +17,13 @@ from sklearn.metrics import average_precision_score, confusion_matrix, f1_score,
 from crispr_gnn.data.splits import LABEL_COLUMN
 
 
+GCN_DIAGNOSTIC_TABLES = [
+    "gcn_score_direction.csv",
+    "gcn_fixed_threshold_metrics.csv",
+    "gcn_score_deciles.csv",
+]
+
+
 def write_logistic_regression_diagnostics(
     assigned: pd.DataFrame,
     predictions: Iterable[dict[str, object]],
@@ -67,6 +74,124 @@ def write_model_diagnostics(
         _write_test_per_genome_auroc(model_predictions, output_path / f"{artifact_prefix}_test_per_genome_auroc.png", display_name=display_name),
     ]
     return tables, figures
+
+
+def write_gcn_diagnostics(
+    results: pd.DataFrame,
+    predictions: pd.DataFrame,
+    output_dir: str | Path,
+    *,
+    schema_label: str | None = None,
+) -> list[Path]:
+    """Write Sprint 4 GCN diagnostic tables from model outputs.
+
+    Threshold-dependent diagnostics use the validation-selected threshold
+    recorded in the results table. This function does not tune thresholds.
+    When schema_label is provided files use a gcn_{schema_label}_ filename prefix;
+    the caller is responsible for passing the full target directory as output_dir.
+    """
+    output_path = Path(output_dir)
+    output_path.mkdir(parents=True, exist_ok=True)
+    prefix = f"gcn_{schema_label}" if schema_label else "gcn"
+    result_rows = _require_gcn_results(results)
+    prediction_rows = _require_gcn_predictions(predictions)
+    threshold = _gcn_validation_threshold(result_rows)
+    tables = [
+        _write_gcn_score_direction_table(prediction_rows, output_path / f"{prefix}_score_direction.csv"),
+        _write_gcn_fixed_threshold_table(prediction_rows, output_path / f"{prefix}_fixed_threshold_metrics.csv", threshold=threshold),
+        _write_gcn_decile_table(prediction_rows, output_path / f"{prefix}_score_deciles.csv"),
+    ]
+    if "genome" in prediction_rows.columns:
+        tables.append(_write_gcn_per_genome_table(prediction_rows, output_path / f"{prefix}_per_genome_metrics.csv"))
+    if "grna_target_id" in prediction_rows.columns:
+        tables.append(_write_gcn_per_guide_table(prediction_rows, output_path / f"{prefix}_test_per_guide_metrics.csv"))
+    return tables
+
+
+def write_gcn_report(
+    results: pd.DataFrame,
+    diagnostic_tables: Iterable[Path],
+    figure_paths: Iterable[Path],
+    report_path: str | Path,
+    *,
+    run_label: str = "pending_full_run",
+    root: Path | None = None,
+) -> Path:
+    """Write the Sprint 4 GCN Markdown report shell from structured artifacts.
+
+    When root is provided, artifact paths in the report are made relative to root
+    so the report does not contain machine-specific absolute paths.
+    """
+    path = Path(report_path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    result_rows = _require_gcn_results(results)
+    first = result_rows.iloc[0]
+
+    def _format_path(p: Path) -> str:
+        if root is not None:
+            try:
+                return p.relative_to(root).as_posix()
+            except ValueError:
+                pass
+        return p.as_posix()
+
+    diagnostics = [Path(item) for item in diagnostic_tables]
+    figures = [Path(item) for item in figure_paths]
+    lines = [
+        "# Sprint 4 GCN Report",
+        "",
+        f"Run label: `{run_label}`",
+        "",
+        "## Contract",
+        "",
+        f"- Label scheme: `{first['label_scheme']}`.",
+        f"- Split ID: `{first['split_id']}`.",
+        f"- Visibility policy: `{first['visibility_policy']}`.",
+        "- Thresholds are selected from validation only.",
+        "- Test diagnostics are interpretation-only and cannot drive model or schema decisions.",
+        "",
+        "## Baseline Reference",
+        "",
+        f"- Required comparison: `{first['baseline_reference']}`.",
+        f"- Baseline test AUPRC: `{float(first['baseline_test_auprc']):.6f}`.",
+        f"- Test positive prevalence for GCN result: `{float(first['test_positive_rate']):.6f}`.",
+        "",
+        "## Result Summary",
+        "",
+        _markdown_table(result_rows[_gcn_report_summary_columns(result_rows)]),
+        "",
+        "## Artifact Index",
+        "",
+        "Diagnostic tables:",
+        *[f"- `{_format_path(item)}`" for item in diagnostics],
+        "",
+        "Figures:",
+        *[f"- `{_format_path(item)}`" for item in figures],
+        "",
+        "## Interpretation Boundaries",
+        "",
+        "- Graph-view visualizations are bounded sanity checks, not performance claims.",
+        "- Smoke or mocked outputs are not final Sprint 4 performance evidence.",
+        "- Graph C must not be described as topology-only; it changes both topology and target semantics/context representation.",
+    ]
+    path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    return path
+
+
+def _gcn_report_summary_columns(result_rows: pd.DataFrame) -> list[str]:
+    columns = [
+        "model_name",
+        "graph_schema",
+        "feature_set",
+        "target_node_representation",
+        "test_auprc",
+        "test_auroc",
+        "test_f1",
+        "test_mcc",
+    ]
+    if "target_semantics" in result_rows.columns:
+        columns.insert(4, "target_semantics")
+    return [column for column in columns if column in result_rows.columns]
 
 
 def _prediction_frame(assigned: pd.DataFrame, predictions: Iterable[dict[str, object]]) -> pd.DataFrame:
@@ -298,3 +423,188 @@ def _mean_or_nan(values: np.ndarray) -> float:
 
 def _median_or_nan(values: np.ndarray) -> float:
     return float(np.median(values)) if values.shape[0] else float("nan")
+
+
+def _require_gcn_results(results: pd.DataFrame) -> pd.DataFrame:
+    _require_table_columns(
+        results,
+        {
+            "model_name",
+            "feature_set",
+            "graph_schema",
+            "label_scheme",
+            "split_id",
+            "visibility_policy",
+            "threshold",
+            "threshold_selection_split",
+            "baseline_reference",
+            "baseline_test_auprc",
+            "test_positive_rate",
+            "test_auprc",
+            "test_auroc",
+            "test_f1",
+            "test_mcc",
+        },
+        "GCN results",
+    )
+    if not (results["threshold_selection_split"] == "validation").all():
+        raise ValueError("GCN diagnostics require validation-selected thresholds")
+    return results.copy()
+
+
+def _require_gcn_predictions(predictions: pd.DataFrame) -> pd.DataFrame:
+    _require_table_columns(
+        predictions,
+        {"model_name", "feature_set", "graph_schema", "split", "label", "score"},
+        "GCN predictions",
+    )
+    return predictions.copy()
+
+
+def _gcn_validation_threshold(results: pd.DataFrame) -> float:
+    thresholds = results["threshold"].dropna().astype(float).unique()
+    if len(thresholds) != 1:
+        raise ValueError("GCN diagnostics require exactly one validation-selected threshold for this path")
+    return float(thresholds[0])
+
+
+def _write_gcn_score_direction_table(df: pd.DataFrame, path: Path) -> Path:
+    rows = []
+    for keys, part in df.groupby(["model_name", "graph_schema", "feature_set", "split"], sort=True):
+        y_true = part["label"].to_numpy(dtype=int)
+        score = part["score"].to_numpy(dtype=float)
+        rows.append(
+            {
+                "model_name": keys[0],
+                "graph_schema": keys[1],
+                "feature_set": keys[2],
+                "split": keys[3],
+                "rows": int(part.shape[0]),
+                "positives": int(y_true.sum()),
+                "negatives": int((y_true == 0).sum()),
+                "positive_rate": float(y_true.mean()),
+                "auprc": _safe_auprc(y_true, score),
+                "auprc_inverted": _safe_auprc(y_true, -score),
+                "auroc": _safe_auroc(y_true, score),
+                "auroc_inverted": _safe_auroc(y_true, -score),
+            }
+        )
+    pd.DataFrame(rows).to_csv(path, index=False)
+    return path
+
+
+def _write_gcn_fixed_threshold_table(df: pd.DataFrame, path: Path, *, threshold: float) -> Path:
+    rows = []
+    for keys, part in df.groupby(["model_name", "graph_schema", "feature_set", "split"], sort=True):
+        y_true = part["label"].to_numpy(dtype=int)
+        y_pred = (part["score"].to_numpy(dtype=float) >= threshold).astype(int)
+        tn, fp, fn, tp = confusion_matrix(y_true, y_pred, labels=[0, 1]).ravel()
+        rows.append(
+            {
+                "model_name": keys[0],
+                "graph_schema": keys[1],
+                "feature_set": keys[2],
+                "split": keys[3],
+                "threshold": float(threshold),
+                "threshold_selection_split": "validation",
+                "rows": int(part.shape[0]),
+                "positive_rate": float(y_true.mean()),
+                "f1": float(f1_score(y_true, y_pred, zero_division=0)),
+                "mcc": float(matthews_corrcoef(y_true, y_pred)),
+                "tn": int(tn),
+                "fp": int(fp),
+                "fn": int(fn),
+                "tp": int(tp),
+            }
+        )
+    pd.DataFrame(rows).to_csv(path, index=False)
+    return path
+
+
+def _write_gcn_decile_table(df: pd.DataFrame, path: Path) -> Path:
+    rows = []
+    for keys, part in df.groupby(["model_name", "graph_schema", "feature_set", "split"], sort=True):
+        ranked = part.sort_values("score", ascending=False).copy()
+        ranked["score_rank"] = np.arange(1, ranked.shape[0] + 1)
+        ranked["score_decile"] = np.ceil(ranked["score_rank"] * 10 / ranked.shape[0]).astype(int)
+        for decile, decile_part in ranked.groupby("score_decile", sort=True):
+            labels = decile_part["label"].to_numpy(dtype=int)
+            rows.append(
+                {
+                    "model_name": keys[0],
+                    "graph_schema": keys[1],
+                    "feature_set": keys[2],
+                    "split": keys[3],
+                    "score_decile": int(decile),
+                    "rows": int(decile_part.shape[0]),
+                    "positive_rate": float(labels.mean()),
+                    "mean_score": float(decile_part["score"].mean()),
+                }
+            )
+    pd.DataFrame(rows).to_csv(path, index=False)
+    return path
+
+
+def _write_gcn_per_genome_table(df: pd.DataFrame, path: Path) -> Path:
+    rows = []
+    for keys, part in df.groupby(["model_name", "graph_schema", "feature_set", "split", "genome"], dropna=False, sort=True):
+        y_true = part["label"].to_numpy(dtype=int)
+        score = part["score"].to_numpy(dtype=float)
+        rows.append(
+            {
+                "model_name": keys[0],
+                "graph_schema": keys[1],
+                "feature_set": keys[2],
+                "split": keys[3],
+                "genome": keys[4],
+                "rows": int(part.shape[0]),
+                "positive_rate": float(y_true.mean()),
+                "auprc": _safe_auprc(y_true, score),
+                "auroc": _safe_auroc(y_true, score),
+            }
+        )
+    pd.DataFrame(rows).to_csv(path, index=False)
+    return path
+
+
+def _write_gcn_per_guide_table(df: pd.DataFrame, path: Path) -> Path:
+    test = df.loc[df["split"] == "test"].copy()
+    rows = []
+    for keys, part in test.groupby(["model_name", "graph_schema", "feature_set", "grna_target_id"], dropna=False, sort=True):
+        y_true = part["label"].to_numpy(dtype=int)
+        score = part["score"].to_numpy(dtype=float)
+        rows.append(
+            {
+                "model_name": keys[0],
+                "graph_schema": keys[1],
+                "feature_set": keys[2],
+                "grna_target_id": keys[3],
+                "rows": int(part.shape[0]),
+                "positive_rate": float(y_true.mean()),
+                "auprc": _safe_auprc(y_true, score),
+                "auroc": _safe_auroc(y_true, score),
+            }
+        )
+    pd.DataFrame(rows).to_csv(path, index=False)
+    return path
+
+
+def _markdown_table(df: pd.DataFrame) -> str:
+    header = "| " + " | ".join(df.columns) + " |"
+    separator = "| " + " | ".join("---" for _ in df.columns) + " |"
+    rows = []
+    for _, row in df.iterrows():
+        values = []
+        for value in row:
+            if isinstance(value, float):
+                values.append(f"{value:.6f}")
+            else:
+                values.append(str(value))
+        rows.append("| " + " | ".join(values) + " |")
+    return "\n".join([header, separator, *rows])
+
+
+def _require_table_columns(df: pd.DataFrame, columns: set[str], table_name: str) -> None:
+    missing = sorted(columns.difference(df.columns))
+    if missing:
+        raise ValueError(f"{table_name} missing required columns: {missing}")

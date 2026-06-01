@@ -124,6 +124,27 @@ Interpretation figures must be treated conservatively:
 - Attention weights are model signals, not biological explanations unless supported by separate evidence.
 - Imbalance visualizations must use the unchanged main evaluation population. Data-level resampling distributions may be visualized for training audits only and may not replace evaluation on the locked test universe.
 
+## Threshold Sensitivity At High Positive Prevalence
+
+When the test positive prevalence is high (approximately 90% in the Mak 2022
+measured-only universe), threshold-dependent metrics behave differently than in
+the typical low-prevalence off-target prediction setting described in Gao et al.
+(2020):
+
+- **F1** is dominated by the positive class and will maximize at low thresholds
+  that classify nearly everything as positive.
+- **MCC** is highly sensitive to the number of true negatives; a low threshold
+  producing few negative predictions will yield a low MCC even if AUPRC is high.
+- **AUPRC** is threshold-free and remains the authoritative comparison metric
+  regardless of prevalence. It is the only metric suitable for cross-model
+  comparison at this positive rate.
+
+Threshold-based metrics (F1, MCC, confusion matrices) are included as secondary
+interpretation outputs and must not be used to rank models or to drive schema,
+feature, hyperparameter, or threshold decisions. This is consistent with the
+no-test-tuning contract. See `docs/DECISIONS.md` for the single-split CV
+rationale and the Graph B MCC anomaly explanation.
+
 ## Comparison Rules
 
 - Compare models only on the same dataset, label scheme, split, feature policy, and metrics.

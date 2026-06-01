@@ -199,7 +199,7 @@ CRISPRoffT filtered subset for external validation
 
 ### 5.3 Dataset audit requirements
 
-Sprint 1 must produce a complete audit at `docs/DATASET_AUDIT.md` and `outputs/reports/dataset_audit.md`. The full task list lives in Section 12 (Sprint 1).
+Sprint 1 must produce a complete audit at `docs/DATASET_AUDIT.md` and `outputs/sprint1/dataset_audit.md`. The full task list lives in Section 12 (Sprint 1).
 
 ---
 
@@ -230,7 +230,7 @@ Sprint 1 must produce three artifacts:
 2. **Per-split label distribution table** after applying the measured=1 test rule (Section 6.5).
 3. **Outlier handling decision log** documenting the chosen treatment for NaN/negative/extreme `cleavage_freq` rows.
 
-All three artifacts go to `outputs/reports/label_threshold_sensitivity.md`.
+All three artifacts go to `outputs/sprint1/label_threshold_sensitivity.md`.
 
 Decision rule:
 
@@ -567,9 +567,9 @@ Tasks:
 Deliverables:
 
 ```text
-outputs/reports/dataset_audit.md
-outputs/reports/label_threshold_sensitivity.md
-outputs/reports/feature_missingness.md
+outputs/sprint1/dataset_audit.md
+outputs/sprint1/label_threshold_sensitivity.md
+outputs/sprint1/feature_missingness.md
 src/crispr_gnn/data/parsers.py
 docs/DATASET_AUDIT.md (updated)
 docs/DECISIONS.md (Wayback access decision logged)
@@ -591,8 +591,8 @@ Tasks:
 Deliverables:
 
 ```text
-outputs/results/baseline_results.csv
-outputs/reports/baseline_report.md
+outputs/sprint2/baseline_results.csv
+outputs/sprint2/baseline_report.md
 ```
 
 ---
@@ -616,7 +616,7 @@ src/crispr_gnn/graph/graph_schemas.py
 scripts/build_graph.py
 tests/test_graph_builder.py
 tests/test_graph_leakage.py
-outputs/reports/graph_schema_report.md
+outputs/sprint3/graph_schema_report.md
 ```
 
 Sprint 3 reports graph schemas and leakage validation, not model performance. A compact graph-view sanity visualization may be produced during the Sprint 4 loader/model handoff, but full-network plots are not required Sprint 3 artifacts.
@@ -640,18 +640,18 @@ Deliverables:
 
 ```text
 src/crispr_gnn/models/gcn.py
-outputs/results/gcn_results.csv
-outputs/reports/gcn_report.md
-outputs/figures/sprint4/gcn_graph_schema_auprc_comparison.png
-outputs/figures/sprint4/gcn_pr_curves.png
-outputs/figures/sprint4/gcn_roc_curves.png
-outputs/figures/sprint4/gcn_training_curves.png
-outputs/figures/sprint4/gcn_score_distributions.png
-outputs/figures/sprint4/gcn_confusion_matrices.png
-outputs/figures/sprint4/gcn_decile_lift.png
-outputs/figures/sprint4/gcn_per_genome_metrics.png
-outputs/figures/sprint4/graph_view_sanity_example.png
-outputs/figures/sprint4/gcn_sequence_position_sensitivity.png
+outputs/sprint4/graph_a/gcn_graph_a_results.csv
+outputs/sprint4/graph_a/gcn_graph_a_report.md
+outputs/sprint4/graph_a/figures/gcn_graph_a_graph_schema_auprc_comparison.png
+outputs/sprint4/graph_a/figures/gcn_graph_a_pr_curves.png
+outputs/sprint4/graph_a/figures/gcn_graph_a_roc_curves.png
+outputs/sprint4/graph_a/figures/gcn_graph_a_training_curves.png
+outputs/sprint4/graph_a/figures/gcn_graph_a_score_distributions.png
+outputs/sprint4/graph_a/figures/gcn_graph_a_confusion_matrices.png
+outputs/sprint4/graph_a/figures/gcn_graph_a_decile_lift.png
+outputs/sprint4/graph_a/figures/gcn_graph_a_per_genome_metrics.png
+outputs/sprint4/graph_a/figures/gcn_graph_a_view_sanity_example.png
+outputs/sprint4/graph_a/figures/gcn_graph_a_sequence_position_sensitivity.png
 ```
 
 The sequence-position sensitivity figure is a focused interpretation artifact for a stable sequence-bearing GCN input path: adapt the CRISPR-Net occlusion/replacement idea by perturbing aligned guide-target positions and plotting score changes. It is interpretation-only, must not be used to tune the model, and is not required for graph configurations that do not expose a position-aligned sequence input.
@@ -683,14 +683,14 @@ Tasks:
 Deliverables:
 
 ```text
-outputs/results/epigenetic_ablation.csv
-outputs/reports/epigenetic_ablation_report.md
-outputs/figures/sprint5/feature_set_auprc_comparison.png
-outputs/figures/sprint5/feature_set_pr_curves.png
-outputs/figures/sprint5/graph_context_gain_by_genome.png
-outputs/figures/sprint5/graph_context_gain_by_cell_line.png
-outputs/figures/sprint5/context_feature_distribution_by_label.png
-outputs/figures/sprint5/context_feature_contribution_summary.png
+outputs/sprint5/epigenetic_ablation.csv
+outputs/sprint5/epigenetic_ablation_report.md
+outputs/sprint5/figures/feature_set_auprc_comparison.png
+outputs/sprint5/figures/feature_set_pr_curves.png
+outputs/sprint5/figures/graph_context_gain_by_genome.png
+outputs/sprint5/figures/graph_context_gain_by_cell_line.png
+outputs/sprint5/figures/context_feature_distribution_by_label.png
+outputs/sprint5/figures/context_feature_contribution_summary.png
 ```
 
 Mak et al. used correlation/distribution plots and SHAP summaries to investigate epigenetic and nucleosome-feature contribution. This sprint adapts that interpretive intent to Scheme A classification and the locked guide-level protocol; it does not claim paper reproduction unless the Mak target, features, split, and model setup are separately reproduced.
@@ -714,14 +714,14 @@ Tasks:
 Deliverables:
 
 ```text
-outputs/results/imbalance_comparison.csv
-outputs/reports/imbalance_report.md
-outputs/figures/sprint6/imbalance_auprc_comparison.png
-outputs/figures/sprint6/imbalance_pr_curves.png
-outputs/figures/sprint6/imbalance_threshold_metrics.png
-outputs/figures/sprint6/imbalance_score_distributions.png
-outputs/figures/sprint6/imbalance_per_guide_metric_distribution.png
-outputs/figures/sprint6/imbalance_positive_retrieval_summary.png
+outputs/sprint6/imbalance_comparison.csv
+outputs/sprint6/imbalance_report.md
+outputs/sprint6/figures/imbalance_auprc_comparison.png
+outputs/sprint6/figures/imbalance_pr_curves.png
+outputs/sprint6/figures/imbalance_threshold_metrics.png
+outputs/sprint6/figures/imbalance_score_distributions.png
+outputs/sprint6/figures/imbalance_per_guide_metric_distribution.png
+outputs/sprint6/figures/imbalance_positive_retrieval_summary.png
 ```
 
 The additional diagnostics follow the imbalance-literature warning that performance can appear inflated or unstable when evaluation composition is hidden. The primary test universe remains unchanged; visualizations compare training strategies only under the frozen main protocol.
@@ -743,12 +743,12 @@ Deliverables:
 
 ```text
 src/crispr_gnn/models/gat.py
-outputs/results/gat_comparison.csv
-outputs/reports/gat_report.md
-outputs/figures/sprint7/gat_model_auprc_comparison.png
-outputs/figures/sprint7/gat_pr_curves.png
-outputs/figures/sprint7/gat_training_curves.png
-outputs/figures/sprint7/attention_weight_summary.png
+outputs/sprint7/gat_comparison.csv
+outputs/sprint7/gat_report.md
+outputs/sprint7/figures/gat_model_auprc_comparison.png
+outputs/sprint7/figures/gat_pr_curves.png
+outputs/sprint7/figures/gat_training_curves.png
+outputs/sprint7/figures/attention_weight_summary.png
 ```
 
 ---
@@ -790,8 +790,8 @@ Tasks: download CRISPRoffT data; perform attrition analysis; create controlled s
 Deliverables:
 
 ```text
-outputs/reports/crisprofft_attrition.md
-outputs/results/crisprofft_external_validation.csv
+outputs/stretch_crisprofft/crisprofft_attrition.md
+outputs/stretch_crisprofft/crisprofft_external_validation.csv
 ```
 
 ---
@@ -806,7 +806,7 @@ Deliverables:
 
 ```text
 src/crispr_gnn/models/hetero_gnn.py
-outputs/results/hetero_gnn_results.csv
+outputs/stretch_hetero_gnn/hetero_gnn_results.csv
 ```
 
 ---
@@ -820,7 +820,7 @@ Tasks: implement SAGEConv model; run same split/features/graph as GCN/GAT; add o
 Deliverables:
 
 ```text
-outputs/results/graphsage_ablation.csv
+outputs/stretch_graphsage/graphsage_ablation.csv
 ```
 
 ---
@@ -907,11 +907,11 @@ This separation keeps the project plan focused on "what to build and why" while 
 
 Quick reference:
 
-- Sprint deliverables: `outputs/reports/<sprint_name>.md`
-- Generated figures: `outputs/figures/<sprint_name>/`
-- Trained model checkpoints: `outputs/runs/<run_id>/`
+- Sprint deliverables: `outputs/<sprint_name>/`
+- Generated figures: `outputs/<sprint_name>/figures/` or `outputs/<sprint_name>/<schema_label>/figures/`
+- Trained model checkpoints: `outputs/<sprint_name>/<schema_label>/runs/<run_id>/`
 - Decisions log: `docs/DECISIONS.md`
-- Dataset audit: `docs/DATASET_AUDIT.md` (canonical) + `outputs/reports/dataset_audit.md` (raw audit data)
+- Dataset audit: `docs/DATASET_AUDIT.md` (canonical) + `outputs/sprint1/dataset_audit.md` (raw audit data)
 
 ---
 

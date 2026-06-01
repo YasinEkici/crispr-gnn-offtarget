@@ -1,0 +1,72 @@
+experiment_name: gcn_graph_c
+task: sprint4_gcn_graph_c
+sprint: sprint4
+seed: 42
+run_id: null
+
+data:
+  dataset: mak2022
+  config: configs/data/mak2022.yaml
+  label_scheme: scheme_a
+  split_id: sprint2_main_seed42
+  split_manifest: outputs/splits/sprint2_guides.json
+  graph_artifact_dir: data/processed/graphs/sprint3
+
+features:
+  edge_feature_sets: [candidate_pair_features]
+  feature_set: CandidatePair+TargetObservationContext
+  target_observation_features: target_observation_features
+
+graph:
+  schema: graph_c_context_observation
+  materialization: heterodata
+  visibility_policy: strict_inductive_primary
+  context_placement: target_observation_node
+  target_semantics: observation_level_context
+
+model:
+  name: gcn_graph_c
+  hidden_dim: 128
+  num_layers: 2
+  dropout: 0.2
+  target_node_representation: target_observation_context_encoder
+
+training:
+  loss: weighted_bce
+  clip_grad_norm: 1.0
+  scheduler: reduce_on_plateau
+  scheduler_factor: 0.5
+  scheduler_patience: 5
+  scheduler_min_lr: 0.00001
+  learning_rate: 0.001
+  weight_decay: 0.0001
+  max_epochs: 300
+  min_epochs: 5
+  patience: 15
+  device: cpu
+  num_threads: 1
+  use_compile: true
+  use_amp: true
+
+split_rules:
+  guide_disjoint: true
+  train_measured_only: true
+  validation_measured_only: true
+  test_measured_only: true
+  exclude_experiment_id: 18
+
+evaluation:
+  protocol: headline_guide_level
+  no_test_tuning: true
+  graph_c_interpretation: topology_and_target_semantics_not_topology_only
+
+metrics:
+  primary: auprc
+  secondary: [auroc, f1, mcc]
+
+baseline_reference:
+  model_name: xgboost_unweighted
+  feature_set: F4
+  test_auprc: 0.992522
+  test_auroc: 0.938416
+  test_mcc: 0.345198

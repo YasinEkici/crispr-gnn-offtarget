@@ -1,0 +1,8 @@
+model_name,graph_schema,feature_set,split,genome,rows,positive_rate,auprc,auroc
+gcn_graph_a,graph_a_minimal_physical_target,S1_pair+F1,test,hg19,1446,0.9896265560165975,0.9946023669904088,0.6461215932914047
+gcn_graph_a,graph_a_minimal_physical_target,S1_pair+F1,test,hg38,176,0.5454545454545454,0.5863711384473146,0.5389322916666667
+gcn_graph_a,graph_a_minimal_physical_target,S1_pair+F1,test,mm10,80,0.075,0.07967199000812446,0.47522522522522526
+gcn_graph_a,graph_a_minimal_physical_target,S1_pair+F1,val,hg19,1368,0.9890350877192983,0.9853186839989045,0.5110618378911062
+gcn_graph_a,graph_a_minimal_physical_target,S1_pair+F1,val,hg38,333,0.46546546546546547,0.4547563991703226,0.49546937296121785
+gcn_graph_a,graph_a_minimal_physical_target,S1_pair+F1,val,mm10,22,0.045454545454545456,0.25,0.8571428571428572
+gcn_graph_a,graph_a_minimal_physical_target,S1_pair+F1,val,rn5,11,0.18181818181818182,0.5,0.8333333333333334

@@ -14,6 +14,7 @@ dependencies = [
     "rich",
     "scikit-learn",
     "torch>=2.12.0",
+    "torch-geometric>=2.7.0",
     "tqdm",
     "xgboost>=3.2.0",
 ]

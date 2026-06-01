@@ -5,9 +5,9 @@ seed: 42
 
 data_config: configs/data/mak2022.yaml
 split_manifest: outputs/splits/sprint2_guides.json
-results_path: outputs/results/baseline_results.csv
-figures_dir: outputs/figures/sprint2
-diagnostics_dir: outputs/diagnostics/sprint2
+results_path: outputs/sprint2/baseline_results.csv
+figures_dir: outputs/sprint2/figures
+diagnostics_dir: outputs/sprint2/diagnostics
 
 feature_sets:
   - F1

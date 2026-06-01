@@ -27,7 +27,7 @@ from crispr_gnn.data.audit_reports import generate_reports  # noqa: E402
 from crispr_gnn.utils.config import load_yaml  # noqa: E402
 
 
-REPORT_DIR = ROOT / "outputs" / "reports"
+REPORT_DIR = ROOT / "outputs" / "sprint1"
 
 
 def parse_args() -> argparse.Namespace:

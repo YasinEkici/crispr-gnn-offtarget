@@ -1,0 +1,67 @@
+baseline_reference:
+  feature_set: F4
+  model_name: xgboost_unweighted
+  test_auprc: 0.992522
+  test_auroc: 0.938416
+  test_mcc: 0.345198
+data:
+  config: configs/data/mak2022.yaml
+  dataset: mak2022
+  graph_artifact_dir: data/processed/graphs/sprint3
+  label_scheme: scheme_a
+  split_id: sprint2_main_seed42
+  split_manifest: outputs/splits/sprint2_guides.json
+evaluation:
+  graph_c_interpretation: topology_and_target_semantics_not_topology_only
+  no_test_tuning: true
+  protocol: headline_guide_level
+experiment_name: gcn_graph_c
+features:
+  edge_feature_sets:
+  - candidate_pair_features
+  feature_set: CandidatePair+TargetObservationContext
+  target_observation_features: target_observation_features
+graph:
+  context_placement: target_observation_node
+  materialization: heterodata
+  schema: graph_c_context_observation
+  target_semantics: observation_level_context
+  visibility_policy: strict_inductive_primary
+metrics:
+  primary: auprc
+  secondary:
+  - auroc
+  - f1
+  - mcc
+model:
+  dropout: 0.2
+  hidden_dim: 128
+  name: gcn_graph_c
+  num_layers: 2
+  target_node_representation: target_observation_context_encoder
+run_id: sprint4_graph_c_gcn_seed42_20260601
+seed: 42
+split_rules:
+  exclude_experiment_id: 18
+  guide_disjoint: true
+  test_measured_only: true
+  train_measured_only: true
+  validation_measured_only: true
+sprint: sprint4
+task: sprint4_gcn_graph_c
+training:
+  clip_grad_norm: 1.0
+  device: cuda
+  learning_rate: 0.001
+  loss: weighted_bce
+  max_epochs: 300
+  min_epochs: 5
+  num_threads: 1
+  patience: 15
+  scheduler: reduce_on_plateau
+  scheduler_factor: 0.5
+  scheduler_min_lr: 1.0e-05
+  scheduler_patience: 5
+  use_amp: true
+  use_compile: true
+  weight_decay: 0.0001

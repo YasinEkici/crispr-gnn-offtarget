@@ -4,7 +4,7 @@ This document defines the Sprint 1 parser policy for Mak et al. 2022 computed nu
 
 Generated report artifact:
 
-- `outputs/reports/feature_missingness.md`
+- `outputs/sprint1/feature_missingness.md`
 
 Parser implementation:
 

@@ -4,7 +4,7 @@ This document is the canonical Sprint 1 dataset audit summary for the Mak et al.
 
 Generated report artifact:
 
-- `outputs/reports/dataset_audit.md`
+- `outputs/sprint1/dataset_audit.md`
 
 ## Source And Access
 
