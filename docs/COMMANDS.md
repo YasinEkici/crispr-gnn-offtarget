@@ -201,15 +201,36 @@ uv run python scripts/train.py --config outputs/sprint4/graph_a/<run_id>/resolve
 The resolved config records runtime-only choices such as `run_id` and
 `training.device` without mutating `configs/experiments/gcn_minimal.yaml`.
 
-After validated Graph A and Graph C returned artifacts exist locally, generate
-the consolidated same-contract Sprint 4 comparison with:
+For the Graph C Colab full run, use the Graph C resolved config:
+
+```bash
+uv run python scripts/train.py --config outputs/sprint4/graph_c/<run_id>/resolved_config.yaml
+```
+
+Graph C changes both topology and target semantics relative to Graph A and must
+not be described as a topology-only experiment. See `colab/sprint4_graph_c_runner.ipynb`
+for the full Colab workflow.
+
+For the Graph B Colab full run (bounded secondary control), use the Graph B
+resolved config:
+
+```bash
+uv run python scripts/train.py --config outputs/sprint4/graph_b/<run_id>/resolved_config.yaml
+```
+
+Graph B adds label-free guide-similarity edges to Graph A while keeping featureless
+physical targets and Graph A candidate features. It is a bounded secondary control only,
+not a primary result. See `colab/sprint4_graph_b_runner.ipynb` for the full workflow.
+
+After all returned Sprint 4 artifacts exist locally, generate the consolidated
+same-contract Sprint 4 comparison with:
 
 ```bash
 uv run python scripts/compare_sprint4_gcn.py --output-root outputs/sprint4
 ```
 
-This command validates required Graph A/C result, diagnostic, figure, and
-provenance artifacts before writing:
+This command validates required Graph A, Graph C, and optionally Graph B result,
+diagnostic, figure, and provenance artifacts before writing:
 
 ```text
 outputs/sprint4/gcn_sprint4_comparison_results.csv
@@ -217,6 +238,10 @@ outputs/sprint4/gcn_sprint4_comparison_report.md
 outputs/sprint4/figures/gcn_sprint4_schema_auprc_comparison.png
 outputs/sprint4/figures/gcn_sprint4_pr_curves.png
 ```
+
+Graph B is included automatically when `outputs/sprint4/graph_b/gcn_graph_b_results.csv`
+is present. If Graph B was not run, the comparison is generated from Graph A and Graph C
+only.
 
 ## Later sprint command pattern
 

@@ -473,3 +473,110 @@ Outcome:
 - Consolidated Sprint 4 comparison artifacts live under `outputs/sprint4/`.
   Graph B remains optional as a bounded control and must not become an
   uncontrolled schema sweep.
+
+## 2026-06-01 - Run Graph B as bounded topology-ablation control for thesis ablation story
+
+Decision: Graph B was run as a bounded secondary control after validated
+Graph A and Graph C results. It is not a primary result, not a tuning branch,
+and does not affect any model, threshold, feature, schema, or reporting choice.
+
+Reason: The three-way ablation (Graph A → Graph B → Graph C) isolates topology
+contribution from Graph C's combined topology + target-semantics change. Graph A
+uses featureless physical targets with candidate edges only. Graph B adds
+label-free guide-similarity edges (`sequence_similar_to`, 1208 edges) without
+changing target representation or candidate features. Graph C changes both
+topology (context-similarity edges) and target semantics (feature-bearing
+`target_observation` nodes). Without Graph B, a reviewer cannot distinguish
+topology contribution from feature contribution in the Graph A → Graph C gap.
+This ablation is scientifically necessary for the thesis comparison table.
+
+Outcome:
+
+- Graph B provides a clean topology-only reference point in the Graph A/B/C
+  ablation. It was run once and its results are interpretation-only.
+- Graph B must not be treated as a primary result or used to open new
+  schema tuning.
+
+## 2026-06-01 - Graph B Slice 6C validation passed; Graph B is a validated bounded secondary control
+
+Decision: The real Colab GPU Graph B run (commit `1eb494aa`, run ID
+`sprint4_graph_b_gcn_seed42_20260601`) has passed returned-artifact and
+provenance validation. Graph B is included in the consolidated Sprint 4
+comparison as a bounded secondary control only.
+
+Reason: The returned Graph B artifacts include the canonical result CSV,
+report, nine required figures, seven diagnostic tables, and a run directory
+with `resolved_config.yaml`, `runtime.json`, `graph_artifact_provenance.json`,
+`training_history.csv`, and an ignored `model.pt` checkpoint. The provenance
+record confirms Scheme A, `sprint2_main_seed42`, strict-inductive visibility,
+`zero_type_feature` target representation, and the expected Graph B counts:
+`sgRNA=150`, `physical_target_site=9880`, `candidate_pair=11446`,
+`sequence_similar_to=1208`.
+
+Outcome:
+
+- Graph B test AUPRC `0.9666`, test AUROC `0.7436`, test F1 `0.9486`, test
+  MCC `0.1266`; positive prevalence `0.9007`.
+- Graph B does not beat `xgboost_unweighted / F4` (test AUPRC `0.9925`).
+- Graph B AUPRC is similar to Graph A (`0.9663`), confirming that guide-
+  similarity topology alone does not substantially improve AUPRC over the
+  minimal physical-target baseline.
+- The low test MCC (`0.1266`) reflects the validation-selected threshold
+  (`0.0785`) producing near-total positive classification; this is
+  interpretation-only and did not drive any model or reporting decision.
+- No model, schema, threshold, or feature choice was revised from Graph B
+  test diagnostics.
+- Consolidated Sprint 4 comparison artifacts updated under `outputs/sprint4/`
+  to include Graph B as a bounded secondary control row.
+
+## 2026-06-01 - Use a single fixed guide-disjoint split instead of k-fold cross-validation for GCN evaluation
+
+Decision: Sprint 4 GCN models (Graph A, Graph B, Graph C) are evaluated on
+the single fixed split `sprint2_main_seed42` rather than k-fold
+cross-validation. Variance across seeds or folds is not reported.
+
+Reason:
+
+1. **Baseline comparison consistency.** All Sprint 2 baselines
+   (`xgboost_unweighted / F4`, CNN/BiLSTM, MLP) were evaluated on the same
+   locked split. Applying k-fold CV to GCN models while keeping the single-
+   split baselines would make the comparison apples-to-oranges. Fair
+   comparison requires the same evaluation protocol across all models; re-
+   running all Sprint 2 baselines with CV would reopen the locked Sprint 2
+   contract.
+
+2. **GNN fold complexity.** For graph models, each fold requires a different
+   graph materialization: the strict-inductive train/val/test views change,
+   auxiliary edges (`sequence_similar_to`, `context_similar_to`) must
+   respect the new fold's guide assignments, and Graph C's train-only
+   preprocessing (median imputation, standard scaling) must be re-fit for
+   each fold. This is significantly more complex than re-training a tabular
+   model on different row subsets.
+
+3. **Computational cost.** Five folds × three schemas = 15 GPU Colab runs
+   versus the 3 runs executed. Each full GPU run takes multiple hours. This
+   cost is not justified given that the primary scientific question (topology
+   vs. context ablation) does not require variance estimates to reach a
+   conclusion.
+
+4. **Primary metric is threshold-free.** AUPRC — the primary metric — is
+   insensitive to threshold selection and relatively stable across folds at
+   this positive prevalence (~90%). The main conclusion (no GCN schema beats
+   `xgboost_unweighted / F4`) holds across any reasonable fold partitioning
+   given the ~0.03 AUPRC gap. Threshold-dependent metrics (MCC, F1) carry
+   higher fold-to-fold variance and are therefore treated as secondary
+   interpretation outputs only; this is consistent with Gao et al. (2020)
+   who recommend PR-AUC over threshold-dependent metrics for imbalanced
+   CRISPR off-target data.
+
+Outcome:
+
+- Single-seed, single-split evaluation is reported for all Sprint 4 GCN
+  schemas.
+- Variance is acknowledged as a thesis limitation; multi-seed or CV
+  evaluation is deferred to future work.
+- MCC results — especially Graph B's `test_mcc=0.127` — should be
+  interpreted with caution as they are highly sensitive to the threshold
+  selected from the validation set and the specific negative distribution of
+  this split.
+- Threshold-free AUPRC remains the authoritative comparison metric.

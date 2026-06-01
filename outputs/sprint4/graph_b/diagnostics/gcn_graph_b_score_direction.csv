@@ -1,0 +1,3 @@
+model_name,graph_schema,feature_set,split,rows,positives,negatives,positive_rate,auprc,auprc_inverted,auroc,auroc_inverted
+gcn_graph_b,graph_b_guide_similarity_control,S1_pair+F1,test,1702,1533,169,0.900705052878966,0.9665698634723803,0.8237664211525731,0.7435858837334074,0.25641411626659255
+gcn_graph_b,graph_b_guide_similarity_control,S1_pair+F1,val,1734,1511,223,0.8713956170703575,0.8969374975479588,0.8557780124652572,0.5138372413956842,0.4861627586043158

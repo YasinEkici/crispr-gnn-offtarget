@@ -1019,3 +1019,83 @@ documentation necessary to record actual choices and results:
 This plan does not authorize Sprint 4 implementation until dependency,
 materialization, and training work is separately undertaken under the frozen
 contracts above.
+
+## 20. Sprint 4 Closure — Validation Review And Handoff Summary
+
+**Status: COMPLETE. All six slices validated. Sprint 4 is closed.**
+
+Completed on: 2026-06-01
+
+### Final Artifact Locations
+
+| Schema | Results | Report | Run dir |
+| --- | --- | --- | --- |
+| Graph A | `outputs/sprint4/graph_a/gcn_graph_a_results.csv` | `outputs/sprint4/graph_a/gcn_graph_a_report.md` | `outputs/sprint4/graph_a/sprint4_graph_a_gcn_seed42_20260601/` |
+| Graph B | `outputs/sprint4/graph_b/gcn_graph_b_results.csv` | `outputs/sprint4/graph_b/gcn_graph_b_report.md` | `outputs/sprint4/graph_b/sprint4_graph_b_gcn_seed42_20260601/` |
+| Graph C | `outputs/sprint4/graph_c/gcn_graph_c_results.csv` | `outputs/sprint4/graph_c/gcn_graph_c_report.md` | `outputs/sprint4/graph_c/sprint4_graph_c_gcn_seed42_20260601/` |
+| Consolidated | `outputs/sprint4/gcn_sprint4_comparison_results.csv` | `outputs/sprint4/gcn_sprint4_comparison_report.md` | `outputs/sprint4/figures/` |
+
+### Final Results (test, positive prevalence 0.9007)
+
+| Model | Schema | Test AUPRC | Test AUROC | Test MCC | vs F4 XGBoost |
+| --- | --- | ---: | ---: | ---: | --- |
+| `xgboost_unweighted` | F4 tabular | 0.9925 | 0.9384 | 0.3452 | — |
+| `gcn_graph_a` | Graph A | 0.9663 | 0.7451 | 0.3008 | does not beat F4 |
+| `gcn_graph_b` | Graph B *(secondary control)* | 0.9666 | 0.7436 | 0.1266 | does not beat F4 |
+| `gcn_graph_c` | Graph C | 0.9616 | 0.7599 | 0.4538 | does not beat F4 |
+
+Graph B MCC (0.1266) is low due to a very low validation-selected threshold
+(0.0785) that classifies nearly all test observations as positive. This is a
+threshold-sensitivity artifact of the 90% positive prevalence and should not
+be over-interpreted. AUPRC remains the primary metric.
+
+### Slice Completion Status
+
+| Slice | Description | Status |
+| --- | --- | --- |
+| Slice 1 | Graph materialization foundation | ✅ Complete |
+| Slice 2 | Graph A minimal GCN path | ✅ Complete |
+| Slice 3 | Reporting and graph visualization | ✅ Complete |
+| Slice 4A | Colab runner infrastructure | ✅ Complete |
+| Slice 4B | Manual full Graph A GPU run | ✅ Complete (commit `9f17e4f`, CUDA, seed 42) |
+| Slice 4C | Graph A artifact integration and reporting finalization | ✅ Complete |
+| Slice 5A | Graph C code and contract foundation | ✅ Complete |
+| Slice 5B | Manual full Graph C GPU run | ✅ Complete (commit `3d18bec`, CUDA, seed 42) |
+| Slice 5C | Graph C artifact integration and consolidated comparison | ✅ Complete |
+| Slice 6A | Graph B decision gate and code foundation | ✅ Complete |
+| Slice 6B | Manual full Graph B GPU run | ✅ Complete (commit `1eb494aa`, CUDA, seed 42) |
+| Slice 6C | Graph B artifact integration and Sprint 4 closure | ✅ Complete |
+
+### Contract Audit
+
+All three GCN schemas passed the following contract checks:
+
+- Label scheme `scheme_a` (`cleavage_freq > 1e-5`). ✅
+- Locked split `sprint2_main_seed42`, guide-disjoint. ✅
+- Visibility policy `strict_inductive_primary`. ✅
+- `experiment_id=18` excluded from headline evaluation. ✅
+- `measured=0` rows excluded from train/val/test supervision. ✅
+- Checkpoint and threshold selection from validation only; no test-driven decisions. ✅
+- Sprint 3 graph artifact checksums confirmed via `graph_artifact_provenance.json`. ✅
+- AUPRC as primary metric; positive prevalence reported. ✅
+- Required comparison `xgboost_unweighted / F4` present in all reports. ✅
+- Graph C reported as changing both topology and target semantics, not topology-only. ✅
+- Graph B marked as bounded secondary control, not primary result. ✅
+
+### Known Limitations (Documented in `docs/DECISIONS.md`)
+
+- Single fixed split rather than k-fold cross-validation; variance not reported.
+  Reason: required for fair comparison with locked Sprint 2 baselines.
+- Single random seed (42); seed variance not reported.
+- `S1_pair` sequence-position sensitivity figure deferred to Sprint 5.
+- Weighted BCE only; alternative losses (focal, dice) deferred to Sprint 6.
+- Threshold-dependent metrics (F1, MCC) unreliable at 90% positive prevalence;
+  AUPRC is the authoritative comparison metric.
+
+### Sprint 5 Handoff
+
+Sprint 5 (epigenetic feature ablation) is the next planned sprint and is the
+project's main scientific novelty experiment. It will use the validated Graph A
+and/or Graph C training path with different feature bundles to isolate the
+contribution of epigenetic/nucleosome context features. Sprint 5 does not begin
+until Sprint 4 is fully closed and this plan is moved to `completed/`.

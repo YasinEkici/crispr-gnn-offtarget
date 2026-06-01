@@ -9,8 +9,7 @@ Current status:
 - Sprint 1 dataset audit, label policy, and feature parsing policy are documented.
 - Sprint 2 fair non-graph baselines are complete under the locked guide-level measured-only split.
 - Sprint 3 dependency-light Graph A/B/C datasets and leakage controls are complete under the same locked split.
-- Sprint 4 Graph A and Graph C GCN training have validated Colab GPU runs under the frozen contract; Graph B has not been run yet.
-- The strongest current non-graph baseline remains `xgboost_unweighted / F4`; Graph A and Graph C are valid same-contract GCN baselines but do not beat that F4 XGBoost reference on primary test AUPRC.
+- Sprint 4 GCN baseline training is complete: Graph A, Graph B (bounded topology-control), and Graph C all have validated Colab GPU runs under the frozen contract. None beats `xgboost_unweighted / F4` on primary test AUPRC. Consolidated comparison: `outputs/sprint4/gcn_sprint4_comparison_results.csv`.
 
 ## Setup
 
