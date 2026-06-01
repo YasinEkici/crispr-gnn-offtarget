@@ -27,6 +27,21 @@ def test_gcn_minimal_config_loads() -> None:
     validate_gcn_headline_config(config)
 
 
+def test_gcn_graph_c_config_loads() -> None:
+    config = load_yaml(ROOT / "configs" / "experiments" / "gcn_graph_c.yaml")
+    assert config["experiment_name"] == "gcn_graph_c"
+    assert config["task"] == "sprint4_gcn_graph_c"
+    assert config["model"]["name"] == "gcn_graph_c"
+    assert config["graph"]["schema"] == "graph_c_context_observation"
+    assert config["graph"]["context_placement"] == "target_observation_node"
+    assert config["graph"]["target_semantics"] == "observation_level_context"
+    assert config["data"]["split_id"] == "sprint2_main_seed42"
+    assert config["model"]["target_node_representation"] == "target_observation_context_encoder"
+    assert config["features"]["edge_feature_sets"] == ["candidate_pair_features"]
+    assert config["evaluation"]["graph_c_interpretation"] == "topology_and_target_semantics_not_topology_only"
+    validate_gcn_headline_config(config)
+
+
 def test_gcn_headline_config_rejects_debug_or_random_edge_rules() -> None:
     config = load_yaml(ROOT / "configs" / "experiments" / "gcn_minimal.yaml")
     config["data"]["split_id"] = "debug"

@@ -9,6 +9,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from scripts.train import write_results_table
 from crispr_gnn.training.gcn import (
     BASELINE_TEST_AUPRC,
+    GRAPH_C_TARGET_REPRESENTATION_POLICY,
     GCNRunConfig,
     gcn_run_config_from_mapping,
 )
@@ -29,11 +30,27 @@ def test_gcn_config_records_locked_contract_and_baseline_reference() -> None:
     assert BASELINE_TEST_AUPRC == pytest.approx(0.992522)
 
 
-def test_gcn_config_rejects_non_graph_a_schema_in_slice_2() -> None:
+def test_gcn_config_records_graph_c_observation_context_contract() -> None:
     config = _base_config()
     config["graph"]["schema"] = "graph_c_context_observation"
+    config["model"]["name"] = "gcn_graph_c"
+    config["model"]["target_node_representation"] = "target_observation_context_encoder"
+    config["features"]["edge_feature_sets"] = ["candidate_pair_features"]
 
-    with pytest.raises(ValueError, match="Graph A"):
+    run_config = gcn_run_config_from_mapping(config)
+
+    assert run_config.graph_schema == "graph_c_context_observation"
+    assert run_config.model_name == "gcn_graph_c"
+    assert run_config.edge_feature_sets == ("candidate_pair_features",)
+    assert run_config.feature_set == "CandidatePair"
+    assert run_config.target_node_representation == GRAPH_C_TARGET_REPRESENTATION_POLICY
+
+
+def test_gcn_config_rejects_unsupported_schema() -> None:
+    config = _base_config()
+    config["graph"]["schema"] = "graph_b_guide_similarity_control"
+
+    with pytest.raises(ValueError, match="Graph A and Graph C"):
         gcn_run_config_from_mapping(config)
 
 
@@ -46,6 +63,13 @@ def test_gcn_config_rejects_unapproved_target_representation_or_loss() -> None:
     config = _base_config()
     config["training"]["loss"] = "focal_loss"
     with pytest.raises(ValueError, match="weighted BCE"):
+        gcn_run_config_from_mapping(config)
+
+    config = _base_config()
+    config["graph"]["schema"] = "graph_c_context_observation"
+    config["model"]["target_node_representation"] = "zero_type_feature"
+    config["features"]["edge_feature_sets"] = ["candidate_pair_features"]
+    with pytest.raises(ValueError, match="observation context encoder"):
         gcn_run_config_from_mapping(config)
 
 

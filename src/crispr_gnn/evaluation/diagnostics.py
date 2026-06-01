@@ -158,19 +158,7 @@ def write_gcn_report(
         "",
         "## Result Summary",
         "",
-        _markdown_table(
-            result_rows[
-                [
-                    "model_name",
-                    "graph_schema",
-                    "feature_set",
-                    "test_auprc",
-                    "test_auroc",
-                    "test_f1",
-                    "test_mcc",
-                ]
-            ]
-        ),
+        _markdown_table(result_rows[_gcn_report_summary_columns(result_rows)]),
         "",
         "## Artifact Index",
         "",
@@ -184,10 +172,26 @@ def write_gcn_report(
         "",
         "- Graph-view visualizations are bounded sanity checks, not performance claims.",
         "- Smoke or mocked outputs are not final Sprint 4 performance evidence.",
-        "- Graph C, when added later, must not be described as topology-only.",
+        "- Graph C must not be described as topology-only; it changes both topology and target semantics/context representation.",
     ]
     path.write_text("\n".join(lines) + "\n", encoding="utf-8")
     return path
+
+
+def _gcn_report_summary_columns(result_rows: pd.DataFrame) -> list[str]:
+    columns = [
+        "model_name",
+        "graph_schema",
+        "feature_set",
+        "target_node_representation",
+        "test_auprc",
+        "test_auroc",
+        "test_f1",
+        "test_mcc",
+    ]
+    if "target_semantics" in result_rows.columns:
+        columns.insert(4, "target_semantics")
+    return [column for column in columns if column in result_rows.columns]
 
 
 def _prediction_frame(assigned: pd.DataFrame, predictions: Iterable[dict[str, object]]) -> pd.DataFrame:

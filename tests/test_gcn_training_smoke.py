@@ -1,12 +1,13 @@
 import pandas as pd
 
 from crispr_gnn.data.schemas import COMPUTED_NUCLEOSOME_FEATURES
-from crispr_gnn.graph import GRAPH_A, build_graph_artifacts, write_graph_artifacts
+from crispr_gnn.graph import GRAPH_A, GRAPH_C, build_graph_artifacts, write_graph_artifacts
 from crispr_gnn.graph.pyg_dataset import Sprint3HeteroDataLoader
 from crispr_gnn.training.gcn import (
     CHECKPOINT_POLICY,
     GCNRunConfig,
     train_graph_a_gcn,
+    train_graph_c_gcn,
 )
 
 
@@ -87,7 +88,49 @@ def test_graph_a_gcn_saves_checkpoint_when_path_provided(tmp_path) -> None:
     assert isinstance(state, dict) and len(state) > 0, "checkpoint must be a non-empty state dict"
 
 
+def test_graph_c_gcn_cpu_smoke_training_uses_observation_context_encoder(tmp_path) -> None:
+    materialized = _tiny_materialized_graph(tmp_path, GRAPH_C)
+    config = GCNRunConfig(
+        sprint="sprint4",
+        split_id="sprint2_main_seed42",
+        seed=7,
+        graph_schema=GRAPH_C,
+        model_name="gcn_graph_c",
+        feature_set="CandidatePair",
+        edge_feature_sets=("candidate_pair_features",),
+        target_node_representation="target_observation_context_encoder",
+        hidden_dim=12,
+        num_layers=1,
+        dropout=0.0,
+        max_epochs=3,
+        min_epochs=1,
+        patience=2,
+        learning_rate=0.01,
+        device="cpu",
+        num_threads=1,
+        use_compile=False,
+        use_amp=False,
+    )
+
+    results, predictions, history = train_graph_c_gcn(materialized, config)
+
+    row = results.iloc[0]
+    assert row["graph_schema"] == GRAPH_C
+    assert row["target_node_representation"] == "target_observation_context_encoder"
+    assert row["target_semantics"] == "observation_level_context_target"
+    assert "topology and target semantics" in row["notes"]
+    assert row["checkpoint_selection_split"] == "validation"
+    assert row["threshold_selection_split"] == "validation"
+    assert set(predictions["split"]) == {"val", "test"}
+    assert "test" not in set(history["selection_split"])
+    assert history["epoch"].max() <= 3
+
+
 def _tiny_materialized_graph_a(tmp_path):
+    return _tiny_materialized_graph(tmp_path, GRAPH_A)
+
+
+def _tiny_materialized_graph(tmp_path, graph_name: str):
     artifacts = build_graph_artifacts(_graph_rows())
     graph_dir = tmp_path / "graphs"
     write_graph_artifacts(
@@ -108,7 +151,7 @@ def _tiny_materialized_graph_a(tmp_path):
         expected_counts=expected_counts,
         expected_candidate_split_counts={"train": 6, "val": 2, "test": 2},
     )
-    return loader.load(GRAPH_A)
+    return loader.load(graph_name)
 
 
 def _graph_rows() -> pd.DataFrame:

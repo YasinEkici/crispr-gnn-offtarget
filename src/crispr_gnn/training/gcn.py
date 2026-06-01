@@ -1,4 +1,4 @@
-"""Sprint 4 minimal Graph A GCN training."""
+"""Sprint 4 minimal GCN training for validated graph schemas."""
 
 from __future__ import annotations
 
@@ -12,7 +12,7 @@ import torch
 from sklearn.metrics import average_precision_score
 
 from crispr_gnn.evaluation.metrics import binary_classification_metrics, select_threshold_by_f1
-from crispr_gnn.graph.graph_schemas import GRAPH_A
+from crispr_gnn.graph.graph_schemas import GRAPH_A, GRAPH_C
 from crispr_gnn.graph.pyg_dataset import (
     LABEL_SCHEME,
     SPLIT_ID,
@@ -23,10 +23,15 @@ from crispr_gnn.graph.pyg_dataset import (
 )
 from crispr_gnn.models.gcn import (
     GRAPH_A_EDGE_TYPE,
+    GRAPH_C_EDGE_TYPE,
+    GRAPH_C_TARGET_REPRESENTATION_POLICY,
     TARGET_REPRESENTATION_POLICY,
     GraphAEdgeGCN,
+    GraphCEdgeGCN,
     graph_a_edge_feature_attrs,
     graph_a_feature_dimensions,
+    graph_c_edge_feature_attrs,
+    graph_c_feature_dimensions,
 )
 
 
@@ -82,23 +87,43 @@ def run_gcn_graph_a_from_config(
     return train_graph_a_gcn(materialized, run_config)
 
 
+def run_gcn_graph_c_from_config(
+    config: Mapping[str, Any],
+    *,
+    root: Path,
+) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+    """Load canonical Sprint 3 Graph C artifacts and train the minimal GCN path."""
+    validate_gcn_headline_config(config)
+    run_config = gcn_run_config_from_mapping(config)
+    graph_dir = root / str(config["data"]["graph_artifact_dir"])
+    materialized = Sprint3HeteroDataLoader(graph_dir).load(GRAPH_C)
+    return train_graph_c_gcn(materialized, run_config)
+
+
 def gcn_run_config_from_mapping(config: Mapping[str, Any]) -> GCNRunConfig:
     data = _mapping(config.get("data", {}), "data")
     graph = _mapping(config.get("graph", {}), "graph")
     model = _mapping(config.get("model", {}), "model")
     training = _mapping(config.get("training", {}), "training")
     features = _mapping(config.get("features", {}), "features")
-    if graph.get("schema") != GRAPH_A:
-        raise ValueError("Slice 2 only supports Graph A training")
-    edge_feature_sets = tuple(str(value) for value in features.get("edge_feature_sets", ["s1_pair", "f1"]))
+    graph_schema = str(graph.get("schema", GRAPH_A))
+    if graph_schema not in {GRAPH_A, GRAPH_C}:
+        raise ValueError("Sprint 4 GCN training currently supports Graph A and Graph C only")
+    default_edge_features = ["candidate_pair_features"] if graph_schema == GRAPH_C else ["s1_pair", "f1"]
+    edge_feature_sets = tuple(str(value) for value in features.get("edge_feature_sets", default_edge_features))
     if not edge_feature_sets:
-        raise ValueError("At least one Graph A edge feature set must be configured")
-    target_policy = str(model.get("target_node_representation", TARGET_REPRESENTATION_POLICY))
-    if target_policy != TARGET_REPRESENTATION_POLICY:
+        raise ValueError("At least one GCN edge feature set must be configured")
+    expected_target_policy = (
+        GRAPH_C_TARGET_REPRESENTATION_POLICY if graph_schema == GRAPH_C else TARGET_REPRESENTATION_POLICY
+    )
+    target_policy = str(model.get("target_node_representation", expected_target_policy))
+    if graph_schema == GRAPH_A and target_policy != TARGET_REPRESENTATION_POLICY:
         raise ValueError("Graph A target-node representation must be the approved zero/type policy")
+    if graph_schema == GRAPH_C and target_policy != GRAPH_C_TARGET_REPRESENTATION_POLICY:
+        raise ValueError("Graph C target-node representation must use the observation context encoder")
     loss = str(training.get("loss", "weighted_bce"))
     if loss != "weighted_bce":
-        raise ValueError("Sprint 4 Slice 2 uses weighted BCE only")
+        raise ValueError("Sprint 4 GCN training uses weighted BCE only")
     scheduler = str(training.get("scheduler", "reduce_on_plateau"))
     if scheduler not in {"reduce_on_plateau", "none"}:
         raise ValueError("Sprint 4 scheduler must be 'reduce_on_plateau' or 'none'")
@@ -106,11 +131,13 @@ def gcn_run_config_from_mapping(config: Mapping[str, Any]) -> GCNRunConfig:
         sprint=str(config.get("sprint", "sprint4")),
         split_id=str(data.get("split_id", SPLIT_ID)),
         seed=int(config.get("seed", 42)),
-        graph_schema=str(graph.get("schema", GRAPH_A)),
+        graph_schema=graph_schema,
         label_scheme=str(data.get("label_scheme", LABEL_SCHEME)),
         visibility_policy=str(graph.get("visibility_policy", VISIBILITY_POLICY)),
         model_name=str(model.get("name", "gcn_graph_a")),
-        feature_set="+".join(_display_feature_name(value) for value in edge_feature_sets),
+        feature_set=str(
+            features.get("feature_set", "+".join(_display_feature_name(value) for value in edge_feature_sets))
+        ),
         edge_feature_sets=edge_feature_sets,
         target_node_representation=target_policy,
         hidden_dim=int(model.get("hidden_dim", 128)),
@@ -141,25 +168,42 @@ def train_graph_a_gcn(
     checkpoint_path: Path | None = None,
 ) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     if materialized.graph_name != GRAPH_A or config.graph_schema != GRAPH_A:
-        raise ValueError("Slice 2 training is limited to Graph A")
+        raise ValueError("Graph A training requires Graph A materialized artifacts and config")
+    return _train_gcn(materialized, config, checkpoint_path=checkpoint_path)
+
+
+def train_graph_c_gcn(
+    materialized: MaterializedGraph,
+    config: GCNRunConfig,
+    *,
+    checkpoint_path: Path | None = None,
+) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+    if materialized.graph_name != GRAPH_C or config.graph_schema != GRAPH_C:
+        raise ValueError("Graph C training requires Graph C materialized artifacts and config")
+    if config.target_node_representation != GRAPH_C_TARGET_REPRESENTATION_POLICY:
+        raise ValueError("Graph C context must enter through the target_observation node encoder")
+    return _train_gcn(materialized, config, checkpoint_path=checkpoint_path)
+
+
+def _train_gcn(
+    materialized: MaterializedGraph,
+    config: GCNRunConfig,
+    *,
+    checkpoint_path: Path | None = None,
+) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     if config.split_id != SPLIT_ID or config.label_scheme != LABEL_SCHEME:
         raise ValueError("GCN training config drift from frozen Sprint 2 contract")
     if config.visibility_policy != VISIBILITY_POLICY:
         raise ValueError("GCN training requires strict-inductive visibility")
     _set_determinism(config)
     device = torch.device(config.device)
-    edge_feature_attrs = graph_a_edge_feature_attrs(config.edge_feature_sets)
+    edge_type = _candidate_edge_type(config.graph_schema)
+    edge_feature_attrs = _edge_feature_attrs(config)
     train_view = materialized.view("train").to(device)
     val_view = materialized.view("val").to(device)
     test_view = materialized.view("test").to(device)
-    sgrna_dim, edge_dim = graph_a_feature_dimensions(train_view, edge_feature_attrs)
-    model = GraphAEdgeGCN(
-        sgrna_input_dim=sgrna_dim,
-        edge_input_dim=edge_dim,
-        hidden_dim=config.hidden_dim,
-        num_layers=config.num_layers,
-        dropout=config.dropout,
-    ).to(device)
+    model, edge_dim = _build_model(train_view, config, edge_feature_attrs)
+    model = model.to(device)
     _use_amp = config.use_amp and device.type == "cuda"
     if config.use_compile and device.type == "cuda" and hasattr(torch, "compile"):
         model = torch.compile(model)
@@ -190,20 +234,20 @@ def train_graph_a_gcn(
         optimizer.zero_grad(set_to_none=True)
         with torch.autocast("cuda", dtype=torch.bfloat16, enabled=_use_amp):
             logits = model(train_view, edge_feature_attrs=edge_feature_attrs)
-        train_mask = train_view[GRAPH_A_EDGE_TYPE].supervision_mask
+        train_mask = train_view[edge_type].supervision_mask
         loss = loss_fn(logits[train_mask].float(), train_labels)
         loss.backward()
         if config.clip_grad_norm > 0:
             torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=config.clip_grad_norm)
         optimizer.step()
 
-        val_labels, val_scores = _scores_for_view(model, val_view, edge_feature_attrs)
+        val_labels, val_scores = _scores_for_view(model, val_view, edge_feature_attrs, edge_type=edge_type)
         val_auprc = _safe_average_precision(val_labels, val_scores)
         with torch.no_grad():
             with torch.autocast("cuda", dtype=torch.bfloat16, enabled=_use_amp):
                 val_logits = model(val_view, edge_feature_attrs=edge_feature_attrs)
-            val_mask = val_view[GRAPH_A_EDGE_TYPE].supervision_mask
-            val_sup_labels = val_view[GRAPH_A_EDGE_TYPE].edge_label[val_mask]
+            val_mask = val_view[edge_type].supervision_mask
+            val_sup_labels = val_view[edge_type].edge_label[val_mask]
             val_loss_value = float(loss_fn(val_logits[val_mask].float(), val_sup_labels).detach().cpu())
         if lr_scheduler is not None:
             lr_scheduler.step(val_auprc)
@@ -233,8 +277,8 @@ def train_graph_a_gcn(
             checkpoint_path.parent.mkdir(parents=True, exist_ok=True)
             torch.save(best_state, checkpoint_path)
     model = model.to(device)
-    val_labels, val_scores = _scores_for_view(model, val_view, edge_feature_attrs)
-    test_labels, test_scores = _scores_for_view(model, test_view, edge_feature_attrs)
+    val_labels, val_scores = _scores_for_view(model, val_view, edge_feature_attrs, edge_type=edge_type)
+    test_labels, test_scores = _scores_for_view(model, test_view, edge_feature_attrs, edge_type=edge_type)
     threshold = select_threshold_by_f1(val_labels, val_scores)
     result = _result_row(
         config=config,
@@ -251,7 +295,16 @@ def train_graph_a_gcn(
         edge_dim=edge_dim,
         pos_weight=float(pos_weight.detach().cpu()),
     )
-    predictions = _prediction_records(config, val_view, val_labels, val_scores, test_view, test_labels, test_scores)
+    predictions = _prediction_records(
+        config,
+        val_view,
+        val_labels,
+        val_scores,
+        test_view,
+        test_labels,
+        test_scores,
+        edge_type=edge_type,
+    )
     training_history = pd.DataFrame(history)
     training_history.insert(0, "model_name", config.model_name)
     training_history.insert(1, "graph_schema", config.graph_schema)
@@ -307,7 +360,8 @@ def _result_row(
         "weighted_bce_pos_weight": float(pos_weight),
         "use_compile": config.use_compile,
         "use_amp": config.use_amp,
-        "notes": "Graph A minimal GCN smoke-capable path; no test-driven selection; no Graph C/B run",
+        "target_semantics": _target_semantics(config.graph_schema),
+        "notes": _run_notes(config.graph_schema),
         **val_metrics,
         **test_metrics,
     }
@@ -321,13 +375,14 @@ def _prediction_records(
     test_view: Any,
     test_labels: np.ndarray,
     test_scores: np.ndarray,
+    edge_type: tuple[str, str, str],
 ) -> pd.DataFrame:
     rows = []
     for split, view, labels, scores in [
         ("val", val_view, val_labels, val_scores),
         ("test", test_view, test_labels, test_scores),
     ]:
-        edge_store = view[GRAPH_A_EDGE_TYPE]
+        edge_store = view[edge_type]
         mask = edge_store.supervision_mask.tolist()
         sgrna_ids = _masked_audit(getattr(edge_store, "audit_sgrna_ids", []), mask)
         genome_vals = _masked_audit(getattr(edge_store, "audit_genome", []), mask)
@@ -357,22 +412,88 @@ def _masked_audit(items: list[Any], mask: list[bool]) -> list[Any]:
 
 
 def _scores_for_view(
-    model: GraphAEdgeGCN,
+    model: Any,
     data: Any,
     edge_feature_attrs: list[str],
+    *,
+    edge_type: tuple[str, str, str],
 ) -> tuple[np.ndarray, np.ndarray]:
     model.eval()
     with torch.no_grad():
         logits = model(data, edge_feature_attrs=edge_feature_attrs)
-        mask = data[GRAPH_A_EDGE_TYPE].supervision_mask
+        mask = data[edge_type].supervision_mask
         scores = torch.sigmoid(logits[mask]).detach().cpu().numpy()
-        labels = data[GRAPH_A_EDGE_TYPE].edge_label[mask].detach().cpu().numpy().astype(int)
+        labels = data[edge_type].edge_label[mask].detach().cpu().numpy().astype(int)
     return labels, scores
 
 
 def _supervised_labels(data: Any) -> torch.Tensor:
-    edge_store = data[GRAPH_A_EDGE_TYPE]
+    edge_store = data[_candidate_edge_type(data.graph_name)]
     return edge_store.edge_label[edge_store.supervision_mask]
+
+
+def _candidate_edge_type(graph_schema: str) -> tuple[str, str, str]:
+    if graph_schema == GRAPH_A:
+        return GRAPH_A_EDGE_TYPE
+    if graph_schema == GRAPH_C:
+        return GRAPH_C_EDGE_TYPE
+    raise ValueError(f"Unsupported GCN graph schema: {graph_schema}")
+
+
+def _edge_feature_attrs(config: GCNRunConfig) -> list[str]:
+    if config.graph_schema == GRAPH_A:
+        return graph_a_edge_feature_attrs(config.edge_feature_sets)
+    if config.graph_schema == GRAPH_C:
+        return graph_c_edge_feature_attrs(config.edge_feature_sets)
+    raise ValueError(f"Unsupported GCN graph schema: {config.graph_schema}")
+
+
+def _build_model(
+    train_view: Any,
+    config: GCNRunConfig,
+    edge_feature_attrs: list[str],
+) -> tuple[GraphAEdgeGCN | GraphCEdgeGCN, int]:
+    if config.graph_schema == GRAPH_A:
+        sgrna_dim, edge_dim = graph_a_feature_dimensions(train_view, edge_feature_attrs)
+        return (
+            GraphAEdgeGCN(
+                sgrna_input_dim=sgrna_dim,
+                edge_input_dim=edge_dim,
+                hidden_dim=config.hidden_dim,
+                num_layers=config.num_layers,
+                dropout=config.dropout,
+            ),
+            edge_dim,
+        )
+    if config.graph_schema == GRAPH_C:
+        sgrna_dim, target_dim, edge_dim = graph_c_feature_dimensions(train_view, edge_feature_attrs)
+        return (
+            GraphCEdgeGCN(
+                sgrna_input_dim=sgrna_dim,
+                target_observation_input_dim=target_dim,
+                edge_input_dim=edge_dim,
+                hidden_dim=config.hidden_dim,
+                num_layers=config.num_layers,
+                dropout=config.dropout,
+            ),
+            edge_dim,
+        )
+    raise ValueError(f"Unsupported GCN graph schema: {config.graph_schema}")
+
+
+def _target_semantics(graph_schema: str) -> str:
+    if graph_schema == GRAPH_C:
+        return "observation_level_context_target"
+    return "minimal_physical_target"
+
+
+def _run_notes(graph_schema: str) -> str:
+    if graph_schema == GRAPH_C:
+        return (
+            "Graph C GCN path uses target_observation context node encoding; "
+            "Graph C changes both topology and target semantics; no test-driven selection; no Graph B run"
+        )
+    return "Graph A minimal GCN path; no test-driven selection; no Graph C/B run"
 
 
 def _weighted_bce_pos_weight(labels: torch.Tensor) -> torch.Tensor:
@@ -402,4 +523,9 @@ def _mapping(value: object, name: str) -> Mapping[str, Any]:
 
 
 def _display_feature_name(value: str) -> str:
-    return "S1_pair" if value.lower() == "s1_pair" else value.upper()
+    normalized = value.lower()
+    if normalized == "s1_pair":
+        return "S1_pair"
+    if normalized in {"candidate_pair_features", "candidate_pair"}:
+        return "CandidatePair"
+    return value.upper()

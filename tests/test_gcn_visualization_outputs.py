@@ -49,7 +49,58 @@ def test_gcn_sequence_position_sensitivity_is_conditional(tmp_path) -> None:
     assert "gcn_sequence_position_sensitivity.png" in {path.name for path in figure_paths}
 
 
-def _mock_results() -> pd.DataFrame:
+def test_gcn_graph_c_reporting_paths_keep_schema_specific_outputs(tmp_path) -> None:
+    results = _mock_results(
+        model_name="gcn_graph_c",
+        graph_schema="graph_c_context_observation",
+        target_node_representation="target_observation_context_encoder",
+    )
+    predictions = _mock_predictions(model_name="gcn_graph_c", graph_schema="graph_c_context_observation")
+    history = _mock_training_history(model_name="gcn_graph_c", graph_schema="graph_c_context_observation")
+    graph_view = _mock_graph_c_view()
+
+    diagnostic_tables = write_gcn_diagnostics(
+        results,
+        predictions,
+        tmp_path / "diagnostics",
+        schema_label="graph_c",
+    )
+    figure_paths = write_gcn_plots(
+        results,
+        predictions,
+        history,
+        tmp_path / "figures",
+        schema_label="graph_c",
+        graph_view=graph_view,
+    )
+    report_path = write_gcn_report(
+        results,
+        diagnostic_tables,
+        figure_paths,
+        tmp_path / "reports" / "gcn_graph_c_report.md",
+        run_label="mock_graph_c_reporting_path",
+    )
+
+    assert {path.name for path in diagnostic_tables} >= {
+        "gcn_graph_c_score_direction.csv",
+        "gcn_graph_c_fixed_threshold_metrics.csv",
+        "gcn_graph_c_score_deciles.csv",
+    }
+    assert {path.name for path in figure_paths} >= {
+        "gcn_graph_c_graph_schema_auprc_comparison.png",
+        "gcn_graph_c_view_sanity_example.png",
+    }
+    report_text = report_path.read_text(encoding="utf-8")
+    assert "graph_c_context_observation" in report_text
+    assert "target_observation_context_encoder" in results["target_node_representation"].iloc[0]
+
+
+def _mock_results(
+    *,
+    model_name: str = "gcn_graph_a",
+    graph_schema: str = "graph_a_minimal_physical_target",
+    target_node_representation: str = "zero_type_feature",
+) -> pd.DataFrame:
     return pd.DataFrame(
         [
             {
@@ -58,11 +109,11 @@ def _mock_results() -> pd.DataFrame:
                 "split_id": "sprint2_main_seed42",
                 "seed": 42,
                 "training_regime": "measured_only",
-                "model_name": "gcn_graph_a",
+                "model_name": model_name,
                 "feature_set": "S1_pair+F1",
-                "graph_schema": "graph_a_minimal_physical_target",
+                "graph_schema": graph_schema,
                 "visibility_policy": "strict_inductive_primary",
-                "target_node_representation": "zero_type_feature",
+                "target_node_representation": target_node_representation,
                 "threshold": 0.5,
                 "threshold_selection_split": "validation",
                 "baseline_reference": "xgboost_unweighted / F4",
@@ -79,14 +130,18 @@ def _mock_results() -> pd.DataFrame:
     )
 
 
-def _mock_predictions() -> pd.DataFrame:
+def _mock_predictions(
+    *,
+    model_name: str = "gcn_graph_a",
+    graph_schema: str = "graph_a_minimal_physical_target",
+) -> pd.DataFrame:
     rows = []
     for split in ["val", "test"]:
         for index, (label, score) in enumerate([(1, 0.9), (0, 0.2), (1, 0.7), (0, 0.4)]):
             rows.append(
                 {
-                    "model_name": "gcn_graph_a",
-                    "graph_schema": "graph_a_minimal_physical_target",
+                    "model_name": model_name,
+                    "graph_schema": graph_schema,
                     "feature_set": "S1_pair+F1",
                     "split": split,
                     "row_index": index,
@@ -99,12 +154,16 @@ def _mock_predictions() -> pd.DataFrame:
     return pd.DataFrame(rows)
 
 
-def _mock_training_history() -> pd.DataFrame:
+def _mock_training_history(
+    *,
+    model_name: str = "gcn_graph_a",
+    graph_schema: str = "graph_a_minimal_physical_target",
+) -> pd.DataFrame:
     return pd.DataFrame(
         [
             {
-                "model_name": "gcn_graph_a",
-                "graph_schema": "graph_a_minimal_physical_target",
+                "model_name": model_name,
+                "graph_schema": graph_schema,
                 "feature_set": "S1_pair+F1",
                 "epoch": epoch,
                 "train_loss": 1.0 / epoch,
@@ -126,4 +185,19 @@ def _mock_graph_view() -> HeteroData:
     data["physical_target_site"].audit_node_ids = ["target_0", "target_1"]
     edge_store = data["sgRNA", "candidate_pair", "physical_target_site"]
     edge_store.edge_index = torch.tensor([[0, 1], [0, 1]], dtype=torch.long)
+    return data
+
+
+def _mock_graph_c_view() -> HeteroData:
+    data = HeteroData()
+    data.graph_name = "graph_c_context_observation"
+    data.view_name = "test"
+    data["sgRNA"].num_nodes = 2
+    data["sgRNA"].audit_node_ids = ["guide_0", "guide_1"]
+    data["target_observation"].num_nodes = 3
+    data["target_observation"].audit_node_ids = ["obs_train_0", "obs_train_1", "obs_test_0"]
+    candidate = data["sgRNA", "candidate_pair", "target_observation"]
+    candidate.edge_index = torch.tensor([[0, 1], [0, 2]], dtype=torch.long)
+    context = data["target_observation", "context_similar_to", "target_observation"]
+    context.edge_index = torch.tensor([[2], [0]], dtype=torch.long)
     return data

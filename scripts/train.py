@@ -60,6 +60,8 @@ def main() -> int:
         return run_sprint2_sequence_late_fusion(config)
     if task == "sprint4_gcn":
         return run_sprint4_gcn(config)
+    if task == "sprint4_gcn_graph_c":
+        return run_sprint4_gcn_graph_c(config)
 
     print("Training placeholder: this config does not yet map to an implemented task.")
     return 0 if args.debug else 1
@@ -476,9 +478,8 @@ def run_sprint2_sequence_late_fusion(config: dict[str, object]) -> int:
 
 
 def run_sprint4_gcn(config: dict[str, object]) -> int:
-    from crispr_gnn.graph.graph_schemas import GRAPH_A
     from crispr_gnn.graph.pyg_dataset import Sprint3HeteroDataLoader, validate_gcn_headline_config
-    from crispr_gnn.training.gcn import gcn_run_config_from_mapping, train_graph_a_gcn
+    from crispr_gnn.training.gcn import gcn_run_config_from_mapping, train_graph_a_gcn, train_graph_c_gcn
 
     validate_gcn_headline_config(config)
     run_config = gcn_run_config_from_mapping(config)
@@ -509,12 +510,17 @@ def run_sprint4_gcn(config: dict[str, object]) -> int:
     )
 
     graph_dir = ROOT / str(config["data"]["graph_artifact_dir"])
-    materialized = Sprint3HeteroDataLoader(graph_dir).load(GRAPH_A)
+    materialized = Sprint3HeteroDataLoader(graph_dir).load(run_config.graph_schema)
     checkpoint_path = run_dir / "model.pt"
 
-    results, predictions, training_history = train_graph_a_gcn(
-        materialized, run_config, checkpoint_path=checkpoint_path
-    )
+    if run_config.graph_schema == "graph_c_context_observation":
+        results, predictions, training_history = train_graph_c_gcn(
+            materialized, run_config, checkpoint_path=checkpoint_path
+        )
+    else:
+        results, predictions, training_history = train_graph_a_gcn(
+            materialized, run_config, checkpoint_path=checkpoint_path
+        )
 
     write_results_table(results, results_path)
     schema_diagnostics_dir.mkdir(parents=True, exist_ok=True)
@@ -544,6 +550,11 @@ def run_sprint4_gcn(config: dict[str, object]) -> int:
     print(f"Report written: {report.relative_to(ROOT)}")
     print(results[["model_name", "feature_set", "test_auprc", "test_auroc", "test_f1", "test_mcc"]].to_string(index=False))
     return 0
+
+
+def run_sprint4_gcn_graph_c(config: dict[str, object]) -> int:
+    """Run the Slice 5A Graph C GCN path through the shared Sprint 4 dispatcher."""
+    return run_sprint4_gcn(config)
 
 
 def _sprint4_run_id(config: dict[str, object], run_config: object) -> str:

@@ -1,13 +1,19 @@
 import torch
 from torch_geometric.data import HeteroData
 
-from crispr_gnn.graph.graph_schemas import GRAPH_A
+from crispr_gnn.graph.graph_schemas import GRAPH_A, GRAPH_C
 from crispr_gnn.models.gcn import (
     GRAPH_A_EDGE_TYPE,
+    GRAPH_C_CONTEXT_EDGE_TYPE,
+    GRAPH_C_EDGE_TYPE,
+    GRAPH_C_TARGET_REPRESENTATION_POLICY,
     TARGET_REPRESENTATION_POLICY,
     GraphAEdgeGCN,
+    GraphCEdgeGCN,
     graph_a_edge_feature_attrs,
     graph_a_feature_dimensions,
+    graph_c_edge_feature_attrs,
+    graph_c_feature_dimensions,
 )
 
 
@@ -44,6 +50,46 @@ def test_graph_a_gcn_rejects_physical_target_features() -> None:
         raise AssertionError("Graph A model accepted physical target features")
 
 
+def test_graph_c_gcn_forward_uses_target_observation_context_encoder() -> None:
+    data = _tiny_graph_c_view()
+    attrs = graph_c_edge_feature_attrs(["candidate_pair_features"])
+    sgrna_dim, target_dim, edge_dim = graph_c_feature_dimensions(data, attrs)
+    model = GraphCEdgeGCN(
+        sgrna_input_dim=sgrna_dim,
+        target_observation_input_dim=target_dim,
+        edge_input_dim=edge_dim,
+        hidden_dim=8,
+        num_layers=1,
+        dropout=0.0,
+    )
+
+    logits = model(data, edge_feature_attrs=attrs)
+
+    assert logits.shape == (3,)
+    assert model.target_representation_policy == GRAPH_C_TARGET_REPRESENTATION_POLICY
+    assert hasattr(model, "target_observation_encoder")
+    assert not any("physical_target" in name for name, _ in model.named_parameters())
+
+
+def test_graph_c_gcn_rejects_missing_target_observation_features() -> None:
+    data = _tiny_graph_c_view()
+    del data["target_observation"].x
+    model = GraphCEdgeGCN(
+        sgrna_input_dim=4,
+        target_observation_input_dim=5,
+        edge_input_dim=3,
+        hidden_dim=8,
+        num_layers=1,
+    )
+
+    try:
+        model(data, edge_feature_attrs=["edge_attr_candidate_pair_features"])
+    except ValueError as exc:
+        assert "context features" in str(exc)
+    else:
+        raise AssertionError("Graph C model accepted missing target_observation context features")
+
+
 def _tiny_graph_a_view() -> HeteroData:
     data = HeteroData()
     data.graph_name = GRAPH_A
@@ -61,4 +107,33 @@ def _tiny_graph_a_view() -> HeteroData:
     edge_store.supervision_mask = torch.tensor([True, True, True])
     edge_store.edge_attr_s1_pair = torch.ones((3, 2), dtype=torch.float32)
     edge_store.edge_attr_f1 = torch.zeros((3, 1), dtype=torch.float32)
+    return data
+
+
+def _tiny_graph_c_view() -> HeteroData:
+    data = HeteroData()
+    data.graph_name = GRAPH_C
+    data["sgRNA"].x = torch.tensor(
+        [
+            [1.0, 0.0, 0.0, 0.0],
+            [0.0, 1.0, 0.0, 0.0],
+        ],
+        dtype=torch.float32,
+    )
+    data["target_observation"].x = torch.tensor(
+        [
+            [1.0, 0.0, 0.0, 0.2, 0.3],
+            [0.0, 1.0, 0.0, 0.4, 0.5],
+            [0.0, 0.0, 1.0, 0.6, 0.7],
+        ],
+        dtype=torch.float32,
+    )
+    edge_store = data[GRAPH_C_EDGE_TYPE]
+    edge_store.edge_index = torch.tensor([[0, 1, 0], [0, 1, 2]], dtype=torch.long)
+    edge_store.edge_label = torch.tensor([1.0, 0.0, 1.0], dtype=torch.float32)
+    edge_store.supervision_mask = torch.tensor([True, True, True])
+    edge_store.edge_attr_candidate_pair_features = torch.ones((3, 3), dtype=torch.float32)
+    context_store = data[GRAPH_C_CONTEXT_EDGE_TYPE]
+    context_store.edge_index = torch.tensor([[0, 1], [1, 2]], dtype=torch.long)
+    context_store.edge_attr = torch.ones((2, 1), dtype=torch.float32)
     return data

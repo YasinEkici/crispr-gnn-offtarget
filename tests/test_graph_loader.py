@@ -139,6 +139,28 @@ def test_loader_preserves_graph_b_and_graph_c_test_visibility(serialized_loader)
     assert "x" in graph_c["target_observation"]
 
 
+def test_loader_preserves_graph_c_observation_context_contract(serialized_loader) -> None:
+    materialized = serialized_loader.load(GRAPH_C)
+    assert materialized.manifest["nodes"]["target_observation"] == 10
+    assert materialized.manifest["relations"]["candidate_pair"] == 10
+    assert materialized.manifest["metadata"]["context_placement"] == "target_observation_node"
+    assert materialized.manifest["preprocessing"]["target_observation_context"]["fit_scope"] == "train_only"
+
+    train_view = materialized.view("train")
+    assert "x" in train_view["target_observation"]
+    assert train_view["target_observation"].x.shape[1] == 212
+    candidate = train_view[("sgRNA", "candidate_pair", "target_observation")]
+    assert "edge_attr_candidate_pair_features" in candidate
+    assert "edge_attr_target_observation_features" not in candidate
+    assert candidate.edge_attr_candidate_pair_features.shape[1] == 32
+
+
+@pytest.mark.parametrize("view_name", ["val", "test"])
+def test_loader_preserves_graph_c_heldout_context_neighbors_as_train_only(serialized_loader, view_name) -> None:
+    graph_c = serialized_loader.load(GRAPH_C).view(view_name)
+    _assert_heldout_context_neighbors_are_train_only(graph_c, heldout_split=view_name)
+
+
 def test_loader_fails_fast_on_manifest_contract_drift(serialized_loader) -> None:
     graph_dir = serialized_loader.artifact_dir / GRAPH_A
     manifest_path = graph_dir / "manifest.json"
@@ -197,3 +219,18 @@ def _assert_no_validation_or_heldout_to_heldout_links(
     assert "val" not in visible_splits
     for source, target in relation.T.tolist():
         assert not (node_splits[source] == "test" and node_splits[target] == "test")
+
+
+def _assert_heldout_context_neighbors_are_train_only(data: HeteroData, *, heldout_split: str) -> None:
+    node_splits = data["target_observation"].audit_splits
+    relation = data[("target_observation", "context_similar_to", "target_observation")].edge_index
+    for source, target in relation.T.tolist():
+        source_split = node_splits[source]
+        target_split = node_splits[target]
+        if source_split == heldout_split:
+            assert target_split == "train"
+        if target_split == heldout_split:
+            assert source_split == "train"
+        if heldout_split == "test":
+            assert source_split != "val"
+            assert target_split != "val"
