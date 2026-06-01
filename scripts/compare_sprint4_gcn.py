@@ -240,7 +240,27 @@ def _comparison_frame(results: pd.DataFrame) -> pd.DataFrame:
     for column in summary_columns:
         if column not in results.columns:
             results[column] = pd.NA
-    return results[summary_columns].copy()
+    comparison = results[summary_columns].copy()
+    schema_notes = {
+        "graph_a_minimal_physical_target": "Graph A minimal physical-target baseline; no test-driven selection.",
+        "graph_b_guide_similarity_control": (
+            "Graph B bounded secondary control; adds label-free guide-similarity topology to Graph A; "
+            "no test-driven selection."
+        ),
+        "graph_c_context_observation": (
+            "Graph C context-observation comparison; changes both topology and target semantics; "
+            "no test-driven selection."
+        ),
+    }
+    comparison["notes"] = comparison["graph_schema"].astype(str).map(schema_notes)
+    if comparison["notes"].isna().any():
+        missing = sorted(comparison.loc[comparison["notes"].isna(), "graph_schema"].astype(str).unique())
+        raise ValueError(f"Missing consolidated comparison notes for schemas: {missing}")
+    if comparison["notes"].astype(str).str.contains("no Graph B run", case=False, regex=False).any():
+        raise ValueError(
+            "Consolidated comparison notes must not carry stale per-run 'no Graph B run' text"
+        )
+    return comparison
 
 
 def _write_auprc_comparison(comparison: pd.DataFrame, path: Path) -> None:
@@ -352,7 +372,7 @@ def _write_report(comparison: pd.DataFrame, path: Path) -> None:
             f"| {float(graph_b_row['test_mcc']):.6f} |\n"
         )
         graph_b_section = f"""
-## Graph B — Bounded Secondary Control
+## Graph B - Bounded Secondary Control
 
 Graph B adds label-free guide-sequence similarity edges (`sequence_similar_to`, 1208 edges)
 to Graph A while keeping featureless physical targets and the same candidate edge features

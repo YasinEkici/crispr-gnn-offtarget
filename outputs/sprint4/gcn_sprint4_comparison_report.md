@@ -37,7 +37,7 @@ vs `0.300781`), but this is a secondary metric and does not
 override the primary AUPRC comparison. Any further changes based on these test
 diagnostics would violate the no-test-tuning contract.
 
-## Graph B — Bounded Secondary Control
+## Graph B - Bounded Secondary Control
 
 Graph B adds label-free guide-sequence similarity edges (`sequence_similar_to`, 1208 edges)
 to Graph A while keeping featureless physical targets and the same candidate edge features
