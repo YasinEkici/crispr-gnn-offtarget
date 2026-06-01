@@ -4,7 +4,7 @@ visibility_policy: strict_inductive_primary
 
 paths:
   artifact_dir: data/processed/graphs/sprint3
-  report_path: outputs/reports/graph_schema_report.md
+  report_path: outputs/sprint3/graph_schema_report.md
 
 representation:
   max_length: 23

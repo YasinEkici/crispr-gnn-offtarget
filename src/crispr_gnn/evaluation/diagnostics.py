@@ -80,26 +80,31 @@ def write_gcn_diagnostics(
     results: pd.DataFrame,
     predictions: pd.DataFrame,
     output_dir: str | Path,
+    *,
+    schema_label: str | None = None,
 ) -> list[Path]:
     """Write Sprint 4 GCN diagnostic tables from model outputs.
 
     Threshold-dependent diagnostics use the validation-selected threshold
     recorded in the results table. This function does not tune thresholds.
+    When schema_label is provided files use a gcn_{schema_label}_ filename prefix;
+    the caller is responsible for passing the full target directory as output_dir.
     """
     output_path = Path(output_dir)
     output_path.mkdir(parents=True, exist_ok=True)
+    prefix = f"gcn_{schema_label}" if schema_label else "gcn"
     result_rows = _require_gcn_results(results)
     prediction_rows = _require_gcn_predictions(predictions)
     threshold = _gcn_validation_threshold(result_rows)
     tables = [
-        _write_gcn_score_direction_table(prediction_rows, output_path / "gcn_score_direction.csv"),
-        _write_gcn_fixed_threshold_table(prediction_rows, output_path / "gcn_fixed_threshold_metrics.csv", threshold=threshold),
-        _write_gcn_decile_table(prediction_rows, output_path / "gcn_score_deciles.csv"),
+        _write_gcn_score_direction_table(prediction_rows, output_path / f"{prefix}_score_direction.csv"),
+        _write_gcn_fixed_threshold_table(prediction_rows, output_path / f"{prefix}_fixed_threshold_metrics.csv", threshold=threshold),
+        _write_gcn_decile_table(prediction_rows, output_path / f"{prefix}_score_deciles.csv"),
     ]
     if "genome" in prediction_rows.columns:
-        tables.append(_write_gcn_per_genome_table(prediction_rows, output_path / "gcn_per_genome_metrics.csv"))
+        tables.append(_write_gcn_per_genome_table(prediction_rows, output_path / f"{prefix}_per_genome_metrics.csv"))
     if "grna_target_id" in prediction_rows.columns:
-        tables.append(_write_gcn_per_guide_table(prediction_rows, output_path / "gcn_test_per_guide_metrics.csv"))
+        tables.append(_write_gcn_per_guide_table(prediction_rows, output_path / f"{prefix}_test_per_guide_metrics.csv"))
     return tables
 
 
@@ -110,12 +115,26 @@ def write_gcn_report(
     report_path: str | Path,
     *,
     run_label: str = "pending_full_run",
+    root: Path | None = None,
 ) -> Path:
-    """Write the Sprint 4 GCN Markdown report shell from structured artifacts."""
+    """Write the Sprint 4 GCN Markdown report shell from structured artifacts.
+
+    When root is provided, artifact paths in the report are made relative to root
+    so the report does not contain machine-specific absolute paths.
+    """
     path = Path(report_path)
     path.parent.mkdir(parents=True, exist_ok=True)
     result_rows = _require_gcn_results(results)
     first = result_rows.iloc[0]
+
+    def _format_path(p: Path) -> str:
+        if root is not None:
+            try:
+                return p.relative_to(root).as_posix()
+            except ValueError:
+                pass
+        return p.as_posix()
+
     diagnostics = [Path(item) for item in diagnostic_tables]
     figures = [Path(item) for item in figure_paths]
     lines = [
@@ -156,10 +175,10 @@ def write_gcn_report(
         "## Artifact Index",
         "",
         "Diagnostic tables:",
-        *[f"- `{item.as_posix()}`" for item in diagnostics],
+        *[f"- `{_format_path(item)}`" for item in diagnostics],
         "",
         "Figures:",
-        *[f"- `{item.as_posix()}`" for item in figures],
+        *[f"- `{_format_path(item)}`" for item in figures],
         "",
         "## Interpretation Boundaries",
         "",

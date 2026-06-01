@@ -24,7 +24,7 @@ GCN_REQUIRED_FIGURES = [
     "gcn_confusion_matrices.png",
     "gcn_decile_lift.png",
     "gcn_per_genome_metrics.png",
-    "graph_view_sanity_example.png",
+    "gcn_view_sanity_example.png",
 ]
 
 
@@ -142,6 +142,7 @@ def write_gcn_plots(
     training_history: pd.DataFrame,
     output_dir: str | Path,
     *,
+    schema_label: str | None = None,
     graph_view: object | None = None,
     sequence_position_sensitivity: pd.DataFrame | None = None,
 ) -> list[Path]:
@@ -149,28 +150,31 @@ def write_gcn_plots(
 
     The plotting path consumes run metadata and validation-selected thresholds;
     it does not select models, schemas, epochs, or thresholds from test scores.
+    When schema_label is provided files use a gcn_{schema_label}_ filename prefix;
+    the caller is responsible for passing the full target directory as output_dir.
     """
     output_path = Path(output_dir)
     output_path.mkdir(parents=True, exist_ok=True)
+    prefix = f"gcn_{schema_label}" if schema_label else "gcn"
     result_rows = _require_gcn_result_columns(results)
     prediction_rows = _require_gcn_prediction_columns(predictions)
     threshold = _validation_selected_threshold(result_rows)
     paths = [
-        _write_gcn_schema_auprc_comparison(result_rows, output_path / "gcn_graph_schema_auprc_comparison.png"),
-        _write_gcn_pr_curves(prediction_rows, output_path / "gcn_pr_curves.png"),
-        _write_gcn_roc_curves(prediction_rows, output_path / "gcn_roc_curves.png"),
-        _write_gcn_training_curves(training_history, output_path / "gcn_training_curves.png"),
-        _write_gcn_score_distributions(prediction_rows, output_path / "gcn_score_distributions.png"),
-        _write_gcn_confusion_matrices(prediction_rows, output_path / "gcn_confusion_matrices.png", threshold=threshold),
-        _write_gcn_decile_lift(prediction_rows, output_path / "gcn_decile_lift.png"),
-        _write_gcn_per_genome_metrics(prediction_rows, output_path / "gcn_per_genome_metrics.png"),
-        _write_graph_view_sanity_example(graph_view, output_path / "graph_view_sanity_example.png"),
+        _write_gcn_schema_auprc_comparison(result_rows, output_path / f"{prefix}_graph_schema_auprc_comparison.png"),
+        _write_gcn_pr_curves(prediction_rows, output_path / f"{prefix}_pr_curves.png"),
+        _write_gcn_roc_curves(prediction_rows, output_path / f"{prefix}_roc_curves.png"),
+        _write_gcn_training_curves(training_history, output_path / f"{prefix}_training_curves.png"),
+        _write_gcn_score_distributions(prediction_rows, output_path / f"{prefix}_score_distributions.png"),
+        _write_gcn_confusion_matrices(prediction_rows, output_path / f"{prefix}_confusion_matrices.png", threshold=threshold),
+        _write_gcn_decile_lift(prediction_rows, output_path / f"{prefix}_decile_lift.png"),
+        _write_gcn_per_genome_metrics(prediction_rows, output_path / f"{prefix}_per_genome_metrics.png"),
+        _write_graph_view_sanity_example(graph_view, output_path / f"{prefix}_view_sanity_example.png"),
     ]
     if sequence_position_sensitivity is not None:
         paths.append(
             _write_gcn_sequence_position_sensitivity(
                 sequence_position_sensitivity,
-                output_path / "gcn_sequence_position_sensitivity.png",
+                output_path / f"{prefix}_sequence_position_sensitivity.png",
             )
         )
     return paths

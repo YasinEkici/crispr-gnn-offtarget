@@ -251,7 +251,7 @@ def train_graph_a_gcn(
         edge_dim=edge_dim,
         pos_weight=float(pos_weight.detach().cpu()),
     )
-    predictions = _prediction_records(config, val_labels, val_scores, test_labels, test_scores)
+    predictions = _prediction_records(config, val_view, val_labels, val_scores, test_view, test_labels, test_scores)
     training_history = pd.DataFrame(history)
     training_history.insert(0, "model_name", config.model_name)
     training_history.insert(1, "graph_schema", config.graph_schema)
@@ -315,17 +315,25 @@ def _result_row(
 
 def _prediction_records(
     config: GCNRunConfig,
+    val_view: Any,
     val_labels: np.ndarray,
     val_scores: np.ndarray,
+    test_view: Any,
     test_labels: np.ndarray,
     test_scores: np.ndarray,
 ) -> pd.DataFrame:
     rows = []
-    for split, labels, scores in [
-        ("val", val_labels, val_scores),
-        ("test", test_labels, test_scores),
+    for split, view, labels, scores in [
+        ("val", val_view, val_labels, val_scores),
+        ("test", test_view, test_labels, test_scores),
     ]:
-        for index, (label, score) in enumerate(zip(labels, scores, strict=True)):
+        edge_store = view[GRAPH_A_EDGE_TYPE]
+        mask = edge_store.supervision_mask.tolist()
+        sgrna_ids = _masked_audit(getattr(edge_store, "audit_sgrna_ids", []), mask)
+        genome_vals = _masked_audit(getattr(edge_store, "audit_genome", []), mask)
+        for index, (label, score, sgrna_id, genome) in enumerate(
+            zip(labels, scores, sgrna_ids, genome_vals, strict=True)
+        ):
             rows.append(
                 {
                     "model_name": config.model_name,
@@ -333,11 +341,19 @@ def _prediction_records(
                     "feature_set": config.feature_set,
                     "split": split,
                     "row_index": int(index),
+                    "grna_target_id": str(sgrna_id) if sgrna_id is not None else None,
+                    "genome": str(genome) if genome is not None else None,
                     "label": int(label),
                     "score": float(score),
                 }
             )
     return pd.DataFrame(rows)
+
+
+def _masked_audit(items: list[Any], mask: list[bool]) -> list[Any]:
+    if not items:
+        return [None] * sum(mask)
+    return [item for item, m in zip(items, mask, strict=True) if m]
 
 
 def _scores_for_view(

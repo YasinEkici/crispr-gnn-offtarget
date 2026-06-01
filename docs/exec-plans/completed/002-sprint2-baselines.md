@@ -13,8 +13,8 @@ Sprint 2 should answer:
 Required final deliverables:
 
 ```text
-outputs/results/baseline_results.csv
-outputs/reports/baseline_report.md
+outputs/sprint2/baseline_results.csv
+outputs/sprint2/baseline_report.md
 ```
 
 Supporting deliverables required for reproducibility:
@@ -102,8 +102,8 @@ Completed after split lock:
 Final modeling/report status:
 
 - Logistic Regression, XGBoost, tabular MLP, sequence CNN/BiLSTM, and CNN + F3/F4 late-fusion baselines were trained and evaluated.
-- `outputs/results/baseline_results.csv` contains the completed Sprint 2 baseline result table.
-- `outputs/reports/baseline_report.md` summarizes the final Sprint 2 results, diagnostics, limitations, and future GNN comparison baseline.
+- `outputs/sprint2/baseline_results.csv` contains the completed Sprint 2 baseline result table.
+- `outputs/sprint2/baseline_report.md` summarizes the final Sprint 2 results, diagnostics, limitations, and future GNN comparison baseline.
 - Sprint 2 modeling is frozen. XGBoost F3/F4 is the primary non-graph benchmark for future graph work.
 
 ## Scope
@@ -241,19 +241,19 @@ Implementation order:
 Current status:
 
 - Dummy/prevalence and unweighted scikit-learn Logistic Regression are implemented for F1-F4 in `scripts/train.py` via `configs/experiments/baseline_logistic_regression.yaml`.
-- The run writes `outputs/results/baseline_results.csv`.
-- The run writes report-ready figures under `outputs/figures/sprint2/`:
+- The run writes `outputs/sprint2/baseline_results.csv`.
+- The run writes report-ready figures under `outputs/sprint2/figures/`:
   - `logistic_regression_feature_set_auprc.png`
   - `logistic_regression_pr_curves.png`
   - `logistic_regression_roc_curves.png`
-- The run writes diagnostic tables and figures under `outputs/diagnostics/sprint2/`:
+- The run writes diagnostic tables and figures under `outputs/sprint2/diagnostics/`:
   - score-direction checks
   - fixed-threshold metrics at 0.5
   - per-genome metrics
   - per-guide test metrics
   - score-decile lift tables and plots
 - The initial Logistic Regression result is a wiring/debug baseline, not the expected strongest Sprint 2 model. AUPRC is interpreted against the measured-only test prevalence baseline.
-- XGBoost is the next implementation step. It should upsert results into the shared `outputs/results/baseline_results.csv` without removing the dummy/Logistic Regression rows, and it should use:
+- XGBoost is the next implementation step. It should upsert results into the shared `outputs/sprint2/baseline_results.csv` without removing the dummy/Logistic Regression rows, and it should use:
   - `xgboost_unweighted` as the primary XGBoost baseline.
   - `xgboost_balanced_train_weights` as a separately labeled negative-class sensitivity.
   - validation-only early stopping/model selection.
@@ -263,7 +263,7 @@ Current status:
   - test AUROC: 0.938416
   - test MCC: 0.345198
   - confusion matrix at validation-selected threshold: TN=38, FP=131, FN=21, TP=1512
-- XGBoost diagnostics were generated under `outputs/diagnostics/sprint2/`. Results must still be interpreted with the locked split's guide/genome composition caveat and must not be used to retune the test set.
+- XGBoost diagnostics were generated under `outputs/sprint2/diagnostics/`. Results must still be interpreted with the locked split's guide/genome composition caveat and must not be used to retune the test set.
 - Follow-up XGBoost audit artifacts were added:
   - `xgboost_feature_column_audit.csv` confirms no forbidden target, split, measured, genome, cell-line, experiment, guide, coordinate, or raw identifier columns are predictive features.
   - `xgboost_feature_importance.csv` records feature/family importance for every XGBoost feature set and training variant.
@@ -413,8 +413,8 @@ Sprint 2 is complete when:
 - F1-F4 feature sets are documented and reproducible.
 - F4 uses train-only imputation and missingness indicators.
 - Logistic Regression, XGBoost, MLP, and one CnnCrispr-inspired sequence baseline are trained and evaluated.
-- `outputs/results/baseline_results.csv` exists and includes model, feature set, split ID, seed, training regime, label scheme, and metrics.
-- `outputs/reports/baseline_report.md` explains dataset, label policy, split policy, feature ladder, model lineup, results, caveats, and the recommended future GNN comparison baseline.
+- `outputs/sprint2/baseline_results.csv` exists and includes model, feature set, split ID, seed, training regime, label scheme, and metrics.
+- `outputs/sprint2/baseline_report.md` explains dataset, label policy, split policy, feature ladder, model lineup, results, caveats, and the recommended future GNN comparison baseline.
 - Random split results are not reported as final performance.
 - Relevant docs are updated for dependency and evaluation policy changes.
 - `uv run pytest -q` passes.

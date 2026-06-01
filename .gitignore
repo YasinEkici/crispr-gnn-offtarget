@@ -28,6 +28,7 @@ docs/literature/**/*.png
 
 # Outputs
 outputs/runs/
+outputs/sprint*/*/runs/
 outputs/checkpoints/
 outputs/tmp/
 *.pt

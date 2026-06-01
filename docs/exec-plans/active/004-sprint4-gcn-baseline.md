@@ -50,7 +50,7 @@ random-edge based.
   `outputs/features/sprint2_feature_catalog.md` and implemented under
   `src/crispr_gnn/features/`.
 - Sprint 3 schema config: `configs/sweeps/graph_schema_ablation.yaml`.
-- Sprint 3 canonical handoff report: `outputs/reports/graph_schema_report.md`.
+- Sprint 3 canonical handoff report: `outputs/sprint3/graph_schema_report.md`.
 - Sprint 3 typed graph artifact location:
   `data/processed/graphs/sprint3/`.
 - Policy sources: `CRISPR_GNN_PROJECT_PLAN.md`,
@@ -432,21 +432,21 @@ Visualizing both graph data/materialized views and model behavior is required.
 ### Required Core Figure Outputs
 
 ```text
-outputs/figures/sprint4/gcn_graph_schema_auprc_comparison.png
-outputs/figures/sprint4/gcn_pr_curves.png
-outputs/figures/sprint4/gcn_roc_curves.png
-outputs/figures/sprint4/gcn_training_curves.png
-outputs/figures/sprint4/gcn_score_distributions.png
-outputs/figures/sprint4/gcn_confusion_matrices.png
-outputs/figures/sprint4/gcn_decile_lift.png
-outputs/figures/sprint4/gcn_per_genome_metrics.png
-outputs/figures/sprint4/graph_view_sanity_example.png
+outputs/sprint4/graph_a/figures/gcn_graph_a_graph_schema_auprc_comparison.png
+outputs/sprint4/graph_a/figures/gcn_graph_a_pr_curves.png
+outputs/sprint4/graph_a/figures/gcn_graph_a_roc_curves.png
+outputs/sprint4/graph_a/figures/gcn_graph_a_training_curves.png
+outputs/sprint4/graph_a/figures/gcn_graph_a_score_distributions.png
+outputs/sprint4/graph_a/figures/gcn_graph_a_confusion_matrices.png
+outputs/sprint4/graph_a/figures/gcn_graph_a_decile_lift.png
+outputs/sprint4/graph_a/figures/gcn_graph_a_per_genome_metrics.png
+outputs/sprint4/graph_a/figures/gcn_graph_a_view_sanity_example.png
 ```
 
 Conditional interpretation output:
 
 ```text
-outputs/figures/sprint4/gcn_sequence_position_sensitivity.png
+outputs/sprint4/graph_a/figures/gcn_graph_a_sequence_position_sensitivity.png
 ```
 
 The conditional sequence-position output is required only if the stable Sprint
@@ -538,10 +538,10 @@ Subject to repository artifact conventions, validated Sprint 4 completion
 should produce:
 
 ```text
-outputs/results/gcn_results.csv
-outputs/reports/gcn_report.md
-outputs/figures/sprint4/*.png
-outputs/diagnostics/sprint4/*.csv
+outputs/sprint4/graph_a/gcn_graph_a_results.csv
+outputs/sprint4/graph_a/gcn_graph_a_report.md
+outputs/sprint4/graph_a/figures/*.png
+outputs/sprint4/graph_a/diagnostics/*.csv
 ```
 
 Slice 4A does not produce final scientific results. It may add or update only
@@ -552,9 +552,9 @@ artifacts only after a real manual Slice 4B run and Slice 4C validation.
 ### Run Outputs Normally Kept Untracked Or Stored In Google Drive
 
 ```text
-outputs/runs/<run_id>/
-outputs/runs/<run_id>/model.pt
-outputs/runs/<run_id>/optimizer/
+outputs/sprint4/graph_a/runs/<run_id>/
+outputs/sprint4/graph_a/runs/<run_id>/model.pt
+outputs/sprint4/graph_a/runs/<run_id>/optimizer/
 ```
 
 Large prediction dumps, Colab-local caches, copied raw data, copied processed
@@ -584,7 +584,7 @@ Each full run must record at least:
 - Training-history artifact path or run record.
 
 Before Graph C or Graph B results are written to
-`outputs/results/gcn_results.csv`, the result upsert identity must include
+`outputs/sprint4/<schema_label>/gcn_<schema_label>_results.csv`, the result upsert identity must include
 `graph_schema` or an equivalent schema-disambiguating field. Graph A, Graph C,
 and Graph B rows must not overwrite each other if model name or feature bundle
 names overlap.
@@ -639,10 +639,10 @@ not all must be created if an existing module can be extended cleanly.
 
 ### Generated Outputs After Approved Training
 
-- `outputs/results/gcn_results.csv`.
-- `outputs/reports/gcn_report.md`.
-- `outputs/figures/sprint4/`.
-- `outputs/diagnostics/sprint4/`.
+- `outputs/sprint4/graph_a/gcn_graph_a_results.csv`.
+- `outputs/sprint4/graph_a/gcn_graph_a_report.md`.
+- `outputs/sprint4/graph_a/figures/`.
+- `outputs/sprint4/graph_a/diagnostics/`.
 
 ## 14. Required Tests And Validation Checks
 
@@ -924,14 +924,21 @@ The preferred current pattern is the existing training dispatcher:
 uv run python scripts/train.py --config configs/experiments/gcn_minimal.yaml
 ```
 
-This command writes canonical Sprint 4 outputs. It must be run as an
+This local command writes canonical Sprint 4 outputs. It must be run as an
 artifact-producing command only after Slice 4A runner/provenance gates are
-ready and, for the full GPU run, by the project owner/operator in the manual
-Slice 4B Colab workflow. Coding agents must not claim that this command
-completed unless real returned artifacts exist. For smoke/debug use, output
-paths must be redirected to non-canonical locations. Any `--debug` or smoke
-mode for `sprint4_gcn` must be visibly non-final and must not write to headline
-result paths by default.
+ready. In the manual Slice 4B Colab workflow, the runner should not mutate this
+base config in place. Instead it should generate
+`outputs/sprint4/graph_a/runs/<run_id>/resolved_config.yaml` with runtime-only
+fields such as `run_id` and `training.device`, then run:
+
+```bash
+uv run python scripts/train.py --config outputs/sprint4/graph_a/runs/<run_id>/resolved_config.yaml
+```
+
+Coding agents must not claim that this command completed unless real returned
+artifacts exist. For smoke/debug use, output paths must be redirected to
+non-canonical locations. Any `--debug` or smoke mode for `sprint4_gcn` must be
+visibly non-final and must not write to headline result paths by default.
 
 Use a separate evaluation entry point only if implementation justifies it:
 
@@ -950,7 +957,7 @@ git clone <repository-url>
 cd crispr-gnn-offtarget
 git checkout <approved-sprint4-branch-or-commit>
 uv sync
-uv run python scripts/train.py --config configs/experiments/gcn_minimal.yaml
+uv run python scripts/train.py --config outputs/sprint4/graph_a/runs/<run_id>/resolved_config.yaml
 ```
 
 Exact Colab/PyG/CUDA setup commands cannot be finalized until the dependency
@@ -974,8 +981,10 @@ validation should confirm that:
 
 - the reported commit and resolved config match the approved run;
 - copied Sprint 3 graph artifacts match the expected checksum/provenance gate;
-- `outputs/results/gcn_results.csv`, `outputs/reports/gcn_report.md`,
-  `outputs/figures/sprint4/`, and `outputs/diagnostics/sprint4/` are complete;
+- `outputs/sprint4/graph_a/gcn_graph_a_results.csv`,
+  `outputs/sprint4/graph_a/gcn_graph_a_report.md`,
+  `outputs/sprint4/graph_a/figures/`, and
+  `outputs/sprint4/graph_a/diagnostics/` are complete;
 - prediction outputs support required per-genome and practical per-guide
   diagnostics;
 - no test diagnostic changed model, schema, epoch, threshold, feature, or
@@ -1002,9 +1011,9 @@ documentation necessary to record actual choices and results:
   results exist.
 - `colab/README.md` during Slice 4A if a documented GPU runner or Drive
   artifact workflow is implemented.
-- `outputs/reports/gcn_report.md` as the canonical Sprint 4 result report only
+- `outputs/sprint4/graph_a/gcn_graph_a_report.md` as the canonical Graph A result report only
   after real returned artifacts pass Slice 4C validation.
-- `outputs/figures/sprint4/` as the required report-ready visualization set
+- `outputs/sprint4/graph_a/figures/` as the required Graph A report-ready visualization set
   only after real returned artifacts pass Slice 4C validation.
 
 This plan does not authorize Sprint 4 implementation until dependency,

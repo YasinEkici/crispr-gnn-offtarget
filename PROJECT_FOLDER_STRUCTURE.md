@@ -41,7 +41,7 @@ Do not write core project code inside Colab notebooks. Colab should execute comm
 
 !uv run python scripts/prepare_data.py --config configs/data/mak2022.yaml
 !uv run python scripts/train.py --config configs/experiments/gcn_minimal.yaml
-!uv run python scripts/evaluate.py --run outputs/runs/gcn_minimal
+!uv run python scripts/evaluate.py --run outputs/sprint4/graph_a/runs/gcn_minimal
 ```
 
 ---
@@ -316,10 +316,18 @@ crispr-gnn-offtarget/
 │   └── test_smoke_train.py
 │
 ├── outputs/
-│   ├── runs/                 # not committed
-│   ├── figures/
-│   ├── reports/
-│   └── tables/
+│   ├── sprint1/
+│   ├── sprint2/
+│   │   ├── diagnostics/
+│   │   └── figures/
+│   ├── sprint3/
+│   ├── sprint4/
+│   │   └── graph_a/
+│   │       ├── diagnostics/
+│   │       ├── figures/
+│   │       └── runs/         # not committed
+│   ├── splits/
+│   └── features/
 │
 └── colab/
     ├── README.md
@@ -835,8 +843,8 @@ drive.mount('/content/drive')
 !uv run python scripts/train.py --config configs/experiments/gat_enriched.yaml
 
 # Save outputs back to Drive
-!mkdir -p /content/drive/MyDrive/crispr_project/outputs/runs
-!cp -r outputs/runs/gat_enriched /content/drive/MyDrive/crispr_project/outputs/runs/
+!mkdir -p /content/drive/MyDrive/crispr_project/outputs/sprint7/runs
+!cp -r outputs/sprint7/runs/gat_enriched /content/drive/MyDrive/crispr_project/outputs/sprint7/runs/
 ```
 
 ### Colab Rules
@@ -928,11 +936,9 @@ Creates dataset audit tables.
 Outputs:
 
 ```text
-outputs/reports/dataset_audit.md
-outputs/reports/label_threshold_sensitivity.md
-outputs/reports/feature_missingness.md
-outputs/tables/label_distribution.csv
-outputs/tables/missingness.csv
+outputs/sprint1/dataset_audit.md
+outputs/sprint1/label_threshold_sensitivity.md
+outputs/sprint1/feature_missingness.md
 ```
 
 ### `scripts/build_splits.py`
@@ -950,10 +956,10 @@ Runs one experiment from a config.
 Every run should save:
 
 ```text
-outputs/runs/<run_id>/config.yaml
-outputs/runs/<run_id>/metrics.json
-outputs/runs/<run_id>/predictions.csv
-outputs/runs/<run_id>/model.pt
+outputs/<sprint>/<schema_label>/runs/<run_id>/config.yaml
+outputs/<sprint>/<schema_label>/runs/<run_id>/metrics.json
+outputs/<sprint>/<schema_label>/runs/<run_id>/predictions.csv
+outputs/<sprint>/<schema_label>/runs/<run_id>/model.pt
 ```
 
 ### `scripts/evaluate.py`
@@ -1168,7 +1174,7 @@ Risk: feature parsing errors
 
 Risk: experiment confusion
 → configs/experiments/*.yaml
-→ outputs/runs/<run_id>/config.yaml
+→ outputs/<sprint>/<schema_label>/runs/<run_id>/config.yaml
 
 Risk: agent/human gets lost
 → AGENTS.md

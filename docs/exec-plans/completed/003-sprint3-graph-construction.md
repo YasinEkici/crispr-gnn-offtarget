@@ -16,7 +16,7 @@ The primary schemas are:
 - Dataset config: `configs/data/mak2022.yaml`.
 - Label: Scheme A, `cleavage_freq > 1e-5`.
 - Locked split manifest: `outputs/splits/sprint2_guides.json` (`sprint2_main_seed42`).
-- Baseline reference: `xgboost_unweighted / F4` from `outputs/reports/baseline_report.md`.
+- Baseline reference: `xgboost_unweighted / F4` from `outputs/sprint2/baseline_report.md`.
 - Feature and preprocessing contract: `src/crispr_gnn/features/tabular.py`, `src/crispr_gnn/features/sequence.py`, and `outputs/features/sprint2_feature_catalog.md`.
 - Policy sources: `docs/EVALUATION_PROTOCOL.md`, `docs/LABEL_SCHEMES.md`, `docs/FEATURE_PARSING.md`, and `docs/DECISIONS.md`.
 
@@ -36,7 +36,7 @@ The primary schemas are:
 - Build Graph A, B, and C artifacts from the locked supervised universe.
 - Map Sprint 2 sequence and F1-F4 features into graph feature tables without changing the feature policy.
 - Implement strict-inductive topology visibility and leakage audits.
-- Generate `outputs/reports/graph_schema_report.md`.
+- Generate `outputs/sprint3/graph_schema_report.md`.
 - Document the graph schema and evaluation decisions.
 
 ## 5. Out Of Scope
@@ -93,7 +93,7 @@ New implementation and artifact files:
 - `configs/sweeps/graph_schema_ablation.yaml`
 - `tests/test_graph_builder.py`
 - `tests/test_graph_leakage.py`
-- `outputs/reports/graph_schema_report.md`
+- `outputs/sprint3/graph_schema_report.md`
 
 Updated supporting files:
 

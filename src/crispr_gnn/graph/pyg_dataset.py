@@ -375,6 +375,9 @@ class Sprint3HeteroDataLoader:
         storage.supervision_mask = torch.tensor(candidate["split"].eq(view).to_numpy(), dtype=torch.bool)
         storage.audit_edge_ids = candidate["edge_id"].astype(str).tolist()
         storage.audit_splits = candidate["split"].astype(str).tolist()
+        storage.audit_sgrna_ids = candidate["source_sgrna_id"].astype(str).tolist()
+        if "target_node_id" in candidate.columns:
+            storage.audit_genome = [str(nid).split("|")[0] for nid in candidate["target_node_id"].astype(str)]
         for feature_name, feature_table in features.items():
             if graph_name == GRAPH_C and feature_name == "target_observation_features":
                 continue

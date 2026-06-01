@@ -44,15 +44,15 @@ Raw, interim, and processed datasets are ignored by git. Use `data/sample/` only
 
 ## Key Sprint 2 Artifacts
 
-- Results table: `outputs/results/baseline_results.csv`
-- Baseline report: `outputs/reports/baseline_report.md`
+- Results table: `outputs/sprint2/baseline_results.csv`
+- Baseline report: `outputs/sprint2/baseline_report.md`
 - Split manifest: `outputs/splits/sprint2_guides.json`
 - Split summary: `outputs/splits/sprint2_split_summary.csv`
 - Feature catalog: `outputs/features/sprint2_feature_catalog.md`
 
 ## Key Sprint 3 Artifacts
 
-- Graph schema report: `outputs/reports/graph_schema_report.md`
+- Graph schema report: `outputs/sprint3/graph_schema_report.md`
 - Generated typed graph tables and manifests: `data/processed/graphs/sprint3/`
 - Graph schema configuration: `configs/sweeps/graph_schema_ablation.yaml`
 

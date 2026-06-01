@@ -30,7 +30,7 @@ class SimilarityConfig:
 @dataclass(frozen=True)
 class GraphBuildConfig:
     artifact_dir: Path = Path("data/processed/graphs/sprint3")
-    report_path: Path = Path("outputs/reports/graph_schema_report.md")
+    report_path: Path = Path("outputs/sprint3/graph_schema_report.md")
     max_length: int = 23
     graph_b: SimilarityConfig = SimilarityConfig(metric="hamming")
     graph_c: SimilarityConfig = SimilarityConfig(metric="euclidean")

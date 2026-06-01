@@ -83,7 +83,7 @@ In scope:
 - Plan and implement parser requirements for the 13 computed features.
 - Analyze missingness of the 6 experimental epigenetic scalar features and 13 computed nucleosome features.
 - Confirm the `measured=1` test rule and document its impact on future split generation.
-- Prepare report artifacts under `outputs/reports/`.
+- Prepare report artifacts under `outputs/sprint1/`.
 - Update canonical docs under `docs/`.
 - Add focused tests for any implemented parsing or label behavior.
 
@@ -112,9 +112,9 @@ Completed implementation state:
 
 - Steps 1-10 completed the raw dataset audit, label sensitivity audit, computed-feature parser validation, missingness analysis, and split-policy implications.
 - Step 11 generated the required report artifacts:
-  - `outputs/reports/dataset_audit.md`
-  - `outputs/reports/label_threshold_sensitivity.md`
-  - `outputs/reports/feature_missingness.md`
+  - `outputs/sprint1/dataset_audit.md`
+  - `outputs/sprint1/label_threshold_sensitivity.md`
+  - `outputs/sprint1/feature_missingness.md`
 - Step 11.5 completed a behavior-preserving refactor of `scripts/audit_dataset.py` before Step 12 documentation updates.
 - Step 12 updated the canonical docs:
   - `docs/DATASET_AUDIT.md`
@@ -199,12 +199,11 @@ Configs and docs:
 
 Generated report artifacts:
 
-- `outputs/reports/dataset_audit.md`
-- `outputs/reports/label_threshold_sensitivity.md`
-- `outputs/reports/feature_missingness.md`
-- Optional small tables if intentionally tracked:
-  - `outputs/tables/label_distribution.csv`
-  - `outputs/tables/feature_missingness.csv`
+- `outputs/sprint1/dataset_audit.md`
+- `outputs/sprint1/label_threshold_sensitivity.md`
+- `outputs/sprint1/feature_missingness.md`
+- Optional small tables, if intentionally added later, should live under
+  `outputs/sprint1/` rather than a separate flat tables directory.
 
 Do not commit large raw data, processed parquet files, graph objects, or full run artifacts.
 
@@ -365,9 +364,9 @@ Do not commit large raw data, processed parquet files, graph objects, or full ru
 
 11. Generate report artifacts.
 
-   - Create `outputs/reports/dataset_audit.md`.
-   - Create `outputs/reports/label_threshold_sensitivity.md`.
-   - Create `outputs/reports/feature_missingness.md`.
+   - Create `outputs/sprint1/dataset_audit.md`.
+   - Create `outputs/sprint1/label_threshold_sensitivity.md`.
+   - Create `outputs/sprint1/feature_missingness.md`.
    - Reports must include actual computed values, expected reference values, and PASS / DISCREPANCY markers.
    - Any deviation from expected reference values must be explicitly reported as a DISCREPANCY in both console output and the relevant report.
    - Do not silently reconcile, overwrite, or hide mismatches.
@@ -413,7 +412,7 @@ Do not commit large raw data, processed parquet files, graph objects, or full ru
 - Full audit command succeeds when `data/raw/260520_putative_nucleosomal.parquet` exists.
 - Audit independently computes row/column counts, measured split, unique sgRNA count, unique target count, genome and cell-line composition, missingness, feature presence, `cleavage_freq` quality, and threshold distributions.
 - Audit prints each computed value alongside its expected reference value with a PASS / DISCREPANCY marker.
-- Any deviation from expected reference values is explicitly reported in `outputs/reports/dataset_audit.md` or the relevant report and is not silently reconciled.
+- Any deviation from expected reference values is explicitly reported in `outputs/sprint1/dataset_audit.md` or the relevant report and is not silently reconciled.
 - Dataset schema report documents:
   - row count,
   - column count,
@@ -430,9 +429,9 @@ Do not commit large raw data, processed parquet files, graph objects, or full ru
 - Parser behavior for 13 computed 23-position features is documented and tested.
 - `measured=1` test rule is restated in audit and evaluation docs.
 - Required report artifacts exist:
-  - `outputs/reports/dataset_audit.md`
-  - `outputs/reports/label_threshold_sensitivity.md`
-  - `outputs/reports/feature_missingness.md`
+  - `outputs/sprint1/dataset_audit.md`
+  - `outputs/sprint1/label_threshold_sensitivity.md`
+  - `outputs/sprint1/feature_missingness.md`
 - Required docs are updated:
   - `docs/DATASET_AUDIT.md`
   - `docs/LABEL_SCHEMES.md`
@@ -472,7 +471,7 @@ Git hygiene checks before commit:
 
 ```bash
 git status --short
-git status --short | Select-String "data/raw|data/interim|data/processed|outputs/runs|.parquet|.pt|.ckpt|original.pdf|assets"
+git status --short | Select-String "data/raw|data/interim|data/processed|outputs/.*/runs|.parquet|.pt|.ckpt|original.pdf|assets"
 ```
 
 ## Documentation Updates Required

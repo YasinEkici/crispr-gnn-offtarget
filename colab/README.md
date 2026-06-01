@@ -90,11 +90,11 @@ Before any headline Graph A training, validate the copied Sprint 3 artifacts
 and write a checksum/provenance record:
 
 ```bash
-mkdir -p outputs/runs/<run_id>
+mkdir -p outputs/sprint4/graph_a/runs/<run_id>
 uv run python scripts/validate_graph_artifacts.py \
   --artifact-dir data/processed/graphs/sprint3 \
   --approved-source drive_sprint3_handoff \
-  --output outputs/runs/<run_id>/graph_artifact_provenance.json
+  --output outputs/sprint4/graph_a/runs/<run_id>/graph_artifact_provenance.json
 ```
 
 This command must pass before a Graph A run can be treated as a valid headline
@@ -108,27 +108,31 @@ Only run this after local Slice 1-3 tests have passed and the provenance gate
 above has succeeded:
 
 ```bash
-uv run python scripts/train.py --config configs/experiments/gcn_minimal.yaml
+uv run python scripts/train.py --config outputs/sprint4/graph_a/runs/<run_id>/resolved_config.yaml
 ```
 
-The canonical command writes Sprint 4 scientific outputs. Do not use it as an
-informal smoke command unless output paths are explicitly redirected to
-non-canonical debug locations in a reviewed config.
+The Colab runner should leave `configs/experiments/gcn_minimal.yaml`
+unchanged. It creates a run-specific `resolved_config.yaml` under
+`outputs/sprint4/graph_a/runs/<run_id>/`, applying only runtime fields such as
+`run_id` and `training.device`. This keeps the repository base config stable
+while preserving the exact config used by the reported run. Do not use the
+canonical command as an informal smoke command unless output paths are
+explicitly redirected to non-canonical debug locations in a reviewed config.
 
 ## Required Returned Artifacts
 
 After a real Colab run, copy these outputs back to durable Drive storage:
 
 ```text
-outputs/results/gcn_results.csv
-outputs/reports/gcn_report.md
-outputs/diagnostics/sprint4/
-outputs/figures/sprint4/
-outputs/runs/<run_id>/graph_artifact_provenance.json
-outputs/runs/<run_id>/resolved_config.yaml
-outputs/runs/<run_id>/runtime.json
-outputs/runs/<run_id>/training_history.csv
-outputs/runs/<run_id>/model.pt
+outputs/sprint4/graph_a/gcn_graph_a_results.csv
+outputs/sprint4/graph_a/gcn_graph_a_report.md
+outputs/sprint4/graph_a/diagnostics/
+outputs/sprint4/graph_a/figures/
+outputs/sprint4/graph_a/runs/<run_id>/graph_artifact_provenance.json
+outputs/sprint4/graph_a/runs/<run_id>/resolved_config.yaml
+outputs/sprint4/graph_a/runs/<run_id>/runtime.json
+outputs/sprint4/graph_a/runs/<run_id>/training_history.csv
+outputs/sprint4/graph_a/runs/<run_id>/model.pt
 ```
 
 Large run artifacts and checkpoints should normally remain untracked and live
@@ -145,6 +149,6 @@ minimum it must verify:
 - result rows use `sprint2_main_seed42`, Scheme A, strict-inductive visibility,
   and Graph A;
 - required diagnostics and all Sprint 4 figure files exist under
-  `outputs/figures/sprint4/`;
+  `outputs/sprint4/graph_a/figures/`;
 - no Graph C or Graph B run has been mixed into the Graph A report;
 - test diagnostics were not used to revise training choices.

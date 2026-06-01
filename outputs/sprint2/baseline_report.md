@@ -14,13 +14,13 @@ This report summarizes the completed Sprint 2 baseline suite and the diagnostics
 
 Primary artifacts:
 
-- Results table: `outputs/results/baseline_results.csv`
+- Results table: `outputs/sprint2/baseline_results.csv`
 - Split manifest: `outputs/splits/sprint2_guides.json`
 - Split summary: `outputs/splits/sprint2_split_summary.csv`
 - Feature catalog: `outputs/features/sprint2_feature_catalog.md`
 - Feature summary: `outputs/features/sprint2_feature_summary.csv`
-- Diagnostic tables and figures: `outputs/diagnostics/sprint2/`
-- Report-ready figures: `outputs/figures/sprint2/`
+- Diagnostic tables and figures: `outputs/sprint2/diagnostics/`
+- Report-ready figures: `outputs/sprint2/figures/`
 
 ## 2. Dataset, Label, And Split Policy
 
@@ -97,16 +97,16 @@ Input audits confirmed zero forbidden predictive columns:
 
 | audit file | rows | forbidden columns |
 | --- | ---: | ---: |
-| `outputs/diagnostics/sprint2/xgboost_feature_column_audit.csv` | 250 | 0 |
-| `outputs/diagnostics/sprint2/tabular_mlp_feature_column_audit.csv` | 250 | 0 |
-| `outputs/diagnostics/sprint2/sequence_input_audit.csv` | 2 | 0 |
-| `outputs/diagnostics/sprint2/sequence_late_fusion_input_audit.csv` | 183 | 0 |
+| `outputs/sprint2/diagnostics/xgboost_feature_column_audit.csv` | 250 | 0 |
+| `outputs/sprint2/diagnostics/tabular_mlp_feature_column_audit.csv` | 250 | 0 |
+| `outputs/sprint2/diagnostics/sequence_input_audit.csv` | 2 | 0 |
+| `outputs/sprint2/diagnostics/sequence_late_fusion_input_audit.csv` | 183 | 0 |
 
 Raw identifiers, guide IDs, target coordinates, experiment IDs, genome labels, cell-line labels, measured flags, labels, scores, and cleavage values are not predictive features in the Sprint 2 main baselines.
 
 ## 4. Models Evaluated
 
-The completed baseline suite includes 28 result rows in `outputs/results/baseline_results.csv` with no duplicate model/feature keys.
+The completed baseline suite includes 28 result rows in `outputs/sprint2/baseline_results.csv` with no duplicate model/feature keys.
 
 Model families:
 
@@ -127,7 +127,7 @@ All models use:
 
 ## 5. Main Results
 
-Full result table is in `outputs/results/baseline_results.csv`.
+Full result table is in `outputs/sprint2/baseline_results.csv`.
 
 | model | feature_set | test_AUPRC | test_AUROC | test_F1 | test_MCC | test confusion `(TN, FP, FN, TP)` |
 | --- | --- | ---: | ---: | ---: | ---: | --- |
@@ -153,11 +153,11 @@ Full result table is in `outputs/results/baseline_results.csv`.
 
 Primary figure references:
 
-- Logistic Regression AUPRC/PR/ROC: `outputs/figures/sprint2/logistic_regression_feature_set_auprc.png`, `outputs/figures/sprint2/logistic_regression_pr_curves.png`, `outputs/figures/sprint2/logistic_regression_roc_curves.png`
-- XGBoost AUPRC/PR/ROC: `outputs/figures/sprint2/xgboost_feature_set_auprc.png`, `outputs/figures/sprint2/xgboost_unweighted_pr_curves.png`, `outputs/figures/sprint2/xgboost_unweighted_roc_curves.png`
-- MLP AUPRC/PR/ROC: `outputs/figures/sprint2/tabular_mlp_feature_set_auprc.png`, `outputs/figures/sprint2/tabular_mlp_unweighted_pr_curves.png`, `outputs/figures/sprint2/tabular_mlp_unweighted_roc_curves.png`
-- Sequence-only AUPRC/PR/ROC: `outputs/figures/sprint2/sequence_feature_set_auprc.png`, `outputs/figures/sprint2/sequence_cnn_unweighted_pr_curves.png`, `outputs/figures/sprint2/sequence_bilstm_unweighted_pr_curves.png`
-- Late-fusion AUPRC/PR/ROC: `outputs/figures/sprint2/sequence_late_fusion_feature_set_auprc.png`, `outputs/figures/sprint2/sequence_cnn_plus_F4_late_fusion_unweighted_pr_curves.png`, `outputs/figures/sprint2/sequence_cnn_plus_F4_late_fusion_unweighted_roc_curves.png`
+- Logistic Regression AUPRC/PR/ROC: `outputs/sprint2/figures/logistic_regression_feature_set_auprc.png`, `outputs/sprint2/figures/logistic_regression_pr_curves.png`, `outputs/sprint2/figures/logistic_regression_roc_curves.png`
+- XGBoost AUPRC/PR/ROC: `outputs/sprint2/figures/xgboost_feature_set_auprc.png`, `outputs/sprint2/figures/xgboost_unweighted_pr_curves.png`, `outputs/sprint2/figures/xgboost_unweighted_roc_curves.png`
+- MLP AUPRC/PR/ROC: `outputs/sprint2/figures/tabular_mlp_feature_set_auprc.png`, `outputs/sprint2/figures/tabular_mlp_unweighted_pr_curves.png`, `outputs/sprint2/figures/tabular_mlp_unweighted_roc_curves.png`
+- Sequence-only AUPRC/PR/ROC: `outputs/sprint2/figures/sequence_feature_set_auprc.png`, `outputs/sprint2/figures/sequence_cnn_unweighted_pr_curves.png`, `outputs/sprint2/figures/sequence_bilstm_unweighted_pr_curves.png`
+- Late-fusion AUPRC/PR/ROC: `outputs/sprint2/figures/sequence_late_fusion_feature_set_auprc.png`, `outputs/sprint2/figures/sequence_cnn_plus_F4_late_fusion_unweighted_pr_curves.png`, `outputs/sprint2/figures/sequence_cnn_plus_F4_late_fusion_unweighted_roc_curves.png`
 
 ## 6. Logistic Regression
 
@@ -175,11 +175,11 @@ Although F4 had the highest Logistic Regression AUPRC and the only AUROC above 0
 
 Diagnostic references:
 
-- `outputs/diagnostics/sprint2/logistic_regression_score_direction.csv`
-- `outputs/diagnostics/sprint2/logistic_regression_fixed_threshold_metrics.csv`
-- `outputs/diagnostics/sprint2/logistic_regression_per_genome_metrics.csv`
-- `outputs/diagnostics/sprint2/logistic_regression_score_deciles.csv`
-- `outputs/diagnostics/sprint2/logistic_regression_test_decile_lift.png`
+- `outputs/sprint2/diagnostics/logistic_regression_score_direction.csv`
+- `outputs/sprint2/diagnostics/logistic_regression_fixed_threshold_metrics.csv`
+- `outputs/sprint2/diagnostics/logistic_regression_per_genome_metrics.csv`
+- `outputs/sprint2/diagnostics/logistic_regression_score_deciles.csv`
+- `outputs/sprint2/diagnostics/logistic_regression_test_decile_lift.png`
 
 Conclusion: Logistic Regression is a weak linear baseline and should not be the primary baseline for future GNN comparison.
 
@@ -205,7 +205,7 @@ Best XGBoost row:
 
 XGBoost F3/F4 are not just high-AUPRC because of high prevalence. They also improve AUROC, MCC, score decile lift, and negative-class recovery relative to Logistic Regression, MLP, sequence-only models, and late-fusion CNN.
 
-Feature importance diagnostics are in `outputs/diagnostics/sprint2/xgboost_feature_importance.csv`.
+Feature importance diagnostics are in `outputs/sprint2/diagnostics/xgboost_feature_importance.csv`.
 
 For `xgboost_unweighted / F3`, total-gain family share:
 
@@ -240,13 +240,13 @@ The F4 result should be phrased carefully. Computed nucleosome aggregates add a 
 
 XGBoost diagnostics:
 
-- `outputs/diagnostics/sprint2/xgboost_feature_column_audit.csv`
-- `outputs/diagnostics/sprint2/xgboost_feature_importance.csv`
-- `outputs/diagnostics/sprint2/xgboost_unweighted_score_direction.csv`
-- `outputs/diagnostics/sprint2/xgboost_unweighted_fixed_threshold_metrics.csv`
-- `outputs/diagnostics/sprint2/xgboost_unweighted_score_deciles.csv`
-- `outputs/diagnostics/sprint2/xgboost_unweighted_test_decile_lift.png`
-- `outputs/diagnostics/sprint2/xgboost_unweighted_test_per_genome_auroc.png`
+- `outputs/sprint2/diagnostics/xgboost_feature_column_audit.csv`
+- `outputs/sprint2/diagnostics/xgboost_feature_importance.csv`
+- `outputs/sprint2/diagnostics/xgboost_unweighted_score_direction.csv`
+- `outputs/sprint2/diagnostics/xgboost_unweighted_fixed_threshold_metrics.csv`
+- `outputs/sprint2/diagnostics/xgboost_unweighted_score_deciles.csv`
+- `outputs/sprint2/diagnostics/xgboost_unweighted_test_decile_lift.png`
+- `outputs/sprint2/diagnostics/xgboost_unweighted_test_per_genome_auroc.png`
 
 Conclusion: XGBoost F3/F4 is the main Sprint 2 baseline that later GNNs must beat.
 
@@ -270,12 +270,12 @@ The balanced MLP sensitivity is useful diagnostically but is not the headline ML
 
 MLP diagnostics:
 
-- `outputs/diagnostics/sprint2/tabular_mlp_feature_column_audit.csv`
-- `outputs/diagnostics/sprint2/tabular_mlp_training_summary.csv`
-- `outputs/diagnostics/sprint2/tabular_mlp_unweighted_score_direction.csv`
-- `outputs/diagnostics/sprint2/tabular_mlp_unweighted_fixed_threshold_metrics.csv`
-- `outputs/diagnostics/sprint2/tabular_mlp_unweighted_score_deciles.csv`
-- `outputs/diagnostics/sprint2/tabular_mlp_unweighted_test_decile_lift.png`
+- `outputs/sprint2/diagnostics/tabular_mlp_feature_column_audit.csv`
+- `outputs/sprint2/diagnostics/tabular_mlp_training_summary.csv`
+- `outputs/sprint2/diagnostics/tabular_mlp_unweighted_score_direction.csv`
+- `outputs/sprint2/diagnostics/tabular_mlp_unweighted_fixed_threshold_metrics.csv`
+- `outputs/sprint2/diagnostics/tabular_mlp_unweighted_score_deciles.csv`
+- `outputs/sprint2/diagnostics/tabular_mlp_unweighted_test_decile_lift.png`
 
 Conclusion: the MLP is a useful neural tabular baseline, but XGBoost remains the stronger non-graph reference.
 
@@ -305,12 +305,12 @@ Balanced sequence variants did not improve the result. They mostly behaved as al
 
 Sequence diagnostics:
 
-- `outputs/diagnostics/sprint2/sequence_input_audit.csv`
-- `outputs/diagnostics/sprint2/sequence_training_summary.csv`
-- `outputs/diagnostics/sprint2/sequence_cnn_unweighted_score_direction.csv`
-- `outputs/diagnostics/sprint2/sequence_bilstm_unweighted_score_direction.csv`
-- `outputs/diagnostics/sprint2/sequence_cnn_unweighted_score_deciles.csv`
-- `outputs/diagnostics/sprint2/sequence_cnn_unweighted_test_decile_lift.png`
+- `outputs/sprint2/diagnostics/sequence_input_audit.csv`
+- `outputs/sprint2/diagnostics/sequence_training_summary.csv`
+- `outputs/sprint2/diagnostics/sequence_cnn_unweighted_score_direction.csv`
+- `outputs/sprint2/diagnostics/sequence_bilstm_unweighted_score_direction.csv`
+- `outputs/sprint2/diagnostics/sequence_cnn_unweighted_score_deciles.csv`
+- `outputs/sprint2/diagnostics/sequence_cnn_unweighted_test_decile_lift.png`
 
 Conclusion: sequence-only neural models satisfy the Sprint 2 requirement for sequence deep-learning baselines, but they are weak under the locked measured-only guide-level split. Sequence alone does not explain the strongest signal in this dataset.
 
@@ -344,12 +344,12 @@ However, the improvement is modest. The F4 late-fusion model still predicts all 
 
 Late-fusion diagnostics:
 
-- `outputs/diagnostics/sprint2/sequence_late_fusion_input_audit.csv`
-- `outputs/diagnostics/sprint2/sequence_late_fusion_training_summary.csv`
-- `outputs/diagnostics/sprint2/sequence_cnn_plus_F4_late_fusion_unweighted_score_direction.csv`
-- `outputs/diagnostics/sprint2/sequence_cnn_plus_F4_late_fusion_unweighted_fixed_threshold_metrics.csv`
-- `outputs/diagnostics/sprint2/sequence_cnn_plus_F4_late_fusion_unweighted_score_deciles.csv`
-- `outputs/diagnostics/sprint2/sequence_cnn_plus_F4_late_fusion_unweighted_test_decile_lift.png`
+- `outputs/sprint2/diagnostics/sequence_late_fusion_input_audit.csv`
+- `outputs/sprint2/diagnostics/sequence_late_fusion_training_summary.csv`
+- `outputs/sprint2/diagnostics/sequence_cnn_plus_F4_late_fusion_unweighted_score_direction.csv`
+- `outputs/sprint2/diagnostics/sequence_cnn_plus_F4_late_fusion_unweighted_fixed_threshold_metrics.csv`
+- `outputs/sprint2/diagnostics/sequence_cnn_plus_F4_late_fusion_unweighted_score_deciles.csv`
+- `outputs/sprint2/diagnostics/sequence_cnn_plus_F4_late_fusion_unweighted_test_decile_lift.png`
 
 Conclusion: CNN + F4 late fusion mildly improves sequence ranking, but not enough to justify expanding Sprint 2 into BiLSTM fusion, balanced fusion, or architecture tuning. Sprint 2 modeling is frozen after this slice.
 
@@ -370,10 +370,10 @@ XGBoost F4 has the clearest ranking structure: top deciles are almost entirely p
 
 Relevant decile plots:
 
-- `outputs/diagnostics/sprint2/xgboost_unweighted_test_decile_lift.png`
-- `outputs/diagnostics/sprint2/tabular_mlp_unweighted_test_decile_lift.png`
-- `outputs/diagnostics/sprint2/sequence_cnn_unweighted_test_decile_lift.png`
-- `outputs/diagnostics/sprint2/sequence_cnn_plus_F4_late_fusion_unweighted_test_decile_lift.png`
+- `outputs/sprint2/diagnostics/xgboost_unweighted_test_decile_lift.png`
+- `outputs/sprint2/diagnostics/tabular_mlp_unweighted_test_decile_lift.png`
+- `outputs/sprint2/diagnostics/sequence_cnn_unweighted_test_decile_lift.png`
+- `outputs/sprint2/diagnostics/sequence_cnn_plus_F4_late_fusion_unweighted_test_decile_lift.png`
 
 ## 12. Per-Genome And Per-Guide Limitations
 
@@ -394,11 +394,11 @@ Guide-level concentration also matters. In the test set, guide `9251` alone cont
 
 Relevant diagnostics:
 
-- `outputs/diagnostics/sprint2/xgboost_unweighted_per_genome_metrics.csv`
-- `outputs/diagnostics/sprint2/xgboost_unweighted_test_per_guide_metrics.csv`
-- `outputs/diagnostics/sprint2/tabular_mlp_unweighted_per_genome_metrics.csv`
-- `outputs/diagnostics/sprint2/sequence_cnn_unweighted_per_genome_metrics.csv`
-- `outputs/diagnostics/sprint2/sequence_cnn_plus_F4_late_fusion_unweighted_per_genome_metrics.csv`
+- `outputs/sprint2/diagnostics/xgboost_unweighted_per_genome_metrics.csv`
+- `outputs/sprint2/diagnostics/xgboost_unweighted_test_per_guide_metrics.csv`
+- `outputs/sprint2/diagnostics/tabular_mlp_unweighted_per_genome_metrics.csv`
+- `outputs/sprint2/diagnostics/sequence_cnn_unweighted_per_genome_metrics.csv`
+- `outputs/sprint2/diagnostics/sequence_cnn_plus_F4_late_fusion_unweighted_per_genome_metrics.csv`
 
 ## 13. Final Baseline Ranking
 

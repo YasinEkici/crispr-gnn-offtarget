@@ -3,7 +3,6 @@ task: sprint4_gcn
 sprint: sprint4
 seed: 42
 run_id: null
-runs_dir: outputs/runs
 
 data:
   dataset: mak2022
@@ -67,6 +66,3 @@ baseline_reference:
   test_auprc: 0.992522
   test_auroc: 0.938416
   test_mcc: 0.345198
-
-results_path: outputs/results/gcn_results.csv
-diagnostics_dir: outputs/diagnostics/sprint4

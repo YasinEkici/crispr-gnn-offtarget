@@ -85,9 +85,9 @@ def run_sprint2_dummy_logistic(config: dict[str, object]) -> int:
     dataset = data_config.get("dataset", {})
     raw_path = ROOT / Path(str(dataset.get("raw_path", "")))
     split_path = ROOT / str(config.get("split_manifest", "outputs/splits/sprint2_guides.json"))
-    results_path = ROOT / str(config.get("results_path", "outputs/results/baseline_results.csv"))
-    figures_dir = ROOT / str(config.get("figures_dir", "outputs/figures/sprint2"))
-    diagnostics_dir = ROOT / str(config.get("diagnostics_dir", "outputs/diagnostics/sprint2"))
+    results_path = ROOT / str(config.get("results_path", "outputs/sprint2/baseline_results.csv"))
+    figures_dir = ROOT / str(config.get("figures_dir", "outputs/sprint2/figures"))
+    diagnostics_dir = ROOT / str(config.get("diagnostics_dir", "outputs/sprint2/diagnostics"))
     if not raw_path.exists():
         print(f"Dataset not found: {raw_path}")
         return 1
@@ -136,9 +136,9 @@ def run_sprint2_xgboost(config: dict[str, object]) -> int:
     dataset = data_config.get("dataset", {})
     raw_path = ROOT / Path(str(dataset.get("raw_path", "")))
     split_path = ROOT / str(config.get("split_manifest", "outputs/splits/sprint2_guides.json"))
-    results_path = ROOT / str(config.get("results_path", "outputs/results/baseline_results.csv"))
-    figures_dir = ROOT / str(config.get("figures_dir", "outputs/figures/sprint2"))
-    diagnostics_dir = ROOT / str(config.get("diagnostics_dir", "outputs/diagnostics/sprint2"))
+    results_path = ROOT / str(config.get("results_path", "outputs/sprint2/baseline_results.csv"))
+    figures_dir = ROOT / str(config.get("figures_dir", "outputs/sprint2/figures"))
+    diagnostics_dir = ROOT / str(config.get("diagnostics_dir", "outputs/sprint2/diagnostics"))
     if not raw_path.exists():
         print(f"Dataset not found: {raw_path}")
         return 1
@@ -224,9 +224,9 @@ def run_sprint2_mlp(config: dict[str, object]) -> int:
     dataset = data_config.get("dataset", {})
     raw_path = ROOT / Path(str(dataset.get("raw_path", "")))
     split_path = ROOT / str(config.get("split_manifest", "outputs/splits/sprint2_guides.json"))
-    results_path = ROOT / str(config.get("results_path", "outputs/results/baseline_results.csv"))
-    figures_dir = ROOT / str(config.get("figures_dir", "outputs/figures/sprint2"))
-    diagnostics_dir = ROOT / str(config.get("diagnostics_dir", "outputs/diagnostics/sprint2"))
+    results_path = ROOT / str(config.get("results_path", "outputs/sprint2/baseline_results.csv"))
+    figures_dir = ROOT / str(config.get("figures_dir", "outputs/sprint2/figures"))
+    diagnostics_dir = ROOT / str(config.get("diagnostics_dir", "outputs/sprint2/diagnostics"))
     if not raw_path.exists():
         print(f"Dataset not found: {raw_path}")
         return 1
@@ -310,9 +310,9 @@ def run_sprint2_sequence(config: dict[str, object]) -> int:
     dataset = data_config.get("dataset", {})
     raw_path = ROOT / Path(str(dataset.get("raw_path", "")))
     split_path = ROOT / str(config.get("split_manifest", "outputs/splits/sprint2_guides.json"))
-    results_path = ROOT / str(config.get("results_path", "outputs/results/baseline_results.csv"))
-    figures_dir = ROOT / str(config.get("figures_dir", "outputs/figures/sprint2"))
-    diagnostics_dir = ROOT / str(config.get("diagnostics_dir", "outputs/diagnostics/sprint2"))
+    results_path = ROOT / str(config.get("results_path", "outputs/sprint2/baseline_results.csv"))
+    figures_dir = ROOT / str(config.get("figures_dir", "outputs/sprint2/figures"))
+    diagnostics_dir = ROOT / str(config.get("diagnostics_dir", "outputs/sprint2/diagnostics"))
     if not raw_path.exists():
         print(f"Dataset not found: {raw_path}")
         return 1
@@ -397,9 +397,9 @@ def run_sprint2_sequence_late_fusion(config: dict[str, object]) -> int:
     dataset = data_config.get("dataset", {})
     raw_path = ROOT / Path(str(dataset.get("raw_path", "")))
     split_path = ROOT / str(config.get("split_manifest", "outputs/splits/sprint2_guides.json"))
-    results_path = ROOT / str(config.get("results_path", "outputs/results/baseline_results.csv"))
-    figures_dir = ROOT / str(config.get("figures_dir", "outputs/figures/sprint2"))
-    diagnostics_dir = ROOT / str(config.get("diagnostics_dir", "outputs/diagnostics/sprint2"))
+    results_path = ROOT / str(config.get("results_path", "outputs/sprint2/baseline_results.csv"))
+    figures_dir = ROOT / str(config.get("figures_dir", "outputs/sprint2/figures"))
+    diagnostics_dir = ROOT / str(config.get("diagnostics_dir", "outputs/sprint2/diagnostics"))
     if not raw_path.exists():
         print(f"Dataset not found: {raw_path}")
         return 1
@@ -480,14 +480,19 @@ def run_sprint4_gcn(config: dict[str, object]) -> int:
     from crispr_gnn.graph.pyg_dataset import Sprint3HeteroDataLoader, validate_gcn_headline_config
     from crispr_gnn.training.gcn import gcn_run_config_from_mapping, train_graph_a_gcn
 
-    results_path = ROOT / str(config.get("results_path", "outputs/results/gcn_results.csv"))
-    diagnostics_dir = ROOT / str(config.get("diagnostics_dir", "outputs/diagnostics/sprint4"))
-    figures_dir = ROOT / str(config.get("figures_dir", "outputs/figures/sprint4"))
-    report_path = ROOT / str(config.get("report_path", "outputs/reports/gcn_report.md"))
-    runs_base = ROOT / str(config.get("runs_dir", "outputs/runs"))
-
     validate_gcn_headline_config(config)
     run_config = gcn_run_config_from_mapping(config)
+
+    schema_parts = run_config.graph_schema.split("_")
+    schema_label = f"{schema_parts[0]}_{schema_parts[1]}"
+    sprint_label = str(config.get("sprint", "sprint4"))
+    schema_dir = ROOT / "outputs" / sprint_label / schema_label
+
+    results_path = schema_dir / f"gcn_{schema_label}_results.csv"
+    report_path = schema_dir / f"gcn_{schema_label}_report.md"
+    schema_diagnostics_dir = schema_dir / "diagnostics"
+    schema_figures_dir = schema_dir / "figures"
+    runs_base = schema_dir / "runs"
 
     run_id = _sprint4_run_id(config, run_config)
     run_dir = runs_base / run_id
@@ -514,16 +519,17 @@ def run_sprint4_gcn(config: dict[str, object]) -> int:
     )
 
     write_results_table(results, results_path)
-    diagnostics_dir.mkdir(parents=True, exist_ok=True)
-    predictions_path = diagnostics_dir / "gcn_graph_a_predictions.csv"
-    training_history_path = diagnostics_dir / "gcn_graph_a_training_history.csv"
+    schema_diagnostics_dir.mkdir(parents=True, exist_ok=True)
+    schema_figures_dir.mkdir(parents=True, exist_ok=True)
+    predictions_path = schema_diagnostics_dir / f"gcn_{schema_label}_predictions.csv"
+    training_history_path = schema_diagnostics_dir / f"gcn_{schema_label}_training_history.csv"
     predictions.to_csv(predictions_path, index=False)
     training_history.to_csv(training_history_path, index=False)
     training_history.to_csv(run_dir / "training_history.csv", index=False)
 
-    diagnostic_tables = write_gcn_diagnostics(results, predictions, diagnostics_dir)
-    figure_paths = write_gcn_plots(results, predictions, training_history, figures_dir, graph_view=materialized.view("test"))
-    report = write_gcn_report(results, diagnostic_tables, figure_paths, report_path, run_label=run_id)
+    diagnostic_tables = write_gcn_diagnostics(results, predictions, schema_diagnostics_dir, schema_label=schema_label)
+    figure_paths = write_gcn_plots(results, predictions, training_history, schema_figures_dir, schema_label=schema_label, graph_view=materialized.view("test"))
+    report = write_gcn_report(results, diagnostic_tables, figure_paths, report_path, run_label=run_id, root=ROOT)
 
     print(f"Run ID: {run_id}")
     print(f"Run directory: {run_dir.relative_to(ROOT)}")

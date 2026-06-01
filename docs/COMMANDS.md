@@ -52,7 +52,7 @@ uv run python scripts/train.py --config configs/experiments/baseline_logistic_re
 This command also writes Logistic Regression diagnostics under:
 
 ```text
-outputs/diagnostics/sprint2/
+outputs/sprint2/diagnostics/
 ```
 
 ## Sprint 2 XGBoost baselines
@@ -64,8 +64,8 @@ uv run python scripts/train.py --config configs/experiments/baseline_xgboost.yam
 This command also writes:
 
 ```text
-outputs/diagnostics/sprint2/xgboost_feature_column_audit.csv
-outputs/diagnostics/sprint2/xgboost_feature_importance.csv
+outputs/sprint2/diagnostics/xgboost_feature_column_audit.csv
+outputs/sprint2/diagnostics/xgboost_feature_importance.csv
 ```
 
 ## Sprint 2 tabular MLP baselines
@@ -77,8 +77,8 @@ uv run python scripts/train.py --config configs/experiments/baseline_mlp.yaml
 This command also writes:
 
 ```text
-outputs/diagnostics/sprint2/tabular_mlp_training_summary.csv
-outputs/diagnostics/sprint2/tabular_mlp_feature_column_audit.csv
+outputs/sprint2/diagnostics/tabular_mlp_training_summary.csv
+outputs/sprint2/diagnostics/tabular_mlp_feature_column_audit.csv
 ```
 
 ## Sprint 2 sequence-only CNN/BiLSTM baselines
@@ -90,8 +90,8 @@ uv run python scripts/train.py --config configs/experiments/sequence_cnn_bilstm.
 This command also writes:
 
 ```text
-outputs/diagnostics/sprint2/sequence_input_audit.csv
-outputs/diagnostics/sprint2/sequence_training_summary.csv
+outputs/sprint2/diagnostics/sequence_input_audit.csv
+outputs/sprint2/diagnostics/sequence_training_summary.csv
 ```
 
 ## Sprint 2 CNN + F3/F4 late-fusion baselines
@@ -103,8 +103,8 @@ uv run python scripts/train.py --config configs/experiments/sequence_cnn_late_fu
 This command also writes:
 
 ```text
-outputs/diagnostics/sprint2/sequence_late_fusion_input_audit.csv
-outputs/diagnostics/sprint2/sequence_late_fusion_training_summary.csv
+outputs/sprint2/diagnostics/sequence_late_fusion_input_audit.csv
+outputs/sprint2/diagnostics/sequence_late_fusion_training_summary.csv
 ```
 
 ## Sprint 3 graph construction and leakage-control artifacts
@@ -122,7 +122,7 @@ data/processed/graphs/sprint3/
 The canonical tracked handoff report is:
 
 ```text
-outputs/reports/graph_schema_report.md
+outputs/sprint3/graph_schema_report.md
 ```
 
 This command does not train graph models and does not require PyTorch Geometric.
@@ -157,7 +157,7 @@ Validate a copied Sprint 3 graph artifact set before any headline Colab
 training:
 
 ```bash
-uv run python scripts/validate_graph_artifacts.py --artifact-dir data/processed/graphs/sprint3 --approved-source drive_sprint3_handoff --output outputs/runs/<run_id>/graph_artifact_provenance.json
+uv run python scripts/validate_graph_artifacts.py --artifact-dir data/processed/graphs/sprint3 --approved-source drive_sprint3_handoff --output outputs/sprint4/graph_a/runs/<run_id>/graph_artifact_provenance.json
 ```
 
 This command consumes serialized Sprint 3 graph tables and manifests through
@@ -180,7 +180,7 @@ Colab Pro may be used for GPU capacity, but reported runs must still record the
 commit SHA, resolved config, random seed, device/runtime, graph schema, feature
 bundle, split ID, visibility policy, output paths, and artifact provenance.
 
-The canonical Graph A training command is:
+The local canonical Graph A training command is:
 
 ```bash
 uv run python scripts/train.py --config configs/experiments/gcn_minimal.yaml
@@ -190,6 +190,16 @@ Run this command only after local Slice 1-3 validation and the artifact
 provenance gate pass. It writes canonical Sprint 4 outputs. Use separate
 reviewed debug output paths for smoke checks; do not use canonical headline
 paths for throwaway Colab experiments.
+
+For the Colab full run, keep the base config unchanged and run against the
+run-specific resolved config produced by the runner:
+
+```bash
+uv run python scripts/train.py --config outputs/sprint4/graph_a/runs/<run_id>/resolved_config.yaml
+```
+
+The resolved config records runtime-only choices such as `run_id` and
+`training.device` without mutating `configs/experiments/gcn_minimal.yaml`.
 
 ## Later sprint command pattern
 

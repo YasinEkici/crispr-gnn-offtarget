@@ -4,7 +4,7 @@ This document defines the Sprint 1 label policy for the Mak et al. 2022 crisprSQ
 
 Generated report artifact:
 
-- `outputs/reports/label_threshold_sensitivity.md`
+- `outputs/sprint1/label_threshold_sensitivity.md`
 
 ## Available Label Column
 
