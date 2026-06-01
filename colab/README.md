@@ -37,7 +37,6 @@ training I/O.
 /content/drive/MyDrive/crispr_gnn_offtarget/
   data/processed/graphs/sprint3/
   data/raw/
-  runs/
   returned_outputs/
 ```
 
@@ -90,11 +89,11 @@ Before any headline Graph A training, validate the copied Sprint 3 artifacts
 and write a checksum/provenance record:
 
 ```bash
-mkdir -p outputs/sprint4/graph_a/runs/<run_id>
+mkdir -p outputs/sprint4/graph_a/<run_id>
 uv run python scripts/validate_graph_artifacts.py \
   --artifact-dir data/processed/graphs/sprint3 \
   --approved-source drive_sprint3_handoff \
-  --output outputs/sprint4/graph_a/runs/<run_id>/graph_artifact_provenance.json
+  --output outputs/sprint4/graph_a/<run_id>/graph_artifact_provenance.json
 ```
 
 This command must pass before a Graph A run can be treated as a valid headline
@@ -108,12 +107,12 @@ Only run this after local Slice 1-3 tests have passed and the provenance gate
 above has succeeded:
 
 ```bash
-uv run python scripts/train.py --config outputs/sprint4/graph_a/runs/<run_id>/resolved_config.yaml
+uv run python scripts/train.py --config outputs/sprint4/graph_a/<run_id>/resolved_config.yaml
 ```
 
 The Colab runner should leave `configs/experiments/gcn_minimal.yaml`
 unchanged. It creates a run-specific `resolved_config.yaml` under
-`outputs/sprint4/graph_a/runs/<run_id>/`, applying only runtime fields such as
+`outputs/sprint4/graph_a/<run_id>/`, applying only runtime fields such as
 `run_id` and `training.device`. This keeps the repository base config stable
 while preserving the exact config used by the reported run. Do not use the
 canonical command as an informal smoke command unless output paths are
@@ -128,11 +127,11 @@ outputs/sprint4/graph_a/gcn_graph_a_results.csv
 outputs/sprint4/graph_a/gcn_graph_a_report.md
 outputs/sprint4/graph_a/diagnostics/
 outputs/sprint4/graph_a/figures/
-outputs/sprint4/graph_a/runs/<run_id>/graph_artifact_provenance.json
-outputs/sprint4/graph_a/runs/<run_id>/resolved_config.yaml
-outputs/sprint4/graph_a/runs/<run_id>/runtime.json
-outputs/sprint4/graph_a/runs/<run_id>/training_history.csv
-outputs/sprint4/graph_a/runs/<run_id>/model.pt
+outputs/sprint4/graph_a/<run_id>/graph_artifact_provenance.json
+outputs/sprint4/graph_a/<run_id>/resolved_config.yaml
+outputs/sprint4/graph_a/<run_id>/runtime.json
+outputs/sprint4/graph_a/<run_id>/training_history.csv
+outputs/sprint4/graph_a/<run_id>/model.pt
 ```
 
 Large run artifacts and checkpoints should normally remain untracked and live

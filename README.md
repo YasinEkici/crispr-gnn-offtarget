@@ -8,8 +8,9 @@ Current status:
 
 - Sprint 1 dataset audit, label policy, and feature parsing policy are documented.
 - Sprint 2 fair non-graph baselines are complete under the locked guide-level measured-only split.
-- Sprint 3 dependency-light Graph A/B/C datasets and leakage controls are complete under the same locked split; graph-model training is not yet implemented.
-- The strongest current non-graph baseline is `xgboost_unweighted / F4`; future GNN work should compare against it under the same split, label, and metric policy.
+- Sprint 3 dependency-light Graph A/B/C datasets and leakage controls are complete under the same locked split.
+- Sprint 4 Graph A minimal GCN training has a validated Colab GPU run under the frozen contract; Graph C and Graph B have not been run yet.
+- The strongest current non-graph baseline remains `xgboost_unweighted / F4`; Graph A is a valid same-contract GCN baseline but does not beat that F4 XGBoost reference.
 
 ## Setup
 
@@ -58,4 +59,7 @@ Raw, interim, and processed datasets are ignored by git. Use `data/sample/` only
 
 ## Current Scope
 
-The next major scope is Sprint 4 graph-model training from the validated typed graph artifacts. PyTorch is present for Sprint 2 non-graph sequence baselines. PyTorch Geometric remains deferred until graph-model implementation.
+The current Sprint 4 scope is to use the validated Graph A result as the first
+same-contract GCN baseline and proceed to Graph C planning only after returned
+Graph A artifacts remain complete, provenance-validated, and report-ready.
+PyTorch Geometric is now part of the Sprint 4 graph-model implementation.

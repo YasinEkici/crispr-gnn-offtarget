@@ -552,9 +552,9 @@ artifacts only after a real manual Slice 4B run and Slice 4C validation.
 ### Run Outputs Normally Kept Untracked Or Stored In Google Drive
 
 ```text
-outputs/sprint4/graph_a/runs/<run_id>/
-outputs/sprint4/graph_a/runs/<run_id>/model.pt
-outputs/sprint4/graph_a/runs/<run_id>/optimizer/
+outputs/sprint4/graph_a/<run_id>/
+outputs/sprint4/graph_a/<run_id>/model.pt
+outputs/sprint4/graph_a/<run_id>/optimizer/
 ```
 
 Large prediction dumps, Colab-local caches, copied raw data, copied processed
@@ -928,11 +928,11 @@ This local command writes canonical Sprint 4 outputs. It must be run as an
 artifact-producing command only after Slice 4A runner/provenance gates are
 ready. In the manual Slice 4B Colab workflow, the runner should not mutate this
 base config in place. Instead it should generate
-`outputs/sprint4/graph_a/runs/<run_id>/resolved_config.yaml` with runtime-only
+`outputs/sprint4/graph_a/<run_id>/resolved_config.yaml` with runtime-only
 fields such as `run_id` and `training.device`, then run:
 
 ```bash
-uv run python scripts/train.py --config outputs/sprint4/graph_a/runs/<run_id>/resolved_config.yaml
+uv run python scripts/train.py --config outputs/sprint4/graph_a/<run_id>/resolved_config.yaml
 ```
 
 Coding agents must not claim that this command completed unless real returned
@@ -957,7 +957,7 @@ git clone <repository-url>
 cd crispr-gnn-offtarget
 git checkout <approved-sprint4-branch-or-commit>
 uv sync
-uv run python scripts/train.py --config outputs/sprint4/graph_a/runs/<run_id>/resolved_config.yaml
+uv run python scripts/train.py --config outputs/sprint4/graph_a/<run_id>/resolved_config.yaml
 ```
 
 Exact Colab/PyG/CUDA setup commands cannot be finalized until the dependency

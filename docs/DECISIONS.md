@@ -354,7 +354,7 @@ Outcome:
   boundary between debug and canonical output paths.
 - `scripts/validate_graph_artifacts.py` validates the copied Sprint 3 graph
   artifacts through the Sprint 4 loader and writes
-  `outputs/sprint4/graph_a/runs/<run_id>/graph_artifact_provenance.json`.
+  `outputs/sprint4/graph_a/<run_id>/graph_artifact_provenance.json`.
 - A Graph A Colab result without a passing provenance record is provisional or
   debug-only and must not enter headline Sprint 4 reporting.
 - Any Colab-specific dependency workaround must be documented in repository
@@ -367,7 +367,7 @@ figures under sprint-scoped output directories instead of flat
 `outputs/reports/`, `outputs/results/`, `outputs/figures/`, and
 `outputs/diagnostics/` folders. Sprint 4 graph-model outputs use a
 schema-specific layout such as `outputs/sprint4/graph_a/`, with run artifacts
-stored below `outputs/sprint4/graph_a/runs/<run_id>/`.
+stored below `outputs/sprint4/graph_a/<run_id>/`.
 
 Reason: Sprint-scoped directories make handoff artifacts easier to audit and
 avoid mixing baseline, graph-construction, and graph-model outputs. The
@@ -387,7 +387,57 @@ Outcome:
   under ignored `data/processed/graphs/sprint3/`.
 - Sprint 4 Graph A outputs live under `outputs/sprint4/graph_a/`.
 - Large run directories, checkpoints, copied graph tables, caches, and
-  Colab-local artifacts remain untracked; `.gitignore` ignores
-  `outputs/sprint*/*/runs/` and model checkpoint extensions.
+  Colab-local artifacts remain untracked; `.gitignore` ignores model checkpoint
+  extensions.
 - Colab full runs should preserve the repository base config and execute a
   run-specific `resolved_config.yaml` stored under the run directory.
+
+## 2026-06-01 - Graph A Slice 4C validation passed; Graph A is the validated same-contract GCN baseline
+
+Decision: The real Colab GPU Graph A run (commit `9f17e4f`, run ID
+`sprint4_graph_a_gcn_seed42_20260601`) has passed Slice 4C artifact and
+provenance validation. Graph A is the validated first GCN baseline under
+the frozen Sprint 2/Sprint 3 contract. It does not beat `xgboost_unweighted
+/ F4`.
+
+Reason: All required artifacts are present and complete: canonical CSV,
+report, nine core figures, six diagnostic tables, and a run directory
+containing `resolved_config.yaml`, `runtime.json`,
+`graph_artifact_provenance.json`, `training_history.csv`, and `model.pt`.
+The provenance record confirms the Sprint 3 graph artifact checksums, split
+`sprint2_main_seed42`, Scheme A labels, strict-inductive visibility, seed
+42, CUDA device, and no test-driven tuning.
+
+Outcome:
+
+- Test AUPRC `0.9663`, test AUROC `0.7451`, test F1 `0.9518`, test MCC
+  `0.3008`; positive prevalence `0.9007`.
+- Graph A does not beat `xgboost_unweighted / F4` (test AUPRC `0.9925`).
+  It is a valid same-contract graph baseline, not a stronger predictive one.
+- Graph C planning may now begin. Graph B remains a bounded control pending
+  a separate approval.
+- No model, schema, epoch, threshold, or feature choice was revised from
+  test diagnostics.
+
+## 2026-06-01 - Defer sequence-position sensitivity figure to Sprint 5
+
+Decision: The `gcn_graph_a_sequence_position_sensitivity.png` conditional
+figure is deferred. It will not be produced as part of Sprint 4 Slice 4C.
+
+Reason: `S1_pair` is confirmed position-aligned (23 positions × 11 channels,
+columns `s1_pos_{pp:02d}_channel_{cc:02d}`). The exec plan §11 makes this
+figure conditional on an aligned sequence input, so the condition is met.
+However, generating a per-position occlusion or masking sensitivity map
+requires a dedicated inference pass with position-level perturbation logic
+not currently implemented in the Sprint 4 reporting path. Implementing it
+within Slice 4C would broaden the slice scope. Sprint 5 systematic feature
+ablation is the approved location for position-level attribution analysis.
+
+Outcome:
+
+- `outputs/sprint4/graph_a/figures/gcn_graph_a_sequence_position_sensitivity.png`
+  is not produced in Sprint 4 Slice 4C.
+- The nine core figures listed in exec plan §11 remain complete.
+- Position-sensitivity analysis is deferred to Sprint 5 feature ablation.
+- This deferral does not affect the Graph A headline metrics, provenance
+  validation, or the Slice 4C exit gate.

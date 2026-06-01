@@ -1,0 +1,3 @@
+model_name,graph_schema,feature_set,split,rows,positives,negatives,positive_rate,auprc,auprc_inverted,auroc,auroc_inverted
+gcn_graph_a,graph_a_minimal_physical_target,S1_pair+F1,test,1702,1533,169,0.900705052878966,0.966286890665716,0.8215171023855301,0.7450757882791603,0.25492421172083973
+gcn_graph_a,graph_a_minimal_physical_target,S1_pair+F1,val,1734,1511,223,0.8713956170703575,0.9110210865306309,0.8373824417803145,0.5765373805842359,0.42346261941576424

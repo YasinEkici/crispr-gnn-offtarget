@@ -492,10 +492,8 @@ def run_sprint4_gcn(config: dict[str, object]) -> int:
     report_path = schema_dir / f"gcn_{schema_label}_report.md"
     schema_diagnostics_dir = schema_dir / "diagnostics"
     schema_figures_dir = schema_dir / "figures"
-    runs_base = schema_dir / "runs"
-
     run_id = _sprint4_run_id(config, run_config)
-    run_dir = runs_base / run_id
+    run_dir = schema_dir / run_id
     run_dir.mkdir(parents=True, exist_ok=True)
 
     resolved_config_path = run_dir / "resolved_config.yaml"

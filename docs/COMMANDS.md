@@ -157,7 +157,7 @@ Validate a copied Sprint 3 graph artifact set before any headline Colab
 training:
 
 ```bash
-uv run python scripts/validate_graph_artifacts.py --artifact-dir data/processed/graphs/sprint3 --approved-source drive_sprint3_handoff --output outputs/sprint4/graph_a/runs/<run_id>/graph_artifact_provenance.json
+uv run python scripts/validate_graph_artifacts.py --artifact-dir data/processed/graphs/sprint3 --approved-source drive_sprint3_handoff --output outputs/sprint4/graph_a/<run_id>/graph_artifact_provenance.json
 ```
 
 This command consumes serialized Sprint 3 graph tables and manifests through
@@ -195,7 +195,7 @@ For the Colab full run, keep the base config unchanged and run against the
 run-specific resolved config produced by the runner:
 
 ```bash
-uv run python scripts/train.py --config outputs/sprint4/graph_a/runs/<run_id>/resolved_config.yaml
+uv run python scripts/train.py --config outputs/sprint4/graph_a/<run_id>/resolved_config.yaml
 ```
 
 The resolved config records runtime-only choices such as `run_id` and
