@@ -245,6 +245,113 @@ repository artifact policy after Slice 4C validates that they came from a real
 run and preserve the Sprint 2/Sprint 3 contracts. The same policy applies to
 Graph C after its returned-artifact validation slice.
 
+## Graph B Runner Workflow
+
+Graph B is the bounded secondary control after validated Graph A and Graph C runs. Use
+`colab/sprint4_graph_b_runner.ipynb` for the manual Colab run. The notebook is runner-only
+and must not contain model, preprocessing, evaluation, or plotting logic.
+
+Graph B inherits Graph A's frozen contract:
+
+- label scheme: `scheme_a`;
+- split ID: `sprint2_main_seed42`;
+- visibility policy: `strict_inductive_primary`;
+- loss: `weighted_bce`;
+- headline protocol: `headline_guide_level`;
+- schema: `graph_b_guide_similarity_control`;
+- target node representation: `zero_type_feature` (featureless physical targets).
+
+The only structural addition relative to Graph A is deterministic, label-free
+guide-sequence similarity edges (`sequence_similar_to`, 1208 edges). Graph B must not
+be treated as a primary result or described as equivalent to Graph C's topology+semantics
+change.
+
+The Graph B runner creates a run-specific resolved config from
+`configs/experiments/gcn_graph_b.yaml` under:
+
+```text
+outputs/sprint4/graph_b/<run_id>/resolved_config.yaml
+```
+
+The full Graph B training command must be:
+
+```bash
+uv run python scripts/train.py --config outputs/sprint4/graph_b/<run_id>/resolved_config.yaml
+```
+
+Run this command only after the provenance gate below passes. Do not mutate the base config.
+
+## Graph B Pre-Training Provenance Gate
+
+Before headline Graph B training, validate the copied Sprint 3 artifacts and write a
+checksum/provenance record:
+
+```bash
+mkdir -p outputs/sprint4/graph_b/<run_id>
+uv run python scripts/validate_graph_artifacts.py \
+  --artifact-dir data/processed/graphs/sprint3 \
+  --approved-source drive_sprint3_handoff \
+  --output outputs/sprint4/graph_b/<run_id>/graph_artifact_provenance.json
+```
+
+The runner must then assert the Graph B schema counts from the provenance JSON:
+
+```text
+graph_b_guide_similarity_control:
+  sgRNA = 150
+  physical_target_site = 9880
+  candidate_pair = 11446
+  sequence_similar_to = 1208
+  split_id = sprint2_main_seed42
+  label_scheme = scheme_a
+  visibility_policy = strict_inductive_primary
+```
+
+A Graph B run without this provenance record and count validation is provisional/debug-only
+and must not enter headline reporting.
+
+## Required Returned Graph B Artifacts
+
+After a real Graph B Colab run, copy these outputs back to durable Drive storage:
+
+```text
+outputs/sprint4/graph_b/gcn_graph_b_results.csv
+outputs/sprint4/graph_b/gcn_graph_b_report.md
+outputs/sprint4/graph_b/diagnostics/
+outputs/sprint4/graph_b/figures/
+outputs/sprint4/graph_b/<run_id>/graph_artifact_provenance.json
+outputs/sprint4/graph_b/<run_id>/resolved_config.yaml
+outputs/sprint4/graph_b/<run_id>/runtime.json
+outputs/sprint4/graph_b/<run_id>/training_history.csv
+outputs/sprint4/graph_b/<run_id>/model.pt
+```
+
+The Graph B `figures/` directory must include:
+
+```text
+gcn_graph_b_graph_schema_auprc_comparison.png
+gcn_graph_b_pr_curves.png
+gcn_graph_b_roc_curves.png
+gcn_graph_b_training_curves.png
+gcn_graph_b_score_distributions.png
+gcn_graph_b_confusion_matrices.png
+gcn_graph_b_decile_lift.png
+gcn_graph_b_per_genome_metrics.png
+gcn_graph_b_view_sanity_example.png
+```
+
+The Graph B `diagnostics/` directory must include:
+
+```text
+gcn_graph_b_predictions.csv
+gcn_graph_b_training_history.csv
+gcn_graph_b_score_direction.csv
+gcn_graph_b_fixed_threshold_metrics.csv
+gcn_graph_b_score_deciles.csv
+gcn_graph_b_per_genome_metrics.csv
+gcn_graph_b_test_per_guide_metrics.csv
+```
+
 ## Returned Artifact Validation
 
 Slice 4C must inspect returned Graph A artifacts before any final claim. At

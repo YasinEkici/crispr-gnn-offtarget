@@ -48,9 +48,37 @@ def test_gcn_config_records_graph_c_observation_context_contract() -> None:
 
 def test_gcn_config_rejects_unsupported_schema() -> None:
     config = _base_config()
-    config["graph"]["schema"] = "graph_b_guide_similarity_control"
+    config["graph"]["schema"] = "graph_x_unknown"
 
-    with pytest.raises(ValueError, match="Graph A and Graph C"):
+    with pytest.raises(ValueError, match="Graph A, Graph B, and Graph C"):
+        gcn_run_config_from_mapping(config)
+
+
+def test_gcn_config_records_graph_b_bounded_control_contract() -> None:
+    config = _base_config()
+    config["graph"]["schema"] = "graph_b_guide_similarity_control"
+    config["model"]["name"] = "gcn_graph_b"
+    config["model"]["target_node_representation"] = "zero_type_feature"
+    config["features"]["edge_feature_sets"] = ["s1_pair", "f1"]
+
+    run_config = gcn_run_config_from_mapping(config)
+
+    assert run_config.graph_schema == "graph_b_guide_similarity_control"
+    assert run_config.model_name == "gcn_graph_b"
+    assert run_config.edge_feature_sets == ("s1_pair", "f1")
+    assert run_config.target_node_representation == "zero_type_feature"
+    assert run_config.split_id == "sprint2_main_seed42"
+    assert run_config.label_scheme == "scheme_a"
+    assert run_config.visibility_policy == "strict_inductive_primary"
+
+
+def test_gcn_config_rejects_non_featureless_targets_for_graph_b() -> None:
+    config = _base_config()
+    config["graph"]["schema"] = "graph_b_guide_similarity_control"
+    config["model"]["target_node_representation"] = "learned_per_target_id"
+    config["features"]["edge_feature_sets"] = ["s1_pair", "f1"]
+
+    with pytest.raises(ValueError, match="zero/type"):
         gcn_run_config_from_mapping(config)
 
 
@@ -84,14 +112,20 @@ def test_gcn_run_config_defaults_to_validation_only_policy_fields() -> None:
 def test_gcn_result_upsert_identity_includes_graph_schema(tmp_path) -> None:
     path = tmp_path / "gcn_results.csv"
     graph_a = _result_row("graph_a_minimal_physical_target", test_auprc=0.7)
+    graph_b = _result_row("graph_b_guide_similarity_control", test_auprc=0.72)
     graph_c = _result_row("graph_c_context_observation", test_auprc=0.8)
 
     write_results_table(graph_a, path)
+    write_results_table(graph_b, path)
     write_results_table(graph_c, path)
 
     saved = pd.read_csv(path)
-    assert set(saved["graph_schema"]) == {"graph_a_minimal_physical_target", "graph_c_context_observation"}
-    assert saved.shape[0] == 2
+    assert set(saved["graph_schema"]) == {
+        "graph_a_minimal_physical_target",
+        "graph_b_guide_similarity_control",
+        "graph_c_context_observation",
+    }
+    assert saved.shape[0] == 3
 
 
 def _base_config() -> dict[str, object]:

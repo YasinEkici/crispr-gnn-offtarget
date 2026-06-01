@@ -49,6 +49,51 @@ def test_gcn_sequence_position_sensitivity_is_conditional(tmp_path) -> None:
     assert "gcn_sequence_position_sensitivity.png" in {path.name for path in figure_paths}
 
 
+def test_gcn_graph_b_reporting_paths_are_schema_specific(tmp_path) -> None:
+    results = _mock_results(
+        model_name="gcn_graph_b",
+        graph_schema="graph_b_guide_similarity_control",
+        target_node_representation="zero_type_feature",
+    )
+    predictions = _mock_predictions(model_name="gcn_graph_b", graph_schema="graph_b_guide_similarity_control")
+    history = _mock_training_history(model_name="gcn_graph_b", graph_schema="graph_b_guide_similarity_control")
+    graph_view = _mock_graph_b_view()
+
+    diagnostic_tables = write_gcn_diagnostics(
+        results,
+        predictions,
+        tmp_path / "diagnostics",
+        schema_label="graph_b",
+    )
+    figure_paths = write_gcn_plots(
+        results,
+        predictions,
+        history,
+        tmp_path / "figures",
+        schema_label="graph_b",
+        graph_view=graph_view,
+    )
+    report_path = write_gcn_report(
+        results,
+        diagnostic_tables,
+        figure_paths,
+        tmp_path / "reports" / "gcn_graph_b_report.md",
+        run_label="mock_graph_b_reporting_path",
+    )
+
+    assert {path.name for path in diagnostic_tables} >= {
+        "gcn_graph_b_score_direction.csv",
+        "gcn_graph_b_fixed_threshold_metrics.csv",
+        "gcn_graph_b_score_deciles.csv",
+    }
+    assert {path.name for path in figure_paths} >= {
+        "gcn_graph_b_graph_schema_auprc_comparison.png",
+        "gcn_graph_b_view_sanity_example.png",
+    }
+    report_text = report_path.read_text(encoding="utf-8")
+    assert "graph_b_guide_similarity_control" in report_text
+
+
 def test_gcn_graph_c_reporting_paths_keep_schema_specific_outputs(tmp_path) -> None:
     results = _mock_results(
         model_name="gcn_graph_c",
@@ -185,6 +230,21 @@ def _mock_graph_view() -> HeteroData:
     data["physical_target_site"].audit_node_ids = ["target_0", "target_1"]
     edge_store = data["sgRNA", "candidate_pair", "physical_target_site"]
     edge_store.edge_index = torch.tensor([[0, 1], [0, 1]], dtype=torch.long)
+    return data
+
+
+def _mock_graph_b_view() -> HeteroData:
+    data = HeteroData()
+    data.graph_name = "graph_b_guide_similarity_control"
+    data.view_name = "test"
+    data["sgRNA"].num_nodes = 2
+    data["sgRNA"].audit_node_ids = ["guide_0", "guide_1"]
+    data["physical_target_site"].num_nodes = 2
+    data["physical_target_site"].audit_node_ids = ["target_0", "target_1"]
+    candidate = data["sgRNA", "candidate_pair", "physical_target_site"]
+    candidate.edge_index = torch.tensor([[0, 1], [0, 1]], dtype=torch.long)
+    similarity = data["sgRNA", "sequence_similar_to", "sgRNA"]
+    similarity.edge_index = torch.tensor([[0], [1]], dtype=torch.long)
     return data
 
 

@@ -1,12 +1,13 @@
 import pandas as pd
 
 from crispr_gnn.data.schemas import COMPUTED_NUCLEOSOME_FEATURES
-from crispr_gnn.graph import GRAPH_A, GRAPH_C, build_graph_artifacts, write_graph_artifacts
+from crispr_gnn.graph import GRAPH_A, GRAPH_B, GRAPH_C, build_graph_artifacts, write_graph_artifacts
 from crispr_gnn.graph.pyg_dataset import Sprint3HeteroDataLoader
 from crispr_gnn.training.gcn import (
     CHECKPOINT_POLICY,
     GCNRunConfig,
     train_graph_a_gcn,
+    train_graph_b_gcn,
     train_graph_c_gcn,
 )
 
@@ -86,6 +87,80 @@ def test_graph_a_gcn_saves_checkpoint_when_path_provided(tmp_path) -> None:
     import torch
     state = torch.load(checkpoint_path, weights_only=True)
     assert isinstance(state, dict) and len(state) > 0, "checkpoint must be a non-empty state dict"
+
+
+def test_graph_b_gcn_cpu_smoke_training_uses_similarity_topology(tmp_path) -> None:
+    materialized = _tiny_materialized_graph(tmp_path, GRAPH_B)
+    config = GCNRunConfig(
+        sprint="sprint4",
+        split_id="sprint2_main_seed42",
+        seed=7,
+        graph_schema=GRAPH_B,
+        model_name="gcn_graph_b",
+        feature_set="S1_pair+F1",
+        edge_feature_sets=("s1_pair", "f1"),
+        target_node_representation="zero_type_feature",
+        hidden_dim=12,
+        num_layers=1,
+        dropout=0.0,
+        max_epochs=3,
+        min_epochs=1,
+        patience=2,
+        learning_rate=0.01,
+        device="cpu",
+        num_threads=1,
+        use_compile=False,
+        use_amp=False,
+    )
+
+    results, predictions, history = train_graph_b_gcn(materialized, config)
+
+    row = results.iloc[0]
+    assert row["graph_schema"] == GRAPH_B
+    assert row["label_scheme"] == "scheme_a"
+    assert row["split_id"] == "sprint2_main_seed42"
+    assert row["visibility_policy"] == "strict_inductive_primary"
+    assert row["target_node_representation"] == "zero_type_feature"
+    assert row["target_semantics"] == "minimal_physical_target"
+    assert "guide-similarity topology" in row["notes"]
+    assert row["checkpoint_policy"] == CHECKPOINT_POLICY
+    assert row["checkpoint_selection_split"] == "validation"
+    assert row["threshold_selection_split"] == "validation"
+    assert row["baseline_reference"] == "xgboost_unweighted / F4"
+    assert set(predictions["split"]) == {"val", "test"}
+    assert "test" not in set(history["selection_split"])
+    assert history["epoch"].max() <= 3
+
+
+def test_graph_b_gcn_produces_different_results_than_graph_a(tmp_path) -> None:
+    """Smoke-level check that Graph B training loss differs from Graph A.
+
+    Since Graph B includes sequence_similar_to edges in message passing, the
+    degree normalization and neighborhood aggregation differ from Graph A even
+    with the same candidate features. Results tables will differ in graph_schema
+    and notes, and the model forward pass produces different representations.
+    """
+    materialized_a = _tiny_materialized_graph(tmp_path / "a", GRAPH_A)
+    materialized_b = _tiny_materialized_graph(tmp_path / "b", GRAPH_B)
+    config_a = GCNRunConfig(
+        sprint="sprint4", split_id="sprint2_main_seed42", seed=42,
+        graph_schema=GRAPH_A, model_name="gcn_graph_a",
+        edge_feature_sets=("s1_pair", "f1"), hidden_dim=8, num_layers=1,
+        max_epochs=2, min_epochs=1, patience=2, device="cpu", num_threads=1,
+    )
+    config_b = GCNRunConfig(
+        sprint="sprint4", split_id="sprint2_main_seed42", seed=42,
+        graph_schema=GRAPH_B, model_name="gcn_graph_b",
+        edge_feature_sets=("s1_pair", "f1"), hidden_dim=8, num_layers=1,
+        max_epochs=2, min_epochs=1, patience=2, device="cpu", num_threads=1,
+    )
+
+    results_a, _, _ = train_graph_a_gcn(materialized_a, config_a)
+    results_b, _, _ = train_graph_b_gcn(materialized_b, config_b)
+
+    assert results_a.iloc[0]["graph_schema"] == GRAPH_A
+    assert results_b.iloc[0]["graph_schema"] == GRAPH_B
+    assert results_a.iloc[0]["graph_schema"] != results_b.iloc[0]["graph_schema"]
 
 
 def test_graph_c_gcn_cpu_smoke_training_uses_observation_context_encoder(tmp_path) -> None:

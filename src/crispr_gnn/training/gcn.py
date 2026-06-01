@@ -12,7 +12,7 @@ import torch
 from sklearn.metrics import average_precision_score
 
 from crispr_gnn.evaluation.metrics import binary_classification_metrics, select_threshold_by_f1
-from crispr_gnn.graph.graph_schemas import GRAPH_A, GRAPH_C
+from crispr_gnn.graph.graph_schemas import GRAPH_A, GRAPH_B, GRAPH_C
 from crispr_gnn.graph.pyg_dataset import (
     LABEL_SCHEME,
     SPLIT_ID,
@@ -27,9 +27,12 @@ from crispr_gnn.models.gcn import (
     GRAPH_C_TARGET_REPRESENTATION_POLICY,
     TARGET_REPRESENTATION_POLICY,
     GraphAEdgeGCN,
+    GraphBEdgeGCN,
     GraphCEdgeGCN,
     graph_a_edge_feature_attrs,
     graph_a_feature_dimensions,
+    graph_b_edge_feature_attrs,
+    graph_b_feature_dimensions,
     graph_c_edge_feature_attrs,
     graph_c_feature_dimensions,
 )
@@ -107,8 +110,8 @@ def gcn_run_config_from_mapping(config: Mapping[str, Any]) -> GCNRunConfig:
     training = _mapping(config.get("training", {}), "training")
     features = _mapping(config.get("features", {}), "features")
     graph_schema = str(graph.get("schema", GRAPH_A))
-    if graph_schema not in {GRAPH_A, GRAPH_C}:
-        raise ValueError("Sprint 4 GCN training currently supports Graph A and Graph C only")
+    if graph_schema not in {GRAPH_A, GRAPH_B, GRAPH_C}:
+        raise ValueError("Sprint 4 GCN training supports Graph A, Graph B, and Graph C only")
     default_edge_features = ["candidate_pair_features"] if graph_schema == GRAPH_C else ["s1_pair", "f1"]
     edge_feature_sets = tuple(str(value) for value in features.get("edge_feature_sets", default_edge_features))
     if not edge_feature_sets:
@@ -117,8 +120,8 @@ def gcn_run_config_from_mapping(config: Mapping[str, Any]) -> GCNRunConfig:
         GRAPH_C_TARGET_REPRESENTATION_POLICY if graph_schema == GRAPH_C else TARGET_REPRESENTATION_POLICY
     )
     target_policy = str(model.get("target_node_representation", expected_target_policy))
-    if graph_schema == GRAPH_A and target_policy != TARGET_REPRESENTATION_POLICY:
-        raise ValueError("Graph A target-node representation must be the approved zero/type policy")
+    if graph_schema in {GRAPH_A, GRAPH_B} and target_policy != TARGET_REPRESENTATION_POLICY:
+        raise ValueError("Graph A/B target-node representation must be the approved zero/type policy")
     if graph_schema == GRAPH_C and target_policy != GRAPH_C_TARGET_REPRESENTATION_POLICY:
         raise ValueError("Graph C target-node representation must use the observation context encoder")
     loss = str(training.get("loss", "weighted_bce"))
@@ -182,6 +185,19 @@ def train_graph_c_gcn(
         raise ValueError("Graph C training requires Graph C materialized artifacts and config")
     if config.target_node_representation != GRAPH_C_TARGET_REPRESENTATION_POLICY:
         raise ValueError("Graph C context must enter through the target_observation node encoder")
+    return _train_gcn(materialized, config, checkpoint_path=checkpoint_path)
+
+
+def train_graph_b_gcn(
+    materialized: MaterializedGraph,
+    config: GCNRunConfig,
+    *,
+    checkpoint_path: Path | None = None,
+) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+    if materialized.graph_name != GRAPH_B or config.graph_schema != GRAPH_B:
+        raise ValueError("Graph B training requires Graph B materialized artifacts and config")
+    if config.target_node_representation != TARGET_REPRESENTATION_POLICY:
+        raise ValueError("Graph B physical target nodes must remain featureless (zero_type_feature)")
     return _train_gcn(materialized, config, checkpoint_path=checkpoint_path)
 
 
@@ -433,7 +449,7 @@ def _supervised_labels(data: Any) -> torch.Tensor:
 
 
 def _candidate_edge_type(graph_schema: str) -> tuple[str, str, str]:
-    if graph_schema == GRAPH_A:
+    if graph_schema in {GRAPH_A, GRAPH_B}:
         return GRAPH_A_EDGE_TYPE
     if graph_schema == GRAPH_C:
         return GRAPH_C_EDGE_TYPE
@@ -443,6 +459,8 @@ def _candidate_edge_type(graph_schema: str) -> tuple[str, str, str]:
 def _edge_feature_attrs(config: GCNRunConfig) -> list[str]:
     if config.graph_schema == GRAPH_A:
         return graph_a_edge_feature_attrs(config.edge_feature_sets)
+    if config.graph_schema == GRAPH_B:
+        return graph_b_edge_feature_attrs(config.edge_feature_sets)
     if config.graph_schema == GRAPH_C:
         return graph_c_edge_feature_attrs(config.edge_feature_sets)
     raise ValueError(f"Unsupported GCN graph schema: {config.graph_schema}")
@@ -452,11 +470,23 @@ def _build_model(
     train_view: Any,
     config: GCNRunConfig,
     edge_feature_attrs: list[str],
-) -> tuple[GraphAEdgeGCN | GraphCEdgeGCN, int]:
+) -> tuple[GraphAEdgeGCN | GraphBEdgeGCN | GraphCEdgeGCN, int]:
     if config.graph_schema == GRAPH_A:
         sgrna_dim, edge_dim = graph_a_feature_dimensions(train_view, edge_feature_attrs)
         return (
             GraphAEdgeGCN(
+                sgrna_input_dim=sgrna_dim,
+                edge_input_dim=edge_dim,
+                hidden_dim=config.hidden_dim,
+                num_layers=config.num_layers,
+                dropout=config.dropout,
+            ),
+            edge_dim,
+        )
+    if config.graph_schema == GRAPH_B:
+        sgrna_dim, edge_dim = graph_b_feature_dimensions(train_view, edge_feature_attrs)
+        return (
+            GraphBEdgeGCN(
                 sgrna_input_dim=sgrna_dim,
                 edge_input_dim=edge_dim,
                 hidden_dim=config.hidden_dim,
@@ -492,6 +522,11 @@ def _run_notes(graph_schema: str) -> str:
         return (
             "Graph C GCN path uses target_observation context node encoding; "
             "Graph C changes both topology and target semantics; no test-driven selection; no Graph B run"
+        )
+    if graph_schema == GRAPH_B:
+        return (
+            "Graph B bounded secondary control; adds label-free guide-similarity topology to Graph A; "
+            "featureless physical targets and Graph A candidate features unchanged; no test-driven selection"
         )
     return "Graph A minimal GCN path; no test-driven selection; no Graph C/B run"
 

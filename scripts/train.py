@@ -62,6 +62,8 @@ def main() -> int:
         return run_sprint4_gcn(config)
     if task == "sprint4_gcn_graph_c":
         return run_sprint4_gcn_graph_c(config)
+    if task == "sprint4_gcn_graph_b":
+        return run_sprint4_gcn_graph_b(config)
 
     print("Training placeholder: this config does not yet map to an implemented task.")
     return 0 if args.debug else 1
@@ -479,7 +481,7 @@ def run_sprint2_sequence_late_fusion(config: dict[str, object]) -> int:
 
 def run_sprint4_gcn(config: dict[str, object]) -> int:
     from crispr_gnn.graph.pyg_dataset import Sprint3HeteroDataLoader, validate_gcn_headline_config
-    from crispr_gnn.training.gcn import gcn_run_config_from_mapping, train_graph_a_gcn, train_graph_c_gcn
+    from crispr_gnn.training.gcn import gcn_run_config_from_mapping, train_graph_a_gcn, train_graph_b_gcn, train_graph_c_gcn
 
     validate_gcn_headline_config(config)
     run_config = gcn_run_config_from_mapping(config)
@@ -515,6 +517,10 @@ def run_sprint4_gcn(config: dict[str, object]) -> int:
 
     if run_config.graph_schema == "graph_c_context_observation":
         results, predictions, training_history = train_graph_c_gcn(
+            materialized, run_config, checkpoint_path=checkpoint_path
+        )
+    elif run_config.graph_schema == "graph_b_guide_similarity_control":
+        results, predictions, training_history = train_graph_b_gcn(
             materialized, run_config, checkpoint_path=checkpoint_path
         )
     else:
@@ -553,7 +559,12 @@ def run_sprint4_gcn(config: dict[str, object]) -> int:
 
 
 def run_sprint4_gcn_graph_c(config: dict[str, object]) -> int:
-    """Run the Slice 5A Graph C GCN path through the shared Sprint 4 dispatcher."""
+    """Run the Graph C GCN path through the shared Sprint 4 dispatcher."""
+    return run_sprint4_gcn(config)
+
+
+def run_sprint4_gcn_graph_b(config: dict[str, object]) -> int:
+    """Run the Graph B bounded secondary control through the shared Sprint 4 dispatcher."""
     return run_sprint4_gcn(config)
 
 
