@@ -1,0 +1,164 @@
+{
+  "approved_source": "drive_sprint3_handoff",
+  "artifact_dir": "data/processed/graphs/sprint3",
+  "files": [
+    {
+      "bytes": 170494,
+      "path": "graph_a_minimal_physical_target/features_F1.parquet",
+      "sha256": "d3abeaf3c3caf80a2bbdeffb4b19877214f3150e05d939ff7a892e1e36618d6b"
+    },
+    {
+      "bytes": 518665,
+      "path": "graph_a_minimal_physical_target/features_F2.parquet",
+      "sha256": "cd357484be17d4166c0eefd1bd5a2635184c2707a01e77267c1a7580ea8d79ea"
+    },
+    {
+      "bytes": 574091,
+      "path": "graph_a_minimal_physical_target/features_F3.parquet",
+      "sha256": "91ae1f8a0672c01f01c38225007d9dc189386606c2cd157f81b13a38d7105e76"
+    },
+    {
+      "bytes": 3089816,
+      "path": "graph_a_minimal_physical_target/features_F4.parquet",
+      "sha256": "1e9d7ec21cc2d9ba10eafd90112bc430e8b9c4a3416930506ae39776799c8d46"
+    },
+    {
+      "bytes": 420994,
+      "path": "graph_a_minimal_physical_target/features_S1_pair.parquet",
+      "sha256": "b3b1046143041cd284aced5c54176a189e58fc8f8e369ad9b1cf5e991f0d1d3f"
+    },
+    {
+      "bytes": 18798,
+      "path": "graph_a_minimal_physical_target/manifest.json",
+      "sha256": "bb3a5676368412492e8a7cf36c5fc84c07c5cb9c48e92084a1a53e11a84e55b3"
+    },
+    {
+      "bytes": 318777,
+      "path": "graph_a_minimal_physical_target/nodes_physical_target_site.parquet",
+      "sha256": "04763cf3f6a2bf09611eca583f3987815b0de2e93f513d78a6900eb68f81b9f4"
+    },
+    {
+      "bytes": 81145,
+      "path": "graph_a_minimal_physical_target/nodes_sgRNA.parquet",
+      "sha256": "225bbeb28fc5a23b4c395823bf291914bf667558b7b39c038a97c05c8a1b2eef"
+    },
+    {
+      "bytes": 275782,
+      "path": "graph_a_minimal_physical_target/relation_candidate_pair.parquet",
+      "sha256": "5c68767f6ac101f08cc7fd1662d085f09594e6137efb0702c040a20b9ae28183"
+    },
+    {
+      "bytes": 1110,
+      "path": "graph_b_guide_similarity_control/manifest.json",
+      "sha256": "3ad52604c2821a92defacc54a256626aa3d34aaa554a4b5abbd25b302fa3d8fa"
+    },
+    {
+      "bytes": 318777,
+      "path": "graph_b_guide_similarity_control/nodes_physical_target_site.parquet",
+      "sha256": "04763cf3f6a2bf09611eca583f3987815b0de2e93f513d78a6900eb68f81b9f4"
+    },
+    {
+      "bytes": 81145,
+      "path": "graph_b_guide_similarity_control/nodes_sgRNA.parquet",
+      "sha256": "225bbeb28fc5a23b4c395823bf291914bf667558b7b39c038a97c05c8a1b2eef"
+    },
+    {
+      "bytes": 275782,
+      "path": "graph_b_guide_similarity_control/relation_candidate_pair.parquet",
+      "sha256": "5c68767f6ac101f08cc7fd1662d085f09594e6137efb0702c040a20b9ae28183"
+    },
+    {
+      "bytes": 8271,
+      "path": "graph_b_guide_similarity_control/relation_sequence_similar_to.parquet",
+      "sha256": "80c3780b2998424a61251c647664ace81fba986544d510a93823c9f90dcc1f0a"
+    },
+    {
+      "bytes": 494254,
+      "path": "graph_c_context_observation/features_candidate_pair_features.parquet",
+      "sha256": "d682b0c5ee93045d7b6549532598f469f02936116ba5694ef966d906ca3a3c3f"
+    },
+    {
+      "bytes": 3220963,
+      "path": "graph_c_context_observation/features_target_observation_features.parquet",
+      "sha256": "b765800535851a56707a50eebf1b30a8767092cb6383f5a7a6ebdbdeee991c47"
+    },
+    {
+      "bytes": 24372,
+      "path": "graph_c_context_observation/manifest.json",
+      "sha256": "32a8a4a288b9e0be4b5c221be17b350c3aeb7fe66528d896a0c19b76ed8f1c1a"
+    },
+    {
+      "bytes": 81145,
+      "path": "graph_c_context_observation/nodes_sgRNA.parquet",
+      "sha256": "225bbeb28fc5a23b4c395823bf291914bf667558b7b39c038a97c05c8a1b2eef"
+    },
+    {
+      "bytes": 75481,
+      "path": "graph_c_context_observation/nodes_target_observation.parquet",
+      "sha256": "b950eeb42f9450d1d19ff6012ab05a4929c04c0477aaec1c3b8683c0daf724fc"
+    },
+    {
+      "bytes": 153786,
+      "path": "graph_c_context_observation/relation_candidate_pair.parquet",
+      "sha256": "9bd96bf76f608fa3e66eebebf59138a2f3e38b305d581e5f8b215e8269f0cb18"
+    },
+    {
+      "bytes": 912728,
+      "path": "graph_c_context_observation/relation_context_similar_to.parquet",
+      "sha256": "6b9b988b6fc7a266e8c97a61256317e7a3ae1fc8aa06d1b063f2e44a1dc8e9f3"
+    }
+  ],
+  "generated_at_utc": "2026-06-01T12:51:31.379078+00:00",
+  "git_commit": "3d18bec4ecf15ec47e88f99f363bb4bd2b19fe07",
+  "git_status_short": "?? outputs/sprint4/graph_c/",
+  "provenance_type": "sprint3_graph_artifacts_sha256",
+  "schemas": {
+    "graph_a_minimal_physical_target": {
+      "candidate_pair_edges": 11446,
+      "graph_name": "graph_a_minimal_physical_target",
+      "label_definition": "cleavage_freq > 1e-05",
+      "label_scheme": "scheme_a",
+      "nodes": {
+        "physical_target_site": 9880,
+        "sgRNA": 150
+      },
+      "relations": {
+        "candidate_pair": 11446
+      },
+      "split_id": "sprint2_main_seed42",
+      "visibility_policy": "strict_inductive_primary"
+    },
+    "graph_b_guide_similarity_control": {
+      "candidate_pair_edges": 11446,
+      "graph_name": "graph_b_guide_similarity_control",
+      "label_definition": "cleavage_freq > 1e-05",
+      "label_scheme": "scheme_a",
+      "nodes": {
+        "physical_target_site": 9880,
+        "sgRNA": 150
+      },
+      "relations": {
+        "candidate_pair": 11446,
+        "sequence_similar_to": 1208
+      },
+      "split_id": "sprint2_main_seed42",
+      "visibility_policy": "strict_inductive_primary"
+    },
+    "graph_c_context_observation": {
+      "candidate_pair_edges": 11446,
+      "graph_name": "graph_c_context_observation",
+      "label_definition": "cleavage_freq > 1e-05",
+      "label_scheme": "scheme_a",
+      "nodes": {
+        "sgRNA": 150,
+        "target_observation": 11446
+      },
+      "relations": {
+        "candidate_pair": 11446,
+        "context_similar_to": 91754
+      },
+      "split_id": "sprint2_main_seed42",
+      "visibility_policy": "strict_inductive_primary"
+    }
+  }
+}

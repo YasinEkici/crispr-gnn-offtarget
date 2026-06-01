@@ -441,3 +441,35 @@ Outcome:
 - Position-sensitivity analysis is deferred to Sprint 5 feature ablation.
 - This deferral does not affect the Graph A headline metrics, provenance
   validation, or the Slice 4C exit gate.
+
+## 2026-06-01 - Graph C Slice 5C validation passed; Graph C is a validated same-contract GCN comparison
+
+Decision: The real Colab GPU Graph C run (commit `3d18bec`, run ID
+`sprint4_graph_c_gcn_seed42_20260601`) has passed returned-artifact and
+provenance validation. Graph C is a validated same-contract Sprint 4 GCN
+comparison against Graph A and `xgboost_unweighted / F4`.
+
+Reason: The returned Graph C artifacts include the canonical result CSV,
+report, nine required figures, diagnostic tables, and a run directory with
+`resolved_config.yaml`, `runtime.json`, `graph_artifact_provenance.json`,
+`training_history.csv`, and an ignored `model.pt` checkpoint. The provenance
+record confirms Scheme A, `sprint2_main_seed42`, strict-inductive visibility,
+and the expected Graph C counts: `sgRNA=150`, `target_observation=11446`,
+`candidate_pair=11446`, and `context_similar_to=91754`.
+
+Outcome:
+
+- Graph C test AUPRC `0.9616`, test AUROC `0.7599`, test F1 `0.9589`, test
+  MCC `0.4537`; positive prevalence `0.9007`.
+- Graph C does not beat `xgboost_unweighted / F4` on primary test AUPRC
+  (`0.9925`) and does not beat Graph A on primary test AUPRC (`0.9663`).
+- Graph C improves MCC relative to Graph A in this run, but MCC is secondary
+  and cannot override the primary AUPRC comparison or drive test-based model
+  changes.
+- Graph C is not a topology-only comparison. Relative to Graph A, it changes
+  topology through `context_similar_to` relations and target semantics through
+  feature-bearing `target_observation` nodes instead of featureless shared
+  `physical_target_site` nodes.
+- Consolidated Sprint 4 comparison artifacts live under `outputs/sprint4/`.
+  Graph B remains optional as a bounded control and must not become an
+  uncontrolled schema sweep.

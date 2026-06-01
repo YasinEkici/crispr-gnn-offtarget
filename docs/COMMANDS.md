@@ -201,6 +201,23 @@ uv run python scripts/train.py --config outputs/sprint4/graph_a/<run_id>/resolve
 The resolved config records runtime-only choices such as `run_id` and
 `training.device` without mutating `configs/experiments/gcn_minimal.yaml`.
 
+After validated Graph A and Graph C returned artifacts exist locally, generate
+the consolidated same-contract Sprint 4 comparison with:
+
+```bash
+uv run python scripts/compare_sprint4_gcn.py --output-root outputs/sprint4
+```
+
+This command validates required Graph A/C result, diagnostic, figure, and
+provenance artifacts before writing:
+
+```text
+outputs/sprint4/gcn_sprint4_comparison_results.csv
+outputs/sprint4/gcn_sprint4_comparison_report.md
+outputs/sprint4/figures/gcn_sprint4_schema_auprc_comparison.png
+outputs/sprint4/figures/gcn_sprint4_pr_curves.png
+```
+
 ## Later sprint command pattern
 
 ```bash

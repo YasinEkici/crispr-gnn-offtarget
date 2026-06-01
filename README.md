@@ -9,8 +9,8 @@ Current status:
 - Sprint 1 dataset audit, label policy, and feature parsing policy are documented.
 - Sprint 2 fair non-graph baselines are complete under the locked guide-level measured-only split.
 - Sprint 3 dependency-light Graph A/B/C datasets and leakage controls are complete under the same locked split.
-- Sprint 4 Graph A minimal GCN training has a validated Colab GPU run under the frozen contract; Graph C and Graph B have not been run yet.
-- The strongest current non-graph baseline remains `xgboost_unweighted / F4`; Graph A is a valid same-contract GCN baseline but does not beat that F4 XGBoost reference.
+- Sprint 4 Graph A and Graph C GCN training have validated Colab GPU runs under the frozen contract; Graph B has not been run yet.
+- The strongest current non-graph baseline remains `xgboost_unweighted / F4`; Graph A and Graph C are valid same-contract GCN baselines but do not beat that F4 XGBoost reference on primary test AUPRC.
 
 ## Setup
 
@@ -59,7 +59,8 @@ Raw, interim, and processed datasets are ignored by git. Use `data/sample/` only
 
 ## Current Scope
 
-The current Sprint 4 scope is to use the validated Graph A result as the first
-same-contract GCN baseline and proceed to Graph C planning only after returned
-Graph A artifacts remain complete, provenance-validated, and report-ready.
-PyTorch Geometric is now part of the Sprint 4 graph-model implementation.
+The current Sprint 4 scope has validated Graph A and Graph C as same-contract
+GCN baselines from typed Sprint 3 artifacts. Graph C changes both topology and
+target semantics/context representation relative to Graph A, so it is not a
+topology-only comparison. Graph B remains an optional bounded control.
+PyTorch Geometric is part of the Sprint 4 graph-model implementation.
