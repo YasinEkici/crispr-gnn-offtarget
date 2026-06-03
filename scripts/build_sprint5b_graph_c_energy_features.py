@@ -40,6 +40,11 @@ def parse_args() -> argparse.Namespace:
         help="Canonical Sprint 3 graph artifact directory to copy. Graph C topology is not rebuilt.",
     )
     parser.add_argument(
+        "--source-sprint5-feature-table",
+        default="data/processed/graphs/sprint5/graph_a_minimal_physical_target/features_S5F2_energy.parquet",
+        help="Optional existing Sprint 5 Graph A S5F2 feature table. Used before falling back to raw dataset rebuild.",
+    )
+    parser.add_argument(
         "--report-path",
         default="outputs/sprint5b/graph_c_energy_sensitivity_artifact_report.md",
         help="Output artifact report path.",
@@ -52,29 +57,18 @@ def main() -> int:
     data_config = load_yaml(args.data_config)
     schema_mapping = load_yaml(args.schema_config)
     graph_config = GraphBuildConfig.from_mapping(schema_mapping)
-    dataset = data_config.get("dataset", {})
-    dataset_path = _resolve_dataset_path(dataset)
-    split_path = ROOT / Path(str(schema_mapping.get("split_manifest", "outputs/splits/sprint2_guides.json")))
-    if not split_path.exists():
-        print(f"Split manifest not found: {split_path}")
-        return 1
-
-    print(f"Dataset path: {dataset_path.relative_to(ROOT)}")
-    raw = pd.read_parquet(dataset_path)
-    split = load_split_manifest(split_path)
-    assigned = assign_measured_splits(raw, split)
     source_artifact_dir = ROOT / args.source_artifact_dir
     _validate_source_artifacts(source_artifact_dir)
 
-    feature_tables, feature_sources, preprocessing = build_sprint5_feature_tables(
-        assigned,
-        max_length=graph_config.max_length,
-        scale=False,
+    s5f2_table, s5f2_sources, s5f2_preprocessing = _load_or_build_s5f2_table(
+        data_config=data_config,
+        schema_mapping=schema_mapping,
+        graph_config=graph_config,
+        source_sprint5_feature_table=ROOT / args.source_sprint5_feature_table,
     )
     artifact_dir = ROOT / args.artifact_dir
     written = _copy_canonical_graphs(source_artifact_dir, artifact_dir)
     graph_c_dir = artifact_dir / GRAPH_C
-    s5f2_table = feature_tables["S5F2_energy"]
     _validate_s5f2_matches_graph_c_candidates(graph_c_dir, s5f2_table)
     s5f2_path = graph_c_dir / "features_S5F2_energy.parquet"
     s5f2_table.to_parquet(s5f2_path, index=False)
@@ -83,11 +77,11 @@ def main() -> int:
     manifest_path = graph_c_dir / "manifest.json"
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
     manifest.setdefault("feature_tables", {})["S5F2_energy"] = int(s5f2_table.shape[1] - 1)
-    manifest.setdefault("feature_sources", {})["S5F2_energy"] = feature_sources["S5F2_energy"]
+    manifest.setdefault("feature_sources", {})["S5F2_energy"] = s5f2_sources
     manifest.setdefault("preprocessing", {})["sprint5b_edge_feature_sensitivity"] = {
         "fit_scope": "train_only",
         "feature_set": "S5F2_energy",
-        "preprocessing": preprocessing["S5F2_energy"],
+        "preprocessing": s5f2_preprocessing,
     }
     manifest.setdefault("metadata", {})["sprint5b_energy_sensitivity"] = {
         "role": "secondary_sensitivity_not_primary_feature_ablation",
@@ -111,6 +105,46 @@ def main() -> int:
     print(f"Graph C feature tables: {', '.join(manifest.get('feature_tables', {}))}")
     print(f"Total artifact files written: {len(written)}")
     return 0
+
+
+def _load_or_build_s5f2_table(
+    *,
+    data_config: dict[str, Any],
+    schema_mapping: dict[str, Any],
+    graph_config: GraphBuildConfig,
+    source_sprint5_feature_table: Path,
+) -> tuple[pd.DataFrame, list[str], object]:
+    if source_sprint5_feature_table.exists():
+        print(f"S5F2 feature table: {_display_path(source_sprint5_feature_table)}")
+        table = pd.read_parquet(source_sprint5_feature_table)
+        manifest_path = source_sprint5_feature_table.parent / "manifest.json"
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8")) if manifest_path.exists() else {}
+        sources = manifest.get("feature_sources", {}).get("S5F2_energy", _feature_names_from_table(table))
+        preprocessing = manifest.get("preprocessing", {}).get(
+            "S5F2_energy",
+            {
+                "source": "existing_sprint5_feature_table",
+                "path": _display_path(source_sprint5_feature_table),
+            },
+        )
+        return table, list(sources), preprocessing
+
+    dataset = data_config.get("dataset", {})
+    dataset_path = _resolve_dataset_path(dataset)
+    split_path = ROOT / Path(str(schema_mapping.get("split_manifest", "outputs/splits/sprint2_guides.json")))
+    if not split_path.exists():
+        raise FileNotFoundError(f"Split manifest not found: {split_path}")
+
+    print(f"Dataset path: {dataset_path.relative_to(ROOT)}")
+    raw = pd.read_parquet(dataset_path)
+    split = load_split_manifest(split_path)
+    assigned = assign_measured_splits(raw, split)
+    feature_tables, feature_sources, preprocessing = build_sprint5_feature_tables(
+        assigned,
+        max_length=graph_config.max_length,
+        scale=False,
+    )
+    return feature_tables["S5F2_energy"], feature_sources["S5F2_energy"], preprocessing["S5F2_energy"]
 
 
 def _validate_source_artifacts(source_artifact_dir: Path) -> None:
@@ -143,6 +177,17 @@ def _validate_s5f2_matches_graph_c_candidates(graph_c_dir: Path, table: pd.DataF
     feature_columns = [column for column in table.columns if column.startswith(FEATURE_PREFIX)]
     if len(feature_columns) != table.shape[1] - 1:
         raise ValueError("S5F2 feature table contains unexpected non-feature columns")
+
+
+def _feature_names_from_table(table: pd.DataFrame) -> list[str]:
+    return [column.removeprefix(FEATURE_PREFIX) for column in table.columns if column.startswith(FEATURE_PREFIX)]
+
+
+def _display_path(path: Path) -> str:
+    try:
+        return str(path.relative_to(ROOT))
+    except ValueError:
+        return str(path)
 
 
 def _resolve_dataset_path(dataset: dict[str, Any]) -> Path:
