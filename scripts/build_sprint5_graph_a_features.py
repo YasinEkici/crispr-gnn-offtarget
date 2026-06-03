@@ -46,16 +46,14 @@ def main() -> int:
     schema_mapping = load_yaml(args.schema_config)
     graph_config = GraphBuildConfig.from_mapping(schema_mapping)
     dataset = data_config.get("dataset", {})
-    raw_path = ROOT / Path(str(dataset.get("raw_path", "")))
+    dataset_path = _resolve_dataset_path(dataset)
     split_path = ROOT / Path(str(schema_mapping.get("split_manifest", "outputs/splits/sprint2_guides.json")))
-    if not raw_path.exists():
-        print(f"Dataset not found: {raw_path}")
-        return 1
     if not split_path.exists():
         print(f"Split manifest not found: {split_path}")
         return 1
 
-    raw = pd.read_parquet(raw_path)
+    print(f"Dataset path: {dataset_path.relative_to(ROOT)}")
+    raw = pd.read_parquet(dataset_path)
     split = load_split_manifest(split_path)
     assigned = assign_measured_splits(raw, split)
     artifacts = build_graph_artifacts(assigned, graph_config)
@@ -95,6 +93,18 @@ def main() -> int:
     print(f"Feature tables: {', '.join(feature_tables)}")
     print(f"Total artifact files written: {len(written)}")
     return 0
+
+
+def _resolve_dataset_path(dataset: dict[str, Any]) -> Path:
+    candidates = [
+        ROOT / Path(str(dataset.get("raw_path", ""))),
+        ROOT / Path(str(dataset.get("processed_path", ""))),
+    ]
+    for path in candidates:
+        if path.exists():
+            return path
+    readable = ", ".join(str(path) for path in candidates if str(path) != str(ROOT))
+    raise FileNotFoundError(f"Dataset not found. Checked: {readable}")
 
 
 def _write_sprint5_artifact_report(path: Path, *, manifest: dict[str, Any], source_report: Path) -> None:
