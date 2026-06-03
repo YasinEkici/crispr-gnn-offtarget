@@ -580,3 +580,31 @@ Outcome:
   selected from the validation set and the specific negative distribution of
   this split.
 - Threshold-free AUPRC remains the authoritative comparison metric.
+
+## 2026-06-03 - Sprint 5 primary epigenetic ablation uses fixed-topology Graph A
+
+Decision: Sprint 5's primary biological ablation varies candidate-pair edge
+feature tables on Graph A only. The graph topology, target-node semantics,
+Scheme A label, `sprint2_main_seed42` guide-disjoint split, measured-only
+universe, `experiment_id=18` exclusion, checkpoint policy, and validation-only
+threshold policy remain fixed.
+
+Reason: Graph A can isolate feature-family contribution because row-varying
+sequence, mismatch, energy, experimental epigenetic, and computed nucleosome
+features are candidate-edge tensors while physical target nodes remain
+featureless zero/type representations. Graph C is not suitable as the primary
+feature-ablation graph because its context-similarity topology and
+observation-level target semantics already encode context; using it for
+feature ablation would mix feature and topology effects.
+
+Outcome:
+
+- Sprint 5 adds `S5F0_seq` through `S5F5_computed_pos` feature tables under
+  `data/processed/graphs/sprint5/graph_a_minimal_physical_target/`.
+- `S5F0_seq` is true sequence-only guide/target one-hot input and does not
+  include Sprint 4 `S1_pair`'s explicit mismatch channel.
+- Full GPU execution uses `colab/sprint5_graph_a_feature_ablation_runner.ipynb`
+  as a runner only.
+- Reporting must include AUPRC as the primary metric plus AUROC, binary F1,
+  macro F1, MCC, specificity, and TN/FP/FN/TP. Confusion matrices use each
+  feature set's validation-selected threshold.

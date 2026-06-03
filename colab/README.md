@@ -377,3 +377,39 @@ For Graph C, returned-artifact validation must additionally verify:
 - Graph C is described as changing both topology and target semantics/context
   representation;
 - test diagnostics were not used to revise training choices.
+
+## Sprint 5 Graph A Feature-Ablation Runner
+
+Use `colab/sprint5_graph_a_feature_ablation_runner.ipynb` for the Sprint 5
+full GPU run. The notebook is runner-only and executes repository commands:
+
+```bash
+uv run python scripts/build_sprint5_graph_a_features.py \
+  --data-config configs/data/mak2022.yaml \
+  --schema-config configs/sweeps/graph_schema_ablation.yaml \
+  --artifact-dir data/processed/graphs/sprint5 \
+  --report-path outputs/sprint5/graph_a_feature_ablation_artifact_report.md
+
+uv run python scripts/run_sprint5_feature_ablation.py \
+  --config configs/sweeps/sprint5_graph_a_feature_ablation.yaml \
+  --run-id sprint5_graph_a_feature_ablation_seed42_<yyyymmdd>
+```
+
+Sprint 5 primary evaluation is a fixed-topology Graph A feature ablation.
+Graph C is not the primary feature-ablation graph because its context topology
+and observation-level target semantics already encode context.
+
+Returned Drive outputs should be copied under:
+
+```text
+/content/drive/MyDrive/crispr_gnn_offtarget/returned_outputs/
+  sprint5_graph_a_feature_ablation_seed42_<yyyymmdd>/
+```
+
+The returned folder must contain the consolidated results CSV, report,
+`diagnostics_sprint5_graph_a/`, `figures_sprint5_graph_a/`, `runs/`, and
+`graph_artifact_provenance.json`. Required metrics include AUPRC, AUROC,
+binary F1, macro F1, MCC, specificity, and TN/FP/FN/TP. Confusion matrix
+figures must use each feature set's validation-selected threshold. Required
+figures include PR, ROC, training curves, confusion matrices, per-genome
+metrics, graph-view sanity, and decile lift (`gcn_sprint5_graph_a_decile_lift.png`).
