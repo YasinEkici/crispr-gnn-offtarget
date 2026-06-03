@@ -65,6 +65,19 @@ def test_sprint5_colab_inline_imports_include_src_pythonpath() -> None:
     assert "PYTHONPATH=src uv run python - <<'PY'" in source
 
 
+def test_sprint5_colab_runner_does_not_delete_drive_outputs() -> None:
+    notebook_path = ROOT / "colab" / "sprint5_graph_a_feature_ablation_runner.ipynb"
+    notebook = json.loads(notebook_path.read_text(encoding="utf-8"))
+    sources = {
+        cell.get("id"): "".join(cell.get("source", []))
+        for cell in notebook["cells"]
+        if cell.get("cell_type") == "code"
+    }
+
+    assert "rm -rf" not in "\n".join(sources.values())
+    assert "Output already exists in Drive" in sources["step7-copy-outputs"]
+
+
 def test_gcn_headline_config_rejects_debug_or_random_edge_rules() -> None:
     config = load_yaml(ROOT / "configs" / "experiments" / "gcn_minimal.yaml")
     config["data"]["split_id"] = "debug"
