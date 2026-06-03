@@ -12,24 +12,32 @@ The primary dataset is the Mak et al. 2022 crisprSQL-derived epigenetic/nucleoso
 | Sprint 2 | Non-graph and sequence DL baselines, locked guide-level split | ✅ Complete |
 | Sprint 3 | Graph A/B/C artifact construction and leakage controls | ✅ Complete |
 | Sprint 4 | GCN baseline training — Graph A, B (control), C | ✅ Complete |
-| Sprint 5 | Epigenetic feature ablation (main novelty) | 🔜 Next |
-| Sprint 6 | Imbalance-method comparison | ⏳ Planned |
+| Sprint 5 | Graph A feature-family ablation + Graph C energy sensitivity | ✅ Complete |
+| Sprint 6 | Imbalance, threshold, and loss comparison | 🔜 Next |
 | Sprint 7 | GAT/GATv2 architecture | ⏳ Planned |
 
-## Sprint 4 Results
+## Current Results
 
-All three GCN schemas were trained on Google Colab GPU under the frozen Sprint 2/3 contract (`scheme_a`, `sprint2_main_seed42`, `strict_inductive_primary`). Primary metric is AUPRC (threshold-free, appropriate for ~90% positive prevalence). None beats the XGBoost F4 reference on primary AUPRC.
+All reported model runs use the frozen Sprint 2/3 contract (`scheme_a`, `sprint2_main_seed42`, measured-only headline rows, `experiment_id=18` excluded, `strict_inductive_primary`). Primary metric is AUPRC (threshold-free, appropriate for ~90% positive prevalence). No GCN result beats the XGBoost F4 reference on primary AUPRC.
 
-| Model | Schema | Test AUPRC | Test AUROC | Test MCC | vs F4 XGBoost |
+| Model | Setting | Test AUPRC | Test AUROC | Test Macro F1 | Test MCC |
 |---|---|---:|---:|---:|---|
-| `xgboost_unweighted` | F4 tabular baseline | **0.9925** | 0.9384 | 0.345 | — |
-| `gcn_graph_a` | Graph A — minimal physical-target | 0.9663 | 0.7451 | 0.301 | does not beat |
-| `gcn_graph_b` *(secondary control)* | Graph B — + guide-similarity topology | 0.9667 | 0.7436 | 0.127† | does not beat |
-| `gcn_graph_c` | Graph C — observation-level context | 0.9616 | 0.7599 | 0.454 | does not beat |
+| `xgboost_unweighted` | F4 tabular baseline | **0.9925** | 0.9384 | 0.6427 | 0.3452 |
+| `gcn_graph_a_sprint5` | Graph A + `S5F2_energy` | 0.9766 | 0.8178 | **0.6953** | **0.4779** |
+| `gcn_graph_c_sprint5b_energy` | Graph C + `S5F2_energy` | 0.9725 | 0.8362 | 0.5524 | 0.2743 |
+| `gcn_graph_a` | Sprint 4 Graph A — minimal physical target | 0.9663 | 0.7451 | 0.6021 | 0.3008 |
+| `gcn_graph_b` *(secondary control)* | Sprint 4 Graph B — guide-similarity topology | 0.9666 | 0.7436 | 0.4918 | 0.1266† |
+| `gcn_graph_c` | Sprint 4 Graph C — observation-level context | 0.9616 | 0.7599 | 0.6776 | 0.4537 |
 
-†Graph B MCC is low due to threshold sensitivity at high positive prevalence; AUPRC is the primary metric. Graph C must not be interpreted as a topology-only experiment — it changes both topology and target semantics relative to Graph A.
+†Threshold-dependent metrics are interpretation-only. Several GCN runs have high AUPRC but weak negative-class recognition under the validation-selected threshold; Sprint 5B Graph C + `S5F2_energy` has TN/FP/FN/TP `14/155/0/1533`. This motivates Sprint 6 imbalance, threshold, and loss experiments.
 
-Consolidated comparison: `outputs/sprint4/gcn_sprint4_comparison_results.csv`
+Sprint 5 takeaway: binding-energy features (`energy_1`-`energy_5`) are the strongest GCN feature-family signal. Raw experimental epigenetic scalars and computed context features do not improve the current Graph A GCN when appended as candidate-edge feature tables. Graph C must not be interpreted as a topology-only experiment — it changes both topology and target semantics relative to Graph A.
+
+Key reports:
+
+- Sprint 4 comparison: `outputs/sprint4/gcn_sprint4_comparison_report.md`
+- Sprint 5 Graph A feature ablation: `outputs/sprint5/graph_a_feature_ablation/sprint5_graph_a_feature_ablation_report.md`
+- Sprint 5B Graph C energy sensitivity: `outputs/sprint5b/graph_c/gcn_graph_c_report.md`
 
 ## Setup
 
@@ -62,6 +70,27 @@ uv run python scripts/train.py --config configs/experiments/gcn_graph_b.yaml
 
 # Sprint 4 consolidated comparison (regenerate after new runs)
 uv run python scripts/compare_sprint4_gcn.py --output-root outputs/sprint4
+
+# Sprint 5 Graph A feature artifact build
+uv run python scripts/build_sprint5_graph_a_features.py \
+  --data-config configs/data/mak2022.yaml \
+  --schema-config configs/sweeps/graph_schema_ablation.yaml \
+  --artifact-dir data/processed/graphs/sprint5 \
+  --report-path outputs/sprint5/graph_a_feature_ablation_artifact_report.md
+
+# Sprint 5 Graph A feature ablation sweep
+uv run python scripts/run_sprint5_feature_ablation.py \
+  --config configs/sweeps/sprint5_graph_a_feature_ablation.yaml \
+  --run-id sprint5_graph_a_feature_ablation_seed42_<timestamp>
+
+# Sprint 5B Graph C energy sensitivity
+uv run python scripts/build_sprint5b_graph_c_energy_features.py \
+  --data-config configs/data/mak2022.yaml \
+  --schema-config configs/sweeps/graph_schema_ablation.yaml \
+  --source-artifact-dir data/processed/graphs/sprint3 \
+  --artifact-dir data/processed/graphs/sprint5b \
+  --report-path outputs/sprint5b/graph_c_energy_sensitivity_artifact_report.md
+uv run python scripts/train.py --config configs/sweeps/sprint5b_graph_c_energy_sensitivity.yaml
 ```
 
 For full GPU training, use the Colab runner notebooks under `colab/`. See `docs/COMMANDS.md` for the complete command reference.
@@ -97,6 +126,15 @@ Raw, interim, and processed data are gitignored. Use `data/sample/` for tiny tes
 - Comparison figures: `outputs/sprint4/figures/`
 - Run provenance (per schema): `outputs/sprint4/<schema>/<run_id>/graph_artifact_provenance.json`
 - Model checkpoints: `outputs/sprint4/<schema>/<run_id>/model.pt` *(gitignored)*
+
+### Sprint 5
+- Graph A feature-ablation report: `outputs/sprint5/graph_a_feature_ablation/sprint5_graph_a_feature_ablation_report.md`
+- Graph A feature-ablation results: `outputs/sprint5/graph_a_feature_ablation/sprint5_graph_a_feature_ablation_results.csv`
+- Graph A diagnostics and figures: `outputs/sprint5/graph_a_feature_ablation/diagnostics_sprint5_graph_a/`, `outputs/sprint5/graph_a_feature_ablation/figures_sprint5_graph_a/`
+- Sprint 5B Graph C report: `outputs/sprint5b/graph_c/gcn_graph_c_report.md`
+- Sprint 5B Graph C results: `outputs/sprint5b/graph_c/gcn_graph_c_results.csv`
+- Sprint 5B diagnostics and figures: `outputs/sprint5b/graph_c/diagnostics/`, `outputs/sprint5b/graph_c/figures/`
+- Model checkpoints: Drive returned-output folders only; do not commit `model.pt`
 
 ## Documentation
 
