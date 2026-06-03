@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import shutil
 import sys
 from pathlib import Path
 from typing import Any
@@ -14,8 +15,9 @@ sys.path.insert(0, str(ROOT / "src"))
 
 from crispr_gnn.data.splits import assign_measured_splits, load_split_manifest  # noqa: E402
 from crispr_gnn.features.sprint5 import build_sprint5_feature_tables  # noqa: E402
-from crispr_gnn.graph.graph_builder import build_graph_artifacts, write_graph_artifacts  # noqa: E402
+from crispr_gnn.graph.graph_builder import FEATURE_PREFIX  # noqa: E402
 from crispr_gnn.graph.graph_schemas import GRAPH_A, GRAPH_C, GraphBuildConfig  # noqa: E402
+from crispr_gnn.graph.pyg_dataset import Sprint3HeteroDataLoader  # noqa: E402
 from crispr_gnn.utils.config import load_yaml  # noqa: E402
 
 
@@ -31,6 +33,11 @@ def parse_args() -> argparse.Namespace:
         "--artifact-dir",
         default="data/processed/graphs/sprint5b",
         help="Output graph artifact directory. Contains Graph A reference plus Graph C with S5F2 energy edge features.",
+    )
+    parser.add_argument(
+        "--source-artifact-dir",
+        default="data/processed/graphs/sprint3",
+        help="Canonical Sprint 3 graph artifact directory to copy. Graph C topology is not rebuilt.",
     )
     parser.add_argument(
         "--report-path",
@@ -56,22 +63,33 @@ def main() -> int:
     raw = pd.read_parquet(dataset_path)
     split = load_split_manifest(split_path)
     assigned = assign_measured_splits(raw, split)
-    artifacts = build_graph_artifacts(assigned, graph_config)
-    graph_c = artifacts[GRAPH_C]
+    source_artifact_dir = ROOT / args.source_artifact_dir
+    _validate_source_artifacts(source_artifact_dir)
 
     feature_tables, feature_sources, preprocessing = build_sprint5_feature_tables(
         assigned,
         max_length=graph_config.max_length,
         scale=False,
     )
-    graph_c.feature_tables["S5F2_energy"] = feature_tables["S5F2_energy"]
-    graph_c.feature_sources["S5F2_energy"] = feature_sources["S5F2_energy"]
-    graph_c.preprocessing["sprint5b_edge_feature_sensitivity"] = {
+    artifact_dir = ROOT / args.artifact_dir
+    written = _copy_canonical_graphs(source_artifact_dir, artifact_dir)
+    graph_c_dir = artifact_dir / GRAPH_C
+    s5f2_table = feature_tables["S5F2_energy"]
+    _validate_s5f2_matches_graph_c_candidates(graph_c_dir, s5f2_table)
+    s5f2_path = graph_c_dir / "features_S5F2_energy.parquet"
+    s5f2_table.to_parquet(s5f2_path, index=False)
+    written.append(s5f2_path)
+
+    manifest_path = graph_c_dir / "manifest.json"
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    manifest.setdefault("feature_tables", {})["S5F2_energy"] = int(s5f2_table.shape[1] - 1)
+    manifest.setdefault("feature_sources", {})["S5F2_energy"] = feature_sources["S5F2_energy"]
+    manifest.setdefault("preprocessing", {})["sprint5b_edge_feature_sensitivity"] = {
         "fit_scope": "train_only",
         "feature_set": "S5F2_energy",
         "preprocessing": preprocessing["S5F2_energy"],
     }
-    graph_c.metadata["sprint5b_energy_sensitivity"] = {
+    manifest.setdefault("metadata", {})["sprint5b_energy_sensitivity"] = {
         "role": "secondary_sensitivity_not_primary_feature_ablation",
         "topology": "Graph C context-similarity topology unchanged",
         "target_semantics": "target_observation_context_encoder unchanged",
@@ -81,16 +99,11 @@ def main() -> int:
             "encodes context through target_observation nodes and context_similar_to topology."
         ),
     }
+    manifest_path.write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    written.append(manifest_path)
 
-    artifact_dir = ROOT / args.artifact_dir
-    report_path, written = write_graph_artifacts(
-        {GRAPH_A: artifacts[GRAPH_A], GRAPH_C: graph_c},
-        artifact_dir=artifact_dir,
-        report_path=ROOT / args.report_path,
-        split_id=split.config.split_id,
-    )
-    manifest_path = artifact_dir / GRAPH_C / "manifest.json"
-    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    Sprint3HeteroDataLoader(artifact_dir).load(GRAPH_C)
+    report_path = ROOT / args.report_path
     _write_sprint5b_artifact_report(report_path, manifest=manifest)
 
     print(f"Sprint 5B Graph C artifact report written: {report_path.relative_to(ROOT)}")
@@ -98,6 +111,38 @@ def main() -> int:
     print(f"Graph C feature tables: {', '.join(manifest.get('feature_tables', {}))}")
     print(f"Total artifact files written: {len(written)}")
     return 0
+
+
+def _validate_source_artifacts(source_artifact_dir: Path) -> None:
+    if not source_artifact_dir.exists():
+        raise FileNotFoundError(f"Source graph artifacts not found: {source_artifact_dir}")
+    Sprint3HeteroDataLoader(source_artifact_dir).load(GRAPH_A)
+    Sprint3HeteroDataLoader(source_artifact_dir).load(GRAPH_C)
+
+
+def _copy_canonical_graphs(source_artifact_dir: Path, artifact_dir: Path) -> list[Path]:
+    written: list[Path] = []
+    for graph_name in (GRAPH_A, GRAPH_C):
+        source = source_artifact_dir / graph_name
+        destination = artifact_dir / graph_name
+        if not source.exists():
+            raise FileNotFoundError(f"Source graph artifact missing: {source}")
+        shutil.copytree(source, destination, dirs_exist_ok=True)
+        written.extend(path for path in destination.rglob("*") if path.is_file())
+    return written
+
+
+def _validate_s5f2_matches_graph_c_candidates(graph_c_dir: Path, table: pd.DataFrame) -> None:
+    relation = pd.read_parquet(graph_c_dir / "relation_candidate_pair.parquet")
+    expected = set(relation["edge_id"].astype(str))
+    actual = set(table["record_id"].astype(str))
+    if actual != expected:
+        missing = sorted(expected - actual)[:5]
+        extra = sorted(actual - expected)[:5]
+        raise ValueError(f"S5F2 feature keys do not match Graph C candidate edges; missing={missing}, extra={extra}")
+    feature_columns = [column for column in table.columns if column.startswith(FEATURE_PREFIX)]
+    if len(feature_columns) != table.shape[1] - 1:
+        raise ValueError("S5F2 feature table contains unexpected non-feature columns")
 
 
 def _resolve_dataset_path(dataset: dict[str, Any]) -> Path:

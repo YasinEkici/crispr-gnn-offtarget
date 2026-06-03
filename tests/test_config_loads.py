@@ -106,6 +106,7 @@ def test_sprint5b_colab_runner_contract() -> None:
     assert "Output already exists in Drive" in sources["step7-copy-outputs"]
     assert "from crispr_gnn.graph.graph_schemas import GRAPH_C" in sources["step5-build-artifacts"]
     assert "PYTHONPATH=src uv run python - <<'PY'" in sources["step5-build-artifacts"]
+    assert "--source-artifact-dir data/processed/graphs/sprint3" in sources["step5-build-artifacts"]
     assert "sprint5/epigenetic-ablation" in sources["step2-clone"]
 
 
