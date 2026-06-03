@@ -67,6 +67,7 @@ All thresholds are selected on validation data only.
 | `sprint4_graph_b_gcn` | 0.966570 | 0.743586 | 0.491761 | 0.126559 | 3 | 166 | 0 | 1533 |
 | `sprint4_graph_c_gcn` | 0.961586 | 0.759886 | 0.677604 | 0.453738 | 43 | 126 | 5 | 1528 |
 | `sprint5_graph_a / S5F2_energy` | 0.976585 | 0.817765 | 0.695284 | 0.477933 | 48 | 121 | 6 | 1527 |
+| `sprint5b_graph_c / GraphCContext+S5F2_energy` | 0.972481 | 0.836219 | 0.552442 | 0.274287 | 14 | 155 | 0 | 1533 |
 
 ## Headline Findings
 
@@ -86,6 +87,12 @@ All thresholds are selected on validation data only.
   `S5F2_energy` gives the best MCC and macro F1 among the compared GCN results
   and exceeds the XGBoost `F4` MCC under the validation-selected threshold
   policy.
+- Sprint 5B shows that adding the best Sprint 5 energy feature table to Graph C
+  improves Graph C AUPRC relative to Sprint 4 (`0.972481` vs. `0.961586`) but
+  does not outperform Graph A `S5F2_energy`. Its lower MCC and macro F1 come
+  from weak negative-class recognition at the validation-selected threshold
+  (TN/FP/FN/TP `14/155/0/1533`), which motivates Sprint 6 imbalance and
+  threshold/loss analysis.
 
 ## Artifact Index
 

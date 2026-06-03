@@ -639,3 +639,41 @@ Outcome:
 - Interpret Sprint 5B as secondary sensitivity only. It must not replace the
   primary Sprint 5 Graph A ablation and must not be used to tune thresholds,
   features, topology, or hyperparameters from test diagnostics.
+
+## 2026-06-03 - Sprint 5B Graph C energy sensitivity completed; move imbalance work to Sprint 6
+
+Decision: treat the Sprint 5B Graph C energy-sensitivity run as completed
+interpretation evidence, not as a trigger for more feature or hyperparameter
+tuning in Sprint 5.
+
+Reason: Sprint 5B tested the one predeclared question: whether the strongest
+Sprint 5 Graph A candidate-edge setting (`S5F2_energy`) is compatible with the
+established Graph C context-observation representation. The run improved Graph
+C's threshold-free AUPRC relative to Sprint 4 Graph C, but did not outperform
+Graph A `S5F2_energy` and showed poor negative-class recognition under the
+validation-selected threshold. This points to imbalance/threshold/loss behavior
+rather than missing feature families as the next controlled axis.
+
+Outcome:
+
+- Sprint 5B `GraphCContext+S5F2_energy` result:
+  test AUPRC `0.972481`, test AUROC `0.836219`, test F1 `0.951878`,
+  test macro F1 `0.552442`, test MCC `0.274287`, specificity `0.082840`,
+  TN/FP/FN/TP `14/155/0/1533`.
+- Relative to Sprint 4 Graph C, AUPRC improves from `0.961586` to `0.972481`.
+  This supports that binding-energy edge features are useful in Graph C too.
+- Relative to Sprint 5 Graph A `S5F2_energy`, AUPRC drops from `0.976585` to
+  `0.972481`, and MCC drops from `0.477933` to `0.274287`. Graph C context
+  representation does not add a clear advantage over the fixed-topology Graph A
+  energy setting under the current GCN architecture.
+- The lower MCC and macro F1 are explained by the validation-selected threshold
+  classifying almost all test rows as positive: zero false negatives but only
+  14 true negatives out of 169 negatives. AUPRC remains the primary metric, but
+  this confusion profile strengthens the case for Sprint 6 imbalance,
+  threshold, and loss analysis.
+- Literature interpretation remains mixed: Mak et al. 2022 supports binding
+  energy and computed nucleosome scores as meaningful model inputs, while raw
+  experimental epigenetic scalars are weak. The current project result is
+  consistent with strong binding-energy signal, but does not show that the
+  current GCN formulation can exploit additional context features better than
+  Graph A `S5F2_energy`.

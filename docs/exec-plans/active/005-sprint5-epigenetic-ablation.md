@@ -143,6 +143,17 @@ This is not a primary feature ablation. Graph C already carries context through
 only be interpreted as a narrow sensitivity comparing the Sprint 5 energy-heavy
 edge setting against the established Graph C context representation.
 
+Completed Sprint 5B result:
+
+- `GraphCContext+S5F2_energy`: test AUPRC `0.972481`, test AUROC `0.836219`,
+  test macro F1 `0.552442`, test MCC `0.274287`, specificity `0.082840`,
+  TN/FP/FN/TP `14/155/0/1533`.
+- This improves Sprint 4 Graph C AUPRC (`0.961586`) but does not outperform
+  Sprint 5 Graph A `S5F2_energy` (`0.976585`).
+- The low MCC and macro F1 reflect threshold-selected near-all-positive
+  classification, not a failure of the threshold-free ranking metric alone.
+  This is interpretation evidence for Sprint 6 imbalance/loss/threshold work.
+
 ## 6. Required Repository Changes
 
 Planning and documentation:
@@ -522,7 +533,9 @@ validation passes; no test-driven reruns occurred.
   secondary policy if still useful.
 
 Exit gate: Graph C report explicitly states it is not a clean primary feature
-ablation.
+ablation. Completed result `GraphCContext+S5F2_energy` reports AUPRC
+`0.972481`, MCC `0.274287`, macro F1 `0.552442`, and TN/FP/FN/TP
+`14/155/0/1533`.
 
 ### Slice 7: Final Sprint 5 Report Freeze
 
@@ -537,3 +550,15 @@ protocol and fixed Graph A topology, feature family X changed AUPRC by Y
 relative to feature set Z. This is not Mak et al. reproduction and did not use
 test-driven model selection.
 ```
+
+Sprint 5 final interpretation:
+
+- Binding-energy features are the strongest GCN feature-family signal in this
+  sprint. Graph A `S5F2_energy` is the best current GCN setting.
+- Raw experimental epigenetic scalars and computed context features do not
+  improve the current Graph A GCN when appended as candidate-edge feature
+  tables.
+- Sprint 5B shows that adding `S5F2_energy` to Graph C improves Graph C AUPRC,
+  but Graph C still does not beat Graph A `S5F2_energy` or XGBoost `F4`.
+- Threshold-dependent negative-class recognition remains weak in several GCN
+  settings, motivating Sprint 6 imbalance, threshold, and loss experiments.
