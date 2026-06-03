@@ -152,6 +152,26 @@ def test_graph_c_gcn_forward_uses_target_observation_context_encoder() -> None:
     assert not any("physical_target" in name for name, _ in model.named_parameters())
 
 
+def test_graph_c_accepts_sprint5b_energy_edge_features() -> None:
+    data = _tiny_graph_c_view()
+    attrs = graph_c_edge_feature_attrs(["s5f2_energy"])
+    sgrna_dim, target_dim, edge_dim = graph_c_feature_dimensions(data, attrs)
+    model = GraphCEdgeGCN(
+        sgrna_input_dim=sgrna_dim,
+        target_observation_input_dim=target_dim,
+        edge_input_dim=edge_dim,
+        hidden_dim=8,
+        num_layers=1,
+        dropout=0.0,
+    )
+
+    logits = model(data, edge_feature_attrs=attrs)
+
+    assert attrs == ["edge_attr_s5f2_energy"]
+    assert edge_dim == 4
+    assert logits.shape == (3,)
+
+
 def test_graph_c_gcn_rejects_missing_target_observation_features() -> None:
     data = _tiny_graph_c_view()
     del data["target_observation"].x
@@ -237,6 +257,7 @@ def _tiny_graph_c_view() -> HeteroData:
     edge_store.edge_label = torch.tensor([1.0, 0.0, 1.0], dtype=torch.float32)
     edge_store.supervision_mask = torch.tensor([True, True, True])
     edge_store.edge_attr_candidate_pair_features = torch.ones((3, 3), dtype=torch.float32)
+    edge_store.edge_attr_s5f2_energy = torch.zeros((3, 4), dtype=torch.float32)
     context_store = data[GRAPH_C_CONTEXT_EDGE_TYPE]
     context_store.edge_index = torch.tensor([[0, 1], [1, 2]], dtype=torch.long)
     context_store.edge_attr = torch.ones((2, 1), dtype=torch.float32)

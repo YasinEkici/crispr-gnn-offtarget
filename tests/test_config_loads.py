@@ -55,6 +55,21 @@ def test_sprint5_feature_ablation_config_loads() -> None:
     validate_gcn_headline_config(config)
 
 
+def test_sprint5b_graph_c_energy_sensitivity_config_loads() -> None:
+    config = load_yaml(ROOT / "configs" / "sweeps" / "sprint5b_graph_c_energy_sensitivity.yaml")
+    assert config["experiment_name"] == "sprint5b_graph_c_energy_sensitivity"
+    assert config["task"] == "sprint5b_graph_c_energy_sensitivity"
+    assert config["sprint"] == "sprint5b"
+    assert config["graph"]["schema"] == "graph_c_context_observation"
+    assert config["graph"]["context_placement"] == "target_observation_node"
+    assert config["graph"]["target_semantics"] == "observation_level_context"
+    assert config["data"]["graph_artifact_dir"] == "data/processed/graphs/sprint5b"
+    assert config["features"]["edge_feature_sets"] == ["s5f2_energy"]
+    assert config["features"]["feature_set"] == "GraphCContext+S5F2_energy"
+    assert str(config["evaluation"]["graph_c_interpretation"]).startswith("secondary_sensitivity")
+    validate_gcn_headline_config(config)
+
+
 def test_sprint5_colab_inline_imports_include_src_pythonpath() -> None:
     notebook_path = ROOT / "colab" / "sprint5_graph_a_feature_ablation_runner.ipynb"
     notebook = json.loads(notebook_path.read_text(encoding="utf-8"))
@@ -76,6 +91,22 @@ def test_sprint5_colab_runner_does_not_delete_drive_outputs() -> None:
 
     assert "rm -rf" not in "\n".join(sources.values())
     assert "Output already exists in Drive" in sources["step7-copy-outputs"]
+
+
+def test_sprint5b_colab_runner_contract() -> None:
+    notebook_path = ROOT / "colab" / "sprint5b_graph_c_energy_sensitivity_runner.ipynb"
+    notebook = json.loads(notebook_path.read_text(encoding="utf-8"))
+    sources = {
+        cell.get("id"): "".join(cell.get("source", []))
+        for cell in notebook["cells"]
+        if cell.get("cell_type") == "code"
+    }
+
+    assert "rm -rf" not in "\n".join(sources.values())
+    assert "Output already exists in Drive" in sources["step7-copy-outputs"]
+    assert "from crispr_gnn.graph.graph_schemas import GRAPH_C" in sources["step5-build-artifacts"]
+    assert "PYTHONPATH=src uv run python - <<'PY'" in sources["step5-build-artifacts"]
+    assert "sprint5/epigenetic-ablation" in sources["step2-clone"]
 
 
 def test_gcn_headline_config_rejects_debug_or_random_edge_rules() -> None:

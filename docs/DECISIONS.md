@@ -608,3 +608,34 @@ Outcome:
 - Reporting must include AUPRC as the primary metric plus AUROC, binary F1,
   macro F1, MCC, specificity, and TN/FP/FN/TP. Confusion matrices use each
   feature set's validation-selected threshold.
+
+## 2026-06-03 - Add one Sprint 5B Graph C energy-focused secondary sensitivity
+
+Decision: before moving to Sprint 6 imbalance experiments, add one predeclared
+Sprint 5B run: fixed Graph C context-similarity topology and fixed
+target-observation context semantics, with candidate-edge features set to
+Sprint 5 `S5F2_energy`.
+
+Reason: Sprint 5 Graph A results showed `S5F2_energy` as the strongest
+candidate-edge feature setting, while raw experimental epigenetic and computed
+context edge-feature additions did not improve the Graph A result. Sprint 4
+Graph C still remains important because it represents context relationally
+through target-observation nodes and context-similarity edges. A single
+energy-focused Graph C run checks whether the best Sprint 5 edge setting is
+compatible with Graph C's context representation before opening Sprint 6. This
+is not hyperparameter tuning and not a Graph B/C feature-ablation ladder.
+
+Outcome:
+
+- Add `scripts/build_sprint5b_graph_c_energy_features.py` to materialize
+  Graph C with the additional `S5F2_energy` candidate-edge feature table while
+  preserving the established Graph C topology and target-observation features.
+- Add `configs/sweeps/sprint5b_graph_c_energy_sensitivity.yaml` with
+  `edge_feature_sets: [s5f2_energy]`, `weighted_bce`, `sprint2_main_seed42`,
+  and the same headline guide-level evaluation contract.
+- Add `colab/sprint5b_graph_c_energy_sensitivity_runner.ipynb` as a runner-only
+  notebook. Full training must be executed in Colab; local tests validate the
+  config, notebook contract, and model feature-tensor wiring.
+- Interpret Sprint 5B as secondary sensitivity only. It must not replace the
+  primary Sprint 5 Graph A ablation and must not be used to tune thresholds,
+  features, topology, or hyperparameters from test diagnostics.

@@ -132,6 +132,17 @@ Optional later sensitivity:
 This optional set must not be added after looking at test results. If used, it
 must be declared before the run batch begins.
 
+Sprint 5B secondary sensitivity:
+
+- `GraphCContext+S5F2_energy`: fixed Graph C context-similarity topology and
+  target-observation context node semantics, with the candidate-edge feature
+  table changed to Sprint 5 `S5F2_energy`.
+
+This is not a primary feature ablation. Graph C already carries context through
+`target_observation_features` and `context_similar_to` edges, so Sprint 5B can
+only be interpreted as a narrow sensitivity comparing the Sprint 5 energy-heavy
+edge setting against the established Graph C context representation.
+
 ## 6. Required Repository Changes
 
 Planning and documentation:
@@ -184,6 +195,12 @@ Implemented mapping:
   `src/crispr_gnn/evaluation/metrics.py`,
   `src/crispr_gnn/evaluation/diagnostics.py`, and
   `src/crispr_gnn/evaluation/plots.py`
+- Sprint 5B Graph C energy-sensitivity artefact builder:
+  `scripts/build_sprint5b_graph_c_energy_features.py`
+- Sprint 5B Graph C energy-sensitivity config:
+  `configs/sweeps/sprint5b_graph_c_energy_sensitivity.yaml`
+- Sprint 5B Colab runner:
+  `colab/sprint5b_graph_c_energy_sensitivity_runner.ipynb`
 
 ## 7. Output Contract
 
@@ -240,6 +257,24 @@ the sprint:
 ```text
 sprint5_graph_a_sequence_position_sensitivity.png
 sprint5_graph_a_computed_position_sensitivity.png
+```
+
+Sprint 5B secondary outputs:
+
+```text
+outputs/sprint5b/graph_c/
+  gcn_graph_c_results.csv
+  gcn_graph_c_report.md
+  diagnostics/
+  figures/
+  <run_id>/
+```
+
+Sprint 5B returned outputs should use a Drive folder named after the run ID,
+for example:
+
+```text
+returned_outputs/sprint5b_graph_c_energy_sensitivity_seed42_<timestamp>/
 ```
 
 Run-specific artifacts:

@@ -413,3 +413,23 @@ binary F1, macro F1, MCC, specificity, and TN/FP/FN/TP. Confusion matrix
 figures must use each feature set's validation-selected threshold. Required
 figures include PR, ROC, training curves, confusion matrices, per-genome
 metrics, graph-view sanity, and decile lift (`gcn_sprint5_graph_a_decile_lift.png`).
+
+## Sprint 5B Graph C Energy Sensitivity
+
+Use `colab/sprint5b_graph_c_energy_sensitivity_runner.ipynb` for the Sprint
+5B GPU run. The notebook is runner-only and executes one secondary
+sensitivity: fixed Graph C context topology and target-observation semantics,
+with candidate-edge features set to Sprint 5 `S5F2_energy`.
+
+The notebook must:
+
+- clone the approved `sprint5/epigenetic-ablation` branch;
+- copy Drive inputs from `crispr_gnn_offtarget` to local Colab disk;
+- run `scripts/build_sprint5b_graph_c_energy_features.py`;
+- run `scripts/train.py --config configs/sweeps/sprint5b_graph_c_energy_sensitivity.yaml`;
+- copy outputs to `returned_outputs/<run_id>/`;
+- refuse to overwrite an existing Drive output folder.
+
+Sprint 5B is not a primary Graph C feature ablation and not a hyperparameter
+tuning branch. It is reported separately from the Sprint 5 Graph A primary
+ablation.
