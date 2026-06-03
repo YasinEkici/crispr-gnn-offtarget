@@ -116,8 +116,10 @@ def write_gcn_report(
     *,
     run_label: str = "pending_full_run",
     root: Path | None = None,
+    title: str = "Sprint 4 GCN Report",
+    evidence_label: str = "Sprint 4",
 ) -> Path:
-    """Write the Sprint 4 GCN Markdown report shell from structured artifacts.
+    """Write a GCN Markdown report shell from structured artifacts.
 
     When root is provided, artifact paths in the report are made relative to root
     so the report does not contain machine-specific absolute paths.
@@ -138,7 +140,7 @@ def write_gcn_report(
     diagnostics = [Path(item) for item in diagnostic_tables]
     figures = [Path(item) for item in figure_paths]
     lines = [
-        "# Sprint 4 GCN Report",
+        f"# {title}",
         "",
         f"Run label: `{run_label}`",
         "",
@@ -171,7 +173,7 @@ def write_gcn_report(
         "## Interpretation Boundaries",
         "",
         "- Graph-view visualizations are bounded sanity checks, not performance claims.",
-        "- Smoke or mocked outputs are not final Sprint 4 performance evidence.",
+        f"- Smoke or mocked outputs are not final {evidence_label} performance evidence.",
         "- Graph C must not be described as topology-only; it changes both topology and target semantics/context representation.",
     ]
     path.write_text("\n".join(lines) + "\n", encoding="utf-8")

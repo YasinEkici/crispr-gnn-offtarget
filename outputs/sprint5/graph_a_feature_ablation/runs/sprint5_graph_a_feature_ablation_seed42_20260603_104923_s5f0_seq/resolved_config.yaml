@@ -1,0 +1,82 @@
+baseline_reference:
+  feature_set: F4
+  model_name: xgboost_unweighted
+  test_auprc: 0.992522
+  test_auroc: 0.938416
+  test_mcc: 0.345198
+data:
+  config: configs/data/mak2022.yaml
+  dataset: mak2022
+  graph_artifact_dir: data/processed/graphs/sprint5
+  label_scheme: scheme_a
+  split_id: sprint2_main_seed42
+  split_manifest: outputs/splits/sprint2_guides.json
+evaluation:
+  graph_c_policy: secondary_interpretation_only_not_primary_ablation
+  no_test_tuning: true
+  primary_graph: graph_a_minimal_physical_target
+  protocol: headline_guide_level
+experiment_name: sprint5_graph_a_feature_ablation
+feature_sets:
+- S5F0_seq
+- S5F1_mismatch
+- S5F2_energy
+- S5F3_experimental_epi
+- S5F4_computed_agg
+- S5F5_computed_pos
+features:
+  edge_feature_sets:
+  - s5f0_seq
+  feature_set: S5F0_seq
+graph:
+  materialization: heterodata
+  schema: graph_a_minimal_physical_target
+  topology_policy: fixed_graph_a
+  visibility_policy: strict_inductive_primary
+metrics:
+  primary: auprc
+  secondary:
+  - auroc
+  - f1
+  - macro_f1
+  - mcc
+  - specificity
+  - sensitivity
+  - tn
+  - fp
+  - fn
+  - tp
+model:
+  dropout: 0.2
+  hidden_dim: 128
+  name: gcn_graph_a_sprint5
+  num_layers: 2
+  target_node_representation: zero_type_feature
+outputs:
+  output_dir: outputs/sprint5/graph_a_feature_ablation
+run_id: null
+seed: 42
+split_rules:
+  exclude_experiment_id: 18
+  guide_disjoint: true
+  test_measured_only: true
+  train_measured_only: true
+  validation_measured_only: true
+sprint: sprint5
+task: sprint5_graph_a_feature_ablation
+training:
+  clip_grad_norm: 1.0
+  device: cuda
+  learning_rate: 0.001
+  loss: weighted_bce
+  max_epochs: 300
+  min_epochs: 5
+  num_threads: 1
+  patience: 15
+  scheduler: reduce_on_plateau
+  scheduler_factor: 0.5
+  scheduler_min_lr: 1.0e-05
+  scheduler_patience: 5
+  use_amp: true
+  use_compile: true
+  weight_decay: 0.0001

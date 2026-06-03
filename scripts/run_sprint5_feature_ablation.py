@@ -122,7 +122,16 @@ def main() -> int:
         graph_view=materialized.view("test"),
     )
     report_path = output_dir / "sprint5_graph_a_feature_ablation_report.md"
-    report = write_gcn_report(result_table, diagnostic_tables, figure_paths, report_path, run_label=run_batch_id, root=ROOT)
+    report = write_gcn_report(
+        result_table,
+        diagnostic_tables,
+        figure_paths,
+        report_path,
+        run_label=run_batch_id,
+        root=ROOT,
+        title="Sprint 5 Graph A Feature Ablation Report",
+        evidence_label="Sprint 5",
+    )
     _write_provenance(output_dir / "graph_artifact_provenance.json", materialized.manifest, feature_sets)
 
     print(f"Run batch: {run_batch_id}")
