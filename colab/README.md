@@ -392,7 +392,7 @@ uv run python scripts/build_sprint5_graph_a_features.py \
 
 uv run python scripts/run_sprint5_feature_ablation.py \
   --config configs/sweeps/sprint5_graph_a_feature_ablation.yaml \
-  --run-id sprint5_graph_a_feature_ablation_seed42_<yyyymmdd>
+  --run-id sprint5_graph_a_feature_ablation_seed42_<yyyymmdd_hhmmss>
 ```
 
 Sprint 5 primary evaluation is a fixed-topology Graph A feature ablation.
@@ -403,7 +403,7 @@ Returned Drive outputs should be copied under:
 
 ```text
 /content/drive/MyDrive/crispr_gnn_offtarget/returned_outputs/
-  sprint5_graph_a_feature_ablation_seed42_<yyyymmdd>/
+  sprint5_graph_a_feature_ablation_seed42_<yyyymmdd_hhmmss>/
 ```
 
 The returned folder must contain the consolidated results CSV, report,

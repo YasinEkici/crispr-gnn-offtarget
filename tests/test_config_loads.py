@@ -1,3 +1,4 @@
+import json
 from pathlib import Path
 
 import pytest
@@ -52,6 +53,16 @@ def test_sprint5_feature_ablation_config_loads() -> None:
     assert config["feature_sets"][0] == "S5F0_seq"
     assert "macro_f1" in config["metrics"]["secondary"]
     validate_gcn_headline_config(config)
+
+
+def test_sprint5_colab_inline_imports_include_src_pythonpath() -> None:
+    notebook_path = ROOT / "colab" / "sprint5_graph_a_feature_ablation_runner.ipynb"
+    notebook = json.loads(notebook_path.read_text(encoding="utf-8"))
+    step5 = next(cell for cell in notebook["cells"] if cell.get("id") == "step5-build-artifacts")
+    source = "".join(step5["source"])
+
+    assert "from crispr_gnn.graph.graph_schemas import GRAPH_A" in source
+    assert "PYTHONPATH=src uv run python - <<'PY'" in source
 
 
 def test_gcn_headline_config_rejects_debug_or_random_edge_rules() -> None:
