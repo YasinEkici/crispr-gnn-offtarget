@@ -158,14 +158,14 @@ def write_gcn_plots(
     prefix = f"gcn_{schema_label}" if schema_label else "gcn"
     result_rows = _require_gcn_result_columns(results)
     prediction_rows = _require_gcn_prediction_columns(predictions)
-    threshold = _validation_selected_threshold(result_rows)
+    thresholds = _validation_selected_thresholds(result_rows)
     paths = [
         _write_gcn_schema_auprc_comparison(result_rows, output_path / f"{prefix}_graph_schema_auprc_comparison.png"),
         _write_gcn_pr_curves(prediction_rows, output_path / f"{prefix}_pr_curves.png"),
         _write_gcn_roc_curves(prediction_rows, output_path / f"{prefix}_roc_curves.png"),
         _write_gcn_training_curves(training_history, output_path / f"{prefix}_training_curves.png"),
         _write_gcn_score_distributions(prediction_rows, output_path / f"{prefix}_score_distributions.png"),
-        _write_gcn_confusion_matrices(prediction_rows, output_path / f"{prefix}_confusion_matrices.png", threshold=threshold),
+        _write_gcn_confusion_matrices(prediction_rows, output_path / f"{prefix}_confusion_matrices.png", thresholds=thresholds),
         _write_gcn_decile_lift(prediction_rows, output_path / f"{prefix}_decile_lift.png"),
         _write_gcn_per_genome_metrics(prediction_rows, output_path / f"{prefix}_per_genome_metrics.png"),
         _write_graph_view_sanity_example(graph_view, output_path / f"{prefix}_view_sanity_example.png"),
@@ -302,13 +302,23 @@ def _write_gcn_score_distributions(predictions: pd.DataFrame, path: Path) -> Pat
     return path
 
 
-def _write_gcn_confusion_matrices(predictions: pd.DataFrame, path: Path, *, threshold: float) -> Path:
+def _write_gcn_confusion_matrices(predictions: pd.DataFrame, path: Path, *, thresholds: dict[tuple[str, str], float]) -> Path:
     test = predictions.loc[predictions["split"] == "test"].copy()
     groups = list(_gcn_prediction_groups(test))
     if not groups:
         raise ValueError("No GCN test predictions are available for confusion matrices")
-    fig, axes = plt.subplots(1, len(groups), figsize=(5 * len(groups), 4), squeeze=False)
-    for ax, (label, part) in zip(axes.ravel(), groups, strict=True):
+    columns = min(3, len(groups))
+    rows = int(np.ceil(len(groups) / columns))
+    fig, axes = plt.subplots(rows, columns, figsize=(5 * columns, 4 * rows), squeeze=False)
+    for ax in axes.ravel()[len(groups):]:
+        ax.axis("off")
+    for ax, (label, part) in zip(axes.ravel(), groups):
+        graph_schema = str(part["graph_schema"].iloc[0])
+        feature_set = str(part["feature_set"].iloc[0])
+        threshold_key = (graph_schema, feature_set)
+        if threshold_key not in thresholds:
+            raise ValueError(f"No validation-selected threshold for GCN confusion matrix group: {threshold_key}")
+        threshold = thresholds[threshold_key]
         y_true = part["label"].to_numpy(dtype=int)
         y_pred = (part["score"].to_numpy(dtype=float) >= threshold).astype(int)
         matrix = confusion_matrix(y_true, y_pred, labels=[0, 1])
@@ -552,11 +562,14 @@ def _require_gcn_prediction_columns(predictions: pd.DataFrame) -> pd.DataFrame:
     return predictions.copy()
 
 
-def _validation_selected_threshold(results: pd.DataFrame) -> float:
-    thresholds = results["threshold"].dropna().astype(float).unique()
-    if len(thresholds) != 1:
-        raise ValueError("GCN plotting requires exactly one validation-selected threshold for this Slice 3 path")
-    return float(thresholds[0])
+def _validation_selected_thresholds(results: pd.DataFrame) -> dict[tuple[str, str], float]:
+    thresholds: dict[tuple[str, str], float] = {}
+    for keys, part in results.groupby(["graph_schema", "feature_set"], sort=True):
+        values = part["threshold"].dropna().astype(float).unique()
+        if len(values) != 1:
+            raise ValueError(f"GCN plotting requires one validation-selected threshold for {keys}")
+        thresholds[(str(keys[0]), str(keys[1]))] = float(values[0])
+    return thresholds
 
 
 def _gcn_prediction_groups(df: pd.DataFrame):

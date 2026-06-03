@@ -1,0 +1,80 @@
+baseline_reference:
+  feature_set: F4
+  model_name: xgboost_unweighted
+  test_auprc: 0.992522
+  test_auroc: 0.938416
+  test_mcc: 0.345198
+data:
+  config: configs/data/mak2022.yaml
+  dataset: mak2022
+  graph_artifact_dir: data/processed/graphs/sprint5b
+  label_scheme: scheme_a
+  split_id: sprint2_main_seed42
+  split_manifest: outputs/splits/sprint2_guides.json
+evaluation:
+  graph_c_interpretation: secondary_sensitivity_topology_and_target_semantics_not_primary_feature_ablation
+  no_test_tuning: true
+  protocol: headline_guide_level
+experiment_name: sprint5b_graph_c_energy_sensitivity
+features:
+  edge_feature_sets:
+  - s5f2_energy
+  feature_set: GraphCContext+S5F2_energy
+  target_observation_features: target_observation_features
+graph:
+  context_placement: target_observation_node
+  materialization: heterodata
+  schema: graph_c_context_observation
+  sprint5b_policy: secondary_sensitivity_not_primary_feature_ablation
+  target_semantics: observation_level_context
+  visibility_policy: strict_inductive_primary
+metrics:
+  primary: auprc
+  secondary:
+  - auroc
+  - f1
+  - macro_f1
+  - mcc
+  - specificity
+  - sensitivity
+  - tn
+  - fp
+  - fn
+  - tp
+model:
+  dropout: 0.2
+  hidden_dim: 128
+  name: gcn_graph_c_sprint5b_energy
+  num_layers: 2
+  target_node_representation: target_observation_context_encoder
+outputs:
+  output_dir: outputs/sprint5b/graph_c
+reporting:
+  evidence_label: Sprint 5B
+  title: Sprint 5B Graph C Energy Sensitivity Report
+run_id: null
+seed: 42
+split_rules:
+  exclude_experiment_id: 18
+  guide_disjoint: true
+  test_measured_only: true
+  train_measured_only: true
+  validation_measured_only: true
+sprint: sprint5b
+task: sprint5b_graph_c_energy_sensitivity
+training:
+  clip_grad_norm: 1.0
+  device: cuda
+  learning_rate: 0.001
+  loss: weighted_bce
+  max_epochs: 300
+  min_epochs: 5
+  num_threads: 1
+  patience: 15
+  scheduler: reduce_on_plateau
+  scheduler_factor: 0.5
+  scheduler_min_lr: 1.0e-05
+  scheduler_patience: 5
+  use_amp: true
+  use_compile: true
+  weight_decay: 0.0001

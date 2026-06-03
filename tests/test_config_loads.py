@@ -1,3 +1,4 @@
+import json
 from pathlib import Path
 
 import pytest
@@ -40,6 +41,73 @@ def test_gcn_graph_c_config_loads() -> None:
     assert config["features"]["edge_feature_sets"] == ["candidate_pair_features"]
     assert config["evaluation"]["graph_c_interpretation"] == "topology_and_target_semantics_not_topology_only"
     validate_gcn_headline_config(config)
+
+
+def test_sprint5_feature_ablation_config_loads() -> None:
+    config = load_yaml(ROOT / "configs" / "sweeps" / "sprint5_graph_a_feature_ablation.yaml")
+    assert config["experiment_name"] == "sprint5_graph_a_feature_ablation"
+    assert config["task"] == "sprint5_graph_a_feature_ablation"
+    assert config["sprint"] == "sprint5"
+    assert config["graph"]["schema"] == "graph_a_minimal_physical_target"
+    assert config["data"]["graph_artifact_dir"] == "data/processed/graphs/sprint5"
+    assert config["feature_sets"][0] == "S5F0_seq"
+    assert "macro_f1" in config["metrics"]["secondary"]
+    validate_gcn_headline_config(config)
+
+
+def test_sprint5b_graph_c_energy_sensitivity_config_loads() -> None:
+    config = load_yaml(ROOT / "configs" / "sweeps" / "sprint5b_graph_c_energy_sensitivity.yaml")
+    assert config["experiment_name"] == "sprint5b_graph_c_energy_sensitivity"
+    assert config["task"] == "sprint5b_graph_c_energy_sensitivity"
+    assert config["sprint"] == "sprint5b"
+    assert config["graph"]["schema"] == "graph_c_context_observation"
+    assert config["graph"]["context_placement"] == "target_observation_node"
+    assert config["graph"]["target_semantics"] == "observation_level_context"
+    assert config["data"]["graph_artifact_dir"] == "data/processed/graphs/sprint5b"
+    assert config["features"]["edge_feature_sets"] == ["s5f2_energy"]
+    assert config["features"]["feature_set"] == "GraphCContext+S5F2_energy"
+    assert str(config["evaluation"]["graph_c_interpretation"]).startswith("secondary_sensitivity")
+    validate_gcn_headline_config(config)
+
+
+def test_sprint5_colab_inline_imports_include_src_pythonpath() -> None:
+    notebook_path = ROOT / "colab" / "sprint5_graph_a_feature_ablation_runner.ipynb"
+    notebook = json.loads(notebook_path.read_text(encoding="utf-8"))
+    step5 = next(cell for cell in notebook["cells"] if cell.get("id") == "step5-build-artifacts")
+    source = "".join(step5["source"])
+
+    assert "from crispr_gnn.graph.graph_schemas import GRAPH_A" in source
+    assert "PYTHONPATH=src uv run python - <<'PY'" in source
+
+
+def test_sprint5_colab_runner_does_not_delete_drive_outputs() -> None:
+    notebook_path = ROOT / "colab" / "sprint5_graph_a_feature_ablation_runner.ipynb"
+    notebook = json.loads(notebook_path.read_text(encoding="utf-8"))
+    sources = {
+        cell.get("id"): "".join(cell.get("source", []))
+        for cell in notebook["cells"]
+        if cell.get("cell_type") == "code"
+    }
+
+    assert "rm -rf" not in "\n".join(sources.values())
+    assert "Output already exists in Drive" in sources["step7-copy-outputs"]
+
+
+def test_sprint5b_colab_runner_contract() -> None:
+    notebook_path = ROOT / "colab" / "sprint5b_graph_c_energy_sensitivity_runner.ipynb"
+    notebook = json.loads(notebook_path.read_text(encoding="utf-8"))
+    sources = {
+        cell.get("id"): "".join(cell.get("source", []))
+        for cell in notebook["cells"]
+        if cell.get("cell_type") == "code"
+    }
+
+    assert "rm -rf" not in "\n".join(sources.values())
+    assert "Output already exists in Drive" in sources["step7-copy-outputs"]
+    assert "from crispr_gnn.graph.graph_schemas import GRAPH_C" in sources["step5-build-artifacts"]
+    assert "PYTHONPATH=src uv run python - <<'PY'" in sources["step5-build-artifacts"]
+    assert "--source-artifact-dir data/processed/graphs/sprint3" in sources["step5-build-artifacts"]
+    assert "sprint5/epigenetic-ablation" in sources["step2-clone"]
 
 
 def test_gcn_headline_config_rejects_debug_or_random_edge_rules() -> None:

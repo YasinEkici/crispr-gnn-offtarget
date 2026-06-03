@@ -64,6 +64,8 @@ def main() -> int:
         return run_sprint4_gcn_graph_c(config)
     if task == "sprint4_gcn_graph_b":
         return run_sprint4_gcn_graph_b(config)
+    if task == "sprint5b_graph_c_energy_sensitivity":
+        return run_sprint4_gcn(config)
 
     print("Training placeholder: this config does not yet map to an implemented task.")
     return 0 if args.debug else 1
@@ -539,7 +541,19 @@ def run_sprint4_gcn(config: dict[str, object]) -> int:
 
     diagnostic_tables = write_gcn_diagnostics(results, predictions, schema_diagnostics_dir, schema_label=schema_label)
     figure_paths = write_gcn_plots(results, predictions, training_history, schema_figures_dir, schema_label=schema_label, graph_view=materialized.view("test"))
-    report = write_gcn_report(results, diagnostic_tables, figure_paths, report_path, run_label=run_id, root=ROOT)
+    reporting_config = config.get("reporting", {})
+    if not isinstance(reporting_config, dict):
+        reporting_config = {}
+    report = write_gcn_report(
+        results,
+        diagnostic_tables,
+        figure_paths,
+        report_path,
+        run_label=run_id,
+        root=ROOT,
+        title=str(reporting_config.get("title", "Sprint 4 GCN Report")),
+        evidence_label=str(reporting_config.get("evidence_label", "Sprint 4")),
+    )
 
     print(f"Run ID: {run_id}")
     print(f"Run directory: {run_dir.relative_to(ROOT)}")

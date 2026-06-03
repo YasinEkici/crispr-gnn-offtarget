@@ -95,10 +95,10 @@ def write_gcn_diagnostics(
     prefix = f"gcn_{schema_label}" if schema_label else "gcn"
     result_rows = _require_gcn_results(results)
     prediction_rows = _require_gcn_predictions(predictions)
-    threshold = _gcn_validation_threshold(result_rows)
+    thresholds = _gcn_validation_thresholds(result_rows)
     tables = [
         _write_gcn_score_direction_table(prediction_rows, output_path / f"{prefix}_score_direction.csv"),
-        _write_gcn_fixed_threshold_table(prediction_rows, output_path / f"{prefix}_fixed_threshold_metrics.csv", threshold=threshold),
+        _write_gcn_fixed_threshold_table(prediction_rows, output_path / f"{prefix}_fixed_threshold_metrics.csv", thresholds=thresholds),
         _write_gcn_decile_table(prediction_rows, output_path / f"{prefix}_score_deciles.csv"),
     ]
     if "genome" in prediction_rows.columns:
@@ -116,8 +116,10 @@ def write_gcn_report(
     *,
     run_label: str = "pending_full_run",
     root: Path | None = None,
+    title: str = "Sprint 4 GCN Report",
+    evidence_label: str = "Sprint 4",
 ) -> Path:
-    """Write the Sprint 4 GCN Markdown report shell from structured artifacts.
+    """Write a GCN Markdown report shell from structured artifacts.
 
     When root is provided, artifact paths in the report are made relative to root
     so the report does not contain machine-specific absolute paths.
@@ -138,7 +140,7 @@ def write_gcn_report(
     diagnostics = [Path(item) for item in diagnostic_tables]
     figures = [Path(item) for item in figure_paths]
     lines = [
-        "# Sprint 4 GCN Report",
+        f"# {title}",
         "",
         f"Run label: `{run_label}`",
         "",
@@ -171,7 +173,7 @@ def write_gcn_report(
         "## Interpretation Boundaries",
         "",
         "- Graph-view visualizations are bounded sanity checks, not performance claims.",
-        "- Smoke or mocked outputs are not final Sprint 4 performance evidence.",
+        f"- Smoke or mocked outputs are not final {evidence_label} performance evidence.",
         "- Graph C must not be described as topology-only; it changes both topology and target semantics/context representation.",
     ]
     path.write_text("\n".join(lines) + "\n", encoding="utf-8")
@@ -187,7 +189,9 @@ def _gcn_report_summary_columns(result_rows: pd.DataFrame) -> list[str]:
         "test_auprc",
         "test_auroc",
         "test_f1",
+        "test_macro_f1",
         "test_mcc",
+        "test_specificity",
     ]
     if "target_semantics" in result_rows.columns:
         columns.insert(4, "target_semantics")
@@ -256,7 +260,10 @@ def _write_fixed_threshold_table(df: pd.DataFrame, path: Path) -> Path:
                 "rows": int(part.shape[0]),
                 "positive_rate": float(y_true.mean()),
                 "f1": float(f1_score(y_true, y_pred, zero_division=0)),
+                "macro_f1": float(f1_score(y_true, y_pred, average="macro", zero_division=0)),
                 "mcc": float(matthews_corrcoef(y_true, y_pred)),
+                "specificity": _safe_ratio(tn, tn + fp),
+                "sensitivity": _safe_ratio(tp, tp + fn),
                 "tn": int(tn),
                 "fp": int(fp),
                 "fn": int(fn),
@@ -425,6 +432,10 @@ def _median_or_nan(values: np.ndarray) -> float:
     return float(np.median(values)) if values.shape[0] else float("nan")
 
 
+def _safe_ratio(numerator: int | float, denominator: int | float) -> float:
+    return float(numerator / denominator) if denominator else float("nan")
+
+
 def _require_gcn_results(results: pd.DataFrame) -> pd.DataFrame:
     _require_table_columns(
         results,
@@ -461,11 +472,14 @@ def _require_gcn_predictions(predictions: pd.DataFrame) -> pd.DataFrame:
     return predictions.copy()
 
 
-def _gcn_validation_threshold(results: pd.DataFrame) -> float:
-    thresholds = results["threshold"].dropna().astype(float).unique()
-    if len(thresholds) != 1:
-        raise ValueError("GCN diagnostics require exactly one validation-selected threshold for this path")
-    return float(thresholds[0])
+def _gcn_validation_thresholds(results: pd.DataFrame) -> dict[tuple[str, str, str], float]:
+    thresholds: dict[tuple[str, str, str], float] = {}
+    for keys, part in results.groupby(["model_name", "graph_schema", "feature_set"], sort=True):
+        values = part["threshold"].dropna().astype(float).unique()
+        if len(values) != 1:
+            raise ValueError(f"GCN diagnostics require one validation-selected threshold for {keys}")
+        thresholds[(str(keys[0]), str(keys[1]), str(keys[2]))] = float(values[0])
+    return thresholds
 
 
 def _write_gcn_score_direction_table(df: pd.DataFrame, path: Path) -> Path:
@@ -493,9 +507,13 @@ def _write_gcn_score_direction_table(df: pd.DataFrame, path: Path) -> Path:
     return path
 
 
-def _write_gcn_fixed_threshold_table(df: pd.DataFrame, path: Path, *, threshold: float) -> Path:
+def _write_gcn_fixed_threshold_table(df: pd.DataFrame, path: Path, *, thresholds: dict[tuple[str, str, str], float]) -> Path:
     rows = []
     for keys, part in df.groupby(["model_name", "graph_schema", "feature_set", "split"], sort=True):
+        threshold_key = (str(keys[0]), str(keys[1]), str(keys[2]))
+        if threshold_key not in thresholds:
+            raise ValueError(f"No validation-selected threshold for GCN diagnostics group: {threshold_key}")
+        threshold = thresholds[threshold_key]
         y_true = part["label"].to_numpy(dtype=int)
         y_pred = (part["score"].to_numpy(dtype=float) >= threshold).astype(int)
         tn, fp, fn, tp = confusion_matrix(y_true, y_pred, labels=[0, 1]).ravel()
@@ -510,7 +528,10 @@ def _write_gcn_fixed_threshold_table(df: pd.DataFrame, path: Path, *, threshold:
                 "rows": int(part.shape[0]),
                 "positive_rate": float(y_true.mean()),
                 "f1": float(f1_score(y_true, y_pred, zero_division=0)),
+                "macro_f1": float(f1_score(y_true, y_pred, average="macro", zero_division=0)),
                 "mcc": float(matthews_corrcoef(y_true, y_pred)),
+                "specificity": _safe_ratio(tn, tn + fp),
+                "sensitivity": _safe_ratio(tp, tp + fn),
                 "tn": int(tn),
                 "fp": int(fp),
                 "fn": int(fn),

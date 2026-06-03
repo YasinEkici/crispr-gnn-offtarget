@@ -605,7 +605,7 @@ def _write_graph_report(artifacts: dict[str, GraphArtifact], report_path: Path, 
         "| graph | node tables | relation tables | feature placement | role |",
         "| --- | --- | --- | --- | --- |",
     ]
-    for graph_name in (GRAPH_A, GRAPH_B, GRAPH_C):
+    for graph_name in (name for name in (GRAPH_A, GRAPH_B, GRAPH_C) if name in artifacts):
         artifact = artifacts[graph_name]
         node_counts = ", ".join(f"{name}={len(table)}" for name, table in artifact.nodes.items())
         relation_counts = ", ".join(f"{name}={len(table)}" for name, table in artifact.relations.items())

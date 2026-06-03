@@ -1,0 +1,3 @@
+model_name,graph_schema,feature_set,split,genome,rows,positive_rate,auprc,auroc
+gcn_graph_c_sprint5b_energy,graph_c_context_observation,GraphCContext+S5F2_energy,test,,1702,0.900705052878966,0.9724807715237014,0.8362185759446032
+gcn_graph_c_sprint5b_energy,graph_c_context_observation,GraphCContext+S5F2_energy,val,,1734,0.8713956170703575,0.9804761806288674,0.8868714627856111

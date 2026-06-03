@@ -7,12 +7,16 @@ import pytest
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from scripts.train import write_results_table
+from crispr_gnn.utils.config import load_yaml
 from crispr_gnn.training.gcn import (
     BASELINE_TEST_AUPRC,
     GRAPH_C_TARGET_REPRESENTATION_POLICY,
     GCNRunConfig,
     gcn_run_config_from_mapping,
 )
+
+
+ROOT = Path(__file__).resolve().parents[1]
 
 
 def test_gcn_config_records_locked_contract_and_baseline_reference() -> None:
@@ -44,6 +48,21 @@ def test_gcn_config_records_graph_c_observation_context_contract() -> None:
     assert run_config.edge_feature_sets == ("candidate_pair_features",)
     assert run_config.feature_set == "CandidatePair"
     assert run_config.target_node_representation == GRAPH_C_TARGET_REPRESENTATION_POLICY
+
+
+def test_gcn_config_records_sprint5b_graph_c_energy_sensitivity_contract() -> None:
+    config = load_yaml(ROOT / "configs" / "sweeps" / "sprint5b_graph_c_energy_sensitivity.yaml")
+
+    run_config = gcn_run_config_from_mapping(config)
+
+    assert run_config.sprint == "sprint5b"
+    assert run_config.graph_schema == "graph_c_context_observation"
+    assert run_config.model_name == "gcn_graph_c_sprint5b_energy"
+    assert run_config.edge_feature_sets == ("s5f2_energy",)
+    assert run_config.feature_set == "GraphCContext+S5F2_energy"
+    assert run_config.target_node_representation == GRAPH_C_TARGET_REPRESENTATION_POLICY
+    assert run_config.split_id == "sprint2_main_seed42"
+    assert run_config.loss == "weighted_bce"
 
 
 def test_gcn_config_rejects_unsupported_schema() -> None:

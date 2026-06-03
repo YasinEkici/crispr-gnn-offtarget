@@ -213,6 +213,23 @@ def test_serialized_artifacts_preserve_manifests_report_and_feature_audit(tmp_pa
             assert not predictive & forbidden
 
 
+def test_graph_writer_report_supports_graph_a_only_subset(tmp_path) -> None:
+    assigned = make_graph_rows()
+    artifacts = build_graph_artifacts(assigned)
+    report_path, _ = write_graph_artifacts(
+        {GRAPH_A: artifacts[GRAPH_A]},
+        artifact_dir=tmp_path / "graphs",
+        report_path=tmp_path / "graph_a_report.md",
+        split_id="sprint2_main_seed42",
+    )
+    report = report_path.read_text(encoding="utf-8")
+
+    assert f"`{GRAPH_A}`" in report
+    assert f"`{GRAPH_B}`" not in report
+    assert f"`{GRAPH_C}`" not in report
+    assert (tmp_path / "graphs" / GRAPH_A / "manifest.json").exists()
+
+
 def test_all_graph_candidates_preserve_the_same_supervised_contract() -> None:
     assigned = make_graph_rows()
     artifacts = build_graph_artifacts(assigned)

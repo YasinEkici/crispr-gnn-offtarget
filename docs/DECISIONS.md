@@ -580,3 +580,100 @@ Outcome:
   selected from the validation set and the specific negative distribution of
   this split.
 - Threshold-free AUPRC remains the authoritative comparison metric.
+
+## 2026-06-03 - Sprint 5 primary epigenetic ablation uses fixed-topology Graph A
+
+Decision: Sprint 5's primary biological ablation varies candidate-pair edge
+feature tables on Graph A only. The graph topology, target-node semantics,
+Scheme A label, `sprint2_main_seed42` guide-disjoint split, measured-only
+universe, `experiment_id=18` exclusion, checkpoint policy, and validation-only
+threshold policy remain fixed.
+
+Reason: Graph A can isolate feature-family contribution because row-varying
+sequence, mismatch, energy, experimental epigenetic, and computed nucleosome
+features are candidate-edge tensors while physical target nodes remain
+featureless zero/type representations. Graph C is not suitable as the primary
+feature-ablation graph because its context-similarity topology and
+observation-level target semantics already encode context; using it for
+feature ablation would mix feature and topology effects.
+
+Outcome:
+
+- Sprint 5 adds `S5F0_seq` through `S5F5_computed_pos` feature tables under
+  `data/processed/graphs/sprint5/graph_a_minimal_physical_target/`.
+- `S5F0_seq` is true sequence-only guide/target one-hot input and does not
+  include Sprint 4 `S1_pair`'s explicit mismatch channel.
+- Full GPU execution uses `colab/sprint5_graph_a_feature_ablation_runner.ipynb`
+  as a runner only.
+- Reporting must include AUPRC as the primary metric plus AUROC, binary F1,
+  macro F1, MCC, specificity, and TN/FP/FN/TP. Confusion matrices use each
+  feature set's validation-selected threshold.
+
+## 2026-06-03 - Add one Sprint 5B Graph C energy-focused secondary sensitivity
+
+Decision: before moving to Sprint 6 imbalance experiments, add one predeclared
+Sprint 5B run: fixed Graph C context-similarity topology and fixed
+target-observation context semantics, with candidate-edge features set to
+Sprint 5 `S5F2_energy`.
+
+Reason: Sprint 5 Graph A results showed `S5F2_energy` as the strongest
+candidate-edge feature setting, while raw experimental epigenetic and computed
+context edge-feature additions did not improve the Graph A result. Sprint 4
+Graph C still remains important because it represents context relationally
+through target-observation nodes and context-similarity edges. A single
+energy-focused Graph C run checks whether the best Sprint 5 edge setting is
+compatible with Graph C's context representation before opening Sprint 6. This
+is not hyperparameter tuning and not a Graph B/C feature-ablation ladder.
+
+Outcome:
+
+- Add `scripts/build_sprint5b_graph_c_energy_features.py` to materialize
+  Graph C with the additional `S5F2_energy` candidate-edge feature table while
+  preserving the established Graph C topology and target-observation features.
+- Add `configs/sweeps/sprint5b_graph_c_energy_sensitivity.yaml` with
+  `edge_feature_sets: [s5f2_energy]`, `weighted_bce`, `sprint2_main_seed42`,
+  and the same headline guide-level evaluation contract.
+- Add `colab/sprint5b_graph_c_energy_sensitivity_runner.ipynb` as a runner-only
+  notebook. Full training must be executed in Colab; local tests validate the
+  config, notebook contract, and model feature-tensor wiring.
+- Interpret Sprint 5B as secondary sensitivity only. It must not replace the
+  primary Sprint 5 Graph A ablation and must not be used to tune thresholds,
+  features, topology, or hyperparameters from test diagnostics.
+
+## 2026-06-03 - Sprint 5B Graph C energy sensitivity completed; move imbalance work to Sprint 6
+
+Decision: treat the Sprint 5B Graph C energy-sensitivity run as completed
+interpretation evidence, not as a trigger for more feature or hyperparameter
+tuning in Sprint 5.
+
+Reason: Sprint 5B tested the one predeclared question: whether the strongest
+Sprint 5 Graph A candidate-edge setting (`S5F2_energy`) is compatible with the
+established Graph C context-observation representation. The run improved Graph
+C's threshold-free AUPRC relative to Sprint 4 Graph C, but did not outperform
+Graph A `S5F2_energy` and showed poor negative-class recognition under the
+validation-selected threshold. This points to imbalance/threshold/loss behavior
+rather than missing feature families as the next controlled axis.
+
+Outcome:
+
+- Sprint 5B `GraphCContext+S5F2_energy` result:
+  test AUPRC `0.972481`, test AUROC `0.836219`, test F1 `0.951878`,
+  test macro F1 `0.552442`, test MCC `0.274287`, specificity `0.082840`,
+  TN/FP/FN/TP `14/155/0/1533`.
+- Relative to Sprint 4 Graph C, AUPRC improves from `0.961586` to `0.972481`.
+  This supports that binding-energy edge features are useful in Graph C too.
+- Relative to Sprint 5 Graph A `S5F2_energy`, AUPRC drops from `0.976585` to
+  `0.972481`, and MCC drops from `0.477933` to `0.274287`. Graph C context
+  representation does not add a clear advantage over the fixed-topology Graph A
+  energy setting under the current GCN architecture.
+- The lower MCC and macro F1 are explained by the validation-selected threshold
+  classifying almost all test rows as positive: zero false negatives but only
+  14 true negatives out of 169 negatives. AUPRC remains the primary metric, but
+  this confusion profile strengthens the case for Sprint 6 imbalance,
+  threshold, and loss analysis.
+- Literature interpretation remains mixed: Mak et al. 2022 supports binding
+  energy and computed nucleosome scores as meaningful model inputs, while raw
+  experimental epigenetic scalars are weak. The current project result is
+  consistent with strong binding-energy signal, but does not show that the
+  current GCN formulation can exploit additional context features better than
+  Graph A `S5F2_energy`.
