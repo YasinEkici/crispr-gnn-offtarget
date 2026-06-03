@@ -42,6 +42,18 @@ def test_gcn_graph_c_config_loads() -> None:
     validate_gcn_headline_config(config)
 
 
+def test_sprint5_feature_ablation_config_loads() -> None:
+    config = load_yaml(ROOT / "configs" / "sweeps" / "sprint5_graph_a_feature_ablation.yaml")
+    assert config["experiment_name"] == "sprint5_graph_a_feature_ablation"
+    assert config["task"] == "sprint5_graph_a_feature_ablation"
+    assert config["sprint"] == "sprint5"
+    assert config["graph"]["schema"] == "graph_a_minimal_physical_target"
+    assert config["data"]["graph_artifact_dir"] == "data/processed/graphs/sprint5"
+    assert config["feature_sets"][0] == "S5F0_seq"
+    assert "macro_f1" in config["metrics"]["secondary"]
+    validate_gcn_headline_config(config)
+
+
 def test_gcn_headline_config_rejects_debug_or_random_edge_rules() -> None:
     config = load_yaml(ROOT / "configs" / "experiments" / "gcn_minimal.yaml")
     config["data"]["split_id"] = "debug"
