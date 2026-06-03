@@ -28,7 +28,10 @@ def test_binary_classification_metrics_include_required_outputs() -> None:
     assert metrics["test_auprc"] == 1.0
     assert metrics["test_auroc"] == 1.0
     assert metrics["test_f1"] == 1.0
+    assert metrics["test_macro_f1"] == 1.0
     assert metrics["test_mcc"] == 1.0
+    assert metrics["test_specificity"] == 1.0
+    assert metrics["test_sensitivity"] == 1.0
     assert metrics["test_tn"] == 2
     assert metrics["test_fp"] == 0
     assert metrics["test_fn"] == 0

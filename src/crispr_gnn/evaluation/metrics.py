@@ -67,7 +67,10 @@ def binary_classification_metrics(
         f"{prefix}auprc": _safe_average_precision(labels, scores),
         f"{prefix}auroc": _safe_auroc(labels, scores),
         f"{prefix}f1": float(f1_score(labels, predictions, zero_division=0)),
+        f"{prefix}macro_f1": float(f1_score(labels, predictions, average="macro", zero_division=0)),
         f"{prefix}mcc": float(matthews_corrcoef(labels, predictions)),
+        f"{prefix}specificity": _safe_ratio(tn, tn + fp),
+        f"{prefix}sensitivity": _safe_ratio(tp, tp + fn),
         f"{prefix}tn": int(tn),
         f"{prefix}fp": int(fp),
         f"{prefix}fn": int(fn),
@@ -147,3 +150,7 @@ def _safe_f1_from_precision_recall(precision: np.ndarray, recall: np.ndarray) ->
         out=np.zeros_like(denominator, dtype=float),
         where=denominator > 0,
     )
+
+
+def _safe_ratio(numerator: int | float, denominator: int | float) -> float:
+    return float(numerator / denominator) if denominator else float("nan")

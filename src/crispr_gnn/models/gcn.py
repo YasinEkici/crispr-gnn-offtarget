@@ -234,6 +234,15 @@ def graph_a_edge_feature_attrs(feature_sets: Sequence[str]) -> list[str]:
             attrs.append("edge_attr_s1_pair")
         elif normalized in {"f1", "f2", "f3", "f4"}:
             attrs.append(f"edge_attr_{normalized}")
+        elif normalized in {
+            "s5f0_seq",
+            "s5f1_mismatch",
+            "s5f2_energy",
+            "s5f3_experimental_epi",
+            "s5f4_computed_agg",
+            "s5f5_computed_pos",
+        }:
+            attrs.append(f"edge_attr_{normalized}")
         else:
             raise ValueError(f"Unsupported Graph A edge feature set: {feature_set}")
     return attrs
@@ -246,6 +255,15 @@ def graph_b_edge_feature_attrs(feature_sets: Sequence[str]) -> list[str]:
         if normalized == "s1_pair":
             attrs.append("edge_attr_s1_pair")
         elif normalized in {"f1", "f2", "f3", "f4"}:
+            attrs.append(f"edge_attr_{normalized}")
+        elif normalized in {
+            "s5f0_seq",
+            "s5f1_mismatch",
+            "s5f2_energy",
+            "s5f3_experimental_epi",
+            "s5f4_computed_agg",
+            "s5f5_computed_pos",
+        }:
             attrs.append(f"edge_attr_{normalized}")
         else:
             raise ValueError(f"Unsupported Graph B edge feature set: {feature_set}")
