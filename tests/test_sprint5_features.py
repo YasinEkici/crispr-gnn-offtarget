@@ -1,4 +1,5 @@
 import pandas as pd
+import pytest
 
 from crispr_gnn.data.schemas import COMPUTED_NUCLEOSOME_FEATURES
 from crispr_gnn.features.sprint5 import (
@@ -8,7 +9,7 @@ from crispr_gnn.features.sprint5 import (
     build_sprint5_feature_set,
     build_sprint5_feature_tables,
 )
-from crispr_gnn.models.gcn import graph_a_edge_feature_attrs
+from crispr_gnn.models.gcn import graph_a_edge_feature_attrs, graph_b_edge_feature_attrs, graph_c_edge_feature_attrs
 
 
 def test_s5f0_sequence_only_excludes_explicit_mismatch_channel() -> None:
@@ -43,6 +44,14 @@ def test_graph_a_accepts_sprint5_feature_attrs() -> None:
     attrs = graph_a_edge_feature_attrs(["s5f0_seq", "S5F5_computed_pos"])
 
     assert attrs == ["edge_attr_s5f0_seq", "edge_attr_s5f5_computed_pos"]
+
+
+def test_sprint5b_does_not_open_graph_b_or_full_graph_c_feature_ladders() -> None:
+    assert graph_c_edge_feature_attrs(["s5f2_energy"]) == ["edge_attr_s5f2_energy"]
+    with pytest.raises(ValueError, match="Unsupported Graph B"):
+        graph_b_edge_feature_attrs(["s5f2_energy"])
+    with pytest.raises(ValueError, match="Unsupported Graph C"):
+        graph_c_edge_feature_attrs(["s5f0_seq"])
 
 
 def _rows() -> pd.DataFrame:
