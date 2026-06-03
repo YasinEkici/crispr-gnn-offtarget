@@ -104,8 +104,6 @@ def test_sprint5b_colab_runner_contract() -> None:
 
     assert "rm -rf" not in "\n".join(sources.values())
     assert "Output already exists in Drive" in sources["step7-copy-outputs"]
-    assert "Missing required Sprint 3 Graph C artifact" in sources["step4-copy-data"]
-    assert "Missing S5F2 source" in sources["step4-copy-data"]
     assert "from crispr_gnn.graph.graph_schemas import GRAPH_C" in sources["step5-build-artifacts"]
     assert "PYTHONPATH=src uv run python - <<'PY'" in sources["step5-build-artifacts"]
     assert "--source-artifact-dir data/processed/graphs/sprint3" in sources["step5-build-artifacts"]

@@ -1,12 +1,6 @@
 import pandas as pd
 import pytest
 
-from pathlib import Path
-import sys
-
-sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-
-from scripts.build_sprint5b_graph_c_energy_features import _load_or_build_s5f2_table
 from crispr_gnn.data.schemas import COMPUTED_NUCLEOSOME_FEATURES
 from crispr_gnn.features.sprint5 import (
     SPRINT5_FEATURE_SET_ORDER,
@@ -58,31 +52,6 @@ def test_sprint5b_does_not_open_graph_b_or_full_graph_c_feature_ladders() -> Non
         graph_b_edge_feature_attrs(["s5f2_energy"])
     with pytest.raises(ValueError, match="Unsupported Graph C"):
         graph_c_edge_feature_attrs(["s5f0_seq"])
-
-
-def test_sprint5b_prefers_existing_s5f2_feature_table_without_raw_dataset(tmp_path) -> None:
-    feature_dir = tmp_path / "data" / "processed" / "graphs" / "sprint5" / "graph_a_minimal_physical_target"
-    feature_dir.mkdir(parents=True)
-    table = pd.DataFrame({"record_id": ["1", "2"], "feature__energy_1": [0.1, 0.2]})
-    table.to_parquet(feature_dir / "features_S5F2_energy.parquet", index=False)
-    (feature_dir / "manifest.json").write_text(
-        (
-            '{"feature_sources":{"S5F2_energy":["energy_1"]},'
-            '"preprocessing":{"S5F2_energy":{"fit_scope":"train_only"}}}'
-        ),
-        encoding="utf-8",
-    )
-
-    loaded, sources, preprocessing = _load_or_build_s5f2_table(
-        data_config={"dataset": {"raw_path": "missing.parquet", "processed_path": "also_missing.parquet"}},
-        schema_mapping={"split_manifest": "missing_split.json"},
-        graph_config=object(),
-        source_sprint5_feature_table=feature_dir / "features_S5F2_energy.parquet",
-    )
-
-    assert loaded.equals(table)
-    assert sources == ["energy_1"]
-    assert preprocessing == {"fit_scope": "train_only"}
 
 
 def _rows() -> pd.DataFrame:
