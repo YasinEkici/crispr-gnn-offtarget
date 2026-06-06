@@ -91,6 +91,9 @@ def test_sprint5_colab_runner_does_not_delete_drive_outputs() -> None:
 
     assert "rm -rf" not in "\n".join(sources.values())
     assert "Output already exists in Drive" in sources["step7-copy-outputs"]
+    assert "data/processed/graphs/sprint5/graph_a_minimal_physical_target" in sources["step5b-copy-artifacts-to-drive"]
+    assert "rsync -a data/processed/graphs/sprint5/" in sources["step5b-copy-artifacts-to-drive"]
+    assert "$DRIVE_ROOT/data/processed/graphs/sprint5/" in sources["step5b-copy-artifacts-to-drive"]
 
 
 def test_sprint5b_colab_runner_contract() -> None:
