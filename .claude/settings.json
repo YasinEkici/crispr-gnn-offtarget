@@ -5,7 +5,8 @@
       "Bash(git mv *)",
       "Bash(uv run *)",
       "Bash(python -c ' *)",
-      "Bash(git check-ignore *)"
+      "Bash(git check-ignore *)",
+      "WebSearch"
     ]
   }
 }

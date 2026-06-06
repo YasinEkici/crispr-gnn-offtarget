@@ -677,3 +677,143 @@ Outcome:
   consistent with strong binding-energy signal, but does not show that the
   current GCN formulation can exploit additional context features better than
   Graph A `S5F2_energy`.
+
+## 2026-06-06 - Sprint 6 freezes Graph A + S5F2_energy and varies only loss/sampling
+
+Decision: Sprint 6 (imbalance/loss comparison) holds the Sprint 5 best setting
+fixed and treats the training objective as the only controlled variable. The
+fixed setting is: graph schema `graph_a_minimal_physical_target`, feature set
+`S5F2_energy` (268 edge-feature columns), `GraphAEdgeGCN` architecture (2-layer
+GCNConv, hidden 128, LayerNorm+ReLU, dropout 0.2), AdamW, `ReduceLROnPlateau` on
+`val_auprc`, grad clip 1.0, seed 42, split `sprint2_main_seed42`. Only the loss
+function and/or training-time sampling change.
+
+Reason: Sprint 5 established `S5F2_energy` as the strongest stable GCN feature
+setting (test AUPRC `0.976585`, MCC `0.477933`, TN/FP/FN/TP `48/121/6/1527`) and
+the strongest *non-degenerate* confusion profile among the feature ladder. To
+isolate the loss effect cleanly, every other axis must be frozen, otherwise a
+metric change cannot be attributed to the objective. `S5F2_energy` is also Graph A
+topology, so this continues the Sprint 4 Graph A baseline lineage rather than
+abandoning it. The Sprint 4 Graph A and `xgboost_unweighted / F4` rows remain the
+comparison baselines; `S5F2_energy` is the carried-forward operating point. These
+are different roles, not competing choices.
+
+Outcome:
+
+- Sprint 6 exec plan: `docs/exec-plans/active/006-sprint6-imbalance-loss-comparison.md`.
+- The frozen feature set must not be re-tuned from Sprint 6 loss diagnostics.
+- Validation-only checkpoint (`val_auprc`) and threshold (`validation_max_f1`)
+  selection are unchanged so all Sprint 6 rows stay same-contract comparable to
+  Sprints 2-5 and to XGBoost F4.
+
+## 2026-06-06 - Predeclared Sprint 6 loss set and hyperparameters (no test tuning)
+
+Decision: Sprint 6 predeclares its full loss/sampling run list and all
+hyperparameters before any training. Headline runs (all on the frozen Graph A +
+`S5F2_energy` setting): `S6R0` weighted BCE (`pos_weight = negatives/positives`,
+data-derived ≈0.1267); `S6R1` unweighted BCE (control); `S6R2` focal γ=2, α=0.25;
+`S6R3` focal γ=1, α=0.25; `S6R4` focal γ=2, α=0.50; `S6R5` generalized Dice
+(ε=1.0, class weights from train frequency); `S6R6` Tversky α=0.70, β=0.30
+(ε=1.0); `S6R7` unweighted BCE + measured-only balanced supervised-edge
+subsampling (1:1). Optional/approval-gated: `S6R8` class-balanced BCE (Cui 2019,
+β=0.999), `S6R9` hard-negative mining.
+
+Reason (literature basis, axis_2 notes + primary sources):
+
+- Focal γ=2, α=0.25 is the experimentally validated default (Lin et al. 2017;
+  robust over γ∈[0.5,5]; Guan et al. 2024 reports focal loss as the best/most
+  stable cost-sensitive method across CRISPR off-target models). In the Guan
+  eq.3 form, α weights the positive (y=1) term and (1-α) the negative (y=0) term,
+  so α=0.25 places 0.75 weight on this project's rare negative class. α>0.5 was
+  excluded because it would down-weight the rare negatives (wrong direction).
+- Dice/generalized Dice (Sudre et al. 2017) is overlap-based and robust to
+  learning rate, but is known to yield high precision / low recall on the rare
+  class — which is exactly why Tversky is included as its targeted generalization.
+- Cost-sensitive (loss) methods are preferred over resampling for deep nets with
+  a small minority pool; the measured-only train set has only 901 negatives
+  across 98 guides, so balanced sampling can only upsample those few negatives
+  (overfitting risk). Sampling (`S6R7`) is therefore secondary, not headline.
+
+Reason (Tversky direction is the deliberate inverse of the literature default):
+
+- Tversky index `TI = TP/(TP + α·FP + β·FN)`, loss = 1-TI. The standard Salehi
+  et al. 2017 recommendation is α=0.3, β=0.7 — it up-weights false negatives to
+  recover the rare *positive/foreground* class, because Dice gives high
+  precision / low recall on rare positives.
+- This project is inverted: the rare class is the *negative*, and the failure
+  mode is excess false positives (S5F2_energy: FP=121 vs FN=6; specificity
+  collapses to ~0). Recovering the rare negative class requires penalizing FP
+  more, so we set α=0.70, β=0.30 — the literature value flipped. This inversion
+  is predeclared and justified by the confusion profile, not chosen from test
+  results.
+
+Outcome:
+
+- Hyperparameters are frozen on review and cannot be changed from Sprint 6 test
+  diagnostics. Every completed run is reported (winners and losers).
+- The report must state AUPRC first (primary), then negative-class threshold
+  metrics (specificity, TNR, MCC, macro F1), and must not present MCC/macro-F1
+  gains as AUPRC gains.
+- Residual threshold collapse across all losses would implicate architecture or
+  feature distribution (edge features do not enter GCN message passing in the
+  current model) rather than the loss alone, and points to Sprint 7.
+
+Direction validation (literature review, 2026-06-06):
+
+- These are segmentation/detection losses **adapted** to an inverted binary
+  classification (rare class = negative), not reproductions of their source
+  experiments.
+- Tversky α>β reducing false positives / raising specificity is the documented,
+  intended use of the parameter; α=0.70/β=0.30 is mathematically equivalent to
+  Salehi's standard α=0.3/β=0.7 applied with the negative (minority) class as
+  foreground. The inversion is therefore literature-endorsed, not ad-hoc.
+- Focal is **not** inverted: γ is class-agnostic (focuses on hard/misclassified
+  examples, here the rare negatives) and α=0.25 is kept (under the Guan eq.3 form
+  it already up-weights the negative class). α=0.25 is a directionally-correct
+  *transferred* value, not re-optimized for the inverted structure; `S6R4`
+  (α=0.5) hedges α-sensitivity.
+- Dice (`S6R5`) must be **generalized Dice** (inverse-volume class weights);
+  plain single-class Dice on the majority-positive class is degenerate at ~90%
+  prevalence.
+- A unit-test **direction guard** must confirm that the implemented
+  foreground/weight convention actually penalizes the FP-type errors (negatives
+  predicted positive), since the effect depends on the implementation convention.
+
+## 2026-06-06 - Sprint 6 headline stays measured-only; measured=0 screening regime deferred
+
+Decision: Sprint 6's headline loss comparison uses the locked measured-only,
+guide-level universe only. Any use of `measured=0` putative rows is deferred to a
+separately named, approval-gated secondary track (`putative_augmented_screening`
+/ `genome_wide_candidate_filtering`), not part of default Sprint 6 scope.
+
+Reason:
+
+- `measured=0` rows are the switch into the low-prevalence genome-wide screening
+  regime described by Gao et al. 2020 and Guan et al. 2024. The measured-only
+  universe is ~90% positive (negatives rare); adding the ~284K putative
+  `measured=0` candidates flips the dataset to ~7% positive (negatives dominant,
+  ≈1:13). Only in that second regime do the literature's positive-oversampling /
+  SMOTE recommendations apply, because there the *positive* class is rare.
+- Mixing `measured=0` into Sprint 6 would change two things at once (loss and
+  data regime), making the loss effect unidentifiable, and would break
+  same-contract comparability with XGBoost F4 and Sprints 2-5 (all measured-only).
+- `measured=0` rows are putative/unmeasured candidates and must never be labeled
+  true negatives or enter validation/test (Sprint 1 / Evaluation Protocol rule).
+
+Alternatives considered:
+
+- Add `measured=0` negatives via balanced sampling/hard-negative mining inside
+  Sprint 6 to relieve negative scarcity — rejected (regime mixing, leakage of
+  putative labels into the headline contract, loss of F4 comparability).
+- Switch the whole project to the genome-wide regime — rejected; the measured-only
+  benchmark is the project's defensible, leakage-controlled, experimentally
+  labeled contract.
+
+Outcome:
+
+- If the screening regime is later explored, it is a separate track: `measured=0`
+  used as training-only noisy negatives, never in validation/test, reported
+  separately from the headline loss table, following the Sprint 5B secondary
+  sensitivity precedent. The current benchmark must continue to be described as
+  measured-only / guide-level / leakage-controlled, not as a full genome-wide
+  off-target screening benchmark.

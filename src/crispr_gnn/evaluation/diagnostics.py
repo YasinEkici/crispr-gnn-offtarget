@@ -108,6 +108,74 @@ def write_gcn_diagnostics(
     return tables
 
 
+def write_sprint6_imbalance_diagnostics(
+    results: pd.DataFrame,
+    predictions: pd.DataFrame,
+    output_dir: str | Path,
+) -> list[Path]:
+    """Write Sprint 6 imbalance-specific diagnostic tables.
+
+    These diagnostics are additive to the Sprint 4/5 GCN reporting path. They
+    group by ``run_id`` so loss-comparison rows that share the same model,
+    graph schema, and feature set remain distinguishable.
+    """
+    output_path = Path(output_dir)
+    output_path.mkdir(parents=True, exist_ok=True)
+    result_rows = _require_sprint6_results(results)
+    prediction_rows = _require_sprint6_predictions(predictions)
+    thresholds = _sprint6_validation_thresholds(result_rows)
+    tables = [
+        _write_sprint6_score_direction_table(
+            prediction_rows,
+            output_path / "imbalance_score_direction.csv",
+        ),
+        _write_sprint6_threshold_metrics_table(
+            result_rows,
+            prediction_rows,
+            output_path / "imbalance_threshold_metrics.csv",
+            thresholds=thresholds,
+        ),
+        _write_sprint6_score_deciles_table(
+            prediction_rows,
+            output_path / "imbalance_score_deciles.csv",
+        ),
+        _write_sprint6_per_guide_metrics_table(
+            result_rows,
+            prediction_rows,
+            output_path / "imbalance_per_guide_metrics.csv",
+            thresholds=thresholds,
+        ),
+        _write_sprint6_per_guide_distribution_table(
+            result_rows,
+            prediction_rows,
+            output_path / "imbalance_per_guide_metric_distribution.csv",
+            thresholds=thresholds,
+        ),
+        _write_sprint6_positive_retrieval_summary_table(
+            result_rows,
+            prediction_rows,
+            output_path / "imbalance_positive_retrieval_summary.csv",
+            thresholds=thresholds,
+        ),
+        _write_sprint6_negative_retrieval_summary_table(
+            result_rows,
+            prediction_rows,
+            output_path / "imbalance_negative_retrieval_summary.csv",
+            thresholds=thresholds,
+        ),
+    ]
+    if "genome" in prediction_rows.columns:
+        tables.append(
+            _write_sprint6_per_genome_metrics_table(
+                result_rows,
+                prediction_rows,
+                output_path / "imbalance_per_genome_metrics.csv",
+                thresholds=thresholds,
+            )
+        )
+    return tables
+
+
 def write_gcn_report(
     results: pd.DataFrame,
     diagnostic_tables: Iterable[Path],
@@ -470,6 +538,345 @@ def _require_gcn_predictions(predictions: pd.DataFrame) -> pd.DataFrame:
         "GCN predictions",
     )
     return predictions.copy()
+
+
+def _require_sprint6_results(results: pd.DataFrame) -> pd.DataFrame:
+    _require_table_columns(
+        results,
+        {
+            "run_id",
+            "model_name",
+            "feature_set",
+            "graph_schema",
+            "loss",
+            "threshold",
+            "threshold_selection_split",
+            "test_positive_rate",
+            "test_auprc",
+            "test_auroc",
+            "test_mcc",
+            "test_specificity",
+            "test_tn",
+            "test_fp",
+            "test_fn",
+            "test_tp",
+        },
+        "Sprint 6 results",
+    )
+    if results["run_id"].astype(str).duplicated().any():
+        duplicates = sorted(results.loc[results["run_id"].astype(str).duplicated(), "run_id"].astype(str).unique())
+        raise ValueError(f"Sprint 6 results require unique run_id values: {duplicates}")
+    if not (results["threshold_selection_split"] == "validation").all():
+        raise ValueError("Sprint 6 diagnostics require validation-selected thresholds")
+    return results.copy()
+
+
+def _require_sprint6_predictions(predictions: pd.DataFrame) -> pd.DataFrame:
+    _require_table_columns(
+        predictions,
+        {"run_id", "model_name", "feature_set", "graph_schema", "split", "label", "score"},
+        "Sprint 6 predictions",
+    )
+    return predictions.copy()
+
+
+def _sprint6_validation_thresholds(results: pd.DataFrame) -> dict[str, float]:
+    thresholds: dict[str, float] = {}
+    for run_id, part in results.groupby("run_id", sort=True):
+        values = part["threshold"].dropna().astype(float).unique()
+        if len(values) != 1:
+            raise ValueError(f"Sprint 6 diagnostics require one validation-selected threshold for {run_id}")
+        thresholds[str(run_id)] = float(values[0])
+    return thresholds
+
+
+def _sprint6_run_metadata(results: pd.DataFrame) -> dict[str, dict[str, object]]:
+    metadata: dict[str, dict[str, object]] = {}
+    optional_columns = [
+        "run_id",
+        "loss",
+        "loss_params",
+        "sampling",
+        "role",
+        "test_auprc",
+        "test_mcc",
+        "test_specificity",
+    ]
+    for _, row in results.iterrows():
+        metadata[str(row["run_id"])] = {
+            column: row[column]
+            for column in optional_columns
+            if column in results.columns
+        }
+    return metadata
+
+
+def _write_sprint6_score_direction_table(df: pd.DataFrame, path: Path) -> Path:
+    rows = []
+    for keys, part in df.groupby(["run_id", "split"], sort=True):
+        y_true = part["label"].to_numpy(dtype=int)
+        score = part["score"].to_numpy(dtype=float)
+        rows.append(
+            {
+                "run_id": keys[0],
+                "split": keys[1],
+                "rows": int(part.shape[0]),
+                "positives": int(y_true.sum()),
+                "negatives": int((y_true == 0).sum()),
+                "positive_rate": float(y_true.mean()),
+                "auprc": _safe_auprc(y_true, score),
+                "auprc_inverted": _safe_auprc(y_true, -score),
+                "auroc": _safe_auroc(y_true, score),
+                "auroc_inverted": _safe_auroc(y_true, -score),
+                "mean_score_positive": _mean_or_nan(score[y_true == 1]),
+                "mean_score_negative": _mean_or_nan(score[y_true == 0]),
+            }
+        )
+    pd.DataFrame(rows).to_csv(path, index=False)
+    return path
+
+
+def _write_sprint6_threshold_metrics_table(
+    results: pd.DataFrame,
+    df: pd.DataFrame,
+    path: Path,
+    *,
+    thresholds: dict[str, float],
+) -> Path:
+    metadata = _sprint6_run_metadata(results)
+    rows = []
+    for keys, part in df.groupby(["run_id", "split"], sort=True):
+        run_id = str(keys[0])
+        y_true = part["label"].to_numpy(dtype=int)
+        y_pred = (part["score"].to_numpy(dtype=float) >= thresholds[run_id]).astype(int)
+        tn, fp, fn, tp = confusion_matrix(y_true, y_pred, labels=[0, 1]).ravel()
+        rows.append(
+            {
+                **metadata.get(run_id, {}),
+                "run_id": run_id,
+                "split": keys[1],
+                "threshold": thresholds[run_id],
+                "threshold_selection_split": "validation",
+                "rows": int(part.shape[0]),
+                "positive_rate": float(y_true.mean()),
+                "f1": float(f1_score(y_true, y_pred, zero_division=0)),
+                "macro_f1": float(f1_score(y_true, y_pred, average="macro", zero_division=0)),
+                "mcc": float(matthews_corrcoef(y_true, y_pred)),
+                "specificity": _safe_ratio(tn, tn + fp),
+                "tnr": _safe_ratio(tn, tn + fp),
+                "sensitivity": _safe_ratio(tp, tp + fn),
+                "tn": int(tn),
+                "fp": int(fp),
+                "fn": int(fn),
+                "tp": int(tp),
+            }
+        )
+    pd.DataFrame(rows).to_csv(path, index=False)
+    return path
+
+
+def _write_sprint6_score_deciles_table(df: pd.DataFrame, path: Path) -> Path:
+    rows = []
+    for keys, part in df.groupby(["run_id", "split"], sort=True):
+        ranked = part.sort_values("score", ascending=False).copy()
+        ranked["score_rank"] = np.arange(1, ranked.shape[0] + 1)
+        ranked["score_decile"] = np.ceil(ranked["score_rank"] * 10 / ranked.shape[0]).astype(int)
+        for decile, decile_part in ranked.groupby("score_decile", sort=True):
+            labels = decile_part["label"].to_numpy(dtype=int)
+            rows.append(
+                {
+                    "run_id": keys[0],
+                    "split": keys[1],
+                    "score_decile": int(decile),
+                    "rows": int(decile_part.shape[0]),
+                    "positives": int(labels.sum()),
+                    "negatives": int((labels == 0).sum()),
+                    "positive_rate": float(labels.mean()),
+                    "mean_score": float(decile_part["score"].mean()),
+                    "min_score": float(decile_part["score"].min()),
+                    "max_score": float(decile_part["score"].max()),
+                }
+            )
+    pd.DataFrame(rows).to_csv(path, index=False)
+    return path
+
+
+def _sprint6_per_guide_frame(
+    results: pd.DataFrame,
+    df: pd.DataFrame,
+    *,
+    thresholds: dict[str, float],
+) -> pd.DataFrame:
+    metadata = _sprint6_run_metadata(results)
+    test = df.loc[df["split"] == "test"].copy()
+    rows = []
+    for keys, part in test.groupby(["run_id", "grna_target_id"], dropna=False, sort=True):
+        run_id = str(keys[0])
+        y_true = part["label"].to_numpy(dtype=int)
+        score = part["score"].to_numpy(dtype=float)
+        y_pred = (score >= thresholds[run_id]).astype(int)
+        tn, fp, fn, tp = confusion_matrix(y_true, y_pred, labels=[0, 1]).ravel()
+        rows.append(
+            {
+                **metadata.get(run_id, {}),
+                "run_id": run_id,
+                "grna_target_id": keys[1],
+                "rows": int(part.shape[0]),
+                "positives": int(y_true.sum()),
+                "negatives": int((y_true == 0).sum()),
+                "positive_rate": float(y_true.mean()),
+                "auprc": _safe_auprc(y_true, score),
+                "auroc": _safe_auroc(y_true, score),
+                "mcc": float(matthews_corrcoef(y_true, y_pred)),
+                "macro_f1": float(f1_score(y_true, y_pred, average="macro", zero_division=0)),
+                "positive_retrieval_rate": _safe_ratio(tp, tp + fn),
+                "negative_retrieval_tnr": _safe_ratio(tn, tn + fp),
+                "tn": int(tn),
+                "fp": int(fp),
+                "fn": int(fn),
+                "tp": int(tp),
+            }
+        )
+    return pd.DataFrame(rows)
+
+
+def _write_sprint6_per_guide_metrics_table(
+    results: pd.DataFrame,
+    df: pd.DataFrame,
+    path: Path,
+    *,
+    thresholds: dict[str, float],
+) -> Path:
+    _sprint6_per_guide_frame(results, df, thresholds=thresholds).to_csv(path, index=False)
+    return path
+
+
+def _write_sprint6_per_guide_distribution_table(
+    results: pd.DataFrame,
+    df: pd.DataFrame,
+    path: Path,
+    *,
+    thresholds: dict[str, float],
+) -> Path:
+    per_guide = _sprint6_per_guide_frame(results, df, thresholds=thresholds)
+    metrics = ["auprc", "auroc", "mcc", "macro_f1", "positive_retrieval_rate", "negative_retrieval_tnr"]
+    rows = []
+    for run_id, part in per_guide.groupby("run_id", sort=True):
+        for metric in metrics:
+            values = part[metric].dropna().astype(float)
+            rows.append(
+                {
+                    "run_id": run_id,
+                    "metric": metric,
+                    "guides_with_metric": int(values.shape[0]),
+                    "mean": float(values.mean()) if values.shape[0] else float("nan"),
+                    "q10": float(values.quantile(0.10)) if values.shape[0] else float("nan"),
+                    "median": float(values.median()) if values.shape[0] else float("nan"),
+                    "q90": float(values.quantile(0.90)) if values.shape[0] else float("nan"),
+                }
+            )
+    pd.DataFrame(rows).to_csv(path, index=False)
+    return path
+
+
+def _write_sprint6_positive_retrieval_summary_table(
+    results: pd.DataFrame,
+    df: pd.DataFrame,
+    path: Path,
+    *,
+    thresholds: dict[str, float],
+) -> Path:
+    rows = []
+    metadata = _sprint6_run_metadata(results)
+    test = df.loc[df["split"] == "test"].copy()
+    for run_id, part in test.groupby("run_id", sort=True):
+        run_id = str(run_id)
+        y_true = part["label"].to_numpy(dtype=int)
+        y_pred = (part["score"].to_numpy(dtype=float) >= thresholds[run_id]).astype(int)
+        tn, fp, fn, tp = confusion_matrix(y_true, y_pred, labels=[0, 1]).ravel()
+        rows.append(
+            {
+                **metadata.get(run_id, {}),
+                "run_id": run_id,
+                "threshold": thresholds[run_id],
+                "positives": int(tp + fn),
+                "retrieved_positives": int(tp),
+                "missed_positives": int(fn),
+                "positive_retrieval_rate": _safe_ratio(tp, tp + fn),
+                "precision_at_threshold": _safe_ratio(tp, tp + fp),
+            }
+        )
+    pd.DataFrame(rows).to_csv(path, index=False)
+    return path
+
+
+def _write_sprint6_negative_retrieval_summary_table(
+    results: pd.DataFrame,
+    df: pd.DataFrame,
+    path: Path,
+    *,
+    thresholds: dict[str, float],
+) -> Path:
+    rows = []
+    metadata = _sprint6_run_metadata(results)
+    test = df.loc[df["split"] == "test"].copy()
+    for run_id, part in test.groupby("run_id", sort=True):
+        run_id = str(run_id)
+        y_true = part["label"].to_numpy(dtype=int)
+        y_pred = (part["score"].to_numpy(dtype=float) >= thresholds[run_id]).astype(int)
+        tn, fp, fn, tp = confusion_matrix(y_true, y_pred, labels=[0, 1]).ravel()
+        rows.append(
+            {
+                **metadata.get(run_id, {}),
+                "run_id": run_id,
+                "threshold": thresholds[run_id],
+                "negatives": int(tn + fp),
+                "retrieved_negatives": int(tn),
+                "negatives_called_positive": int(fp),
+                "negative_retrieval_tnr": _safe_ratio(tn, tn + fp),
+                "false_positive_rate": _safe_ratio(fp, tn + fp),
+            }
+        )
+    pd.DataFrame(rows).to_csv(path, index=False)
+    return path
+
+
+def _write_sprint6_per_genome_metrics_table(
+    results: pd.DataFrame,
+    df: pd.DataFrame,
+    path: Path,
+    *,
+    thresholds: dict[str, float],
+) -> Path:
+    metadata = _sprint6_run_metadata(results)
+    rows = []
+    for keys, part in df.groupby(["run_id", "split", "genome"], dropna=False, sort=True):
+        run_id = str(keys[0])
+        y_true = part["label"].to_numpy(dtype=int)
+        score = part["score"].to_numpy(dtype=float)
+        y_pred = (score >= thresholds[run_id]).astype(int)
+        tn, fp, fn, tp = confusion_matrix(y_true, y_pred, labels=[0, 1]).ravel()
+        rows.append(
+            {
+                **metadata.get(run_id, {}),
+                "run_id": run_id,
+                "split": keys[1],
+                "genome": keys[2],
+                "rows": int(part.shape[0]),
+                "positive_rate": float(y_true.mean()),
+                "auprc": _safe_auprc(y_true, score),
+                "auroc": _safe_auroc(y_true, score),
+                "specificity": _safe_ratio(tn, tn + fp),
+                "tnr": _safe_ratio(tn, tn + fp),
+                "mcc": float(matthews_corrcoef(y_true, y_pred)),
+                "tn": int(tn),
+                "fp": int(fp),
+                "fn": int(fn),
+                "tp": int(tp),
+            }
+        )
+    pd.DataFrame(rows).to_csv(path, index=False)
+    return path
 
 
 def _gcn_validation_thresholds(results: pd.DataFrame) -> dict[tuple[str, str, str], float]:

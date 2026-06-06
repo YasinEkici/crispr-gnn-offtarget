@@ -2,8 +2,12 @@ import pandas as pd
 import torch
 from torch_geometric.data import HeteroData
 
-from crispr_gnn.evaluation.diagnostics import write_gcn_diagnostics, write_gcn_report
-from crispr_gnn.evaluation.plots import GCN_REQUIRED_FIGURES, write_gcn_plots
+from crispr_gnn.evaluation.diagnostics import (
+    write_gcn_diagnostics,
+    write_gcn_report,
+    write_sprint6_imbalance_diagnostics,
+)
+from crispr_gnn.evaluation.plots import GCN_REQUIRED_FIGURES, write_gcn_plots, write_sprint6_imbalance_plots
 
 
 def test_gcn_reporting_outputs_are_generated_from_mock_graph_a_artifacts(tmp_path) -> None:
@@ -140,6 +144,38 @@ def test_gcn_graph_c_reporting_paths_keep_schema_specific_outputs(tmp_path) -> N
     assert "target_observation_context_encoder" in results["target_node_representation"].iloc[0]
 
 
+def test_sprint6_imbalance_reporting_outputs_are_run_id_grouped(tmp_path) -> None:
+    results = _mock_sprint6_results()
+    predictions = _mock_sprint6_predictions()
+    history = _mock_sprint6_history()
+
+    diagnostic_tables = write_sprint6_imbalance_diagnostics(results, predictions, tmp_path / "diagnostics")
+    figure_paths = write_sprint6_imbalance_plots(results, predictions, history, tmp_path / "figures")
+
+    assert {path.name for path in diagnostic_tables} >= {
+        "imbalance_threshold_metrics.csv",
+        "imbalance_per_guide_metrics.csv",
+        "imbalance_per_guide_metric_distribution.csv",
+        "imbalance_positive_retrieval_summary.csv",
+        "imbalance_negative_retrieval_summary.csv",
+    }
+    assert {path.name for path in figure_paths} == {
+        "imbalance_auprc_comparison.png",
+        "imbalance_pr_curves.png",
+        "imbalance_threshold_metrics.png",
+        "imbalance_score_distributions.png",
+        "imbalance_per_guide_metric_distribution.png",
+        "imbalance_positive_retrieval_summary.png",
+        "imbalance_negative_retrieval_summary.png",
+    }
+    threshold_metrics = pd.read_csv(tmp_path / "diagnostics" / "imbalance_threshold_metrics.csv")
+    assert set(threshold_metrics["run_id"]) == {"batch_S6R0_wbce", "batch_S6R7_balanced_sampling"}
+    assert "tnr" in threshold_metrics.columns
+    for path in [*diagnostic_tables, *figure_paths]:
+        assert path.exists()
+        assert path.stat().st_size > 0
+
+
 def _mock_results(
     *,
     model_name: str = "gcn_graph_a",
@@ -261,3 +297,108 @@ def _mock_graph_c_view() -> HeteroData:
     context = data["target_observation", "context_similar_to", "target_observation"]
     context.edge_index = torch.tensor([[2], [0]], dtype=torch.long)
     return data
+
+
+def _mock_sprint6_results() -> pd.DataFrame:
+    base = {
+        "sprint": "sprint6",
+        "label_scheme": "scheme_a",
+        "split_id": "sprint2_main_seed42",
+        "seed": 42,
+        "training_regime": "measured_only",
+        "model_name": "gcn_graph_a_sprint6",
+        "feature_set": "S5F2_energy",
+        "graph_schema": "graph_a_minimal_physical_target",
+        "visibility_policy": "strict_inductive_primary",
+        "target_node_representation": "zero_type_feature",
+        "threshold": 0.5,
+        "threshold_selection_split": "validation",
+        "baseline_reference": "xgboost_unweighted / F4",
+        "baseline_test_auprc": 0.992522,
+        "baseline_test_auroc": 0.938416,
+        "baseline_test_mcc": 0.345198,
+        "prior_sprint5_s5f2_test_auprc": 0.976585,
+        "prior_sprint5_s5f2_test_mcc": 0.477933,
+        "prior_test_positive_prevalence": 0.900705,
+        "test_positive_rate": 0.900705,
+        "test_auroc": 0.8,
+        "test_f1": 0.9,
+        "test_macro_f1": 0.7,
+        "test_sensitivity": 0.95,
+        "test_tn": 1,
+        "test_fp": 1,
+        "test_fn": 1,
+        "test_tp": 5,
+    }
+    return pd.DataFrame(
+        [
+            {
+                **base,
+                "run_id": "batch_S6R0_wbce",
+                "run_order": 0,
+                "predeclared_run_id": "S6R0_wbce",
+                "loss": "weighted_bce",
+                "loss_params": '{"pos_weight": "auto"}',
+                "sampling": "null",
+                "role": "baseline",
+                "test_auprc": 0.97,
+                "test_mcc": 0.4,
+                "test_specificity": 0.5,
+            },
+            {
+                **base,
+                "run_id": "batch_S6R7_balanced_sampling",
+                "run_order": 1,
+                "predeclared_run_id": "S6R7_balanced_sampling",
+                "loss": "bce_unweighted",
+                "loss_params": '{"pos_weight": 1.0}',
+                "sampling": '{"strategy": "balanced_subsample"}',
+                "role": "sampling",
+                "test_auprc": 0.96,
+                "test_mcc": 0.5,
+                "test_specificity": 0.75,
+            },
+        ]
+    )
+
+
+def _mock_sprint6_predictions() -> pd.DataFrame:
+    rows = []
+    for run_id, delta in [("batch_S6R0_wbce", 0.0), ("batch_S6R7_balanced_sampling", -0.05)]:
+        for split in ["val", "test"]:
+            for index, (label, score) in enumerate(
+                [(1, 0.9 + delta), (0, 0.2), (1, 0.7 + delta), (0, 0.6 + delta), (1, 0.8 + delta), (1, 0.4)]
+            ):
+                rows.append(
+                    {
+                        "run_id": run_id,
+                        "model_name": "gcn_graph_a_sprint6",
+                        "graph_schema": "graph_a_minimal_physical_target",
+                        "feature_set": "S5F2_energy",
+                        "split": split,
+                        "row_index": index,
+                        "label": label,
+                        "score": score,
+                        "genome": "hg19" if index < 3 else "mm10",
+                        "grna_target_id": f"guide_{index % 3}",
+                    }
+                )
+    return pd.DataFrame(rows)
+
+
+def _mock_sprint6_history() -> pd.DataFrame:
+    rows = []
+    for run_id in ["batch_S6R0_wbce", "batch_S6R7_balanced_sampling"]:
+        for epoch in [1, 2]:
+            rows.append(
+                {
+                    "run_id": run_id,
+                    "model_name": "gcn_graph_a_sprint6",
+                    "graph_schema": "graph_a_minimal_physical_target",
+                    "feature_set": "S5F2_energy",
+                    "epoch": epoch,
+                    "train_loss": 1.0 / epoch,
+                    "val_auprc": 0.7 + 0.1 * epoch,
+                }
+            )
+    return pd.DataFrame(rows)

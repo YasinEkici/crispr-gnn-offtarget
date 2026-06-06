@@ -180,6 +180,64 @@ def write_gcn_plots(
     return paths
 
 
+def write_sprint6_imbalance_plots(
+    results: pd.DataFrame,
+    predictions: pd.DataFrame,
+    training_history: pd.DataFrame,
+    output_dir: str | Path,
+) -> list[Path]:
+    """Write Sprint 6 imbalance/loss-comparison figures.
+
+    This is separate from ``write_gcn_plots`` so Sprint 4/5 report output names
+    and grouping behavior remain unchanged. All comparisons group by ``run_id``.
+    """
+    output_path = Path(output_dir)
+    output_path.mkdir(parents=True, exist_ok=True)
+    result_rows = _require_sprint6_result_columns(results)
+    prediction_rows = _require_sprint6_prediction_columns(predictions)
+    thresholds = _sprint6_thresholds(result_rows)
+    reference = _sprint6_reference_context(result_rows)
+    return [
+        _write_sprint6_auprc_comparison(
+            result_rows,
+            output_path / "imbalance_auprc_comparison.png",
+            reference=reference,
+        ),
+        _write_sprint6_pr_curves(
+            prediction_rows,
+            output_path / "imbalance_pr_curves.png",
+            reference=reference,
+        ),
+        _write_sprint6_threshold_metrics(
+            result_rows,
+            output_path / "imbalance_threshold_metrics.png",
+            reference=reference,
+        ),
+        _write_sprint6_score_distributions(
+            prediction_rows,
+            output_path / "imbalance_score_distributions.png",
+            reference=reference,
+        ),
+        _write_sprint6_per_guide_metric_distribution(
+            result_rows,
+            prediction_rows,
+            output_path / "imbalance_per_guide_metric_distribution.png",
+            thresholds=thresholds,
+            reference=reference,
+        ),
+        _write_sprint6_positive_retrieval_summary(
+            result_rows,
+            output_path / "imbalance_positive_retrieval_summary.png",
+            reference=reference,
+        ),
+        _write_sprint6_negative_retrieval_summary(
+            result_rows,
+            output_path / "imbalance_negative_retrieval_summary.png",
+            reference=reference,
+        ),
+    ]
+
+
 def _write_auprc_bar(results: pd.DataFrame, path: Path, *, model_names: list[str]) -> Path:
     rows = results.loc[results["model_name"].isin(model_names)].copy()
     rows = rows.sort_values(["model_name", "feature_set"])
@@ -462,6 +520,212 @@ def _write_gcn_sequence_position_sensitivity(sensitivity: pd.DataFrame, path: Pa
     return path
 
 
+def _write_sprint6_auprc_comparison(
+    results: pd.DataFrame,
+    path: Path,
+    *,
+    reference: dict[str, float | str],
+) -> Path:
+    rows = _sprint6_sorted_results(results)
+    labels = [
+        "xgboost_unweighted\n/ F4",
+        "Sprint 5\nS5F2_energy",
+        *[_short_run_label(value) for value in rows["run_id"]],
+    ]
+    values = [
+        float(reference["baseline_auprc"]),
+        float(reference["sprint5_auprc"]),
+        *rows["test_auprc"].astype(float).tolist(),
+    ]
+    colors = ["#2b6cb0", "#5f6f52", *["#4a5568" for _ in rows.index]]
+    fig, ax = plt.subplots(figsize=(12, 5))
+    ax.bar(labels, values, color=colors)
+    ax.axhline(
+        float(reference["prevalence"]),
+        color="#444444",
+        linestyle="--",
+        linewidth=1.2,
+        label=f"test prevalence={float(reference['prevalence']):.6f}",
+    )
+    ax.set_ylabel("Test AUPRC")
+    ax.set_title("Sprint 6 loss comparison: AUPRC-first headline view")
+    ax.set_ylim(0, min(1.0, max(values + [float(reference["prevalence"])]) + 0.05))
+    ax.tick_params(axis="x", labelrotation=25)
+    ax.legend(loc="lower right")
+    _annotate_sprint6_reference(ax, reference)
+    fig.tight_layout()
+    fig.savefig(path, dpi=180)
+    plt.close(fig)
+    return path
+
+
+def _write_sprint6_pr_curves(
+    predictions: pd.DataFrame,
+    path: Path,
+    *,
+    reference: dict[str, float | str],
+) -> Path:
+    test = predictions.loc[predictions["split"] == "test"].copy()
+    fig, ax = plt.subplots(figsize=(8, 5))
+    for run_id, part in test.groupby("run_id", sort=True):
+        PrecisionRecallDisplay.from_predictions(
+            part["label"].to_numpy(dtype=int),
+            part["score"].to_numpy(dtype=float),
+            name=_short_run_label(run_id),
+            ax=ax,
+            plot_chance_level=False,
+        )
+    ax.axhline(
+        float(reference["prevalence"]),
+        color="#444444",
+        linestyle="--",
+        linewidth=1,
+        label=f"test prevalence={float(reference['prevalence']):.6f}",
+    )
+    ax.set_title("Sprint 6 precision-recall curves")
+    ax.legend(loc="lower left", fontsize=8)
+    _annotate_sprint6_reference(ax, reference)
+    fig.tight_layout()
+    fig.savefig(path, dpi=180)
+    plt.close(fig)
+    return path
+
+
+def _write_sprint6_threshold_metrics(
+    results: pd.DataFrame,
+    path: Path,
+    *,
+    reference: dict[str, float | str],
+) -> Path:
+    rows = _sprint6_sorted_results(results)
+    labels = [_short_run_label(value) for value in rows["run_id"]]
+    x = np.arange(len(rows))
+    width = 0.26
+    fig, ax = plt.subplots(figsize=(12, 5))
+    ax.bar(x - width, rows["test_specificity"].astype(float), width=width, label="specificity/TNR", color="#2a7f62")
+    ax.bar(x, rows["test_mcc"].astype(float), width=width, label="MCC", color="#805ad5")
+    if "test_macro_f1" in rows.columns:
+        ax.bar(x + width, rows["test_macro_f1"].astype(float), width=width, label="macro F1", color="#b7791f")
+    ax.set_xticks(x)
+    ax.set_xticklabels(labels, rotation=25, ha="right")
+    ax.set_ylabel("Validation-threshold test metric")
+    ax.set_title("Sprint 6 threshold metrics at validation-selected thresholds")
+    ax.legend(loc="best")
+    _annotate_sprint6_reference(ax, reference)
+    fig.tight_layout()
+    fig.savefig(path, dpi=180)
+    plt.close(fig)
+    return path
+
+
+def _write_sprint6_score_distributions(
+    predictions: pd.DataFrame,
+    path: Path,
+    *,
+    reference: dict[str, float | str],
+) -> Path:
+    test = predictions.loc[predictions["split"] == "test"].copy()
+    run_ids = sorted(test["run_id"].astype(str).unique())
+    columns = min(4, max(1, len(run_ids)))
+    rows = int(np.ceil(len(run_ids) / columns))
+    fig, axes = plt.subplots(rows, columns, figsize=(4 * columns, 3.4 * rows), squeeze=False)
+    for ax in axes.ravel()[len(run_ids):]:
+        ax.axis("off")
+    for ax, run_id in zip(axes.ravel(), run_ids, strict=False):
+        part = test.loc[test["run_id"].astype(str) == run_id]
+        ax.hist(part.loc[part["label"] == 1, "score"], bins=18, alpha=0.65, label="positive", color="#2a7f62")
+        ax.hist(part.loc[part["label"] == 0, "score"], bins=18, alpha=0.65, label="negative", color="#9b4d48")
+        ax.set_title(_short_run_label(run_id))
+        ax.set_xlabel("Predicted probability")
+        ax.set_ylabel("Rows")
+    handles, labels = axes.ravel()[0].get_legend_handles_labels()
+    fig.legend(handles, labels, loc="upper right")
+    fig.suptitle("Sprint 6 test score distributions by loss")
+    _annotate_sprint6_reference(axes.ravel()[0], reference)
+    fig.tight_layout()
+    fig.savefig(path, dpi=180)
+    plt.close(fig)
+    return path
+
+
+def _write_sprint6_per_guide_metric_distribution(
+    results: pd.DataFrame,
+    predictions: pd.DataFrame,
+    path: Path,
+    *,
+    thresholds: dict[str, float],
+    reference: dict[str, float | str],
+) -> Path:
+    per_guide = _sprint6_per_guide_metrics_for_plot(results, predictions, thresholds=thresholds)
+    run_ids = _sprint6_sorted_results(results)["run_id"].astype(str).tolist()
+    tnr_values = [
+        per_guide.loc[per_guide["run_id"].astype(str) == run_id, "negative_retrieval_tnr"].dropna().to_numpy(dtype=float)
+        for run_id in run_ids
+    ]
+    pos_values = [
+        per_guide.loc[per_guide["run_id"].astype(str) == run_id, "positive_retrieval_rate"].dropna().to_numpy(dtype=float)
+        for run_id in run_ids
+    ]
+    positions = np.arange(len(run_ids))
+    fig, ax = plt.subplots(figsize=(12, 5))
+    ax.boxplot(tnr_values, positions=positions - 0.18, widths=0.28, patch_artist=True, boxprops={"facecolor": "#9b4d48"})
+    ax.boxplot(pos_values, positions=positions + 0.18, widths=0.28, patch_artist=True, boxprops={"facecolor": "#2a7f62"})
+    ax.set_xticks(positions)
+    ax.set_xticklabels([_short_run_label(value) for value in run_ids], rotation=25, ha="right")
+    ax.set_ylabel("Per-guide retrieval rate")
+    ax.set_title("Sprint 6 per-guide positive and negative retrieval distribution")
+    ax.plot([], color="#9b4d48", label="negative retrieval/TNR")
+    ax.plot([], color="#2a7f62", label="positive retrieval")
+    ax.legend(loc="best")
+    _annotate_sprint6_reference(ax, reference)
+    fig.tight_layout()
+    fig.savefig(path, dpi=180)
+    plt.close(fig)
+    return path
+
+
+def _write_sprint6_positive_retrieval_summary(
+    results: pd.DataFrame,
+    path: Path,
+    *,
+    reference: dict[str, float | str],
+) -> Path:
+    rows = _sprint6_sorted_results(results)
+    labels = [_short_run_label(value) for value in rows["run_id"]]
+    fig, ax = plt.subplots(figsize=(12, 5))
+    ax.bar(labels, rows["test_sensitivity"].astype(float), color="#2a7f62")
+    ax.set_ylabel("Positive retrieval / sensitivity")
+    ax.set_ylim(0, 1.0)
+    ax.set_title("Sprint 6 positive retrieval at validation-selected threshold")
+    ax.tick_params(axis="x", labelrotation=25)
+    _annotate_sprint6_reference(ax, reference)
+    fig.tight_layout()
+    fig.savefig(path, dpi=180)
+    plt.close(fig)
+    return path
+
+
+def _write_sprint6_negative_retrieval_summary(
+    results: pd.DataFrame,
+    path: Path,
+    *,
+    reference: dict[str, float | str],
+) -> Path:
+    rows = _sprint6_sorted_results(results)
+    labels = [_short_run_label(value) for value in rows["run_id"]]
+    fig, ax = plt.subplots(figsize=(12, 5))
+    ax.bar(labels, rows["test_specificity"].astype(float), color="#9b4d48")
+    ax.set_ylabel("Negative retrieval / TNR / specificity")
+    ax.set_ylim(0, 1.0)
+    ax.set_title("Sprint 6 negative retrieval at validation-selected threshold")
+    ax.tick_params(axis="x", labelrotation=25)
+    _annotate_sprint6_reference(ax, reference)
+    fig.tight_layout()
+    fig.savefig(path, dpi=180)
+    plt.close(fig)
+    return path
+
+
 def _write_pr_curves(predictions: list[dict[str, object]], path: Path, *, model_name: str) -> Path:
     fig, ax = plt.subplots(figsize=(7, 5))
     for row in predictions:
@@ -479,6 +743,142 @@ def _write_pr_curves(predictions: list[dict[str, object]], path: Path, *, model_
     fig.savefig(path, dpi=180)
     plt.close(fig)
     return path
+
+
+def _require_sprint6_result_columns(results: pd.DataFrame) -> pd.DataFrame:
+    _require_columns(
+        results,
+        {
+            "run_id",
+            "loss",
+            "threshold",
+            "threshold_selection_split",
+            "test_auprc",
+            "test_positive_rate",
+            "baseline_reference",
+            "baseline_test_auprc",
+            "test_specificity",
+            "test_sensitivity",
+            "test_mcc",
+            "test_tn",
+            "test_fp",
+            "test_fn",
+            "test_tp",
+        },
+        "Sprint 6 results",
+    )
+    if results["run_id"].astype(str).duplicated().any():
+        raise ValueError("Sprint 6 plotting requires unique run_id values")
+    if not (results["threshold_selection_split"] == "validation").all():
+        raise ValueError("Sprint 6 plotting requires validation-selected thresholds")
+    return results.copy()
+
+
+def _require_sprint6_prediction_columns(predictions: pd.DataFrame) -> pd.DataFrame:
+    _require_columns(
+        predictions,
+        {"run_id", "split", "label", "score"},
+        "Sprint 6 predictions",
+    )
+    return predictions.copy()
+
+
+def _sprint6_thresholds(results: pd.DataFrame) -> dict[str, float]:
+    return {str(row["run_id"]): float(row["threshold"]) for _, row in results.iterrows()}
+
+
+def _sprint6_reference_context(results: pd.DataFrame) -> dict[str, float | str]:
+    first = results.iloc[0]
+    sprint5_auprc = 0.976585
+    sprint5_mcc = 0.477933
+    if "prior_sprint5_s5f2_test_auprc" in results.columns:
+        sprint5_auprc = float(first["prior_sprint5_s5f2_test_auprc"])
+    if "prior_sprint5_s5f2_test_mcc" in results.columns:
+        sprint5_mcc = float(first["prior_sprint5_s5f2_test_mcc"])
+    prevalence = float(first["test_positive_rate"])
+    if "prior_test_positive_prevalence" in results.columns:
+        prevalence = float(first["prior_test_positive_prevalence"])
+    return {
+        "baseline_name": str(first["baseline_reference"]),
+        "baseline_auprc": float(first["baseline_test_auprc"]),
+        "baseline_mcc": float(first.get("baseline_test_mcc", np.nan)),
+        "sprint5_auprc": sprint5_auprc,
+        "sprint5_mcc": sprint5_mcc,
+        "prevalence": prevalence,
+    }
+
+
+def _sprint6_sorted_results(results: pd.DataFrame) -> pd.DataFrame:
+    rows = results.copy()
+    if "run_order" in rows.columns:
+        rows["_order"] = rows["run_order"].astype(int)
+    else:
+        rows["_order"] = np.arange(len(rows))
+    return rows.sort_values(["_order", "run_id"]).drop(columns=["_order"])
+
+
+def _short_run_label(value: object) -> str:
+    text = str(value)
+    for marker in ["_S6R", "-S6R"]:
+        if marker in text:
+            return "S6R" + text.split(marker, maxsplit=1)[1]
+    return text
+
+
+def _annotate_sprint6_reference(ax: plt.Axes, reference: dict[str, float | str]) -> None:
+    text = (
+        f"prevalence={float(reference['prevalence']):.6f}\n"
+        f"F4 AUPRC={float(reference['baseline_auprc']):.6f}\n"
+        f"S5F2 AUPRC={float(reference['sprint5_auprc']):.6f}"
+    )
+    ax.text(
+        0.99,
+        0.02,
+        text,
+        transform=ax.transAxes,
+        ha="right",
+        va="bottom",
+        fontsize=8,
+        bbox={"boxstyle": "round,pad=0.25", "facecolor": "white", "edgecolor": "#a0aec0", "alpha": 0.85},
+    )
+
+
+def _sprint6_per_guide_metrics_for_plot(
+    results: pd.DataFrame,
+    predictions: pd.DataFrame,
+    *,
+    thresholds: dict[str, float],
+) -> pd.DataFrame:
+    if "grna_target_id" not in predictions.columns:
+        return pd.DataFrame(
+            {
+                "run_id": results["run_id"].astype(str),
+                "grna_target_id": "unavailable",
+                "positive_retrieval_rate": np.nan,
+                "negative_retrieval_tnr": np.nan,
+            }
+        )
+    test = predictions.loc[predictions["split"] == "test"].copy()
+    rows = []
+    for keys, part in test.groupby(["run_id", "grna_target_id"], dropna=False, sort=True):
+        run_id = str(keys[0])
+        y_true = part["label"].to_numpy(dtype=int)
+        y_pred = (part["score"].to_numpy(dtype=float) >= thresholds[run_id]).astype(int)
+        matrix = confusion_matrix(y_true, y_pred, labels=[0, 1]).ravel()
+        tn, fp, fn, tp = matrix
+        rows.append(
+            {
+                "run_id": run_id,
+                "grna_target_id": keys[1],
+                "positive_retrieval_rate": _plot_safe_ratio(tp, tp + fn),
+                "negative_retrieval_tnr": _plot_safe_ratio(tn, tn + fp),
+            }
+        )
+    return pd.DataFrame(rows)
+
+
+def _plot_safe_ratio(numerator: int | float, denominator: int | float) -> float:
+    return float(numerator / denominator) if denominator else float("nan")
 
 
 def _write_roc_curves(predictions: list[dict[str, object]], path: Path, *, model_name: str) -> Path:

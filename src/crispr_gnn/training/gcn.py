@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Mapping
 
@@ -36,6 +36,8 @@ from crispr_gnn.models.gcn import (
     graph_c_edge_feature_attrs,
     graph_c_feature_dimensions,
 )
+from crispr_gnn.models.losses import SUPPORTED_LOSSES, build_loss
+from crispr_gnn.training.samplers import balanced_subsample_mask
 
 
 BASELINE_REFERENCE = "xgboost_unweighted / F4"
@@ -75,6 +77,8 @@ class GCNRunConfig:
     num_threads: int = 1
     use_compile: bool = False
     use_amp: bool = False
+    loss_params: Mapping[str, Any] = field(default_factory=dict)
+    sampling: Mapping[str, Any] | None = None
 
 
 def run_gcn_graph_a_from_config(
@@ -125,8 +129,17 @@ def gcn_run_config_from_mapping(config: Mapping[str, Any]) -> GCNRunConfig:
     if graph_schema == GRAPH_C and target_policy != GRAPH_C_TARGET_REPRESENTATION_POLICY:
         raise ValueError("Graph C target-node representation must use the observation context encoder")
     loss = str(training.get("loss", "weighted_bce"))
-    if loss != "weighted_bce":
-        raise ValueError("Sprint 4 GCN training uses weighted BCE only")
+    if loss.lower() not in SUPPORTED_LOSSES:
+        raise ValueError(
+            f"Unsupported GCN loss '{loss}'. Predeclared losses: {sorted(SUPPORTED_LOSSES)}"
+        )
+    loss = loss.lower()
+    loss_params = training.get("loss_params", {})
+    if not isinstance(loss_params, Mapping):
+        raise ValueError("training.loss_params must be a mapping")
+    sampling = training.get("sampling")
+    if sampling is not None and not isinstance(sampling, Mapping):
+        raise ValueError("training.sampling must be a mapping or null")
     scheduler = str(training.get("scheduler", "reduce_on_plateau"))
     if scheduler not in {"reduce_on_plateau", "none"}:
         raise ValueError("Sprint 4 scheduler must be 'reduce_on_plateau' or 'none'")
@@ -161,6 +174,8 @@ def gcn_run_config_from_mapping(config: Mapping[str, Any]) -> GCNRunConfig:
         num_threads=int(training.get("num_threads", 1)),
         use_compile=bool(training.get("use_compile", False)),
         use_amp=bool(training.get("use_amp", False)),
+        loss_params=dict(loss_params),
+        sampling=dict(sampling) if sampling is not None else None,
     )
 
 
@@ -234,8 +249,14 @@ def _train_gcn(
             min_lr=config.scheduler_min_lr,
         )
     train_labels = _supervised_labels(train_view)
+    # pos_weight is retained for the result-row provenance column and is the value
+    # the weighted_bce objective uses (negatives/positives).
     pos_weight = _weighted_bce_pos_weight(train_labels).to(device)
-    loss_fn = torch.nn.BCEWithLogitsLoss(pos_weight=pos_weight)
+    loss_fn = build_loss(config.loss, config.loss_params, train_labels=train_labels)
+    sampler_spec = _balanced_sampler_spec(config.sampling)
+    train_labels_np = (
+        train_labels.detach().cpu().numpy() if sampler_spec is not None else None
+    )
 
     best_state: dict[str, torch.Tensor] | None = None
     best_val_auprc = -np.inf
@@ -251,7 +272,19 @@ def _train_gcn(
         with torch.autocast("cuda", dtype=torch.bfloat16, enabled=_use_amp):
             logits = model(train_view, edge_feature_attrs=edge_feature_attrs)
         train_mask = train_view[edge_type].supervision_mask
-        loss = loss_fn(logits[train_mask].float(), train_labels)
+        sup_logits = logits[train_mask].float()
+        sup_labels = train_labels
+        if sampler_spec is not None:
+            keep = balanced_subsample_mask(
+                train_labels_np,
+                target_ratio=sampler_spec["target_ratio"],
+                seed=config.seed,
+                epoch=epoch,
+            )
+            keep_mask = torch.as_tensor(keep, device=sup_logits.device)
+            sup_logits = sup_logits[keep_mask]
+            sup_labels = sup_labels[keep_mask]
+        loss = loss_fn(sup_logits, sup_labels)
         loss.backward()
         if config.clip_grad_norm > 0:
             torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=config.clip_grad_norm)
@@ -537,6 +570,30 @@ def _weighted_bce_pos_weight(labels: torch.Tensor) -> torch.Tensor:
     if positives <= 0 or negatives <= 0:
         return torch.tensor(1.0, dtype=torch.float32, device=labels.device)
     return (negatives / positives).float()
+
+
+def _balanced_sampler_spec(sampling: Mapping[str, Any] | None) -> dict[str, Any] | None:
+    """Validate and normalize the Sprint 6 training-time sampling spec.
+
+    Only the predeclared measured-only ``balanced_subsample`` strategy is wired in
+    Slice 1; anything else (e.g. hard-negative mining) is out of scope and rejected.
+    Sampling affects training supervision only; validation/test views are untouched.
+    """
+    if not sampling:
+        return None
+    strategy = str(sampling.get("strategy", "")).lower()
+    if strategy != "balanced_subsample":
+        raise ValueError(
+            f"Unsupported Sprint 6 sampling strategy '{strategy}'. "
+            "Only 'balanced_subsample' is implemented in Slice 1."
+        )
+    scope = str(sampling.get("scope", "measured_only")).lower()
+    if scope != "measured_only":
+        raise ValueError("Sprint 6 sampling scope must be 'measured_only'")
+    target_ratio = float(sampling.get("target_ratio", 1.0))
+    if target_ratio <= 0:
+        raise ValueError("Sprint 6 sampling target_ratio must be positive")
+    return {"target_ratio": target_ratio}
 
 
 def _set_determinism(config: GCNRunConfig) -> None:
