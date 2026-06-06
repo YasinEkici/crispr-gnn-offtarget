@@ -19,9 +19,21 @@ def test_sprint6_runner_writes_output_contract_and_resolved_loss_provenance(tmp_
     (graph_a_dir / "manifest.json").write_text("{}", encoding="utf-8")
     (graph_a_dir / "dummy.parquet").write_bytes(b"not-real-parquet-needed-for-hash-only")
 
+    call_order: list[str] = []
+    original_write_graph_provenance = runner._write_graph_provenance
+
+    def write_graph_provenance(*args, **kwargs) -> None:
+        call_order.append("provenance")
+        original_write_graph_provenance(*args, **kwargs)
+
+    def train_graph_a_gcn(*args, **kwargs):
+        call_order.append("train")
+        return _fake_train_graph_a_gcn(*args, **kwargs)
+
     monkeypatch.setattr(runner, "ROOT", tmp_path)
     monkeypatch.setattr(runner, "Sprint3HeteroDataLoader", _fake_loader_factory)
-    monkeypatch.setattr(runner, "train_graph_a_gcn", _fake_train_graph_a_gcn)
+    monkeypatch.setattr(runner, "_write_graph_provenance", write_graph_provenance)
+    monkeypatch.setattr(runner, "train_graph_a_gcn", train_graph_a_gcn)
     monkeypatch.setattr(runner, "_runtime_info", lambda device: {"device": device})
 
     output_dir = runner.run_sprint6_loss_comparison(
@@ -31,6 +43,7 @@ def test_sprint6_runner_writes_output_contract_and_resolved_loss_provenance(tmp_
         selected_run_ids=["S6R0_wbce", "S6R7_balanced_sampling"],
     )
 
+    assert call_order == ["provenance", "train", "train"]
     assert output_dir == tmp_path / "outputs" / "sprint6" / "loss_comparison"
     required = [
         output_dir / "sprint6_loss_comparison_results.csv",

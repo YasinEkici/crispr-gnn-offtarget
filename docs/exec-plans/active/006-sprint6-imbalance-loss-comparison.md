@@ -455,9 +455,21 @@ sites. Tests cover the output contract, optional-run gating, `run_id`
 uniqueness, and resolved-config loss/sampling provenance. Full suite passed:
 `uv run pytest -q` (124 passed); ruff clean.
 
-### Slice 3 — Colab runner preparation
+### Slice 3 — Colab runner preparation — Status: COMPLETE (2026-06-06)
 Runner-only notebook; provenance gate; returned-artifact checklist. Exit: runner
 documented; no headline result claimed.
+
+Done: `colab/sprint6_loss_comparison_runner.ipynb` is a runner-only notebook
+that syncs dependencies with `uv`, clones/uses the approved checkout, copies
+existing Sprint 5 Graph A artifacts from Drive into
+`data/processed/graphs/sprint5/`, validates Graph A `S5F2_energy` before
+training, calls `scripts/run_sprint6_loss_comparison.py` with the frozen sweep
+config and a batch run ID, copies `outputs/sprint6/loss_comparison/` back to
+Drive, and performs returned-artifact checks. `colab/README.md` documents the
+exact command and boundary. Notebook-contract tests assert the notebook stays
+runner-only, uses `uv`, does not rebuild/fabricate artifacts, and does not
+execute optional Sprint 6 runs by default. No GPU/Colab training run and no full
+Sprint 6 sweep were executed in this slice.
 
 ### Slice 4 — Full predeclared loss comparison (Colab GPU)
 Run `S6R0`–`S6R7`; copy outputs to Drive; validate locally. Exit: all runs

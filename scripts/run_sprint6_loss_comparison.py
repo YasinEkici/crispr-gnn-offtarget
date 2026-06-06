@@ -88,6 +88,13 @@ def run_sprint6_loss_comparison(
     diagnostics_dir.mkdir(parents=True, exist_ok=True)
     figures_dir.mkdir(parents=True, exist_ok=True)
     runs_dir.mkdir(parents=True, exist_ok=True)
+    provenance_path = output_dir / "graph_artifact_provenance.json"
+    _write_graph_provenance(
+        provenance_path,
+        graph_dir=graph_dir,
+        manifest=materialized.manifest,
+        run_specs=run_specs,
+    )
 
     all_results: list[pd.DataFrame] = []
     all_predictions: list[pd.DataFrame] = []
@@ -157,13 +164,6 @@ def run_sprint6_loss_comparison(
         figure_paths,
         output_dir / "sprint6_loss_comparison_report.md",
         batch_id=run_batch_id,
-    )
-    provenance_path = output_dir / "graph_artifact_provenance.json"
-    _write_graph_provenance(
-        provenance_path,
-        graph_dir=graph_dir,
-        manifest=materialized.manifest,
-        run_specs=run_specs,
     )
     manifest_path = output_dir / "sprint6_loss_comparison_run_manifest.json"
     _write_run_manifest(

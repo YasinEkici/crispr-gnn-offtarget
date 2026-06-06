@@ -110,6 +110,45 @@ def test_sprint5b_colab_runner_contract() -> None:
     assert "sprint5/epigenetic-ablation" in sources["step2-clone"]
 
 
+def test_sprint6_colab_runner_contract() -> None:
+    notebook_path = ROOT / "colab" / "sprint6_loss_comparison_runner.ipynb"
+    assert notebook_path.exists()
+    notebook = json.loads(notebook_path.read_text(encoding="utf-8"))
+    sources = {
+        cell.get("id"): "".join(cell.get("source", []))
+        for cell in notebook["cells"]
+        if cell.get("cell_type") == "code"
+    }
+    all_code = "\n".join(sources.values())
+    all_source = "\n".join("".join(cell.get("source", [])) for cell in notebook["cells"])
+
+    assert "rm -rf" not in all_code
+    assert "def " not in all_code
+    assert "class " not in all_code
+    assert "BCEWithLogitsLoss" not in all_source
+    assert "train_graph_a_gcn" not in all_source
+    assert "write_sprint6_imbalance" not in all_source
+    assert "select_threshold" not in all_source
+    assert "build_sprint5_graph_a_features.py" not in all_source
+    assert "build_sprint6" not in all_source
+    assert "scripts/train.py" not in all_source
+    assert "uv sync" in sources["step3-sync"]
+    assert "uv run python scripts/run_sprint6_loss_comparison.py" in sources["step6-run-sweep"]
+    assert "configs/sweeps/sprint6_loss_comparison.yaml" in sources["step6-run-sweep"]
+    assert "--run-id \"$RUN_ID\"" in sources["step6-run-sweep"]
+    assert "--include-optional-runs" not in all_source
+    assert "S6R8" not in all_source
+    assert "S6R9" not in all_source
+    assert "S6S1" not in all_source
+    assert "data/processed/graphs/sprint5" in all_source
+    assert "rsync -a \"$GRAPH_SOURCE/\" data/processed/graphs/sprint5/" in sources["step4-copy-artifacts"]
+    assert "from crispr_gnn.graph.graph_schemas import GRAPH_A" in sources["step5-validate-artifacts"]
+    assert "from crispr_gnn.graph.pyg_dataset import Sprint3HeteroDataLoader" in sources["step5-validate-artifacts"]
+    assert "S5F2_energy" in sources["step5-validate-artifacts"]
+    assert "Output already exists in Drive" in sources["step7-copy-outputs"]
+    assert "optional_runs_executed" in sources["step8-returned-checks"]
+
+
 def test_gcn_headline_config_rejects_debug_or_random_edge_rules() -> None:
     config = load_yaml(ROOT / "configs" / "experiments" / "gcn_minimal.yaml")
     config["data"]["split_id"] = "debug"
