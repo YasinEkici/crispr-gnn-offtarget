@@ -1,0 +1,175 @@
+baseline_reference:
+  feature_set: F4
+  model_name: xgboost_unweighted
+  test_auprc: 0.992522
+  test_auroc: 0.938416
+  test_mcc: 0.345198
+data:
+  config: configs/data/mak2022.yaml
+  dataset: mak2022
+  graph_artifact_dir: data/processed/graphs/sprint5
+  label_scheme: scheme_a
+  split_id: sprint2_main_seed42
+  split_manifest: outputs/splits/sprint2_guides.json
+evaluation:
+  checkpoint_policy: validation_auprc
+  controlled_variable: loss_or_sampling_only
+  no_test_tuning: true
+  protocol: headline_guide_level
+  regime: measured_only
+  threshold_policy: validation_max_f1
+experiment_name: sprint6_loss_comparison
+features:
+  edge_feature_sets:
+  - s5f2_energy
+  feature_set: S5F2_energy
+graph:
+  materialization: heterodata
+  schema: graph_a_minimal_physical_target
+  topology_policy: fixed_graph_a
+  visibility_policy: strict_inductive_primary
+metrics:
+  emphasis:
+  - specificity
+  - tn
+  - mcc
+  - macro_f1
+  primary: auprc
+  secondary:
+  - auroc
+  - f1
+  - macro_f1
+  - mcc
+  - specificity
+  - sensitivity
+  - tn
+  - fp
+  - fn
+  - tp
+model:
+  dropout: 0.2
+  hidden_dim: 128
+  name: gcn_graph_a_sprint6
+  num_layers: 2
+  target_node_representation: zero_type_feature
+optional_runs:
+- id: S6R8_classbalanced_cui
+  loss: class_balanced_bce
+  params:
+    beta: 0.999
+  role: optional_class_balanced_reweighting
+- id: S6R9_hard_neg_mining
+  loss: weighted_bce
+  params:
+    pos_weight: auto
+  role: optional_likely_deferred_little_to_mine
+  sampling:
+    scope: measured_only
+    strategy: hard_negative_mining
+- id: S6S1_putative_augmented
+  loss: tbd_best_headline_loss
+  measured_zero_policy:
+    never_in_validation_or_test: true
+    not_true_negatives: true
+    train_only: true
+  regime: putative_augmented_screening
+  role: optional_secondary_low_prevalence_screening_regime_not_headline
+outputs:
+  output_dir: outputs/sprint6/loss_comparison
+prior_context:
+  sprint4_graph_a:
+    test_auprc: 0.966287
+    test_mcc: 0.300781
+  sprint5_graph_a_s5f2_energy:
+    test_auprc: 0.976585
+    test_mcc: 0.477933
+  test_positive_prevalence: 0.900705
+run_id: null
+runs:
+- id: S6R0_wbce
+  loss: weighted_bce
+  params:
+    pos_weight: auto
+  role: baseline_continuity_vs_sprint5_s5f2_energy
+- id: S6R1_bce_unw
+  loss: bce_unweighted
+  params:
+    pos_weight: 1.0
+  role: control_isolates_weighting_effect
+- id: S6R2_focal_g2_a25
+  loss: focal
+  params:
+    alpha: 0.25
+    gamma: 2.0
+  role: focal_validated_default_lin2017_guan2024
+- id: S6R3_focal_g1_a25
+  loss: focal
+  params:
+    alpha: 0.25
+    gamma: 1.0
+  role: focal_milder_focusing_gamma_sensitivity
+- id: S6R4_focal_g2_a50
+  loss: focal
+  params:
+    alpha: 0.5
+    gamma: 2.0
+  role: focal_pure_focusing
+- id: S6R5_dice
+  loss: generalized_dice
+  params:
+    class_weights: inverse_volume
+    epsilon: 1.0
+  role: generalized_dice_sudre2017
+- id: S6R6_tversky_a70_b30
+  loss: tversky
+  params:
+    alpha: 0.7
+    beta: 0.3
+    epsilon: 1.0
+  role: tversky_specificity_oriented_inverted_salehi2017
+- id: S6R7_balanced_sampling
+  loss: bce_unweighted
+  params:
+    pos_weight: 1.0
+  role: sampling_axis_measured_only
+  sampling:
+    deterministic_by_seed: true
+    scope: measured_only
+    strategy: balanced_subsample
+    target_ratio: 1.0
+seed: 42
+split_rules:
+  exclude_experiment_id: 18
+  guide_disjoint: true
+  test_measured_only: true
+  train_measured_only: true
+  validation_measured_only: true
+sprint: sprint6
+sprint6_run:
+  id: S6R3_focal_g1_a25
+  loss: focal
+  loss_params:
+    alpha: 0.25
+    gamma: 1.0
+  role: focal_milder_focusing_gamma_sensitivity
+  sampling: null
+task: sprint6_loss_comparison
+training:
+  clip_grad_norm: 1.0
+  device: cuda
+  learning_rate: 0.001
+  loss: focal
+  loss_params:
+    alpha: 0.25
+    gamma: 1.0
+  max_epochs: 300
+  min_epochs: 5
+  num_threads: 1
+  patience: 15
+  scheduler: reduce_on_plateau
+  scheduler_factor: 0.5
+  scheduler_min_lr: 1.0e-05
+  scheduler_patience: 5
+  use_amp: true
+  use_compile: true
+  weight_decay: 0.0001

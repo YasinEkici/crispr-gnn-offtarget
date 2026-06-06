@@ -1,9 +1,9 @@
 # Execution Plan: Sprint 6 Imbalance / Loss Comparison
 
 > Status: active. Run list (Section 6) and hyperparameters FROZEN and approved
-> 2026-06-06 — Slice 0 (planning/decision freeze) exit gate met. Implementation
-> (Slice 1+) may proceed. Predeclared losses/γ/α/β must not change from test
-> diagnostics.
+> 2026-06-06 — Slices 0-4 complete. Headline Colab GPU sweep returned and
+> validated locally. Predeclared losses/γ/α/β must not change from test
+> diagnostics; optional Slice 5 remains approval-gated and out of headline scope.
 
 ## 1. Goal
 
@@ -471,9 +471,45 @@ runner-only, uses `uv`, does not rebuild/fabricate artifacts, and does not
 execute optional Sprint 6 runs by default. No GPU/Colab training run and no full
 Sprint 6 sweep were executed in this slice.
 
-### Slice 4 — Full predeclared loss comparison (Colab GPU)
+### Slice 4 — Full predeclared loss comparison (Colab GPU) — Status: COMPLETE (2026-06-06)
 Run `S6R0`–`S6R7`; copy outputs to Drive; validate locally. Exit: all runs
 present or documented; output validation passes; no test-driven reruns.
+
+Done: Colab run batch `sprint6_loss_comparison_seed42_20260606_182812`
+returned under `outputs/sprint6/loss_comparison/` and passed local output
+contract validation. Root CSV/report/manifest/provenance files are present;
+all seven required `figures_sprint6/` figures and all required
+`diagnostics_sprint6/` tables are present and non-empty; each of the eight
+headline run directories contains `resolved_config.yaml`, `runtime.json`,
+`training_history.csv`, `metrics.csv`, and `model.pt`. The consolidated results
+contain exactly `S6R0`-`S6R7`, unique per-run `run_id` values, no optional
+`S6R8`/`S6R9`/`S6S1` execution, and the frozen Graph A + `S5F2_energy` /
+`sprint2_main_seed42` / `scheme_a` / measured-only / validation-only
+checkpoint+threshold contract. Graph artifact provenance for Sprint 5 Graph A
+`S5F2_energy` was written before the first run runtime timestamp
+(`18:28:19.044 UTC` vs `18:28:19.116 UTC`).
+
+AUPRC-first result: `S6R0_wbce` is the top headline run with test AUPRC
+`0.976935`, a negligible `+0.000350` vs the Sprint 5 Graph A `S5F2_energy`
+reference (`0.976585`) and `-0.015587` vs `xgboost_unweighted` / F4
+(`0.992522`). `S6R7_balanced_sampling` is close on AUPRC (`0.976205`) but does
+not beat weighted BCE. Focal (`S6R2`-`S6R4`) and Tversky (`S6R6`) improve neither
+the primary AUPRC nor negative retrieval enough to replace weighted BCE.
+Generalized Dice (`S6R5`) collapses below the positive-prevalence AUPRC floor
+(`0.871174` vs `0.900705`) with TN=0. Threshold metrics confirm that loss and
+measured-only sampling did not solve the negative-class collapse: best
+specificity remains low (`S6R0`: 49/169 negatives retrieved; `S6R7`: 42/169).
+Interpretation must keep the architecture caveat: in current `GraphAEdgeGCN`,
+`S5F2_energy` edge features enter only the edge classifier head, not GCN message
+passing, so residual collapse must not be attributed to loss alone.
+
+Independent validation (2026-06-06): the artifact contract was re-checked from
+disk — PASS, no missing items, and the returned headline numbers match the
+consolidated CSV exactly. Warnings triaged as benign: the Torch TF32 notice is
+performance-only, and the sklearn "single label" warning comes from single-class
+per-guide/per-genome diagnostic slices (every `confusion_matrix` call uses
+`labels=[0, 1]`), not from headline metrics. Re-validation: `uv run pytest -q`
+→ 125 passed; `uv run ruff check scripts src/crispr_gnn/evaluation tests` → clean.
 
 ### Slice 5 — Optional secondary track (approval-gated)
 Only if approved: run `S6S1_putative_augmented` (and/or `S6R8`/`S6R9`) as a

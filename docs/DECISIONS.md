@@ -817,3 +817,38 @@ Outcome:
   sensitivity precedent. The current benchmark must continue to be described as
   measured-only / guide-level / leakage-controlled, not as a full genome-wide
   off-target screening benchmark.
+
+## 2026-06-06 - Sprint 6 headline loss comparison outcome
+
+Decision: Keep weighted BCE (`S6R0_wbce`) as the headline Sprint 6 Graph A +
+`S5F2_energy` objective reference. Do not revise the predeclared loss
+hyperparameters from the returned test diagnostics, and do not promote optional
+`S6R8`/`S6R9`/`S6S1` runs into the headline table.
+
+Outcome:
+
+- Colab batch `sprint6_loss_comparison_seed42_20260606_182812` completed exactly
+  the predeclared headline runs `S6R0`-`S6R7`; returned artifacts validated under
+  `outputs/sprint6/loss_comparison/`.
+- AUPRC-first ranking: `S6R0_wbce` test AUPRC `0.976935`; `S6R7_balanced_sampling`
+  `0.976205`; focal variants `0.956803`-`0.963497`; Tversky `0.955804`;
+  generalized Dice `0.871174`.
+- The best run is only `+0.000350` AUPRC over the Sprint 5 Graph A
+  `S5F2_energy` reference (`0.976585`) and remains below `xgboost_unweighted` /
+  F4 (`0.992522`) by `-0.015587`.
+- Negative-class recognition remains limited under the validation-max-F1
+  threshold: `S6R0` retrieves 49/169 negatives, `S6R7` retrieves 42/169, and
+  generalized Dice retrieves 0/169. These threshold metrics are diagnostic and
+  must not be reported as AUPRC gains.
+
+Interpretation:
+
+- The expected Gao/Guan-style imbalance benefit did not transfer cleanly to this
+  measured-only headline regime because the class structure is inverted
+  (positive prevalence `0.900705`; negatives are rare), the validation-max-F1
+  threshold favors positive predictions, and the current `GraphAEdgeGCN` uses
+  `S5F2_energy` only in the edge-classifier head rather than in message passing.
+- Therefore residual threshold collapse is not attributed to loss alone. Further
+  work should be framed as architecture/regime investigation (for example an
+  edge-aware Sprint 7 or separately approved screening-regime Slice 5), not as
+  post-hoc retuning of Sprint 6 losses.
