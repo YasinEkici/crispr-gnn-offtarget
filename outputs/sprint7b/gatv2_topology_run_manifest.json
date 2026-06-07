@@ -1,0 +1,107 @@
+{
+  "attention_summary_path": "outputs/sprint7b/diagnostics/gatv2_topology_attention_summary.csv",
+  "batch_id": "sprint7b_gatv2_topology_seed42_20260607_174739",
+  "config_path": "configs/sweeps/sprint7b_gatv2_topology.yaml",
+  "diagnostic_tables": [
+    "outputs/sprint7b/diagnostics/gatv2_topology_threshold_metrics.csv",
+    "outputs/sprint7b/diagnostics/gatv2_topology_deltas.csv",
+    "outputs/sprint7b/diagnostics/gatv2_topology_attention_contract_summary.csv",
+    "outputs/sprint7b/diagnostics/gatv2_topology_per_guide_score_summary.csv",
+    "outputs/sprint7b/diagnostics/gatv2_topology_per_genome_score_summary.csv",
+    "outputs/sprint7b/diagnostics/gatv2_topology_score_deciles.csv"
+  ],
+  "figures": [
+    "outputs/sprint7b/figures/gatv2_topology_auprc_comparison.png",
+    "outputs/sprint7b/figures/gatv2_topology_threshold_metrics.png",
+    "outputs/sprint7b/figures/gatv2_topology_pr_curves.png",
+    "outputs/sprint7b/figures/gatv2_topology_roc_curves.png",
+    "outputs/sprint7b/figures/gatv2_topology_score_distributions.png",
+    "outputs/sprint7b/figures/gatv2_topology_per_guide_metric_distribution.png",
+    "outputs/sprint7b/figures/gatv2_topology_training_curves.png",
+    "outputs/sprint7b/figures/gatv2_topology_attention_by_edge_kind.png"
+  ],
+  "generated_at_utc": "2026-06-07T17:49:12.944370+00:00",
+  "graph_artifact_provenance_path": "outputs/sprint7b/graph_artifact_provenance.json",
+  "headline_run_ids": [
+    "S7B_R1_graph_b_gcn_s5f2",
+    "S7B_R2_graph_b_gatv2_s5f2",
+    "S7B_R3_graph_c_gatv2_s5f2"
+  ],
+  "manifest_type": "sprint7b_gatv2_topology_run_manifest",
+  "predictions_path": "outputs/sprint7b/diagnostics/gatv2_topology_predictions.csv",
+  "reference_run_ids": [
+    "S7B_REF_XGB_F4",
+    "S7B_REF_GA_GCN",
+    "S7B_REF_GA_GATV2",
+    "S7B_REF_GC_GCN"
+  ],
+  "report_path": "outputs/sprint7b/gatv2_topology_report.md",
+  "results_path": "outputs/sprint7b/gatv2_topology_comparison.csv",
+  "runs": [
+    {
+      "checkpoint_path": null,
+      "predeclared_id": "S7B_REF_XGB_F4",
+      "role": "authoritative_xgboost_f4_reference_no_retrain",
+      "run_id": "sprint7b_gatv2_topology_seed42_20260607_174739_S7B_REF_XGB_F4",
+      "source": "Sprint 2 XGBoost F4 baseline"
+    },
+    {
+      "checkpoint_path": null,
+      "predeclared_id": "S7B_REF_GA_GCN",
+      "role": "carry_forward_reference_no_retrain",
+      "run_id": "sprint7b_gatv2_topology_seed42_20260607_174739_S7B_REF_GA_GCN",
+      "source": "Sprint 6 S6R0 weighted-BCE Graph A GCN"
+    },
+    {
+      "checkpoint_path": null,
+      "predeclared_id": "S7B_REF_GA_GATV2",
+      "role": "carry_forward_reference_no_retrain",
+      "run_id": "sprint7b_gatv2_topology_seed42_20260607_174739_S7B_REF_GA_GATV2",
+      "source": "Sprint 7 S7R2 Graph A GATv2"
+    },
+    {
+      "checkpoint_path": null,
+      "predeclared_id": "S7B_REF_GC_GCN",
+      "role": "carry_forward_reference_no_retrain",
+      "run_id": "sprint7b_gatv2_topology_seed42_20260607_174739_S7B_REF_GC_GCN",
+      "source": "Sprint 5B Graph C S5F2 GCN"
+    },
+    {
+      "architecture": "gcn",
+      "attention_summary_path": "outputs/sprint7b/runs/sprint7b_gatv2_topology_seed42_20260607_174739_S7B_R1_graph_b_gcn_s5f2/attention_summary.csv",
+      "checkpoint_path": "outputs/sprint7b/runs/sprint7b_gatv2_topology_seed42_20260607_174739_S7B_R1_graph_b_gcn_s5f2/model.pt",
+      "graph_schema": "graph_b_guide_similarity_control",
+      "metrics_path": "outputs/sprint7b/runs/sprint7b_gatv2_topology_seed42_20260607_174739_S7B_R1_graph_b_gcn_s5f2/metrics.csv",
+      "predeclared_id": "S7B_R1_graph_b_gcn_s5f2",
+      "resolved_config_path": "outputs/sprint7b/runs/sprint7b_gatv2_topology_seed42_20260607_174739_S7B_R1_graph_b_gcn_s5f2/resolved_config.yaml",
+      "role": "matched_graph_b_s5f2_gcn_reference",
+      "run_id": "sprint7b_gatv2_topology_seed42_20260607_174739_S7B_R1_graph_b_gcn_s5f2",
+      "training_history_path": "outputs/sprint7b/runs/sprint7b_gatv2_topology_seed42_20260607_174739_S7B_R1_graph_b_gcn_s5f2/training_history.csv"
+    },
+    {
+      "architecture": "gatv2",
+      "attention_summary_path": "outputs/sprint7b/runs/sprint7b_gatv2_topology_seed42_20260607_174739_S7B_R2_graph_b_gatv2_s5f2/attention_summary.csv",
+      "checkpoint_path": "outputs/sprint7b/runs/sprint7b_gatv2_topology_seed42_20260607_174739_S7B_R2_graph_b_gatv2_s5f2/model.pt",
+      "graph_schema": "graph_b_guide_similarity_control",
+      "metrics_path": "outputs/sprint7b/runs/sprint7b_gatv2_topology_seed42_20260607_174739_S7B_R2_graph_b_gatv2_s5f2/metrics.csv",
+      "predeclared_id": "S7B_R2_graph_b_gatv2_s5f2",
+      "resolved_config_path": "outputs/sprint7b/runs/sprint7b_gatv2_topology_seed42_20260607_174739_S7B_R2_graph_b_gatv2_s5f2/resolved_config.yaml",
+      "role": "graph_b_guide_similarity_topology_x_edge_aware_gatv2",
+      "run_id": "sprint7b_gatv2_topology_seed42_20260607_174739_S7B_R2_graph_b_gatv2_s5f2",
+      "training_history_path": "outputs/sprint7b/runs/sprint7b_gatv2_topology_seed42_20260607_174739_S7B_R2_graph_b_gatv2_s5f2/training_history.csv"
+    },
+    {
+      "architecture": "gatv2",
+      "attention_summary_path": "outputs/sprint7b/runs/sprint7b_gatv2_topology_seed42_20260607_174739_S7B_R3_graph_c_gatv2_s5f2/attention_summary.csv",
+      "checkpoint_path": "outputs/sprint7b/runs/sprint7b_gatv2_topology_seed42_20260607_174739_S7B_R3_graph_c_gatv2_s5f2/model.pt",
+      "graph_schema": "graph_c_context_observation",
+      "metrics_path": "outputs/sprint7b/runs/sprint7b_gatv2_topology_seed42_20260607_174739_S7B_R3_graph_c_gatv2_s5f2/metrics.csv",
+      "predeclared_id": "S7B_R3_graph_c_gatv2_s5f2",
+      "resolved_config_path": "outputs/sprint7b/runs/sprint7b_gatv2_topology_seed42_20260607_174739_S7B_R3_graph_c_gatv2_s5f2/resolved_config.yaml",
+      "role": "graph_c_context_observation_semantics_x_edge_aware_gatv2",
+      "run_id": "sprint7b_gatv2_topology_seed42_20260607_174739_S7B_R3_graph_c_gatv2_s5f2",
+      "training_history_path": "outputs/sprint7b/runs/sprint7b_gatv2_topology_seed42_20260607_174739_S7B_R3_graph_c_gatv2_s5f2/training_history.csv"
+    }
+  ],
+  "training_history_path": "outputs/sprint7b/diagnostics/gatv2_topology_training_history.csv"
+}
