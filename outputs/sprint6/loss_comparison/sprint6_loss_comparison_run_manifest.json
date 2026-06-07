@@ -1,0 +1,171 @@
+{
+  "batch_id": "sprint6_loss_comparison_seed42_20260606_182812",
+  "config_path": "configs/sweeps/sprint6_loss_comparison.yaml",
+  "diagnostic_tables": [
+    "outputs/sprint6/loss_comparison/diagnostics_sprint6/imbalance_score_direction.csv",
+    "outputs/sprint6/loss_comparison/diagnostics_sprint6/imbalance_threshold_metrics.csv",
+    "outputs/sprint6/loss_comparison/diagnostics_sprint6/imbalance_score_deciles.csv",
+    "outputs/sprint6/loss_comparison/diagnostics_sprint6/imbalance_per_guide_metrics.csv",
+    "outputs/sprint6/loss_comparison/diagnostics_sprint6/imbalance_per_guide_metric_distribution.csv",
+    "outputs/sprint6/loss_comparison/diagnostics_sprint6/imbalance_positive_retrieval_summary.csv",
+    "outputs/sprint6/loss_comparison/diagnostics_sprint6/imbalance_negative_retrieval_summary.csv",
+    "outputs/sprint6/loss_comparison/diagnostics_sprint6/imbalance_per_genome_metrics.csv"
+  ],
+  "figures": [
+    "outputs/sprint6/loss_comparison/figures_sprint6/imbalance_auprc_comparison.png",
+    "outputs/sprint6/loss_comparison/figures_sprint6/imbalance_pr_curves.png",
+    "outputs/sprint6/loss_comparison/figures_sprint6/imbalance_threshold_metrics.png",
+    "outputs/sprint6/loss_comparison/figures_sprint6/imbalance_score_distributions.png",
+    "outputs/sprint6/loss_comparison/figures_sprint6/imbalance_per_guide_metric_distribution.png",
+    "outputs/sprint6/loss_comparison/figures_sprint6/imbalance_positive_retrieval_summary.png",
+    "outputs/sprint6/loss_comparison/figures_sprint6/imbalance_negative_retrieval_summary.png"
+  ],
+  "generated_at_utc": "2026-06-06T18:29:01.015513+00:00",
+  "graph_artifact_provenance_path": "outputs/sprint6/loss_comparison/graph_artifact_provenance.json",
+  "headline_run_ids": [
+    "S6R0_wbce",
+    "S6R1_bce_unw",
+    "S6R2_focal_g2_a25",
+    "S6R3_focal_g1_a25",
+    "S6R4_focal_g2_a50",
+    "S6R5_dice",
+    "S6R6_tversky_a70_b30",
+    "S6R7_balanced_sampling"
+  ],
+  "manifest_type": "sprint6_loss_comparison_run_manifest",
+  "optional_runs_available": [
+    "S6R8_classbalanced_cui",
+    "S6R9_hard_neg_mining",
+    "S6S1_putative_augmented"
+  ],
+  "optional_runs_executed": [],
+  "predictions_path": "outputs/sprint6/loss_comparison/diagnostics_sprint6/sprint6_loss_comparison_predictions.csv",
+  "report_path": "outputs/sprint6/loss_comparison/sprint6_loss_comparison_report.md",
+  "results_path": "outputs/sprint6/loss_comparison/sprint6_loss_comparison_results.csv",
+  "runs": [
+    {
+      "checkpoint_path": "outputs/sprint6/loss_comparison/runs/sprint6_loss_comparison_seed42_20260606_182812_S6R0_wbce/model.pt",
+      "loss": "weighted_bce",
+      "loss_params": {
+        "pos_weight": "auto"
+      },
+      "metrics_path": "outputs/sprint6/loss_comparison/runs/sprint6_loss_comparison_seed42_20260606_182812_S6R0_wbce/metrics.csv",
+      "predeclared_id": "S6R0_wbce",
+      "resolved_config_path": "outputs/sprint6/loss_comparison/runs/sprint6_loss_comparison_seed42_20260606_182812_S6R0_wbce/resolved_config.yaml",
+      "role": "baseline_continuity_vs_sprint5_s5f2_energy",
+      "run_id": "sprint6_loss_comparison_seed42_20260606_182812_S6R0_wbce",
+      "sampling": null,
+      "training_history_path": "outputs/sprint6/loss_comparison/runs/sprint6_loss_comparison_seed42_20260606_182812_S6R0_wbce/training_history.csv"
+    },
+    {
+      "checkpoint_path": "outputs/sprint6/loss_comparison/runs/sprint6_loss_comparison_seed42_20260606_182812_S6R1_bce_unw/model.pt",
+      "loss": "bce_unweighted",
+      "loss_params": {
+        "pos_weight": 1.0
+      },
+      "metrics_path": "outputs/sprint6/loss_comparison/runs/sprint6_loss_comparison_seed42_20260606_182812_S6R1_bce_unw/metrics.csv",
+      "predeclared_id": "S6R1_bce_unw",
+      "resolved_config_path": "outputs/sprint6/loss_comparison/runs/sprint6_loss_comparison_seed42_20260606_182812_S6R1_bce_unw/resolved_config.yaml",
+      "role": "control_isolates_weighting_effect",
+      "run_id": "sprint6_loss_comparison_seed42_20260606_182812_S6R1_bce_unw",
+      "sampling": null,
+      "training_history_path": "outputs/sprint6/loss_comparison/runs/sprint6_loss_comparison_seed42_20260606_182812_S6R1_bce_unw/training_history.csv"
+    },
+    {
+      "checkpoint_path": "outputs/sprint6/loss_comparison/runs/sprint6_loss_comparison_seed42_20260606_182812_S6R2_focal_g2_a25/model.pt",
+      "loss": "focal",
+      "loss_params": {
+        "alpha": 0.25,
+        "gamma": 2.0
+      },
+      "metrics_path": "outputs/sprint6/loss_comparison/runs/sprint6_loss_comparison_seed42_20260606_182812_S6R2_focal_g2_a25/metrics.csv",
+      "predeclared_id": "S6R2_focal_g2_a25",
+      "resolved_config_path": "outputs/sprint6/loss_comparison/runs/sprint6_loss_comparison_seed42_20260606_182812_S6R2_focal_g2_a25/resolved_config.yaml",
+      "role": "focal_validated_default_lin2017_guan2024",
+      "run_id": "sprint6_loss_comparison_seed42_20260606_182812_S6R2_focal_g2_a25",
+      "sampling": null,
+      "training_history_path": "outputs/sprint6/loss_comparison/runs/sprint6_loss_comparison_seed42_20260606_182812_S6R2_focal_g2_a25/training_history.csv"
+    },
+    {
+      "checkpoint_path": "outputs/sprint6/loss_comparison/runs/sprint6_loss_comparison_seed42_20260606_182812_S6R3_focal_g1_a25/model.pt",
+      "loss": "focal",
+      "loss_params": {
+        "alpha": 0.25,
+        "gamma": 1.0
+      },
+      "metrics_path": "outputs/sprint6/loss_comparison/runs/sprint6_loss_comparison_seed42_20260606_182812_S6R3_focal_g1_a25/metrics.csv",
+      "predeclared_id": "S6R3_focal_g1_a25",
+      "resolved_config_path": "outputs/sprint6/loss_comparison/runs/sprint6_loss_comparison_seed42_20260606_182812_S6R3_focal_g1_a25/resolved_config.yaml",
+      "role": "focal_milder_focusing_gamma_sensitivity",
+      "run_id": "sprint6_loss_comparison_seed42_20260606_182812_S6R3_focal_g1_a25",
+      "sampling": null,
+      "training_history_path": "outputs/sprint6/loss_comparison/runs/sprint6_loss_comparison_seed42_20260606_182812_S6R3_focal_g1_a25/training_history.csv"
+    },
+    {
+      "checkpoint_path": "outputs/sprint6/loss_comparison/runs/sprint6_loss_comparison_seed42_20260606_182812_S6R4_focal_g2_a50/model.pt",
+      "loss": "focal",
+      "loss_params": {
+        "alpha": 0.5,
+        "gamma": 2.0
+      },
+      "metrics_path": "outputs/sprint6/loss_comparison/runs/sprint6_loss_comparison_seed42_20260606_182812_S6R4_focal_g2_a50/metrics.csv",
+      "predeclared_id": "S6R4_focal_g2_a50",
+      "resolved_config_path": "outputs/sprint6/loss_comparison/runs/sprint6_loss_comparison_seed42_20260606_182812_S6R4_focal_g2_a50/resolved_config.yaml",
+      "role": "focal_pure_focusing",
+      "run_id": "sprint6_loss_comparison_seed42_20260606_182812_S6R4_focal_g2_a50",
+      "sampling": null,
+      "training_history_path": "outputs/sprint6/loss_comparison/runs/sprint6_loss_comparison_seed42_20260606_182812_S6R4_focal_g2_a50/training_history.csv"
+    },
+    {
+      "checkpoint_path": "outputs/sprint6/loss_comparison/runs/sprint6_loss_comparison_seed42_20260606_182812_S6R5_dice/model.pt",
+      "loss": "generalized_dice",
+      "loss_params": {
+        "class_weights": "inverse_volume",
+        "epsilon": 1.0
+      },
+      "metrics_path": "outputs/sprint6/loss_comparison/runs/sprint6_loss_comparison_seed42_20260606_182812_S6R5_dice/metrics.csv",
+      "predeclared_id": "S6R5_dice",
+      "resolved_config_path": "outputs/sprint6/loss_comparison/runs/sprint6_loss_comparison_seed42_20260606_182812_S6R5_dice/resolved_config.yaml",
+      "role": "generalized_dice_sudre2017",
+      "run_id": "sprint6_loss_comparison_seed42_20260606_182812_S6R5_dice",
+      "sampling": null,
+      "training_history_path": "outputs/sprint6/loss_comparison/runs/sprint6_loss_comparison_seed42_20260606_182812_S6R5_dice/training_history.csv"
+    },
+    {
+      "checkpoint_path": "outputs/sprint6/loss_comparison/runs/sprint6_loss_comparison_seed42_20260606_182812_S6R6_tversky_a70_b30/model.pt",
+      "loss": "tversky",
+      "loss_params": {
+        "alpha": 0.7,
+        "beta": 0.3,
+        "epsilon": 1.0
+      },
+      "metrics_path": "outputs/sprint6/loss_comparison/runs/sprint6_loss_comparison_seed42_20260606_182812_S6R6_tversky_a70_b30/metrics.csv",
+      "predeclared_id": "S6R6_tversky_a70_b30",
+      "resolved_config_path": "outputs/sprint6/loss_comparison/runs/sprint6_loss_comparison_seed42_20260606_182812_S6R6_tversky_a70_b30/resolved_config.yaml",
+      "role": "tversky_specificity_oriented_inverted_salehi2017",
+      "run_id": "sprint6_loss_comparison_seed42_20260606_182812_S6R6_tversky_a70_b30",
+      "sampling": null,
+      "training_history_path": "outputs/sprint6/loss_comparison/runs/sprint6_loss_comparison_seed42_20260606_182812_S6R6_tversky_a70_b30/training_history.csv"
+    },
+    {
+      "checkpoint_path": "outputs/sprint6/loss_comparison/runs/sprint6_loss_comparison_seed42_20260606_182812_S6R7_balanced_sampling/model.pt",
+      "loss": "bce_unweighted",
+      "loss_params": {
+        "pos_weight": 1.0
+      },
+      "metrics_path": "outputs/sprint6/loss_comparison/runs/sprint6_loss_comparison_seed42_20260606_182812_S6R7_balanced_sampling/metrics.csv",
+      "predeclared_id": "S6R7_balanced_sampling",
+      "resolved_config_path": "outputs/sprint6/loss_comparison/runs/sprint6_loss_comparison_seed42_20260606_182812_S6R7_balanced_sampling/resolved_config.yaml",
+      "role": "sampling_axis_measured_only",
+      "run_id": "sprint6_loss_comparison_seed42_20260606_182812_S6R7_balanced_sampling",
+      "sampling": {
+        "deterministic_by_seed": true,
+        "scope": "measured_only",
+        "strategy": "balanced_subsample",
+        "target_ratio": 1.0
+      },
+      "training_history_path": "outputs/sprint6/loss_comparison/runs/sprint6_loss_comparison_seed42_20260606_182812_S6R7_balanced_sampling/training_history.csv"
+    }
+  ],
+  "training_history_path": "outputs/sprint6/loss_comparison/diagnostics_sprint6/sprint6_loss_comparison_training_history.csv"
+}

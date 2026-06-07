@@ -4,7 +4,7 @@ This project builds an epigenetic-context-aware GNN framework for CRISPR-Cas9 of
 
 The first working dataset is the Mak et al. 2022 crisprSQL-derived epigenetic/nucleosome dataset. Large data files live outside git under `data/raw/`, `data/interim/`, or `data/processed/`.
 
-Sprint 1 completed the dataset audit, label scheme validation, and feature parsing policy. Sprint 2 completed fair same-split non-GNN and sequence baselines under the locked guide-level measured-only evaluation protocol. Sprint 3 completed dependency-light Graph A/B/C artifact construction and leakage-control checks under that same frozen contract, without training a graph model. Sprint 4 is complete: all three GCN schemas (Graph A, Graph B as bounded secondary control, Graph C) have validated real Colab GPU runs under the frozen Sprint 2/Sprint 3 contract. Sprint 5 is complete as a Graph A fixed-topology feature-family ablation, with Sprint 5B as one secondary Graph C energy-sensitivity run. The strongest current non-graph baseline is still `xgboost_unweighted / F4`; no GCN result beats the F4 XGBoost reference on primary test AUPRC.
+Sprint 1 completed the dataset audit, label scheme validation, and feature parsing policy. Sprint 2 completed fair same-split non-GNN and sequence baselines under the locked guide-level measured-only evaluation protocol. Sprint 3 completed dependency-light Graph A/B/C artifact construction and leakage-control checks under that same frozen contract, without training a graph model. Sprint 4 is complete: all three GCN schemas (Graph A, Graph B as bounded secondary control, Graph C) have validated real Colab GPU runs under the frozen Sprint 2/Sprint 3 contract. Sprint 5 is complete as a Graph A fixed-topology feature-family ablation, with Sprint 5B as one secondary Graph C energy-sensitivity run. Sprint 6 is complete (Slices 0–4; Slice 5 optional/deferred): a predeclared loss/sampling comparison on the fixed Graph A + `S5F2_energy` setting, where no objective beat weighted BCE. The strongest current non-graph baseline is still `xgboost_unweighted / F4`; no GCN result beats the F4 XGBoost reference on primary test AUPRC.
 
 Sprint 4 final results (test AUPRC / test MCC, positive prevalence 0.9007):
 
@@ -20,7 +20,9 @@ Sprint 5/5B interpretation:
 - Graph A `S5F4_computed_agg` and `S5F5_computed_pos`: AUPRC about 0.91 / MCC 0.0 — computed context feature additions collapse under the current Graph A GCN edge-feature formulation.
 - Graph C Sprint 5B `GraphCContext+S5F2_energy`: AUPRC 0.9725 / MCC 0.2743 — improves Sprint 4 Graph C AUPRC, but not Graph A `S5F2_energy`; threshold-selected classification recognizes very few negatives (TN/FP/FN/TP = 14/155/0/1533).
 
-Graph C must continue to be interpreted as changing both topology and target semantics/context representation relative to Graph A, not as a topology-only comparison. The near-term path is Sprint 6 imbalance/threshold/loss analysis, because several high-AUPRC GCN runs show weak negative-class recognition under validation-selected thresholds.
+Graph C must continue to be interpreted as changing both topology and target semantics/context representation relative to Graph A, not as a topology-only comparison.
+
+Sprint 6 result (loss/sampling comparison on fixed Graph A + `S5F2_energy`): no loss or measured-only sampling beats weighted BCE on primary AUPRC (best `S6R0_wbce` 0.9769), and weighted BCE also gives the best negative-class recognition (specificity/TNR/MCC); focal/Dice/Tversky underperform and generalized Dice collapses below the prevalence floor (AUPRC 0.871, TN=0). Because candidate-edge features do not enter GCN message passing in the current architecture, residual threshold collapse is not attributed to loss alone. Roadmap: Sprint 7 (GAT/GATv2, edge-aware) is next; an optional Sprint 8 (robustness: guide-level bootstrap CIs, paired-difference comparisons, multi-seed) consolidates uncertainty quantification.
 
 Core rules:
 

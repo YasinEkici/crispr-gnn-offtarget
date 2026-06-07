@@ -1,4 +1,5 @@
 import pandas as pd
+import pytest
 
 from crispr_gnn.data.schemas import COMPUTED_NUCLEOSOME_FEATURES
 from crispr_gnn.graph import GRAPH_A, GRAPH_B, GRAPH_C, build_graph_artifacts, write_graph_artifacts
@@ -6,6 +7,7 @@ from crispr_gnn.graph.pyg_dataset import Sprint3HeteroDataLoader
 from crispr_gnn.training.gcn import (
     CHECKPOINT_POLICY,
     GCNRunConfig,
+    gcn_run_config_from_mapping,
     train_graph_a_gcn,
     train_graph_b_gcn,
     train_graph_c_gcn,
@@ -199,6 +201,113 @@ def test_graph_c_gcn_cpu_smoke_training_uses_observation_context_encoder(tmp_pat
     assert set(predictions["split"]) == {"val", "test"}
     assert "test" not in set(history["selection_split"])
     assert history["epoch"].max() <= 3
+
+
+def test_sprint6_weighted_bce_default_equals_explicit_spec(tmp_path) -> None:
+    """Trainer-level regression guard: the default loss path is identical to an
+    explicit weighted_bce spec, so the Sprint 6 loss dispatch does not change the
+    frozen Sprint 4/5 objective."""
+    base = dict(
+        sprint="sprint6",
+        split_id="sprint2_main_seed42",
+        seed=7,
+        hidden_dim=12,
+        num_layers=1,
+        dropout=0.0,
+        max_epochs=3,
+        min_epochs=1,
+        patience=2,
+        learning_rate=0.01,
+        edge_feature_sets=("s1_pair", "f1"),
+        device="cpu",
+        num_threads=1,
+        use_compile=False,
+        use_amp=False,
+    )
+    default_results, _, _ = train_graph_a_gcn(
+        _tiny_materialized_graph(tmp_path / "default", GRAPH_A),
+        GCNRunConfig(**base),
+    )
+    explicit_results, _, _ = train_graph_a_gcn(
+        _tiny_materialized_graph(tmp_path / "explicit", GRAPH_A),
+        GCNRunConfig(**base, loss="weighted_bce", loss_params={"pos_weight": "auto"}),
+    )
+    for col in ["test_auprc", "test_auroc", "test_mcc", "threshold", "test_tn", "test_fp", "best_epoch"]:
+        assert float(default_results.iloc[0][col]) == float(explicit_results.iloc[0][col]), col
+    assert default_results.iloc[0]["loss"] == "weighted_bce"
+
+
+def test_sprint6_focal_and_tversky_train_through_trainer(tmp_path) -> None:
+    base = dict(
+        sprint="sprint6",
+        split_id="sprint2_main_seed42",
+        seed=7,
+        hidden_dim=12,
+        num_layers=1,
+        dropout=0.0,
+        max_epochs=3,
+        min_epochs=1,
+        patience=2,
+        learning_rate=0.01,
+        edge_feature_sets=("s1_pair", "f1"),
+        device="cpu",
+        num_threads=1,
+    )
+    focal, _, _ = train_graph_a_gcn(
+        _tiny_materialized_graph(tmp_path / "focal", GRAPH_A),
+        GCNRunConfig(**base, loss="focal", loss_params={"gamma": 2.0, "alpha": 0.25}),
+    )
+    tversky, _, _ = train_graph_a_gcn(
+        _tiny_materialized_graph(tmp_path / "tversky", GRAPH_A),
+        GCNRunConfig(**base, loss="tversky", loss_params={"alpha": 0.70, "beta": 0.30}),
+    )
+    assert focal.iloc[0]["loss"] == "focal"
+    assert tversky.iloc[0]["loss"] == "tversky"
+    assert "test_auprc" in focal.columns and "test_auprc" in tversky.columns
+
+
+def test_sprint6_balanced_sampling_preserves_eval_universe(tmp_path) -> None:
+    materialized = _tiny_materialized_graph_a(tmp_path)
+    config = GCNRunConfig(
+        sprint="sprint6",
+        split_id="sprint2_main_seed42",
+        seed=7,
+        hidden_dim=12,
+        num_layers=1,
+        dropout=0.0,
+        max_epochs=3,
+        min_epochs=1,
+        patience=2,
+        learning_rate=0.01,
+        edge_feature_sets=("s1_pair", "f1"),
+        device="cpu",
+        num_threads=1,
+        loss="bce_unweighted",
+        loss_params={"pos_weight": 1.0},
+        sampling={"strategy": "balanced_subsample", "target_ratio": 1.0, "scope": "measured_only"},
+    )
+
+    results, predictions, history = train_graph_a_gcn(materialized, config)
+
+    row = results.iloc[0]
+    assert row["val_rows"] == 2, "validation universe must be untouched by training-time sampling"
+    assert row["test_rows"] == 2, "test universe must be untouched by training-time sampling"
+    assert set(predictions["split"]) == {"val", "test"}
+    assert "test" not in set(history["selection_split"])
+
+
+def test_sprint6_unknown_loss_rejected() -> None:
+    config = {
+        "sprint": "sprint6",
+        "seed": 42,
+        "data": {"split_id": "sprint2_main_seed42", "label_scheme": "scheme_a"},
+        "graph": {"schema": GRAPH_A, "visibility_policy": "strict_inductive_primary"},
+        "model": {"name": "gcn_graph_a_sprint6", "target_node_representation": "zero_type_feature"},
+        "features": {"edge_feature_sets": ["s5f2_energy"]},
+        "training": {"loss": "unicorn_loss"},
+    }
+    with pytest.raises(ValueError, match="Unsupported GCN loss"):
+        gcn_run_config_from_mapping(config)
 
 
 def _tiny_materialized_graph_a(tmp_path):

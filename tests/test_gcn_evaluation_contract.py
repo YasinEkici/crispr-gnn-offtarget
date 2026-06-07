@@ -107,9 +107,12 @@ def test_gcn_config_rejects_unapproved_target_representation_or_loss() -> None:
     with pytest.raises(ValueError, match="zero/type"):
         gcn_run_config_from_mapping(config)
 
+    # Sprint 6 permits the predeclared loss set (see docs/DECISIONS.md 2026-06-06);
+    # only losses outside that set are rejected. "focal_loss" is not a registry key
+    # ("focal" is), so it must still be rejected as unsupported.
     config = _base_config()
     config["training"]["loss"] = "focal_loss"
-    with pytest.raises(ValueError, match="weighted BCE"):
+    with pytest.raises(ValueError, match="Unsupported GCN loss"):
         gcn_run_config_from_mapping(config)
 
     config = _base_config()

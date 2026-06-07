@@ -433,3 +433,38 @@ The notebook must:
 Sprint 5B is not a primary Graph C feature ablation and not a hyperparameter
 tuning branch. It is reported separately from the Sprint 5 Graph A primary
 ablation.
+
+## Sprint 6 Loss Comparison Runner
+
+Use `colab/sprint6_loss_comparison_runner.ipynb` for Sprint 6 Slice 3 and the
+later full GPU loss-comparison run. The notebook is runner-only: it mounts
+Drive, installs/syncs with `uv`, clones or uses the approved repository
+checkout, copies existing Sprint 5 Graph A artifacts into
+`data/processed/graphs/sprint5/`, validates that Graph A exposes the
+`S5F2_energy` feature table, calls the repository sweep runner, copies
+`outputs/sprint6/loss_comparison/` back to Drive, and lists/checks returned
+artifacts.
+
+The notebook must not rebuild graph artifacts or define model, loss, sampler,
+training, evaluation, plotting, or reporting logic. Sprint 6 uses the frozen
+Graph A + `S5F2_energy` measured-only headline contract. The default runner
+executes only the predeclared headline runs controlled by
+`configs/sweeps/sprint6_loss_comparison.yaml`.
+
+The full repository command in the notebook is:
+
+```bash
+uv run python scripts/run_sprint6_loss_comparison.py \
+  --config configs/sweeps/sprint6_loss_comparison.yaml \
+  --run-id sprint6_loss_comparison_seed42_<yyyymmdd_hhmmss>
+```
+
+Returned Drive outputs should be copied under:
+
+```text
+/content/drive/MyDrive/crispr_gnn_offtarget/returned_outputs/
+  sprint6_loss_comparison_seed42_<yyyymmdd_hhmmss>/
+```
+
+This slice prepares the runner only. A notebook dry run or contract test does
+not complete Sprint 6 headline results.

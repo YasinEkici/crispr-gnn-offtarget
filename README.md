@@ -13,8 +13,9 @@ The primary dataset is the Mak et al. 2022 crisprSQL-derived epigenetic/nucleoso
 | Sprint 3 | Graph A/B/C artifact construction and leakage controls | ✅ Complete |
 | Sprint 4 | GCN baseline training — Graph A, B (control), C | ✅ Complete |
 | Sprint 5 | Graph A feature-family ablation + Graph C energy sensitivity | ✅ Complete |
-| Sprint 6 | Imbalance, threshold, and loss comparison | 🔜 Next |
-| Sprint 7 | GAT/GATv2 architecture | ⏳ Planned |
+| Sprint 6 | Imbalance, threshold, and loss comparison | ✅ Complete (Slices 0–4; Slice 5 optional) |
+| Sprint 7 | GAT/GATv2 architecture | 🔜 Next |
+| Sprint 8 | Robustness — bootstrap CIs + multi-seed variance | ⏳ Optional / stretch |
 
 ## Current Results
 

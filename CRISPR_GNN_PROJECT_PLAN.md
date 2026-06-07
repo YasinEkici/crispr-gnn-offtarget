@@ -737,6 +737,7 @@ Tasks:
 - Implement GATConv model; GATv2Conv if feasible.
 - Use same splits, same features, same graph schemas.
 - Compare GCN vs GAT vs GATv2.
+- Run the headline GCN-vs-GAT(-vs-GATv2) comparison with a predeclared multi-seed set on the fixed split `sprint2_main_seed42` (report mean ± std; never select the best seed), so the architecture conclusion is not single-seed fragile. This is the inline multi-seed step; the optional Sprint 8 robustness layer consolidates it and adds bootstrap/paired-difference CIs.
 - Analyze attention weights if available, treating them as model interpretation signals rather than biological causal evidence.
 
 Deliverables:
@@ -750,6 +751,57 @@ outputs/sprint7/figures/gat_pr_curves.png
 outputs/sprint7/figures/gat_training_curves.png
 outputs/sprint7/figures/attention_weight_summary.png
 ```
+
+---
+
+### Sprint 8 (Optional / Stretch): Robustness — Uncertainty and Variance Quantification
+
+Goal: quantify and honestly report the uncertainty/variance behind the model
+results (single fixed split + single training seed) without changing any frozen
+conclusion. Interpretation-only; no test-driven tuning. This sprint is optional
+and does not block Sprint 7. It consolidates the robustness methodology
+prototyped at the end of Sprint 6 (`scripts/compute_sprint6_bootstrap_ci.py`).
+
+Tasks:
+
+- Guide-level (cluster) bootstrap confidence intervals for all reported model
+  results (Sprints 4, 5, 5B, 6, and 7 once available), recomputed from saved
+  per-row predictions — no retraining. Resample guides (clusters), not rows,
+  because rows within a guide are correlated. AUPRC is primary; AUROC/MCC/
+  specificity use each model's frozen validation-selected threshold. Prefer BCa
+  intervals (bias/skew-corrected; AUPRC is bounded near the ~0.90 prevalence
+  floor); B >= 2000 (e.g. 5000).
+- Paired-difference bootstrap for headline comparisons — do not infer
+  significance from overlapping independent CIs (the overlap fallacy). Resample
+  guides once, compute the metric for both models on the same resample, and form
+  the difference distribution; a difference CI containing zero means equality
+  cannot be ruled out. Comparing against `xgboost_unweighted / F4` requires
+  regenerating F4 per-row test predictions on the locked split (cheap, CPU,
+  reproduces test AUPRC 0.992522); Sprint 2 did not save them.
+- Multi-seed (fixed split) training-variance for the headline model-selection
+  configs only (e.g. best GCN setting vs GAT): predeclare the seed set, report
+  mean +/- std, never select the best seed. If multi-seed was already run inline
+  in Sprint 7, consolidate it here rather than rerunning.
+- Consolidated robustness report; additive and interpretation-only — it does not
+  alter any frozen result number or model/feature/threshold selection.
+
+Deliverables:
+
+```text
+outputs/sprint8/robustness_report.md
+outputs/sprint8/robustness_bootstrap_cis.csv
+outputs/sprint8/robustness_paired_differences.csv
+outputs/sprint8/figures/robustness_auprc_cis.png
+```
+
+Notes:
+
+- Bootstrap requires no retraining; multi-seed retrains only the few headline
+  configs. Do not reopen the locked Sprint 2 baseline suite — only the targeted
+  F4 per-row re-prediction is permitted, clearly labeled.
+- Literature anchors: Boyd et al. 2013 (AUPRC point estimates + CIs); cluster /
+  block bootstrap for correlated data; paired-difference bootstrap and the
+  overlapping-CI fallacy; BCa intervals.
 
 ---
 
@@ -852,6 +904,7 @@ outputs/stretch_graphsage/graphsage_ablation.csv
 - Heterogeneous GNN / R-GCN / HGT.
 - GraphSAGE quick ablation.
 - Full systematic imbalance study.
+- Robustness / uncertainty quantification (Sprint 8): guide-level bootstrap CIs, paired-difference model comparisons, and multi-seed variance for headline configs.
 - sgRNA secondary-structure features inspired by Graph-CRISPR.
 
 ---
