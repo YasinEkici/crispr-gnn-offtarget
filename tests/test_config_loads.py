@@ -152,6 +152,60 @@ def test_sprint6_colab_runner_contract() -> None:
     assert "optional_runs_executed" in sources["step8-returned-checks"]
 
 
+def test_sprint7_gat_gatv2_config_loads() -> None:
+    config = load_yaml(ROOT / "configs" / "sweeps" / "sprint7_gat_gatv2.yaml")
+    assert config["experiment_name"] == "sprint7_gat_gatv2_attention"
+    assert config["task"] == "sprint7_gat_gatv2_attention"
+    assert config["sprint"] == "sprint7"
+    assert config["graph"]["schema"] == "graph_a_minimal_physical_target"
+    assert config["data"]["graph_artifact_dir"] == "data/processed/graphs/sprint5"
+    assert config["features"]["edge_feature_sets"] == ["s5f2_energy"]
+    assert config["features"]["feature_set"] == "S5F2_energy"
+    assert config["training"]["loss"] == "weighted_bce"
+    assert config["training"]["loss_params"] == {"pos_weight": "auto"}
+    assert [run["id"] for run in config["runs"]] == ["S7R1_gat_edge_aware", "S7R2_gatv2_edge_aware"]
+    assert all(run["edge_aware_attention"] is True for run in config["runs"])
+    assert all(run["attention"]["self_loop_edge_fill"] == 0.0 for run in config["runs"])
+    validate_gcn_headline_config(config)
+
+
+def test_sprint7_colab_runner_contract() -> None:
+    notebook_path = ROOT / "colab" / "sprint7_gat_gatv2_runner.ipynb"
+    assert notebook_path.exists()
+    notebook = json.loads(notebook_path.read_text(encoding="utf-8"))
+    sources = {
+        cell.get("id"): "".join(cell.get("source", []))
+        for cell in notebook["cells"]
+        if cell.get("cell_type") == "code"
+    }
+    all_code = "\n".join(sources.values())
+    all_source = "\n".join("".join(cell.get("source", [])) for cell in notebook["cells"])
+
+    assert "rm -rf" not in all_code
+    assert "def " not in all_code
+    assert "class " not in all_code
+    assert "BCEWithLogitsLoss" not in all_source
+    assert "train_graph_a_gcn" not in all_source
+    assert "select_threshold" not in all_source
+    assert "scripts/train.py" not in all_source
+    assert "uv sync" in sources["step3-sync"]
+    assert "GIT_REF=\"codex/sprint7-gat\"" in sources["step2-clone"]
+    assert "uv run python scripts/run_sprint7_gat_comparison.py" in sources["step6-run-sweep"]
+    assert "configs/sweeps/sprint7_gat_gatv2.yaml" in sources["step6-run-sweep"]
+    assert "--run-id \"$RUN_ID\"" in sources["step6-run-sweep"]
+    assert "--include-optional-runs" not in all_source
+    assert "S7R3" not in all_source
+    assert "data/processed/graphs/sprint5" in all_source
+    assert "rsync -a \"$GRAPH_SOURCE/\" data/processed/graphs/sprint5/" in sources["step4-copy-artifacts"]
+    assert "from crispr_gnn.graph.graph_schemas import GRAPH_A" in sources["step5-validate-artifacts"]
+    assert "from crispr_gnn.graph.pyg_dataset import Sprint3HeteroDataLoader" in sources["step5-validate-artifacts"]
+    assert "S5F2_energy" in sources["step5-validate-artifacts"]
+    assert "Output already exists in Drive" in sources["step7-copy-outputs"]
+    assert "S7R1_gat_edge_aware" in sources["step8-returned-checks"]
+    assert "S7R2_gatv2_edge_aware" in sources["step8-returned-checks"]
+    assert "attention_weight_summary.csv" in sources["step8-returned-checks"]
+
+
 def test_gcn_headline_config_rejects_debug_or_random_edge_rules() -> None:
     config = load_yaml(ROOT / "configs" / "experiments" / "gcn_minimal.yaml")
     config["data"]["split_id"] = "debug"

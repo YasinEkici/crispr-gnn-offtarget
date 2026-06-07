@@ -36,6 +36,7 @@ from crispr_gnn.models.gcn import (
     graph_c_edge_feature_attrs,
     graph_c_feature_dimensions,
 )
+from crispr_gnn.models.gat import GraphAEdgeGAT, GraphAEdgeGATv2
 from crispr_gnn.models.losses import SUPPORTED_LOSSES, build_loss
 from crispr_gnn.training.samplers import balanced_subsample_mask
 
@@ -56,12 +57,19 @@ class GCNRunConfig:
     label_scheme: str = LABEL_SCHEME
     visibility_policy: str = VISIBILITY_POLICY
     model_name: str = "gcn_graph_a"
+    architecture: str = "gcn"
     feature_set: str = "S1_pair+F1"
     edge_feature_sets: tuple[str, ...] = ("s1_pair", "f1")
     target_node_representation: str = TARGET_REPRESENTATION_POLICY
     hidden_dim: int = 128
     num_layers: int = 2
     dropout: float = 0.2
+    attention_heads: int = 4
+    attention_concat: bool = True
+    attention_dropout: float | None = None
+    edge_aware_attention: bool = True
+    self_loop_edge_fill: float = 0.0
+    gatv2_share_weights: bool = False
     loss: str = "weighted_bce"
     clip_grad_norm: float = 1.0
     scheduler: str = "reduce_on_plateau"
@@ -128,6 +136,15 @@ def gcn_run_config_from_mapping(config: Mapping[str, Any]) -> GCNRunConfig:
         raise ValueError("Graph A/B target-node representation must be the approved zero/type policy")
     if graph_schema == GRAPH_C and target_policy != GRAPH_C_TARGET_REPRESENTATION_POLICY:
         raise ValueError("Graph C target-node representation must use the observation context encoder")
+    architecture = str(model.get("architecture", "gcn")).lower()
+    if architecture not in {"gcn", "gat", "gatv2"}:
+        raise ValueError("model.architecture must be one of: gcn, gat, gatv2")
+    if architecture in {"gat", "gatv2"}:
+        if graph_schema != GRAPH_A:
+            raise ValueError("Sprint 7 GAT/GATv2 architecture is implemented for Graph A only")
+        if target_policy != TARGET_REPRESENTATION_POLICY:
+            raise ValueError("Graph A GAT/GATv2 must keep zero_type_feature physical targets")
+    attention = _mapping(model.get("attention", {}), "model.attention")
     loss = str(training.get("loss", "weighted_bce"))
     if loss.lower() not in SUPPORTED_LOSSES:
         raise ValueError(
@@ -151,6 +168,7 @@ def gcn_run_config_from_mapping(config: Mapping[str, Any]) -> GCNRunConfig:
         label_scheme=str(data.get("label_scheme", LABEL_SCHEME)),
         visibility_policy=str(graph.get("visibility_policy", VISIBILITY_POLICY)),
         model_name=str(model.get("name", "gcn_graph_a")),
+        architecture=architecture,
         feature_set=str(
             features.get("feature_set", "+".join(_display_feature_name(value) for value in edge_feature_sets))
         ),
@@ -159,6 +177,16 @@ def gcn_run_config_from_mapping(config: Mapping[str, Any]) -> GCNRunConfig:
         hidden_dim=int(model.get("hidden_dim", 128)),
         num_layers=int(model.get("num_layers", 2)),
         dropout=float(model.get("dropout", 0.2)),
+        attention_heads=int(attention.get("heads", model.get("attention_heads", 4))),
+        attention_concat=bool(attention.get("concat", model.get("attention_concat", True))),
+        attention_dropout=(
+            None
+            if attention.get("dropout", model.get("attention_dropout")) is None
+            else float(attention.get("dropout", model.get("attention_dropout")))
+        ),
+        edge_aware_attention=bool(attention.get("edge_aware", model.get("edge_aware_attention", True))),
+        self_loop_edge_fill=float(attention.get("self_loop_edge_fill", model.get("self_loop_edge_fill", 0.0))),
+        gatv2_share_weights=bool(attention.get("gatv2_share_weights", model.get("gatv2_share_weights", False))),
         loss=loss,
         clip_grad_norm=float(training.get("clip_grad_norm", 1.0)),
         scheduler=scheduler,
@@ -188,6 +216,40 @@ def train_graph_a_gcn(
     if materialized.graph_name != GRAPH_A or config.graph_schema != GRAPH_A:
         raise ValueError("Graph A training requires Graph A materialized artifacts and config")
     return _train_gcn(materialized, config, checkpoint_path=checkpoint_path)
+
+
+def collect_graph_a_attention_summary(
+    materialized: MaterializedGraph,
+    config: GCNRunConfig,
+    *,
+    checkpoint_path: Path,
+    split: str = "test",
+) -> pd.DataFrame:
+    """Summarize GAT/GATv2 attention weights for interpretation-only artifacts."""
+    if config.graph_schema != GRAPH_A or config.architecture not in {"gat", "gatv2"}:
+        raise ValueError("Attention summaries are only available for Graph A GAT/GATv2 runs")
+    if not checkpoint_path.exists():
+        raise FileNotFoundError(f"Checkpoint not found for attention summary: {checkpoint_path}")
+    device = torch.device(config.device)
+    edge_feature_attrs = _edge_feature_attrs(config)
+    view = materialized.view(split).to(device)
+    model, _edge_dim = _build_model(view, config, edge_feature_attrs)
+    state = torch.load(checkpoint_path, map_location=device, weights_only=True)
+    model.load_state_dict(_normalize_checkpoint_state_dict(state))
+    model = model.to(device)
+    model.eval()
+    with torch.no_grad():
+        output = model(view, edge_feature_attrs=edge_feature_attrs, return_attention=True)
+    if not isinstance(output, tuple):
+        raise ValueError("Attention model did not return attention weights")
+    _logits, attention_records = output
+    return _attention_summary_frame(
+        attention_records,
+        sgrna_nodes=int(view["sgRNA"].num_nodes),
+        model_name=config.model_name,
+        architecture=config.architecture,
+        split=split,
+    )
 
 
 def train_graph_c_gcn(
@@ -235,6 +297,7 @@ def _train_gcn(
     test_view = materialized.view("test").to(device)
     model, edge_dim = _build_model(train_view, config, edge_feature_attrs)
     model = model.to(device)
+    parameter_count = sum(parameter.numel() for parameter in model.parameters())
     _use_amp = config.use_amp and device.type == "cuda"
     if config.use_compile and device.type == "cuda" and hasattr(torch, "compile"):
         model = torch.compile(model)
@@ -342,6 +405,7 @@ def _train_gcn(
         epochs_ran=final_epoch,
         best_val_auprc=float(best_val_auprc),
         edge_dim=edge_dim,
+        parameter_count=parameter_count,
         pos_weight=float(pos_weight.detach().cpu()),
     )
     predictions = _prediction_records(
@@ -374,6 +438,7 @@ def _result_row(
     epochs_ran: int,
     best_val_auprc: float,
     edge_dim: int,
+    parameter_count: int,
     pos_weight: float,
 ) -> dict[str, object]:
     val_metrics = binary_classification_metrics(val_labels, val_scores, threshold, prefix="val_")
@@ -385,6 +450,7 @@ def _result_row(
         "seed": config.seed,
         "training_regime": "measured_only",
         "model_name": config.model_name,
+        "architecture": config.architecture,
         "feature_set": config.feature_set,
         "graph_schema": config.graph_schema,
         "visibility_policy": config.visibility_policy,
@@ -400,6 +466,21 @@ def _result_row(
         "best_val_auprc": float(best_val_auprc),
         "edge_feature_sets": ",".join(config.edge_feature_sets),
         "edge_feature_columns": int(edge_dim),
+        "edge_aware_attention": bool(config.edge_aware_attention) if config.architecture in {"gat", "gatv2"} else None,
+        "attention_heads": int(config.attention_heads) if config.architecture in {"gat", "gatv2"} else None,
+        "attention_concat": bool(config.attention_concat) if config.architecture in {"gat", "gatv2"} else None,
+        "attention_dropout": (
+            float(config.attention_dropout)
+            if config.architecture in {"gat", "gatv2"} and config.attention_dropout is not None
+            else None
+        ),
+        "self_loop_edge_fill": (
+            float(config.self_loop_edge_fill) if config.architecture in {"gat", "gatv2"} else None
+        ),
+        "gatv2_share_weights": (
+            bool(config.gatv2_share_weights) if config.architecture == "gatv2" else None
+        ),
+        "parameter_count": int(parameter_count),
         "baseline_reference": BASELINE_REFERENCE,
         "baseline_test_auprc": BASELINE_TEST_AUPRC,
         "baseline_test_auroc": BASELINE_TEST_AUROC,
@@ -410,7 +491,7 @@ def _result_row(
         "use_compile": config.use_compile,
         "use_amp": config.use_amp,
         "target_semantics": _target_semantics(config.graph_schema),
-        "notes": _run_notes(config.graph_schema),
+        "notes": _run_notes(config),
         **val_metrics,
         **test_metrics,
     }
@@ -441,6 +522,7 @@ def _prediction_records(
             rows.append(
                 {
                     "model_name": config.model_name,
+                    "architecture": config.architecture,
                     "graph_schema": config.graph_schema,
                     "feature_set": config.feature_set,
                     "split": split,
@@ -503,9 +585,42 @@ def _build_model(
     train_view: Any,
     config: GCNRunConfig,
     edge_feature_attrs: list[str],
-) -> tuple[GraphAEdgeGCN | GraphBEdgeGCN | GraphCEdgeGCN, int]:
+) -> tuple[GraphAEdgeGCN | GraphBEdgeGCN | GraphCEdgeGCN | GraphAEdgeGAT | GraphAEdgeGATv2, int]:
     if config.graph_schema == GRAPH_A:
         sgrna_dim, edge_dim = graph_a_feature_dimensions(train_view, edge_feature_attrs)
+        if config.architecture == "gat":
+            return (
+                GraphAEdgeGAT(
+                    sgrna_input_dim=sgrna_dim,
+                    edge_input_dim=edge_dim,
+                    hidden_dim=config.hidden_dim,
+                    num_layers=config.num_layers,
+                    heads=config.attention_heads,
+                    concat=config.attention_concat,
+                    dropout=config.dropout,
+                    attention_dropout=config.attention_dropout,
+                    edge_aware_attention=config.edge_aware_attention,
+                    self_loop_edge_fill=config.self_loop_edge_fill,
+                ),
+                edge_dim,
+            )
+        if config.architecture == "gatv2":
+            return (
+                GraphAEdgeGATv2(
+                    sgrna_input_dim=sgrna_dim,
+                    edge_input_dim=edge_dim,
+                    hidden_dim=config.hidden_dim,
+                    num_layers=config.num_layers,
+                    heads=config.attention_heads,
+                    concat=config.attention_concat,
+                    dropout=config.dropout,
+                    attention_dropout=config.attention_dropout,
+                    edge_aware_attention=config.edge_aware_attention,
+                    self_loop_edge_fill=config.self_loop_edge_fill,
+                    gatv2_share_weights=config.gatv2_share_weights,
+                ),
+                edge_dim,
+            )
         return (
             GraphAEdgeGCN(
                 sgrna_input_dim=sgrna_dim,
@@ -516,6 +631,8 @@ def _build_model(
             ),
             edge_dim,
         )
+    if config.architecture != "gcn":
+        raise ValueError("GAT/GATv2 variants are supported for Graph A only")
     if config.graph_schema == GRAPH_B:
         sgrna_dim, edge_dim = graph_b_feature_dimensions(train_view, edge_feature_attrs)
         return (
@@ -550,7 +667,18 @@ def _target_semantics(graph_schema: str) -> str:
     return "minimal_physical_target"
 
 
-def _run_notes(graph_schema: str) -> str:
+def _run_notes(config: GCNRunConfig) -> str:
+    graph_schema = config.graph_schema
+    if config.architecture == "gat":
+        return (
+            "Graph A GATConv path; S5F2 edge features enter attention via edge_attr/edge_dim "
+            "when edge_aware_attention=True; self-loop edge features are zero-filled; no test-driven selection"
+        )
+    if config.architecture == "gatv2":
+        return (
+            "Graph A GATv2Conv path with dynamic attention; S5F2 edge features enter attention via edge_attr/edge_dim "
+            "when edge_aware_attention=True; self-loop edge features are zero-filled; no test-driven selection"
+        )
     if graph_schema == GRAPH_C:
         return (
             "Graph C GCN path uses target_observation context node encoding; "
@@ -562,6 +690,69 @@ def _run_notes(graph_schema: str) -> str:
             "featureless physical targets and Graph A candidate features unchanged; no test-driven selection"
         )
     return "Graph A minimal GCN path; no test-driven selection; no Graph C/B run"
+
+
+def _normalize_checkpoint_state_dict(state: Mapping[str, torch.Tensor]) -> dict[str, torch.Tensor]:
+    if all(str(key).startswith("_orig_mod.") for key in state):
+        return {str(key).removeprefix("_orig_mod."): value for key, value in state.items()}
+    return {str(key): value for key, value in state.items()}
+
+
+def _attention_summary_frame(
+    attention_records: list[dict[str, torch.Tensor]],
+    *,
+    sgrna_nodes: int,
+    model_name: str,
+    architecture: str,
+    split: str,
+) -> pd.DataFrame:
+    rows: list[dict[str, object]] = []
+    for record in attention_records:
+        edge_index = record["edge_index"].detach().cpu()
+        alpha = record["alpha"].detach().cpu()
+        layer = int(record["layer"].detach().cpu())
+        if alpha.ndim == 1:
+            alpha = alpha[:, None]
+        edge_kind = _attention_edge_kinds(edge_index, sgrna_nodes=sgrna_nodes)
+        for head in range(alpha.shape[1]):
+            values = alpha[:, head]
+            for kind in sorted(set(edge_kind)):
+                mask = torch.tensor([value == kind for value in edge_kind], dtype=torch.bool)
+                kind_values = values[mask]
+                if kind_values.numel() == 0:
+                    continue
+                rows.append(
+                    {
+                        "model_name": model_name,
+                        "architecture": architecture,
+                        "split": split,
+                        "layer": layer,
+                        "head": int(head),
+                        "edge_kind": kind,
+                        "edge_count": int(kind_values.numel()),
+                        "attention_mean": float(kind_values.mean()),
+                        "attention_std": float(kind_values.std(unbiased=False)),
+                        "attention_min": float(kind_values.min()),
+                        "attention_max": float(kind_values.max()),
+                    }
+                )
+    return pd.DataFrame(rows)
+
+
+def _attention_edge_kinds(edge_index: torch.Tensor, *, sgrna_nodes: int) -> list[str]:
+    src = edge_index[0].tolist()
+    dst = edge_index[1].tolist()
+    kinds = []
+    for source, target in zip(src, dst, strict=True):
+        if source == target:
+            kinds.append("self_loop")
+        elif source < sgrna_nodes <= target:
+            kinds.append("candidate_forward")
+        elif target < sgrna_nodes <= source:
+            kinds.append("candidate_reverse")
+        else:
+            kinds.append("other")
+    return kinds
 
 
 def _weighted_bce_pos_weight(labels: torch.Tensor) -> torch.Tensor:
