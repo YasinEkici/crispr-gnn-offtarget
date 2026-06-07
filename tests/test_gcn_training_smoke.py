@@ -8,6 +8,7 @@ from crispr_gnn.training.gcn import (
     CHECKPOINT_POLICY,
     GCNRunConfig,
     collect_graph_a_attention_summary,
+    collect_graph_attention_summary,
     gcn_run_config_from_mapping,
     train_graph_a_gcn,
     train_graph_b_gcn,
@@ -391,6 +392,86 @@ def test_sprint7_gatv2_config_mapping_sets_architecture_and_attention() -> None:
     assert run_config.edge_aware_attention is True
     assert run_config.self_loop_edge_fill == 0.0
     assert run_config.gatv2_share_weights is False
+
+
+def test_sprint7b_graph_b_gatv2_trains_and_summarizes_similarity_attention(tmp_path) -> None:
+    materialized = _tiny_materialized_graph(tmp_path, GRAPH_B)
+    checkpoint_path = tmp_path / "graph_b_gatv2.pt"
+    config = GCNRunConfig(
+        sprint="sprint7b",
+        split_id="sprint2_main_seed42",
+        seed=7,
+        graph_schema=GRAPH_B,
+        model_name="gatv2_graph_b_sprint7b_s5f2",
+        architecture="gatv2",
+        feature_set="S1_pair+F1",
+        edge_feature_sets=("s1_pair", "f1"),
+        target_node_representation="zero_type_feature",
+        hidden_dim=8,
+        num_layers=1,
+        dropout=0.0,
+        attention_heads=2,
+        attention_dropout=0.0,
+        max_epochs=2,
+        min_epochs=1,
+        patience=2,
+        learning_rate=0.01,
+        device="cpu",
+        num_threads=1,
+        use_compile=False,
+        use_amp=False,
+    )
+
+    results, predictions, history = train_graph_b_gcn(materialized, config, checkpoint_path=checkpoint_path)
+    attention = collect_graph_attention_summary(materialized, config, checkpoint_path=checkpoint_path)
+
+    assert checkpoint_path.exists()
+    assert results.iloc[0]["architecture"] == "gatv2"
+    assert results.iloc[0]["graph_schema"] == GRAPH_B
+    assert bool(results.iloc[0]["edge_aware_attention"]) is True
+    assert set(predictions["split"]) == {"val", "test"}
+    assert "test" not in set(history["selection_split"])
+    assert set(attention["edge_kind"]).issuperset({"candidate_forward", "candidate_reverse", "sequence_similar_to", "self_loop"})
+
+
+def test_sprint7b_graph_c_gatv2_trains_and_summarizes_context_attention(tmp_path) -> None:
+    materialized = _tiny_materialized_graph(tmp_path, GRAPH_C)
+    checkpoint_path = tmp_path / "graph_c_gatv2.pt"
+    config = GCNRunConfig(
+        sprint="sprint7b",
+        split_id="sprint2_main_seed42",
+        seed=7,
+        graph_schema=GRAPH_C,
+        model_name="gatv2_graph_c_sprint7b_s5f2",
+        architecture="gatv2",
+        feature_set="CandidatePair",
+        edge_feature_sets=("candidate_pair_features",),
+        target_node_representation="target_observation_context_encoder",
+        hidden_dim=8,
+        num_layers=1,
+        dropout=0.0,
+        attention_heads=2,
+        attention_dropout=0.0,
+        max_epochs=2,
+        min_epochs=1,
+        patience=2,
+        learning_rate=0.01,
+        device="cpu",
+        num_threads=1,
+        use_compile=False,
+        use_amp=False,
+    )
+
+    results, predictions, history = train_graph_c_gcn(materialized, config, checkpoint_path=checkpoint_path)
+    attention = collect_graph_attention_summary(materialized, config, checkpoint_path=checkpoint_path)
+
+    assert checkpoint_path.exists()
+    assert results.iloc[0]["architecture"] == "gatv2"
+    assert results.iloc[0]["graph_schema"] == GRAPH_C
+    assert bool(results.iloc[0]["edge_aware_attention"]) is True
+    assert set(predictions["split"]) == {"val", "test"}
+    assert "test" not in set(history["selection_split"])
+    assert set(attention["edge_kind"]).issuperset({"candidate_forward", "candidate_reverse", "context_similar_to", "self_loop"})
 
 
 def _tiny_materialized_graph_a(tmp_path):

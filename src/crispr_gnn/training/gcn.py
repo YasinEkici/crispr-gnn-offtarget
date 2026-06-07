@@ -36,7 +36,7 @@ from crispr_gnn.models.gcn import (
     graph_c_edge_feature_attrs,
     graph_c_feature_dimensions,
 )
-from crispr_gnn.models.gat import GraphAEdgeGAT, GraphAEdgeGATv2
+from crispr_gnn.models.gat import GraphAEdgeGAT, GraphAEdgeGATv2, GraphBEdgeGATv2, GraphCEdgeGATv2
 from crispr_gnn.models.losses import SUPPORTED_LOSSES, build_loss
 from crispr_gnn.training.samplers import balanced_subsample_mask
 
@@ -139,11 +139,12 @@ def gcn_run_config_from_mapping(config: Mapping[str, Any]) -> GCNRunConfig:
     architecture = str(model.get("architecture", "gcn")).lower()
     if architecture not in {"gcn", "gat", "gatv2"}:
         raise ValueError("model.architecture must be one of: gcn, gat, gatv2")
+    if architecture == "gat" and graph_schema != GRAPH_A:
+        raise ValueError("GAT architecture is implemented for Graph A only; Sprint 7B uses GATv2 for Graph B/C")
     if architecture in {"gat", "gatv2"}:
-        if graph_schema != GRAPH_A:
-            raise ValueError("Sprint 7 GAT/GATv2 architecture is implemented for Graph A only")
         if target_policy != TARGET_REPRESENTATION_POLICY:
-            raise ValueError("Graph A GAT/GATv2 must keep zero_type_feature physical targets")
+            if graph_schema != GRAPH_C:
+                raise ValueError("Graph A/B GAT/GATv2 must keep zero_type_feature physical targets")
     attention = _mapping(model.get("attention", {}), "model.attention")
     loss = str(training.get("loss", "weighted_bce"))
     if loss.lower() not in SUPPORTED_LOSSES:
@@ -226,8 +227,28 @@ def collect_graph_a_attention_summary(
     split: str = "test",
 ) -> pd.DataFrame:
     """Summarize GAT/GATv2 attention weights for interpretation-only artifacts."""
-    if config.graph_schema != GRAPH_A or config.architecture not in {"gat", "gatv2"}:
-        raise ValueError("Attention summaries are only available for Graph A GAT/GATv2 runs")
+    if config.graph_schema != GRAPH_A:
+        raise ValueError("Graph A attention summary requires Graph A materialized artifacts")
+    return collect_graph_attention_summary(
+        materialized,
+        config,
+        checkpoint_path=checkpoint_path,
+        split=split,
+    )
+
+
+def collect_graph_attention_summary(
+    materialized: MaterializedGraph,
+    config: GCNRunConfig,
+    *,
+    checkpoint_path: Path,
+    split: str = "test",
+) -> pd.DataFrame:
+    """Summarize GAT/GATv2 attention weights for interpretation-only artifacts."""
+    if config.architecture not in {"gat", "gatv2"}:
+        raise ValueError("Attention summaries are only available for GAT/GATv2 runs")
+    if materialized.graph_name != config.graph_schema:
+        raise ValueError("Attention summary materialized graph/config schema mismatch")
     if not checkpoint_path.exists():
         raise FileNotFoundError(f"Checkpoint not found for attention summary: {checkpoint_path}")
     device = torch.device(config.device)
@@ -249,6 +270,7 @@ def collect_graph_a_attention_summary(
         model_name=config.model_name,
         architecture=config.architecture,
         split=split,
+        graph_schema=config.graph_schema,
     )
 
 
@@ -585,7 +607,16 @@ def _build_model(
     train_view: Any,
     config: GCNRunConfig,
     edge_feature_attrs: list[str],
-) -> tuple[GraphAEdgeGCN | GraphBEdgeGCN | GraphCEdgeGCN | GraphAEdgeGAT | GraphAEdgeGATv2, int]:
+) -> tuple[
+    GraphAEdgeGCN
+    | GraphBEdgeGCN
+    | GraphCEdgeGCN
+    | GraphAEdgeGAT
+    | GraphAEdgeGATv2
+    | GraphBEdgeGATv2
+    | GraphCEdgeGATv2,
+    int,
+]:
     if config.graph_schema == GRAPH_A:
         sgrna_dim, edge_dim = graph_a_feature_dimensions(train_view, edge_feature_attrs)
         if config.architecture == "gat":
@@ -631,10 +662,27 @@ def _build_model(
             ),
             edge_dim,
         )
-    if config.architecture != "gcn":
-        raise ValueError("GAT/GATv2 variants are supported for Graph A only")
     if config.graph_schema == GRAPH_B:
         sgrna_dim, edge_dim = graph_b_feature_dimensions(train_view, edge_feature_attrs)
+        if config.architecture == "gatv2":
+            return (
+                GraphBEdgeGATv2(
+                    sgrna_input_dim=sgrna_dim,
+                    edge_input_dim=edge_dim,
+                    hidden_dim=config.hidden_dim,
+                    num_layers=config.num_layers,
+                    heads=config.attention_heads,
+                    concat=config.attention_concat,
+                    dropout=config.dropout,
+                    attention_dropout=config.attention_dropout,
+                    edge_aware_attention=config.edge_aware_attention,
+                    self_loop_edge_fill=config.self_loop_edge_fill,
+                    gatv2_share_weights=config.gatv2_share_weights,
+                ),
+                edge_dim,
+            )
+        if config.architecture != "gcn":
+            raise ValueError("Graph B supports GCN and Sprint 7B GATv2 only")
         return (
             GraphBEdgeGCN(
                 sgrna_input_dim=sgrna_dim,
@@ -647,6 +695,26 @@ def _build_model(
         )
     if config.graph_schema == GRAPH_C:
         sgrna_dim, target_dim, edge_dim = graph_c_feature_dimensions(train_view, edge_feature_attrs)
+        if config.architecture == "gatv2":
+            return (
+                GraphCEdgeGATv2(
+                    sgrna_input_dim=sgrna_dim,
+                    target_observation_input_dim=target_dim,
+                    edge_input_dim=edge_dim,
+                    hidden_dim=config.hidden_dim,
+                    num_layers=config.num_layers,
+                    heads=config.attention_heads,
+                    concat=config.attention_concat,
+                    dropout=config.dropout,
+                    attention_dropout=config.attention_dropout,
+                    edge_aware_attention=config.edge_aware_attention,
+                    self_loop_edge_fill=config.self_loop_edge_fill,
+                    gatv2_share_weights=config.gatv2_share_weights,
+                ),
+                edge_dim,
+            )
+        if config.architecture != "gcn":
+            raise ValueError("Graph C supports GCN and Sprint 7B GATv2 only")
         return (
             GraphCEdgeGCN(
                 sgrna_input_dim=sgrna_dim,
@@ -676,7 +744,7 @@ def _run_notes(config: GCNRunConfig) -> str:
         )
     if config.architecture == "gatv2":
         return (
-            "Graph A GATv2Conv path with dynamic attention; S5F2 edge features enter attention via edge_attr/edge_dim "
+            f"{config.graph_schema} GATv2Conv path with dynamic attention; candidate edge features enter attention via edge_attr/edge_dim "
             "when edge_aware_attention=True; self-loop edge features are zero-filled; no test-driven selection"
         )
     if graph_schema == GRAPH_C:
@@ -705,6 +773,7 @@ def _attention_summary_frame(
     model_name: str,
     architecture: str,
     split: str,
+    graph_schema: str = GRAPH_A,
 ) -> pd.DataFrame:
     rows: list[dict[str, object]] = []
     for record in attention_records:
@@ -713,7 +782,7 @@ def _attention_summary_frame(
         layer = int(record["layer"].detach().cpu())
         if alpha.ndim == 1:
             alpha = alpha[:, None]
-        edge_kind = _attention_edge_kinds(edge_index, sgrna_nodes=sgrna_nodes)
+        edge_kind = _attention_edge_kinds(edge_index, sgrna_nodes=sgrna_nodes, graph_schema=graph_schema)
         for head in range(alpha.shape[1]):
             values = alpha[:, head]
             for kind in sorted(set(edge_kind)):
@@ -739,7 +808,7 @@ def _attention_summary_frame(
     return pd.DataFrame(rows)
 
 
-def _attention_edge_kinds(edge_index: torch.Tensor, *, sgrna_nodes: int) -> list[str]:
+def _attention_edge_kinds(edge_index: torch.Tensor, *, sgrna_nodes: int, graph_schema: str) -> list[str]:
     src = edge_index[0].tolist()
     dst = edge_index[1].tolist()
     kinds = []
@@ -750,6 +819,10 @@ def _attention_edge_kinds(edge_index: torch.Tensor, *, sgrna_nodes: int) -> list
             kinds.append("candidate_forward")
         elif target < sgrna_nodes <= source:
             kinds.append("candidate_reverse")
+        elif graph_schema == GRAPH_B and source < sgrna_nodes and target < sgrna_nodes:
+            kinds.append("sequence_similar_to")
+        elif graph_schema == GRAPH_C and source >= sgrna_nodes and target >= sgrna_nodes:
+            kinds.append("context_similar_to")
         else:
             kinds.append("other")
     return kinds

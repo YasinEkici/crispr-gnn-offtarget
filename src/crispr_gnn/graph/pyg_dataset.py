@@ -163,15 +163,31 @@ class Sprint3HeteroDataLoader:
             name: _read_parquet(graph_dir / f"relation_{name}.parquet")
             for name in manifest["relations"]
         }
-        feature_graph_dir = self.artifact_dir / GRAPH_A if graph_name == GRAPH_B else graph_dir
-        feature_manifest = self._read_manifest(feature_graph_dir) if graph_name == GRAPH_B else manifest
-        if graph_name == GRAPH_B:
-            self._validate_manifest(GRAPH_A, feature_manifest)
+        feature_graph_dir, feature_manifest = self._feature_artifact_source(
+            graph_name,
+            graph_dir,
+            manifest,
+        )
         features = {
             name: _read_parquet(feature_graph_dir / f"features_{name}.parquet")
             for name in feature_manifest.get("feature_tables", {})
         }
         return nodes, relations, features
+
+    def _feature_artifact_source(
+        self,
+        graph_name: str,
+        graph_dir: Path,
+        manifest: dict[str, Any],
+    ) -> tuple[Path, dict[str, Any]]:
+        if graph_name != GRAPH_B:
+            return graph_dir, manifest
+        if manifest.get("feature_tables"):
+            return graph_dir, manifest
+        feature_graph_dir = self.artifact_dir / GRAPH_A
+        feature_manifest = self._read_manifest(feature_graph_dir)
+        self._validate_manifest(GRAPH_A, feature_manifest)
+        return feature_graph_dir, feature_manifest
 
     def _validate_tables(
         self,
@@ -206,10 +222,10 @@ class Sprint3HeteroDataLoader:
             candidate["edge_id"].astype(str)
         ):
             raise ValueError("Graph C candidate destination no longer preserves source-row observation identity")
-        feature_contract = (
-            self._read_manifest(self.artifact_dir / GRAPH_A)
-            if graph_name == GRAPH_B
-            else manifest
+        _feature_graph_dir, feature_contract = self._feature_artifact_source(
+            graph_name,
+            self.artifact_dir / graph_name,
+            manifest,
         )
         expected_features = feature_contract.get("feature_tables", {})
         if set(features) != set(expected_features):
