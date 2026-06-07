@@ -23,6 +23,11 @@ from crispr_gnn.models.gcn import (
     _validate_graph_b_data,
     _validate_graph_c_data,
 )
+from crispr_gnn.models.target_context_encoder import (
+    UNIFIED_SHALLOW_CONTEXT_ENCODER,
+    build_target_context_encoder,
+    target_context_encoder_parameter_count,
+)
 
 
 AttentionConvName = Literal["gat", "gatv2"]
@@ -316,6 +321,8 @@ class GraphCEdgeGATv2(nn.Module):
         edge_blind_candidate_attention: bool = False,
         mask_target_observation_features: bool = False,
         target_observation_mask_indices: Sequence[int] | None = None,
+        target_context_encoder_type: str = UNIFIED_SHALLOW_CONTEXT_ENCODER,
+        target_context_feature_names: Sequence[str] | None = None,
     ) -> None:
         super().__init__()
         _validate_attention_init(
@@ -338,6 +345,8 @@ class GraphCEdgeGATv2(nn.Module):
         self.drop_context_similarity_edges = bool(drop_context_similarity_edges)
         self.edge_blind_candidate_attention = bool(edge_blind_candidate_attention)
         self.mask_target_observation_features = bool(mask_target_observation_features)
+        self.target_context_encoder_type = str(target_context_encoder_type)
+        self.target_context_feature_names = tuple(str(name) for name in (target_context_feature_names or ()))
         self.target_observation_mask_indices = tuple(int(index) for index in (target_observation_mask_indices or ()))
         if self.mask_target_observation_features and self.target_observation_mask_indices:
             raise ValueError("Use either full target-observation masking or column-index masking, not both")
@@ -347,9 +356,12 @@ class GraphCEdgeGATv2(nn.Module):
             if max(self.target_observation_mask_indices) >= target_observation_input_dim:
                 raise ValueError("target_observation_mask_indices exceed target_observation_input_dim")
         self.sgrna_encoder = nn.Sequential(nn.Linear(sgrna_input_dim, hidden_dim), nn.ReLU())
-        self.target_observation_encoder = nn.Sequential(
-            nn.Linear(target_observation_input_dim, hidden_dim),
-            nn.ReLU(),
+        self.target_observation_encoder = build_target_context_encoder(
+            encoder_type=self.target_context_encoder_type,
+            input_dim=target_observation_input_dim,
+            hidden_dim=hidden_dim,
+            dropout=dropout,
+            feature_names=self.target_context_feature_names or None,
         )
         self.dropout = nn.Dropout(dropout)
         self.convs, self.norms = _gatv2_layers(
@@ -415,6 +427,30 @@ class GraphCEdgeGATv2(nn.Module):
             target_x[:, mask_index] = 0.0
         target_features = self.target_observation_encoder(target_x)
         return torch.cat([guide_features, target_features], dim=0)
+
+    def target_context_encoder_activation_summary(self, target_x: torch.Tensor) -> list[dict[str, object]]:
+        """Return interpretation-only target encoder activation summaries."""
+        encoder = self.target_observation_encoder
+        if hasattr(encoder, "activation_summary"):
+            rows = encoder.activation_summary(target_x)  # type: ignore[attr-defined]
+        else:
+            with torch.no_grad():
+                values = encoder(target_x).detach().float().cpu()
+            rows = [
+                {
+                    "target_context_encoder_type": self.target_context_encoder_type,
+                    "target_context_family": "all_target_observation_features",
+                    "input_columns": int(target_x.shape[1]),
+                    "branch_dim": int(values.shape[1]),
+                    "activation_mean": float(values.mean()),
+                    "activation_std": float(values.std(unbiased=False)),
+                    "activation_l2_mean": float(values.norm(dim=1).mean()),
+                }
+            ]
+        parameter_count = target_context_encoder_parameter_count(encoder)
+        for row in rows:
+            row["target_context_encoder_parameter_count"] = parameter_count
+        return rows
 
 
 def graph_a_attention_edge_tensors(

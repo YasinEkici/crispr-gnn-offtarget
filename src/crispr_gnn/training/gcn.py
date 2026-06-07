@@ -39,6 +39,7 @@ from crispr_gnn.models.gcn import (
 )
 from crispr_gnn.models.gat import GraphAEdgeGAT, GraphAEdgeGATv2, GraphBEdgeGATv2, GraphCEdgeGATv2
 from crispr_gnn.models.losses import SUPPORTED_LOSSES, build_loss
+from crispr_gnn.models.target_context_encoder import UNIFIED_SHALLOW_CONTEXT_ENCODER
 from crispr_gnn.training.samplers import balanced_subsample_mask
 
 
@@ -75,6 +76,7 @@ class GCNRunConfig:
     edge_blind_candidate_attention: bool = False
     mask_target_observation_features: bool = False
     target_observation_mask_families: tuple[str, ...] = ()
+    target_context_encoder_type: str = UNIFIED_SHALLOW_CONTEXT_ENCODER
     loss: str = "weighted_bce"
     clip_grad_norm: float = 1.0
     scheduler: str = "reduce_on_plateau"
@@ -151,6 +153,11 @@ def gcn_run_config_from_mapping(config: Mapping[str, Any]) -> GCNRunConfig:
             if graph_schema != GRAPH_C:
                 raise ValueError("Graph A/B GAT/GATv2 must keep zero_type_feature physical targets")
     attention = _mapping(model.get("attention", {}), "model.attention")
+    target_context_encoder = model.get("target_context_encoder", {})
+    if target_context_encoder is None:
+        target_context_encoder = {}
+    if not isinstance(target_context_encoder, Mapping):
+        raise ValueError("model.target_context_encoder must be a mapping when provided")
     loss = str(training.get("loss", "weighted_bce"))
     if loss.lower() not in SUPPORTED_LOSSES:
         raise ValueError(
@@ -209,6 +216,7 @@ def gcn_run_config_from_mapping(config: Mapping[str, Any]) -> GCNRunConfig:
                 graph.get("target_observation_mask_families", ()),
             )
         ),
+        target_context_encoder_type=str(target_context_encoder.get("type", UNIFIED_SHALLOW_CONTEXT_ENCODER)),
         loss=loss,
         clip_grad_norm=float(training.get("clip_grad_norm", 1.0)),
         scheduler=scheduler,
@@ -293,6 +301,38 @@ def collect_graph_attention_summary(
         split=split,
         graph_schema=config.graph_schema,
     )
+
+
+def collect_target_context_encoder_summary(
+    materialized: MaterializedGraph,
+    config: GCNRunConfig,
+    *,
+    checkpoint_path: Path,
+    split: str = "test",
+) -> pd.DataFrame:
+    """Summarize Graph C target-observation encoder activations for interpretation-only artifacts."""
+    if config.graph_schema != GRAPH_C or config.architecture != "gatv2":
+        raise ValueError("Target-context encoder summaries require Graph C GATv2 runs")
+    if materialized.graph_name != config.graph_schema:
+        raise ValueError("Target-context encoder summary materialized graph/config schema mismatch")
+    if not checkpoint_path.exists():
+        raise FileNotFoundError(f"Checkpoint not found for target-context encoder summary: {checkpoint_path}")
+    device = torch.device(config.device)
+    edge_feature_attrs = _edge_feature_attrs(config)
+    view = materialized.view(split).to(device)
+    model, _edge_dim = _build_model(view, config, edge_feature_attrs)
+    state = torch.load(checkpoint_path, map_location=device, weights_only=True)
+    model.load_state_dict(_normalize_checkpoint_state_dict(state))
+    model = model.to(device)
+    model.eval()
+    target_x = view["target_observation"].x
+    rows = model.target_context_encoder_activation_summary(target_x)
+    frame = pd.DataFrame(rows)
+    frame.insert(0, "model_name", config.model_name)
+    frame.insert(1, "architecture", config.architecture)
+    frame.insert(2, "graph_schema", config.graph_schema)
+    frame.insert(3, "split", split)
+    return frame
 
 
 def train_graph_c_gcn(
@@ -543,6 +583,11 @@ def _result_row(
             if config.graph_schema == GRAPH_C and config.architecture == "gatv2"
             else None
         ),
+        "target_context_encoder_type": (
+            config.target_context_encoder_type
+            if config.graph_schema == GRAPH_C and config.architecture == "gatv2"
+            else None
+        ),
         "parameter_count": int(parameter_count),
         "baseline_reference": BASELINE_REFERENCE,
         "baseline_test_auprc": BASELINE_TEST_AUPRC,
@@ -763,6 +808,8 @@ def _build_model(
                     edge_blind_candidate_attention=config.edge_blind_candidate_attention,
                     mask_target_observation_features=config.mask_target_observation_features,
                     target_observation_mask_indices=target_mask_indices,
+                    target_context_encoder_type=config.target_context_encoder_type,
+                    target_context_feature_names=target_feature_names,
                 ),
                 edge_dim,
             )
@@ -806,6 +853,8 @@ def _run_notes(config: GCNRunConfig) -> str:
         if config.target_observation_mask_families:
             families = ",".join(config.target_observation_mask_families)
             ablation_flags.append(f"target_observation families masked: {families}")
+        if config.graph_schema == GRAPH_C:
+            ablation_flags.append(f"target_context_encoder={config.target_context_encoder_type}")
         ablation_note = f"; Sprint 7D ablation: {', '.join(ablation_flags)}" if ablation_flags else ""
         return (
             f"{config.graph_schema} GATv2Conv path with dynamic attention; candidate edge features enter attention via edge_attr/edge_dim "
