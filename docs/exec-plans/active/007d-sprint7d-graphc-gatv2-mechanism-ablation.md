@@ -1,10 +1,10 @@
 # Execution Plan: Sprint 7D Graph C GATv2 Mechanism Ablation
 
-> Status: DRAFT / ACTIVE PLANNING. This plan scopes Sprint 7D only. It is a
-> small, predeclared mechanism/isolation ablation sprint around the Sprint 7B
-> Graph C GATv2 result. It is not a model-search sprint and must not add new
-> architectures, losses, samplers, feature families, sequence encoders, or data
-> regimes.
+> Status: IMPLEMENTED / AWAITING RUN RESULTS. This plan scopes Sprint 7D only.
+> It is a small, predeclared mechanism/isolation ablation sprint around the
+> Sprint 7B Graph C GATv2 result. It is not a model-search sprint and must not
+> add new architectures, losses, samplers, feature families, sequence encoders,
+> or data regimes.
 
 ## 1. Goal
 

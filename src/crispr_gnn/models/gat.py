@@ -312,6 +312,9 @@ class GraphCEdgeGATv2(nn.Module):
         edge_aware_attention: bool = True,
         self_loop_edge_fill: float = 0.0,
         gatv2_share_weights: bool = False,
+        drop_context_similarity_edges: bool = False,
+        edge_blind_candidate_attention: bool = False,
+        mask_target_observation_features: bool = False,
     ) -> None:
         super().__init__()
         _validate_attention_init(
@@ -331,6 +334,9 @@ class GraphCEdgeGATv2(nn.Module):
         self.self_loop_edge_fill = float(self_loop_edge_fill)
         self.heads = int(heads)
         self.concat = bool(concat)
+        self.drop_context_similarity_edges = bool(drop_context_similarity_edges)
+        self.edge_blind_candidate_attention = bool(edge_blind_candidate_attention)
+        self.mask_target_observation_features = bool(mask_target_observation_features)
         self.sgrna_encoder = nn.Sequential(nn.Linear(sgrna_input_dim, hidden_dim), nn.ReLU())
         self.target_observation_encoder = nn.Sequential(
             nn.Linear(target_observation_input_dim, hidden_dim),
@@ -363,6 +369,8 @@ class GraphCEdgeGATv2(nn.Module):
         attention_edge_index, attention_edge_attr = graph_c_attention_edge_tensors(
             data,
             edge_feature_attrs=edge_feature_attrs,
+            include_context_edges=not self.drop_context_similarity_edges,
+            zero_candidate_attention_attr=self.edge_blind_candidate_attention,
         )
         x, attention_records = _apply_attention_layers(
             x,
@@ -389,7 +397,10 @@ class GraphCEdgeGATv2(nn.Module):
 
     def _initial_node_features(self, data: HeteroData) -> torch.Tensor:
         guide_features = self.sgrna_encoder(data["sgRNA"].x)
-        target_features = self.target_observation_encoder(data["target_observation"].x)
+        target_x = data["target_observation"].x
+        if self.mask_target_observation_features:
+            target_x = torch.zeros_like(target_x)
+        target_features = self.target_observation_encoder(target_x)
         return torch.cat([guide_features, target_features], dim=0)
 
 
@@ -438,14 +449,24 @@ def graph_c_attention_edge_tensors(
     data: HeteroData,
     *,
     edge_feature_attrs: Sequence[str],
+    include_context_edges: bool = True,
+    zero_candidate_attention_attr: bool = False,
 ) -> tuple[torch.Tensor, torch.Tensor]:
     _validate_graph_c_data(data)
     edge_store = data[GRAPH_C_EDGE_TYPE]
     candidate = edge_store.edge_index
     candidate_attr = _candidate_edge_features(edge_store, edge_feature_attrs, graph_label="Graph C")
+    if zero_candidate_attention_attr:
+        candidate_attention_attr = torch.zeros_like(candidate_attr)
+    else:
+        candidate_attention_attr = candidate_attr
     sgrna_nodes = int(data["sgRNA"].num_nodes)
     candidate_forward = torch.stack([candidate[0], candidate[1] + sgrna_nodes], dim=0)
     candidate_reverse = torch.stack([candidate[1] + sgrna_nodes, candidate[0]], dim=0)
+    if not include_context_edges:
+        attention_edge_index = torch.cat([candidate_forward, candidate_reverse], dim=1)
+        attention_edge_attr = torch.cat([candidate_attention_attr, candidate_attention_attr], dim=0)
+        return attention_edge_index, attention_edge_attr
     context = data[GRAPH_C_CONTEXT_EDGE_TYPE].edge_index
     context_forward = context + sgrna_nodes
     context_reverse = torch.stack([context[1] + sgrna_nodes, context[0] + sgrna_nodes], dim=0)
@@ -454,7 +475,7 @@ def graph_c_attention_edge_tensors(
         [candidate_forward, candidate_reverse, context_forward, context_reverse],
         dim=1,
     )
-    attention_edge_attr = torch.cat([candidate_attr, candidate_attr, zero_context_attr], dim=0)
+    attention_edge_attr = torch.cat([candidate_attention_attr, candidate_attention_attr, zero_context_attr], dim=0)
     return attention_edge_index, attention_edge_attr
 
 

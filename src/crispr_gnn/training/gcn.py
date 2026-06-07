@@ -70,6 +70,9 @@ class GCNRunConfig:
     edge_aware_attention: bool = True
     self_loop_edge_fill: float = 0.0
     gatv2_share_weights: bool = False
+    drop_context_similarity_edges: bool = False
+    edge_blind_candidate_attention: bool = False
+    mask_target_observation_features: bool = False
     loss: str = "weighted_bce"
     clip_grad_norm: float = 1.0
     scheduler: str = "reduce_on_plateau"
@@ -188,6 +191,15 @@ def gcn_run_config_from_mapping(config: Mapping[str, Any]) -> GCNRunConfig:
         edge_aware_attention=bool(attention.get("edge_aware", model.get("edge_aware_attention", True))),
         self_loop_edge_fill=float(attention.get("self_loop_edge_fill", model.get("self_loop_edge_fill", 0.0))),
         gatv2_share_weights=bool(attention.get("gatv2_share_weights", model.get("gatv2_share_weights", False))),
+        drop_context_similarity_edges=bool(
+            attention.get("drop_context_similarity_edges", model.get("drop_context_similarity_edges", False))
+        ),
+        edge_blind_candidate_attention=bool(
+            attention.get("edge_blind_candidate_attention", model.get("edge_blind_candidate_attention", False))
+        ),
+        mask_target_observation_features=bool(
+            model.get("mask_target_observation_features", graph.get("mask_target_observation_features", False))
+        ),
         loss=loss,
         clip_grad_norm=float(training.get("clip_grad_norm", 1.0)),
         scheduler=scheduler,
@@ -502,6 +514,21 @@ def _result_row(
         "gatv2_share_weights": (
             bool(config.gatv2_share_weights) if config.architecture == "gatv2" else None
         ),
+        "drop_context_similarity_edges": (
+            bool(config.drop_context_similarity_edges)
+            if config.graph_schema == GRAPH_C and config.architecture == "gatv2"
+            else None
+        ),
+        "edge_blind_candidate_attention": (
+            bool(config.edge_blind_candidate_attention)
+            if config.graph_schema == GRAPH_C and config.architecture == "gatv2"
+            else None
+        ),
+        "mask_target_observation_features": (
+            bool(config.mask_target_observation_features)
+            if config.graph_schema == GRAPH_C and config.architecture == "gatv2"
+            else None
+        ),
         "parameter_count": int(parameter_count),
         "baseline_reference": BASELINE_REFERENCE,
         "baseline_test_auprc": BASELINE_TEST_AUPRC,
@@ -710,6 +737,9 @@ def _build_model(
                     edge_aware_attention=config.edge_aware_attention,
                     self_loop_edge_fill=config.self_loop_edge_fill,
                     gatv2_share_weights=config.gatv2_share_weights,
+                    drop_context_similarity_edges=config.drop_context_similarity_edges,
+                    edge_blind_candidate_attention=config.edge_blind_candidate_attention,
+                    mask_target_observation_features=config.mask_target_observation_features,
                 ),
                 edge_dim,
             )
@@ -743,9 +773,18 @@ def _run_notes(config: GCNRunConfig) -> str:
             "when edge_aware_attention=True; self-loop edge features are zero-filled; no test-driven selection"
         )
     if config.architecture == "gatv2":
+        ablation_flags = []
+        if config.drop_context_similarity_edges:
+            ablation_flags.append("context_similar_to edges dropped")
+        if config.edge_blind_candidate_attention:
+            ablation_flags.append("candidate S5F2 zeroed only inside attention")
+        if config.mask_target_observation_features:
+            ablation_flags.append("direct target_observation features masked")
+        ablation_note = f"; Sprint 7D ablation: {', '.join(ablation_flags)}" if ablation_flags else ""
         return (
             f"{config.graph_schema} GATv2Conv path with dynamic attention; candidate edge features enter attention via edge_attr/edge_dim "
             "when edge_aware_attention=True; self-loop edge features are zero-filled; no test-driven selection"
+            f"{ablation_note}"
         )
     if graph_schema == GRAPH_C:
         return (
