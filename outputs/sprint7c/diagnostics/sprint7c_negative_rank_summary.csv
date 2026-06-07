@@ -1,0 +1,13 @@
+analysis_model_id,split,rows,negatives,negative_median_rank,negative_mean_rank,negative_top_decile_count,positive_bottom_decile_count
+graph_a_gcn_s6_weighted_bce,val,1734,223,1250.0,1213.3766816143498,3,136
+graph_a_gcn_s6_weighted_bce,test,1702,169,1377.0,1342.01775147929,0,103
+graph_a_gatv2_s7,val,1734,223,1542.0,1505.4977578475336,4,71
+graph_a_gatv2_s7,test,1702,169,1495.0,1339.4319526627219,7,94
+graph_c_gcn_s5b,val,1734,223,1517.0,1452.0627802690583,0,84
+graph_c_gcn_s5b,test,1702,169,1498.0,1366.923076923077,6,91
+graph_b_gcn_s7b,val,1734,223,1320.0,1259.3183856502242,2,134
+graph_b_gcn_s7b,test,1702,169,1341.0,1312.5917159763314,0,107
+graph_b_gatv2_s7b,val,1734,223,1166.0,1188.6188340807175,0,123
+graph_b_gatv2_s7b,test,1702,169,1371.0,1361.0591715976332,0,100
+graph_c_gatv2_s7b,val,1734,223,1529.0,1478.1165919282512,2,80
+graph_c_gatv2_s7b,test,1702,169,1590.0,1387.5976331360946,7,71

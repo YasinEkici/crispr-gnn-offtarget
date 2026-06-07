@@ -1,0 +1,82 @@
+{
+  "contract": {
+    "analysis_only": true,
+    "no_model_training": true,
+    "no_test_tuning": true,
+    "primary_metric": "AUPRC"
+  },
+  "diagnostics": [
+    "outputs/sprint7c/diagnostics/sprint7c_prediction_alignment_audit.csv",
+    "outputs/sprint7c/diagnostics/sprint7c_metric_recomputation.csv",
+    "outputs/sprint7c/diagnostics/sprint7c_threshold_transfer.csv",
+    "outputs/sprint7c/diagnostics/sprint7c_score_distribution_by_label.csv",
+    "outputs/sprint7c/diagnostics/sprint7c_negative_rank_summary.csv",
+    "outputs/sprint7c/diagnostics/sprint7c_error_transitions.csv",
+    "outputs/sprint7c/diagnostics/sprint7c_per_guide_error_gain.csv",
+    "outputs/sprint7c/diagnostics/sprint7c_attention_edge_kind_summary.csv"
+  ],
+  "figures": [
+    "outputs/sprint7c/figures/sprint7c_score_distribution_by_label.png",
+    "outputs/sprint7c/figures/sprint7c_graphc_score_delta.png",
+    "outputs/sprint7c/figures/sprint7c_negative_rank_shift.png",
+    "outputs/sprint7c/figures/sprint7c_error_transition_matrix.png",
+    "outputs/sprint7c/figures/sprint7c_threshold_transfer.png",
+    "outputs/sprint7c/figures/sprint7c_per_guide_negative_gain.png",
+    "outputs/sprint7c/figures/sprint7c_attention_edge_kind_summary.png"
+  ],
+  "generated_at_utc": "2026-06-07T19:41:06.487362+00:00",
+  "manifest_type": "sprint7c_graphc_gatv2_explanation_manifest",
+  "output_dir": "outputs/sprint7c",
+  "prediction_sources": [
+    {
+      "analysis_model_id": "graph_a_gcn_s6_weighted_bce",
+      "filter": {
+        "predeclared_run_id": "S6R0_wbce"
+      },
+      "path": "outputs/sprint6/loss_comparison/diagnostics_sprint6/sprint6_loss_comparison_predictions.csv",
+      "predeclared_run_id": "S7C_REF_GRAPH_A_GCN"
+    },
+    {
+      "analysis_model_id": "graph_a_gatv2_s7",
+      "filter": {
+        "predeclared_run_id": "S7R2_gatv2_edge_aware"
+      },
+      "path": "outputs/sprint7/diagnostics/gat_predictions.csv",
+      "predeclared_run_id": "S7C_REF_GRAPH_A_GATV2"
+    },
+    {
+      "analysis_model_id": "graph_c_gcn_s5b",
+      "filter": null,
+      "path": "outputs/sprint5b/graph_c/diagnostics/gcn_graph_c_predictions.csv",
+      "predeclared_run_id": "S7C_REF_GRAPH_C_GCN"
+    },
+    {
+      "analysis_model_id": "graph_b_gcn_s7b",
+      "filter": {
+        "predeclared_run_id": "S7B_R1_graph_b_gcn_s5f2"
+      },
+      "path": "outputs/sprint7b/diagnostics/gatv2_topology_predictions.csv",
+      "predeclared_run_id": "S7C_REF_GRAPH_B_GCN"
+    },
+    {
+      "analysis_model_id": "graph_b_gatv2_s7b",
+      "filter": {
+        "predeclared_run_id": "S7B_R2_graph_b_gatv2_s5f2"
+      },
+      "path": "outputs/sprint7b/diagnostics/gatv2_topology_predictions.csv",
+      "predeclared_run_id": "S7C_REF_GRAPH_B_GATV2"
+    },
+    {
+      "analysis_model_id": "graph_c_gatv2_s7b",
+      "filter": {
+        "predeclared_run_id": "S7B_R3_graph_c_gatv2_s5f2"
+      },
+      "path": "outputs/sprint7b/diagnostics/gatv2_topology_predictions.csv",
+      "predeclared_run_id": "S7C_GRAPH_C_GATV2"
+    }
+  ],
+  "reports": [
+    "outputs/sprint7c/sprint7c_identity_alignment_audit.md",
+    "outputs/sprint7c/sprint7c_graphc_gatv2_explanation_report.md"
+  ]
+}
