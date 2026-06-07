@@ -1,8 +1,8 @@
 # Execution Plan: Sprint 7C Graph C GATv2 Explanation Audit
 
-> Status: IMPLEMENTED LOCALLY / ACTIVE. Sprint 7C analysis script, runner-only
-> Colab notebook, and contract tests are in place. Sprint 7C is an analysis and
-> evidence-audit sprint, not a new model-training sprint. It explains the
+> Status: IMPLEMENTED LOCALLY / ACTIVE. Sprint 7C analysis script and contract
+> tests are in place. Sprint 7C is an analysis and evidence-audit sprint, not a
+> new model-training sprint. It explains the
 > observed Sprint 7B Graph C GATv2 result as far as existing artifacts and
 > verified metadata joins allow.
 
