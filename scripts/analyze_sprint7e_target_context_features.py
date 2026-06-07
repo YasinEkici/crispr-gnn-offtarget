@@ -7,6 +7,7 @@ import sys
 from pathlib import Path
 from typing import Any
 
+import numpy as np
 import pandas as pd
 
 
@@ -14,6 +15,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
 from crispr_gnn.features.target_context import (  # noqa: E402
+    EXPERIMENTAL_EPIGENETIC_FAMILY,
     TARGET_CONTEXT_EXPECTED_COUNTS,
     TARGET_CONTEXT_FAMILY_ORDER,
     target_context_family_counts,
@@ -71,20 +73,28 @@ def run_sprint7e_target_context_feature_profiling(
     family_map = _family_map(feature_columns)
     group_summary = _group_summary(merged, family_map)
     distribution = _distribution_by_split_label(merged, family_map)
+    experimental_distribution = _experimental_feature_distribution_by_split_label(merged, family_map)
+    experimental_smd = _experimental_feature_smd_by_split(merged, family_map)
 
     family_map_path = output_dir / "sprint7e_context_feature_family_map.csv"
     summary_path = output_dir / "sprint7e_context_feature_group_summary.csv"
     distribution_path = output_dir / "sprint7e_context_feature_distribution_by_split_label.csv"
+    experimental_distribution_path = (
+        output_dir / "sprint7e_experimental_epigenetic_feature_distribution_by_split_label.csv"
+    )
+    experimental_smd_path = output_dir / "sprint7e_experimental_epigenetic_feature_smd_by_split.csv"
     report_path = output_dir / "sprint7e_context_feature_profile_report.md"
     manifest_path = output_dir / "sprint7e_context_feature_profile_manifest.json"
 
     family_map.to_csv(family_map_path, index=False)
     group_summary.to_csv(summary_path, index=False)
     distribution.to_csv(distribution_path, index=False)
+    experimental_distribution.to_csv(experimental_distribution_path, index=False)
+    experimental_smd.to_csv(experimental_smd_path, index=False)
 
     figure_paths: list[Path] = []
     if write_figures:
-        figure_paths = _write_figures(group_summary, distribution, figures_dir)
+        figure_paths = _write_figures(group_summary, distribution, experimental_smd, figures_dir)
 
     report_path.write_text(
         _write_report(
@@ -92,6 +102,8 @@ def run_sprint7e_target_context_feature_profiling(
             family_map=family_map,
             group_summary=group_summary,
             distribution=distribution,
+            experimental_distribution=experimental_distribution,
+            experimental_smd=experimental_smd,
             figure_paths=figure_paths,
         ),
         encoding="utf-8",
@@ -99,7 +111,15 @@ def run_sprint7e_target_context_feature_profiling(
     _write_manifest(
         manifest_path,
         graph_c_dir=graph_c_dir,
-        outputs=[family_map_path, summary_path, distribution_path, report_path, *figure_paths],
+        outputs=[
+            family_map_path,
+            summary_path,
+            distribution_path,
+            experimental_distribution_path,
+            experimental_smd_path,
+            report_path,
+            *figure_paths,
+        ],
         graph_manifest=manifest,
     )
     return output_dir
@@ -213,7 +233,81 @@ def _distribution_by_split_label(frame: pd.DataFrame, family_map: pd.DataFrame) 
     return pd.DataFrame(rows)
 
 
-def _write_figures(group_summary: pd.DataFrame, distribution: pd.DataFrame, figures_dir: Path) -> list[Path]:
+def _experimental_feature_columns(family_map: pd.DataFrame) -> list[str]:
+    return family_map.loc[
+        family_map["target_context_family"] == EXPERIMENTAL_EPIGENETIC_FAMILY,
+        "feature_column",
+    ].tolist()
+
+
+def _experimental_feature_distribution_by_split_label(frame: pd.DataFrame, family_map: pd.DataFrame) -> pd.DataFrame:
+    rows = []
+    feature_lookup = family_map.set_index("feature_column")["source_feature_name"].to_dict()
+    for (split, label), group in frame.groupby(["split", "label"], sort=True):
+        for column in _experimental_feature_columns(family_map):
+            values = group[column].to_numpy(dtype=float)
+            rows.append(
+                {
+                    "split": split,
+                    "label": int(label),
+                    "feature_column": column,
+                    "source_feature_name": feature_lookup[column],
+                    "rows": int(len(values)),
+                    "mean": float(values.mean()),
+                    "median": float(np.median(values)),
+                    "std": float(values.std()),
+                    "q25": float(np.quantile(values, 0.25)),
+                    "q75": float(np.quantile(values, 0.75)),
+                    "min": float(values.min()),
+                    "max": float(values.max()),
+                    "nonzero_fraction": float((values != 0).mean()),
+                }
+            )
+    return pd.DataFrame(rows)
+
+
+def _experimental_feature_smd_by_split(frame: pd.DataFrame, family_map: pd.DataFrame) -> pd.DataFrame:
+    rows = []
+    feature_lookup = family_map.set_index("feature_column")["source_feature_name"].to_dict()
+    for split, group in frame.groupby("split", sort=True):
+        for column in _experimental_feature_columns(family_map):
+            negative = group.loc[group["label"] == 0, column].to_numpy(dtype=float)
+            positive = group.loc[group["label"] == 1, column].to_numpy(dtype=float)
+            mean_negative = float(negative.mean())
+            mean_positive = float(positive.mean())
+            std_negative = float(negative.std())
+            std_positive = float(positive.std())
+            pooled_std = float(np.sqrt((std_negative**2 + std_positive**2) / 2.0))
+            if pooled_std == 0.0:
+                smd = 0.0 if mean_positive == mean_negative else np.nan
+            else:
+                smd = (mean_positive - mean_negative) / pooled_std
+            rows.append(
+                {
+                    "split": split,
+                    "feature_column": column,
+                    "source_feature_name": feature_lookup[column],
+                    "rows_negative": int(len(negative)),
+                    "rows_positive": int(len(positive)),
+                    "mean_negative": mean_negative,
+                    "mean_positive": mean_positive,
+                    "median_negative": float(np.median(negative)),
+                    "median_positive": float(np.median(positive)),
+                    "std_negative": std_negative,
+                    "std_positive": std_positive,
+                    "standardized_mean_difference_pos_minus_neg": float(smd),
+                    "abs_smd": float(abs(smd)),
+                }
+            )
+    return pd.DataFrame(rows)
+
+
+def _write_figures(
+    group_summary: pd.DataFrame,
+    distribution: pd.DataFrame,
+    experimental_smd: pd.DataFrame,
+    figures_dir: Path,
+) -> list[Path]:
     import matplotlib
 
     matplotlib.use("Agg")
@@ -246,6 +340,23 @@ def _write_figures(group_summary: pd.DataFrame, distribution: pd.DataFrame, figu
     fig.savefig(path, dpi=180)
     plt.close(fig)
     paths.append(path)
+
+    path = figures_dir / "sprint7e_experimental_epigenetic_smd_by_split.png"
+    fig, ax = plt.subplots(figsize=(9, 4))
+    pivot = experimental_smd.pivot_table(
+        index="source_feature_name",
+        columns="split",
+        values="standardized_mean_difference_pos_minus_neg",
+        aggfunc="mean",
+    )
+    pivot.plot(kind="bar", ax=ax)
+    ax.axhline(0.0, color="black", linewidth=0.8)
+    ax.set_ylabel("Positive - negative SMD")
+    ax.tick_params(axis="x", rotation=25)
+    fig.tight_layout()
+    fig.savefig(path, dpi=180)
+    plt.close(fig)
+    paths.append(path)
     return paths
 
 
@@ -255,6 +366,8 @@ def _write_report(
     family_map: pd.DataFrame,
     group_summary: pd.DataFrame,
     distribution: pd.DataFrame,
+    experimental_distribution: pd.DataFrame,
+    experimental_smd: pd.DataFrame,
     figure_paths: list[Path],
 ) -> str:
     counts = family_map["target_context_family"].value_counts().reindex(TARGET_CONTEXT_FAMILY_ORDER).reset_index()
@@ -279,6 +392,18 @@ def _write_report(
 ## Split/Label Distribution Summary
 
 {_markdown_table(distribution.head(24))}
+
+## Experimental Epigenetic Per-Feature Audit
+
+This audit is diagnostic only. It checks whether the six direct experimental target-observation features have split/label distribution drift that could explain why masking this family collapses Sprint 7E rare-negative behavior. It does not introduce a new model-selection criterion.
+
+### Per-Feature Split/Label Summary
+
+{_markdown_table(experimental_distribution.head(36))}
+
+### Positive-Negative Standardized Mean Differences
+
+{_markdown_table(experimental_smd.sort_values(["split", "abs_smd"], ascending=[True, False]).head(18))}
 
 ## Run Matrix Freeze
 

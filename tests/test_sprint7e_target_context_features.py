@@ -48,10 +48,13 @@ def test_sprint7e_profiling_writes_declared_outputs(tmp_path) -> None:
         output_dir / "sprint7e_context_feature_family_map.csv",
         output_dir / "sprint7e_context_feature_group_summary.csv",
         output_dir / "sprint7e_context_feature_distribution_by_split_label.csv",
+        output_dir / "sprint7e_experimental_epigenetic_feature_distribution_by_split_label.csv",
+        output_dir / "sprint7e_experimental_epigenetic_feature_smd_by_split.csv",
         output_dir / "sprint7e_context_feature_profile_report.md",
         output_dir / "sprint7e_context_feature_profile_manifest.json",
         output_dir / "figures" / "sprint7e_context_feature_group_missingness.png",
         output_dir / "figures" / "sprint7e_context_feature_group_distribution.png",
+        output_dir / "figures" / "sprint7e_experimental_epigenetic_smd_by_split.png",
     ]
     for path in required:
         assert path.exists(), path
@@ -60,6 +63,14 @@ def test_sprint7e_profiling_writes_declared_outputs(tmp_path) -> None:
     family_map = pd.read_csv(output_dir / "sprint7e_context_feature_family_map.csv")
     assert len(family_map) == 212
     assert family_map["target_context_family"].value_counts().to_dict()["target_sequence_one_hot"] == 115
+    experimental_distribution = pd.read_csv(
+        output_dir / "sprint7e_experimental_epigenetic_feature_distribution_by_split_label.csv"
+    )
+    experimental_smd = pd.read_csv(output_dir / "sprint7e_experimental_epigenetic_feature_smd_by_split.csv")
+    assert len(experimental_distribution) == 36
+    assert len(experimental_smd) == 18
+    assert experimental_distribution["source_feature_name"].nunique() == 6
+    assert experimental_smd["source_feature_name"].nunique() == 6
     manifest = json.loads((output_dir / "sprint7e_context_feature_profile_manifest.json").read_text())
     assert manifest["no_training_performed"] is True
     assert manifest["no_test_performance_selection"] is True

@@ -1,8 +1,8 @@
 # Execution Plan: Sprint 7E Target-Observation Context Feature Subgroup Ablation
 
-> Status: ACTIVE IMPLEMENTATION. Sprint 7E is one sprint with two slices:
-> local feature profiling/predeclaration, then Colab subgroup-ablation training.
-> It is not split into 7E1/7E2. It is not a hyperparameter search, encoder
+> Status: COMPLETED. Sprint 7E was one sprint with two slices:
+> feature profiling/predeclaration, then Colab subgroup-ablation training.
+> It was not split into 7E1/7E2. It was not a hyperparameter search, encoder
 > search, sequence-model sprint, or robustness sprint.
 
 ## 1. Goal
@@ -304,10 +304,13 @@ Required Slice 1 outputs:
 outputs/sprint7e/context_feature_profiling/sprint7e_context_feature_family_map.csv
 outputs/sprint7e/context_feature_profiling/sprint7e_context_feature_group_summary.csv
 outputs/sprint7e/context_feature_profiling/sprint7e_context_feature_distribution_by_split_label.csv
+outputs/sprint7e/context_feature_profiling/sprint7e_experimental_epigenetic_feature_distribution_by_split_label.csv
+outputs/sprint7e/context_feature_profiling/sprint7e_experimental_epigenetic_feature_smd_by_split.csv
 outputs/sprint7e/context_feature_profiling/sprint7e_context_feature_profile_report.md
 outputs/sprint7e/context_feature_profiling/sprint7e_context_feature_profile_manifest.json
 outputs/sprint7e/context_feature_profiling/figures/sprint7e_context_feature_group_missingness.png
 outputs/sprint7e/context_feature_profiling/figures/sprint7e_context_feature_group_distribution.png
+outputs/sprint7e/context_feature_profiling/figures/sprint7e_experimental_epigenetic_smd_by_split.png
 ```
 
 Slice 1 must:
@@ -502,7 +505,7 @@ Sprint 7E is complete when:
 - Returned Colab outputs are copied locally under `outputs/sprint7e/`.
 - The final report interprets results under AUPRC-primary, no-test-tuning,
   single-seed boundaries.
-- The plan can be moved to `docs/exec-plans/completed/` only after validated
+- The plan has been moved to `docs/exec-plans/completed/` after validated
   outputs and final report are present.
 
 ## 15. Deferred Work
