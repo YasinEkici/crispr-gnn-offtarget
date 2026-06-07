@@ -156,6 +156,28 @@ def test_graph_c_gatv2_sprint7d_ablation_flags_keep_classifier_shape() -> None:
     assert attention_records[0]["edge_index"].shape[1] >= 6
 
 
+def test_graph_c_gatv2_can_mask_target_observation_column_subset() -> None:
+    data = _tiny_graph_c_view()
+    attrs = graph_c_edge_feature_attrs(["s5f2_energy"])
+    model = GraphCEdgeGATv2(
+        sgrna_input_dim=4,
+        target_observation_input_dim=5,
+        edge_input_dim=4,
+        hidden_dim=8,
+        num_layers=1,
+        heads=2,
+        dropout=0.0,
+        attention_dropout=0.0,
+        target_observation_mask_indices=(0, 2),
+    )
+
+    logits, attention_records = model(data, edge_feature_attrs=attrs, return_attention=True)
+
+    assert logits.shape == (3,)
+    assert model.target_observation_mask_indices == (0, 2)
+    assert attention_records[0]["alpha"].shape[1] == 2
+
+
 def _tiny_graph_b_view() -> HeteroData:
     data = HeteroData()
     data.graph_name = GRAPH_B

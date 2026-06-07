@@ -315,6 +315,7 @@ class GraphCEdgeGATv2(nn.Module):
         drop_context_similarity_edges: bool = False,
         edge_blind_candidate_attention: bool = False,
         mask_target_observation_features: bool = False,
+        target_observation_mask_indices: Sequence[int] | None = None,
     ) -> None:
         super().__init__()
         _validate_attention_init(
@@ -337,6 +338,14 @@ class GraphCEdgeGATv2(nn.Module):
         self.drop_context_similarity_edges = bool(drop_context_similarity_edges)
         self.edge_blind_candidate_attention = bool(edge_blind_candidate_attention)
         self.mask_target_observation_features = bool(mask_target_observation_features)
+        self.target_observation_mask_indices = tuple(int(index) for index in (target_observation_mask_indices or ()))
+        if self.mask_target_observation_features and self.target_observation_mask_indices:
+            raise ValueError("Use either full target-observation masking or column-index masking, not both")
+        if self.target_observation_mask_indices:
+            if min(self.target_observation_mask_indices) < 0:
+                raise ValueError("target_observation_mask_indices cannot contain negative indexes")
+            if max(self.target_observation_mask_indices) >= target_observation_input_dim:
+                raise ValueError("target_observation_mask_indices exceed target_observation_input_dim")
         self.sgrna_encoder = nn.Sequential(nn.Linear(sgrna_input_dim, hidden_dim), nn.ReLU())
         self.target_observation_encoder = nn.Sequential(
             nn.Linear(target_observation_input_dim, hidden_dim),
@@ -400,6 +409,10 @@ class GraphCEdgeGATv2(nn.Module):
         target_x = data["target_observation"].x
         if self.mask_target_observation_features:
             target_x = torch.zeros_like(target_x)
+        elif self.target_observation_mask_indices:
+            target_x = target_x.clone()
+            mask_index = torch.as_tensor(self.target_observation_mask_indices, dtype=torch.long, device=target_x.device)
+            target_x[:, mask_index] = 0.0
         target_features = self.target_observation_encoder(target_x)
         return torch.cat([guide_features, target_features], dim=0)
 

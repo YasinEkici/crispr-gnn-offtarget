@@ -12,6 +12,7 @@ import torch
 from sklearn.metrics import average_precision_score
 
 from crispr_gnn.evaluation.metrics import binary_classification_metrics, select_threshold_by_f1
+from crispr_gnn.features.target_context import target_context_mask_indices, validate_target_context_feature_names
 from crispr_gnn.graph.graph_schemas import GRAPH_A, GRAPH_B, GRAPH_C
 from crispr_gnn.graph.pyg_dataset import (
     LABEL_SCHEME,
@@ -73,6 +74,7 @@ class GCNRunConfig:
     drop_context_similarity_edges: bool = False
     edge_blind_candidate_attention: bool = False
     mask_target_observation_features: bool = False
+    target_observation_mask_families: tuple[str, ...] = ()
     loss: str = "weighted_bce"
     clip_grad_norm: float = 1.0
     scheduler: str = "reduce_on_plateau"
@@ -199,6 +201,13 @@ def gcn_run_config_from_mapping(config: Mapping[str, Any]) -> GCNRunConfig:
         ),
         mask_target_observation_features=bool(
             model.get("mask_target_observation_features", graph.get("mask_target_observation_features", False))
+        ),
+        target_observation_mask_families=tuple(
+            str(value)
+            for value in model.get(
+                "target_observation_mask_families",
+                graph.get("target_observation_mask_families", ()),
+            )
         ),
         loss=loss,
         clip_grad_norm=float(training.get("clip_grad_norm", 1.0)),
@@ -529,6 +538,11 @@ def _result_row(
             if config.graph_schema == GRAPH_C and config.architecture == "gatv2"
             else None
         ),
+        "target_observation_mask_families": (
+            ",".join(config.target_observation_mask_families)
+            if config.graph_schema == GRAPH_C and config.architecture == "gatv2"
+            else None
+        ),
         "parameter_count": int(parameter_count),
         "baseline_reference": BASELINE_REFERENCE,
         "baseline_test_auprc": BASELINE_TEST_AUPRC,
@@ -723,6 +737,14 @@ def _build_model(
     if config.graph_schema == GRAPH_C:
         sgrna_dim, target_dim, edge_dim = graph_c_feature_dimensions(train_view, edge_feature_attrs)
         if config.architecture == "gatv2":
+            target_feature_names = list(getattr(train_view["target_observation"], "feature_names", []))
+            target_mask_indices: tuple[int, ...] = ()
+            if config.target_observation_mask_families:
+                validate_target_context_feature_names(target_feature_names)
+                target_mask_indices = target_context_mask_indices(
+                    target_feature_names,
+                    config.target_observation_mask_families,
+                )
             return (
                 GraphCEdgeGATv2(
                     sgrna_input_dim=sgrna_dim,
@@ -740,6 +762,7 @@ def _build_model(
                     drop_context_similarity_edges=config.drop_context_similarity_edges,
                     edge_blind_candidate_attention=config.edge_blind_candidate_attention,
                     mask_target_observation_features=config.mask_target_observation_features,
+                    target_observation_mask_indices=target_mask_indices,
                 ),
                 edge_dim,
             )
@@ -780,6 +803,9 @@ def _run_notes(config: GCNRunConfig) -> str:
             ablation_flags.append("candidate S5F2 zeroed only inside attention")
         if config.mask_target_observation_features:
             ablation_flags.append("direct target_observation features masked")
+        if config.target_observation_mask_families:
+            families = ",".join(config.target_observation_mask_families)
+            ablation_flags.append(f"target_observation families masked: {families}")
         ablation_note = f"; Sprint 7D ablation: {', '.join(ablation_flags)}" if ablation_flags else ""
         return (
             f"{config.graph_schema} GATv2Conv path with dynamic attention; candidate edge features enter attention via edge_attr/edge_dim "
