@@ -1,9 +1,10 @@
 # Execution Plan: Sprint 6 Imbalance / Loss Comparison
 
-> Status: active. Run list (Section 6) and hyperparameters FROZEN and approved
-> 2026-06-06 — Slices 0-4 complete. Headline Colab GPU sweep returned and
-> validated locally. Predeclared losses/γ/α/β must not change from test
-> diagnostics; optional Slice 5 remains approval-gated and out of headline scope.
+> Status: COMPLETE / FROZEN (2026-06-06). Slices 0–4 and 6 done; Slice 5 is
+> optional/deferred and approval-gated. Headline Colab GPU sweep returned and
+> validated locally; result numbers are frozen. Plan moved to
+> `docs/exec-plans/completed/`. Predeclared losses/γ/α/β and frozen result
+> numbers must not change.
 
 ## 1. Goal
 

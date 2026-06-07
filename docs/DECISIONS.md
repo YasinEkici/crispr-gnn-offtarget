@@ -700,7 +700,7 @@ are different roles, not competing choices.
 
 Outcome:
 
-- Sprint 6 exec plan: `docs/exec-plans/active/006-sprint6-imbalance-loss-comparison.md`.
+- Sprint 6 exec plan: `docs/exec-plans/completed/006-sprint6-imbalance-loss-comparison.md`.
 - The frozen feature set must not be re-tuned from Sprint 6 loss diagnostics.
 - Validation-only checkpoint (`val_auprc`) and threshold (`validation_max_f1`)
   selection are unchanged so all Sprint 6 rows stay same-contract comparable to
@@ -852,3 +852,58 @@ Interpretation:
   work should be framed as architecture/regime investigation (for example an
   edge-aware Sprint 7 or separately approved screening-regime Slice 5), not as
   post-hoc retuning of Sprint 6 losses.
+
+## 2026-06-06 - Open optional Sprint 8 (Robustness); proceed to Sprint 7 next
+
+Decision: defer the project's uncertainty/variance-quantification work to a new
+OPTIONAL Sprint 8 ("Robustness") and proceed directly to Sprint 7 (GAT/GATv2)
+without first retrofitting robustness across earlier sprints. Sprint 6 is treated
+as complete at Slice 4 (headline validated); Slice 5 remains separately
+approval-gated.
+
+Reason: Slice 4 localized the binding constraint to architecture (in the current
+`GraphAEdgeGCN`, `S5F2_energy` edge features enter only the classifier head, not
+message passing). The most informative next experiment is therefore the
+edge-aware architecture (Sprint 7), which is also a must-have on the critical
+path. Robustness work (bootstrap CIs, paired comparisons, multi-seed) is valuable
+but interpretation-only and does not block Sprint 7; bundling it as an optional
+sprint keeps the roadmap moving while preserving the work.
+
+Scope of Sprint 8 (predeclared, interpretation-only, no test-driven tuning):
+
+- Guide-level (cluster) bootstrap CIs for all reported results (Sprints
+  4/5/5B/6/7) from saved per-row predictions; no retraining. Resample guides, not
+  rows (rows within a guide are correlated). AUPRC primary; threshold metrics at
+  the frozen validation threshold. BCa preferred (AUPRC bounded near the
+  `0.900705` floor); B >= 2000 (e.g. 5000).
+- Paired-difference bootstrap for headline comparisons; overlapping independent
+  CIs do not establish significance (overlap fallacy). Comparing to
+  `xgboost_unweighted / F4` requires regenerating F4 per-row test predictions on
+  the locked split (cheap, CPU, reproduces `0.992522`) — Sprint 2 did not save
+  them.
+- Multi-seed (fixed split) for headline model-selection configs only (best GCN vs
+  GAT): predeclared seeds, report mean +/- std, no best-seed selection. May be
+  run inline in Sprint 7 and consolidated in Sprint 8.
+
+Alternatives considered:
+
+- Retrofit bootstrap + multi-seed across all sprints now, before Sprint 7 —
+  rejected: delays the architecture experiment that Slice 4 pointed to, and
+  multi-seed on locked ablation cells reopens documented numbers for little
+  information gain.
+- Bake multi-seed into Sprint 7 only and skip a robustness sprint — viable; in
+  that case Sprint 8 simply consolidates and adds bootstrap/paired CIs.
+
+Outcome:
+
+- `CRISPR_GNN_PROJECT_PLAN.md` adds Sprint 8 (optional/stretch) plus a Stretch
+  bullet; `README.md` roadmap marks Sprint 6 complete, Sprint 7 next, Sprint 8
+  optional.
+- `scripts/compute_sprint6_bootstrap_ci.py` (guide-level cluster percentile
+  bootstrap, B=2000) is the Sprint 6 prototype; Sprint 8 generalizes it (BCa,
+  paired-difference, all sprints) into a tested `src/crispr_gnn/evaluation/`
+  module.
+- Multi-seed is NOT applied retroactively to locked ablation cells; guide-level
+  bootstrap CIs (no retraining) provide the uniform uncertainty layer instead.
+- Literature anchors: Boyd 2013 (AUPRC CIs); cluster/block bootstrap for
+  correlated data; paired-difference bootstrap / overlapping-CI fallacy; BCa.

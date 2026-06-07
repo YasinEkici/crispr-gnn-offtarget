@@ -1,7 +1,7 @@
 """Sprint 6 imbalance / loss registry.
 
 These objectives are the controlled variable of Sprint 6 (exec plan
-``docs/exec-plans/active/006-sprint6-imbalance-loss-comparison.md``). Everything
+``docs/exec-plans/completed/006-sprint6-imbalance-loss-comparison.md``). Everything
 else is held at the Sprint 5 best setting (Graph A + ``S5F2_energy``).
 
 Direction note (this project is prevalence-inverted vs. the imbalance

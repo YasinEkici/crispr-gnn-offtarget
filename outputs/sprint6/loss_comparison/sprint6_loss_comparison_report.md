@@ -41,6 +41,36 @@ the architecture caveat: in the current `GraphAEdgeGCN`, candidate-edge features
 such as `S5F2_energy` are concatenated at the edge classifier and do not enter
 GCN message passing. Collapse therefore cannot be attributed to the loss alone.
 
+## Final Interpretation
+
+Under the locked Scheme A / guide-level / measured-only / `experiment_id=18`-excluded
+protocol and the fixed Graph A + `S5F2_energy` setting, **no predeclared objective
+beat the weighted-BCE baseline on the primary metric.** Best test AUPRC is
+`S6R0_wbce` at `0.976935`; every alternative is lower (Δ vs S6R0: balanced
+sampling `-0.000731`; focal `-0.013` to `-0.020`; Tversky `-0.021`; unweighted
+BCE `-0.028`; generalized Dice `-0.106`). Weighted BCE is **also** best on
+negative-class recognition (specificity `0.290`, TNR 49/169, MCC `0.484`); the
+cost-sensitive losses are worse on both axes (focal TN 6–9; Tversky TN 14), and
+generalized Dice collapses below the positive-prevalence AUPRC floor
+(`0.871` < `0.900705`) with TN=0.
+
+**No objective improved negative-class recognition without sacrificing AUPRC.**
+Because candidate-edge features (`S5F2_energy`) enter only the edge-classifier
+head and not GCN message passing in the current `GraphAEdgeGCN`, the residual
+threshold collapse is attributed to architecture / feature-distribution limits,
+not to the loss alone — motivating the Sprint 7 edge-aware (GAT/GATv2)
+investigation. No GCN objective beats `xgboost_unweighted / F4` (`0.992522`),
+which remains the authoritative bar. This is **not** a reproduction of Gao 2020,
+Guan 2024, or Mak 2022, and used **no test-driven selection** (checkpoint and
+threshold selected on validation only).
+
+Robustness: guide-level (cluster) bootstrap CIs at
+`diagnostics_sprint6/imbalance_bootstrap_cis.csv` are wide and overlapping (e.g.
+`S6R0` AUPRC `0.976935`, 95% CI `[0.904, 0.9995]`), so the headline AUPRC deltas
+above are within noise — only generalized Dice is clearly separable downward.
+Full uncertainty quantification (BCa, paired-difference, multi-seed) is the
+optional Sprint 8 robustness layer.
+
 ## Artifact Index
 
 Diagnostic tables:

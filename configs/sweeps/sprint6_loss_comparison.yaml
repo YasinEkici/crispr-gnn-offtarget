@@ -1,7 +1,7 @@
 # Sprint 6 imbalance / loss comparison sweep.
 #
 # Predeclared and FROZEN 2026-06-06 (exec plan
-# docs/exec-plans/active/006-sprint6-imbalance-loss-comparison.md, Slice 0).
+# docs/exec-plans/completed/006-sprint6-imbalance-loss-comparison.md, Slice 0).
 # Only the training objective (loss / sampling) varies; every other axis is held
 # constant at the Sprint 5 best setting (Graph A + S5F2_energy). Hyperparameters
 # below must NOT be changed from test diagnostics (no-test-tuning contract).
