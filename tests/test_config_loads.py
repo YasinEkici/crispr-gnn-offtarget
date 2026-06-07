@@ -189,7 +189,7 @@ def test_sprint7_colab_runner_contract() -> None:
     assert "select_threshold" not in all_source
     assert "scripts/train.py" not in all_source
     assert "uv sync" in sources["step3-sync"]
-    assert "GIT_REF=\"codex/sprint7-gat\"" in sources["step2-clone"]
+    assert "GIT_REF=\"sprint7/gat-gatv2\"" in sources["step2-clone"]
     assert "uv run python scripts/run_sprint7_gat_comparison.py" in sources["step6-run-sweep"]
     assert "configs/sweeps/sprint7_gat_gatv2.yaml" in sources["step6-run-sweep"]
     assert "--run-id \"$RUN_ID\"" in sources["step6-run-sweep"]
