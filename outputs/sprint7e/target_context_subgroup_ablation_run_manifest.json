@@ -1,0 +1,161 @@
+{
+  "attention_summary_path": "outputs/sprint7e/diagnostics/target_context_subgroup_attention_summary.csv",
+  "batch_id": "sprint7e_target_context_subgroup_seed42_20260607_213909",
+  "config_path": "configs/sweeps/sprint7e_target_context_subgroup_ablation.yaml",
+  "diagnostic_tables": [
+    "outputs/sprint7e/diagnostics/target_context_subgroup_threshold_metrics.csv",
+    "outputs/sprint7e/diagnostics/target_context_subgroup_deltas.csv",
+    "outputs/sprint7e/diagnostics/target_context_subgroup_mask_audit.csv",
+    "outputs/sprint7e/diagnostics/target_context_subgroup_attention_contract_summary.csv",
+    "outputs/sprint7e/diagnostics/target_context_subgroup_per_guide_score_summary.csv",
+    "outputs/sprint7e/diagnostics/target_context_subgroup_score_deciles.csv"
+  ],
+  "figures": [
+    "outputs/sprint7e/figures/target_context_subgroup_auprc_comparison.png",
+    "outputs/sprint7e/figures/target_context_subgroup_threshold_metrics.png",
+    "outputs/sprint7e/figures/target_context_subgroup_pr_curves.png",
+    "outputs/sprint7e/figures/target_context_subgroup_roc_curves.png",
+    "outputs/sprint7e/figures/target_context_subgroup_score_distributions.png",
+    "outputs/sprint7e/figures/target_context_subgroup_training_curves.png",
+    "outputs/sprint7e/figures/target_context_subgroup_attention_by_edge_kind.png"
+  ],
+  "generated_at_utc": "2026-06-07T21:40:30.200652+00:00",
+  "graph_artifact_provenance_path": "outputs/sprint7e/graph_artifact_provenance.json",
+  "headline_run_ids": [
+    "S7E_R1_mask_target_sequence",
+    "S7E_R2_mask_experimental_epigenetic",
+    "S7E_R3_mask_computed_nucleosome_aggregates",
+    "S7E_R4_mask_computed_nucleosome_missingness",
+    "S7E_R5_mask_all_nonsequence_context"
+  ],
+  "manifest_type": "sprint7e_target_context_subgroup_ablation_run_manifest",
+  "predictions_path": "outputs/sprint7e/diagnostics/target_context_subgroup_predictions.csv",
+  "reference_run_ids": [
+    "S7E_REF_XGB_F4",
+    "S7E_REF_GRAPH_A_GCN",
+    "S7E_REF_GRAPH_C_GCN",
+    "S7E_REF_FULL_GRAPH_C_GATV2",
+    "S7E_REF_NO_CONTEXT_EDGE_GATV2"
+  ],
+  "report_path": "outputs/sprint7e/target_context_subgroup_ablation_report.md",
+  "results_path": "outputs/sprint7e/target_context_subgroup_ablation.csv",
+  "runs": [
+    {
+      "checkpoint_path": null,
+      "predeclared_id": "S7E_REF_XGB_F4",
+      "role": "carry_forward_reference_no_retrain",
+      "run_id": "sprint7e_target_context_subgroup_seed42_20260607_213909_S7E_REF_XGB_F4",
+      "source": "Sprint 2 XGBoost F4 baseline"
+    },
+    {
+      "checkpoint_path": null,
+      "predeclared_id": "S7E_REF_GRAPH_A_GCN",
+      "role": "carry_forward_reference_no_retrain",
+      "run_id": "sprint7e_target_context_subgroup_seed42_20260607_213909_S7E_REF_GRAPH_A_GCN",
+      "source": "Sprint 6 S6R0 weighted-BCE Graph A GCN"
+    },
+    {
+      "checkpoint_path": null,
+      "predeclared_id": "S7E_REF_GRAPH_C_GCN",
+      "role": "carry_forward_reference_no_retrain",
+      "run_id": "sprint7e_target_context_subgroup_seed42_20260607_213909_S7E_REF_GRAPH_C_GCN",
+      "source": "Sprint 5B Graph C S5F2 GCN"
+    },
+    {
+      "checkpoint_path": null,
+      "predeclared_id": "S7E_REF_FULL_GRAPH_C_GATV2",
+      "role": "carry_forward_reference_no_retrain",
+      "run_id": "sprint7e_target_context_subgroup_seed42_20260607_213909_S7E_REF_FULL_GRAPH_C_GATV2",
+      "source": NaN
+    },
+    {
+      "checkpoint_path": null,
+      "predeclared_id": "S7E_REF_NO_CONTEXT_EDGE_GATV2",
+      "role": "carry_forward_reference_no_retrain",
+      "run_id": "sprint7e_target_context_subgroup_seed42_20260607_213909_S7E_REF_NO_CONTEXT_EDGE_GATV2",
+      "source": "Sprint 7D S7D_R1 Graph C GATv2 no-context-edges"
+    },
+    {
+      "architecture": "gatv2",
+      "attention_summary_path": "outputs/sprint7e/runs/sprint7e_target_context_subgroup_seed42_20260607_213909_S7E_R1_mask_target_sequence/attention_summary.csv",
+      "checkpoint_path": "outputs/sprint7e/runs/sprint7e_target_context_subgroup_seed42_20260607_213909_S7E_R1_mask_target_sequence/model.pt",
+      "graph_schema": "graph_c_context_observation",
+      "metrics_path": "outputs/sprint7e/runs/sprint7e_target_context_subgroup_seed42_20260607_213909_S7E_R1_mask_target_sequence/metrics.csv",
+      "predeclared_id": "S7E_R1_mask_target_sequence",
+      "resolved_config_path": "outputs/sprint7e/runs/sprint7e_target_context_subgroup_seed42_20260607_213909_S7E_R1_mask_target_sequence/resolved_config.yaml",
+      "role": "graph_c_gatv2_target_sequence_one_hot_masked",
+      "run_id": "sprint7e_target_context_subgroup_seed42_20260607_213909_S7E_R1_mask_target_sequence",
+      "target_feature_mask_audit_path": "outputs/sprint7e/runs/sprint7e_target_context_subgroup_seed42_20260607_213909_S7E_R1_mask_target_sequence/target_feature_mask_audit.csv",
+      "target_observation_mask_families": [
+        "target_sequence_one_hot"
+      ],
+      "training_history_path": "outputs/sprint7e/runs/sprint7e_target_context_subgroup_seed42_20260607_213909_S7E_R1_mask_target_sequence/training_history.csv"
+    },
+    {
+      "architecture": "gatv2",
+      "attention_summary_path": "outputs/sprint7e/runs/sprint7e_target_context_subgroup_seed42_20260607_213909_S7E_R2_mask_experimental_epigenetic/attention_summary.csv",
+      "checkpoint_path": "outputs/sprint7e/runs/sprint7e_target_context_subgroup_seed42_20260607_213909_S7E_R2_mask_experimental_epigenetic/model.pt",
+      "graph_schema": "graph_c_context_observation",
+      "metrics_path": "outputs/sprint7e/runs/sprint7e_target_context_subgroup_seed42_20260607_213909_S7E_R2_mask_experimental_epigenetic/metrics.csv",
+      "predeclared_id": "S7E_R2_mask_experimental_epigenetic",
+      "resolved_config_path": "outputs/sprint7e/runs/sprint7e_target_context_subgroup_seed42_20260607_213909_S7E_R2_mask_experimental_epigenetic/resolved_config.yaml",
+      "role": "graph_c_gatv2_experimental_epigenetic_masked",
+      "run_id": "sprint7e_target_context_subgroup_seed42_20260607_213909_S7E_R2_mask_experimental_epigenetic",
+      "target_feature_mask_audit_path": "outputs/sprint7e/runs/sprint7e_target_context_subgroup_seed42_20260607_213909_S7E_R2_mask_experimental_epigenetic/target_feature_mask_audit.csv",
+      "target_observation_mask_families": [
+        "experimental_epigenetic"
+      ],
+      "training_history_path": "outputs/sprint7e/runs/sprint7e_target_context_subgroup_seed42_20260607_213909_S7E_R2_mask_experimental_epigenetic/training_history.csv"
+    },
+    {
+      "architecture": "gatv2",
+      "attention_summary_path": "outputs/sprint7e/runs/sprint7e_target_context_subgroup_seed42_20260607_213909_S7E_R3_mask_computed_nucleosome_aggregates/attention_summary.csv",
+      "checkpoint_path": "outputs/sprint7e/runs/sprint7e_target_context_subgroup_seed42_20260607_213909_S7E_R3_mask_computed_nucleosome_aggregates/model.pt",
+      "graph_schema": "graph_c_context_observation",
+      "metrics_path": "outputs/sprint7e/runs/sprint7e_target_context_subgroup_seed42_20260607_213909_S7E_R3_mask_computed_nucleosome_aggregates/metrics.csv",
+      "predeclared_id": "S7E_R3_mask_computed_nucleosome_aggregates",
+      "resolved_config_path": "outputs/sprint7e/runs/sprint7e_target_context_subgroup_seed42_20260607_213909_S7E_R3_mask_computed_nucleosome_aggregates/resolved_config.yaml",
+      "role": "graph_c_gatv2_computed_nucleosome_aggregates_masked",
+      "run_id": "sprint7e_target_context_subgroup_seed42_20260607_213909_S7E_R3_mask_computed_nucleosome_aggregates",
+      "target_feature_mask_audit_path": "outputs/sprint7e/runs/sprint7e_target_context_subgroup_seed42_20260607_213909_S7E_R3_mask_computed_nucleosome_aggregates/target_feature_mask_audit.csv",
+      "target_observation_mask_families": [
+        "computed_nucleosome_aggregates"
+      ],
+      "training_history_path": "outputs/sprint7e/runs/sprint7e_target_context_subgroup_seed42_20260607_213909_S7E_R3_mask_computed_nucleosome_aggregates/training_history.csv"
+    },
+    {
+      "architecture": "gatv2",
+      "attention_summary_path": "outputs/sprint7e/runs/sprint7e_target_context_subgroup_seed42_20260607_213909_S7E_R4_mask_computed_nucleosome_missingness/attention_summary.csv",
+      "checkpoint_path": "outputs/sprint7e/runs/sprint7e_target_context_subgroup_seed42_20260607_213909_S7E_R4_mask_computed_nucleosome_missingness/model.pt",
+      "graph_schema": "graph_c_context_observation",
+      "metrics_path": "outputs/sprint7e/runs/sprint7e_target_context_subgroup_seed42_20260607_213909_S7E_R4_mask_computed_nucleosome_missingness/metrics.csv",
+      "predeclared_id": "S7E_R4_mask_computed_nucleosome_missingness",
+      "resolved_config_path": "outputs/sprint7e/runs/sprint7e_target_context_subgroup_seed42_20260607_213909_S7E_R4_mask_computed_nucleosome_missingness/resolved_config.yaml",
+      "role": "graph_c_gatv2_computed_nucleosome_missingness_masked",
+      "run_id": "sprint7e_target_context_subgroup_seed42_20260607_213909_S7E_R4_mask_computed_nucleosome_missingness",
+      "target_feature_mask_audit_path": "outputs/sprint7e/runs/sprint7e_target_context_subgroup_seed42_20260607_213909_S7E_R4_mask_computed_nucleosome_missingness/target_feature_mask_audit.csv",
+      "target_observation_mask_families": [
+        "computed_nucleosome_missingness"
+      ],
+      "training_history_path": "outputs/sprint7e/runs/sprint7e_target_context_subgroup_seed42_20260607_213909_S7E_R4_mask_computed_nucleosome_missingness/training_history.csv"
+    },
+    {
+      "architecture": "gatv2",
+      "attention_summary_path": "outputs/sprint7e/runs/sprint7e_target_context_subgroup_seed42_20260607_213909_S7E_R5_mask_all_nonsequence_context/attention_summary.csv",
+      "checkpoint_path": "outputs/sprint7e/runs/sprint7e_target_context_subgroup_seed42_20260607_213909_S7E_R5_mask_all_nonsequence_context/model.pt",
+      "graph_schema": "graph_c_context_observation",
+      "metrics_path": "outputs/sprint7e/runs/sprint7e_target_context_subgroup_seed42_20260607_213909_S7E_R5_mask_all_nonsequence_context/metrics.csv",
+      "predeclared_id": "S7E_R5_mask_all_nonsequence_context",
+      "resolved_config_path": "outputs/sprint7e/runs/sprint7e_target_context_subgroup_seed42_20260607_213909_S7E_R5_mask_all_nonsequence_context/resolved_config.yaml",
+      "role": "graph_c_gatv2_all_nonsequence_context_masked",
+      "run_id": "sprint7e_target_context_subgroup_seed42_20260607_213909_S7E_R5_mask_all_nonsequence_context",
+      "target_feature_mask_audit_path": "outputs/sprint7e/runs/sprint7e_target_context_subgroup_seed42_20260607_213909_S7E_R5_mask_all_nonsequence_context/target_feature_mask_audit.csv",
+      "target_observation_mask_families": [
+        "all_nonsequence_context"
+      ],
+      "training_history_path": "outputs/sprint7e/runs/sprint7e_target_context_subgroup_seed42_20260607_213909_S7E_R5_mask_all_nonsequence_context/training_history.csv"
+    }
+  ],
+  "target_feature_mask_audit_path": "outputs/sprint7e/diagnostics/target_context_subgroup_mask_audit.csv",
+  "training_history_path": "outputs/sprint7e/diagnostics/target_context_subgroup_training_history.csv"
+}

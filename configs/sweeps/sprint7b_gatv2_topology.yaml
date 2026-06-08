@@ -1,0 +1,161 @@
+# Sprint 7B exploratory GATv2 topology/semantics follow-up.
+#
+# This is not a Sprint 7 rescue run. It tests whether the Sprint 7 edge-aware
+# GATv2 recipe behaves differently when Graph B guide-similarity topology or
+# Graph C target-observation context semantics are used under the same frozen
+# evaluation contract.
+
+experiment_name: sprint7b_gatv2_topology
+task: sprint7b_gatv2_topology_attention
+sprint: sprint7b
+seed: 42
+run_id: null
+
+data:
+  dataset: mak2022
+  config: configs/data/mak2022.yaml
+  label_scheme: scheme_a
+  split_id: sprint2_main_seed42
+  split_manifest: outputs/splits/sprint2_guides.json
+  graph_b_artifact_dir: data/processed/graphs/sprint7b
+  graph_c_artifact_dir: data/processed/graphs/sprint5b
+
+features:
+  edge_feature_sets: [s5f2_energy]
+  feature_set: S5F2_energy
+
+graph:
+  materialization: heterodata
+  visibility_policy: strict_inductive_primary
+  graph_b_schema: graph_b_guide_similarity_control
+  graph_c_schema: graph_c_context_observation
+  graph_b_policy: matched_graph_b_s5f2_candidate_edges
+  graph_c_policy: carry_forward_sprint5b_graph_c_s5f2
+
+model:
+  hidden_dim: 128
+  num_layers: 2
+  dropout: 0.2
+  attention:
+    heads: 4
+    concat: true
+    dropout: 0.2
+    edge_aware: true
+    self_loop_edge_fill: 0.0
+    gatv2_share_weights: false
+
+training:
+  loss: weighted_bce
+  loss_params:
+    pos_weight: auto
+  clip_grad_norm: 1.0
+  scheduler: reduce_on_plateau
+  scheduler_factor: 0.5
+  scheduler_patience: 5
+  scheduler_min_lr: 0.00001
+  learning_rate: 0.001
+  weight_decay: 0.0001
+  max_epochs: 300
+  min_epochs: 5
+  patience: 15
+  device: cuda
+  num_threads: 1
+  use_compile: true
+  use_amp: true
+
+runs:
+  - id: S7B_R1_graph_b_gcn_s5f2
+    model_name: gcn_graph_b_sprint7b_s5f2
+    graph_schema: graph_b_guide_similarity_control
+    architecture: gcn
+    target_node_representation: zero_type_feature
+    role: matched_graph_b_s5f2_gcn_reference
+
+  - id: S7B_R2_graph_b_gatv2_s5f2
+    model_name: gatv2_graph_b_sprint7b_s5f2
+    graph_schema: graph_b_guide_similarity_control
+    architecture: gatv2
+    target_node_representation: zero_type_feature
+    role: graph_b_guide_similarity_topology_x_edge_aware_gatv2
+
+  - id: S7B_R3_graph_c_gatv2_s5f2
+    model_name: gatv2_graph_c_sprint7b_s5f2
+    graph_schema: graph_c_context_observation
+    architecture: gatv2
+    target_node_representation: target_observation_context_encoder
+    role: graph_c_context_observation_semantics_x_edge_aware_gatv2
+
+references:
+  sprint7_results_csv: outputs/sprint7/gat_comparison.csv
+  sprint5b_graph_c_results_csv: outputs/sprint5b/graph_c/gcn_graph_c_results.csv
+
+prior_context:
+  xgboost_f4:
+    test_auprc: 0.992522
+    test_auroc: 0.938416
+    test_mcc: 0.345198
+  graph_a_gcn_s5f2:
+    predeclared_run_id: S7B_REF_GA_GCN
+    source: Sprint 6 S6R0 weighted-BCE Graph A GCN
+    test_auprc: 0.976935
+    test_auroc: 0.819972
+    test_macro_f1: 0.698939
+    test_mcc: 0.483719
+    test_specificity: 0.289941
+    test_sensitivity: 0.996087
+    test_tn: 49
+    test_fp: 120
+    test_fn: 6
+    test_tp: 1527
+  graph_a_gatv2_s5f2:
+    predeclared_run_id: S7B_REF_GA_GATV2
+    source: Sprint 7 S7R2 Graph A GATv2
+    test_auprc: 0.965449
+    test_auroc: 0.818282
+    test_macro_f1: 0.627128
+    test_mcc: 0.291367
+    test_specificity: 0.218935
+    test_sensitivity: 0.977169
+    test_tn: 37
+    test_fp: 132
+    test_fn: 35
+    test_tp: 1498
+  graph_c_gcn_s5f2:
+    predeclared_run_id: S7B_REF_GC_GCN
+    source: Sprint 5B Graph C S5F2 GCN
+    test_auprc: 0.972481
+    test_auroc: 0.836219
+    test_macro_f1: 0.552442
+    test_mcc: 0.274287
+    test_specificity: 0.082840
+    test_sensitivity: 1.0
+    test_tn: 14
+    test_fp: 155
+    test_fn: 0
+    test_tp: 1533
+  test_positive_prevalence: 0.900705
+
+split_rules:
+  guide_disjoint: true
+  train_measured_only: true
+  validation_measured_only: true
+  test_measured_only: true
+  exclude_experiment_id: 18
+
+evaluation:
+  protocol: headline_guide_level
+  no_test_tuning: true
+  regime: measured_only
+  controlled_variable: graph_topology_and_target_semantics_followup
+  threshold_policy: validation_max_f1
+  checkpoint_policy: validation_auprc
+  attention_interpretation: model_interpretation_only_not_biological_causality
+  graph_c_interpretation: topology_and_target_semantics_not_topology_only
+
+metrics:
+  primary: auprc
+  secondary: [auroc, f1, macro_f1, mcc, specificity, sensitivity, tn, fp, fn, tp]
+  emphasis: [specificity, tn, mcc, macro_f1]
+
+outputs:
+  output_dir: outputs/sprint7b

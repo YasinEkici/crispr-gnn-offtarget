@@ -1,0 +1,72 @@
+{
+  "attention_summary_path": "outputs/sprint7/diagnostics/attention_weight_summary.csv",
+  "batch_id": "sprint7_gat_gatv2_seed42_20260607_153444",
+  "config_path": "configs/sweeps/sprint7_gat_gatv2.yaml",
+  "diagnostic_tables": [
+    "outputs/sprint7/diagnostics/gat_threshold_metrics.csv",
+    "outputs/sprint7/diagnostics/gat_comparison_deltas.csv",
+    "outputs/sprint7/diagnostics/attention_contract_summary.csv",
+    "outputs/sprint7/diagnostics/gat_per_guide_score_summary.csv",
+    "outputs/sprint7/diagnostics/gat_per_genome_score_summary.csv",
+    "outputs/sprint7/diagnostics/gat_score_deciles.csv"
+  ],
+  "figures": [
+    "outputs/sprint7/figures/gat_model_auprc_comparison.png",
+    "outputs/sprint7/figures/gat_threshold_metrics.png",
+    "outputs/sprint7/figures/gat_pr_curves.png",
+    "outputs/sprint7/figures/gat_roc_curves.png",
+    "outputs/sprint7/figures/gat_score_distributions.png",
+    "outputs/sprint7/figures/gat_per_guide_metric_distribution.png",
+    "outputs/sprint7/figures/gat_training_curves.png",
+    "outputs/sprint7/figures/attention_weight_summary.png"
+  ],
+  "generated_at_utc": "2026-06-07T15:35:43.113342+00:00",
+  "graph_artifact_provenance_path": "outputs/sprint7/graph_artifact_provenance.json",
+  "headline_run_ids": [
+    "S7R1_gat_edge_aware",
+    "S7R2_gatv2_edge_aware"
+  ],
+  "manifest_type": "sprint7_gat_gatv2_run_manifest",
+  "optional_runs_available": [
+    "S7R3_gat_edge_blind_control"
+  ],
+  "optional_runs_executed": [],
+  "predictions_path": "outputs/sprint7/diagnostics/gat_predictions.csv",
+  "reference_run_id": "S7R0_gcn_reference",
+  "report_path": "outputs/sprint7/gat_report.md",
+  "results_path": "outputs/sprint7/gat_comparison.csv",
+  "runs": [
+    {
+      "checkpoint_path": null,
+      "predeclared_id": "S7R0_gcn_reference",
+      "role": "sprint6_weighted_bce_reference_no_retrain",
+      "run_id": "sprint7_gat_gatv2_seed42_20260607_153444_S7R0_gcn_reference",
+      "source": "sprint6_loss_comparison_seed42_20260606_182812_S6R0_wbce"
+    },
+    {
+      "architecture": "gat",
+      "attention_summary_path": "outputs/sprint7/runs/sprint7_gat_gatv2_seed42_20260607_153444_S7R1_gat_edge_aware/attention_summary.csv",
+      "checkpoint_path": "outputs/sprint7/runs/sprint7_gat_gatv2_seed42_20260607_153444_S7R1_gat_edge_aware/model.pt",
+      "edge_aware_attention": true,
+      "metrics_path": "outputs/sprint7/runs/sprint7_gat_gatv2_seed42_20260607_153444_S7R1_gat_edge_aware/metrics.csv",
+      "predeclared_id": "S7R1_gat_edge_aware",
+      "resolved_config_path": "outputs/sprint7/runs/sprint7_gat_gatv2_seed42_20260607_153444_S7R1_gat_edge_aware/resolved_config.yaml",
+      "role": "edge_aware_gat_tests_sprint6_architecture_hypothesis",
+      "run_id": "sprint7_gat_gatv2_seed42_20260607_153444_S7R1_gat_edge_aware",
+      "training_history_path": "outputs/sprint7/runs/sprint7_gat_gatv2_seed42_20260607_153444_S7R1_gat_edge_aware/training_history.csv"
+    },
+    {
+      "architecture": "gatv2",
+      "attention_summary_path": "outputs/sprint7/runs/sprint7_gat_gatv2_seed42_20260607_153444_S7R2_gatv2_edge_aware/attention_summary.csv",
+      "checkpoint_path": "outputs/sprint7/runs/sprint7_gat_gatv2_seed42_20260607_153444_S7R2_gatv2_edge_aware/model.pt",
+      "edge_aware_attention": true,
+      "metrics_path": "outputs/sprint7/runs/sprint7_gat_gatv2_seed42_20260607_153444_S7R2_gatv2_edge_aware/metrics.csv",
+      "predeclared_id": "S7R2_gatv2_edge_aware",
+      "resolved_config_path": "outputs/sprint7/runs/sprint7_gat_gatv2_seed42_20260607_153444_S7R2_gatv2_edge_aware/resolved_config.yaml",
+      "role": "edge_aware_gatv2_dynamic_attention_variant",
+      "run_id": "sprint7_gat_gatv2_seed42_20260607_153444_S7R2_gatv2_edge_aware",
+      "training_history_path": "outputs/sprint7/runs/sprint7_gat_gatv2_seed42_20260607_153444_S7R2_gatv2_edge_aware/training_history.csv"
+    }
+  ],
+  "training_history_path": "outputs/sprint7/diagnostics/gat_training_history.csv"
+}

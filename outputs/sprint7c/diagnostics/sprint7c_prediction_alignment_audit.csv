@@ -1,0 +1,43 @@
+audit_type,analysis_model_id,comparison_model_id,split,rows,positives,negatives,positive_rate,row_index_unique,genome_missing_rate,passed,note
+single_model_split,graph_a_gcn_s6_weighted_bce,,val,1734,1511,223,0.8713956170703575,True,0.0,True,passed basic split distribution audit
+single_model_split,graph_a_gcn_s6_weighted_bce,,test,1702,1533,169,0.900705052878966,True,0.0,True,passed basic split distribution audit
+single_model_split,graph_a_gatv2_s7,,val,1734,1511,223,0.8713956170703575,True,0.0,True,passed basic split distribution audit
+single_model_split,graph_a_gatv2_s7,,test,1702,1533,169,0.900705052878966,True,0.0,True,passed basic split distribution audit
+single_model_split,graph_c_gcn_s5b,,val,1734,1511,223,0.8713956170703575,True,1.0,True,genome missing rate 1.000; metadata join required for per-genome claims
+single_model_split,graph_c_gcn_s5b,,test,1702,1533,169,0.900705052878966,True,1.0,True,genome missing rate 1.000; metadata join required for per-genome claims
+single_model_split,graph_b_gcn_s7b,,val,1734,1511,223,0.8713956170703575,True,0.0,True,passed basic split distribution audit
+single_model_split,graph_b_gcn_s7b,,test,1702,1533,169,0.900705052878966,True,0.0,True,passed basic split distribution audit
+single_model_split,graph_b_gatv2_s7b,,val,1734,1511,223,0.8713956170703575,True,0.0,True,passed basic split distribution audit
+single_model_split,graph_b_gatv2_s7b,,test,1702,1533,169,0.900705052878966,True,0.0,True,passed basic split distribution audit
+single_model_split,graph_c_gatv2_s7b,,val,1734,1511,223,0.8713956170703575,True,1.0,True,genome missing rate 1.000; metadata join required for per-genome claims
+single_model_split,graph_c_gatv2_s7b,,test,1702,1533,169,0.900705052878966,True,1.0,True,genome missing rate 1.000; metadata join required for per-genome claims
+pair_alignment,graph_a_gatv2_s7,graph_a_gcn_s6_weighted_bce,test,1702,1533,169,0.900705052878966,True,,True,aligned on row_index/grna_target_id/label; source-row identity still requires separate metadata audit
+pair_alignment,graph_a_gatv2_s7,graph_a_gcn_s6_weighted_bce,val,1734,1511,223,0.8713956170703575,True,,True,aligned on row_index/grna_target_id/label; source-row identity still requires separate metadata audit
+pair_alignment,graph_a_gatv2_s7,graph_b_gatv2_s7b,test,1702,1533,169,0.900705052878966,True,,True,aligned on row_index/grna_target_id/label; source-row identity still requires separate metadata audit
+pair_alignment,graph_a_gatv2_s7,graph_b_gatv2_s7b,val,1734,1511,223,0.8713956170703575,True,,True,aligned on row_index/grna_target_id/label; source-row identity still requires separate metadata audit
+pair_alignment,graph_a_gatv2_s7,graph_b_gcn_s7b,test,1702,1533,169,0.900705052878966,True,,True,aligned on row_index/grna_target_id/label; source-row identity still requires separate metadata audit
+pair_alignment,graph_a_gatv2_s7,graph_b_gcn_s7b,val,1734,1511,223,0.8713956170703575,True,,True,aligned on row_index/grna_target_id/label; source-row identity still requires separate metadata audit
+pair_alignment,graph_a_gatv2_s7,graph_c_gatv2_s7b,test,1702,1533,169,0.900705052878966,True,,True,aligned on row_index/grna_target_id/label; source-row identity still requires separate metadata audit
+pair_alignment,graph_a_gatv2_s7,graph_c_gatv2_s7b,val,1734,1511,223,0.8713956170703575,True,,True,aligned on row_index/grna_target_id/label; source-row identity still requires separate metadata audit
+pair_alignment,graph_a_gatv2_s7,graph_c_gcn_s5b,test,1702,1533,169,0.900705052878966,True,,True,aligned on row_index/grna_target_id/label; source-row identity still requires separate metadata audit
+pair_alignment,graph_a_gatv2_s7,graph_c_gcn_s5b,val,1734,1511,223,0.8713956170703575,True,,True,aligned on row_index/grna_target_id/label; source-row identity still requires separate metadata audit
+pair_alignment,graph_a_gcn_s6_weighted_bce,graph_b_gatv2_s7b,test,1702,1533,169,0.900705052878966,True,,True,aligned on row_index/grna_target_id/label; source-row identity still requires separate metadata audit
+pair_alignment,graph_a_gcn_s6_weighted_bce,graph_b_gatv2_s7b,val,1734,1511,223,0.8713956170703575,True,,True,aligned on row_index/grna_target_id/label; source-row identity still requires separate metadata audit
+pair_alignment,graph_a_gcn_s6_weighted_bce,graph_b_gcn_s7b,test,1702,1533,169,0.900705052878966,True,,True,aligned on row_index/grna_target_id/label; source-row identity still requires separate metadata audit
+pair_alignment,graph_a_gcn_s6_weighted_bce,graph_b_gcn_s7b,val,1734,1511,223,0.8713956170703575,True,,True,aligned on row_index/grna_target_id/label; source-row identity still requires separate metadata audit
+pair_alignment,graph_a_gcn_s6_weighted_bce,graph_c_gatv2_s7b,test,1702,1533,169,0.900705052878966,True,,True,aligned on row_index/grna_target_id/label; source-row identity still requires separate metadata audit
+pair_alignment,graph_a_gcn_s6_weighted_bce,graph_c_gatv2_s7b,val,1734,1511,223,0.8713956170703575,True,,True,aligned on row_index/grna_target_id/label; source-row identity still requires separate metadata audit
+pair_alignment,graph_a_gcn_s6_weighted_bce,graph_c_gcn_s5b,test,1702,1533,169,0.900705052878966,True,,True,aligned on row_index/grna_target_id/label; source-row identity still requires separate metadata audit
+pair_alignment,graph_a_gcn_s6_weighted_bce,graph_c_gcn_s5b,val,1734,1511,223,0.8713956170703575,True,,True,aligned on row_index/grna_target_id/label; source-row identity still requires separate metadata audit
+pair_alignment,graph_b_gatv2_s7b,graph_b_gcn_s7b,test,1702,1533,169,0.900705052878966,True,,True,aligned on row_index/grna_target_id/label; source-row identity still requires separate metadata audit
+pair_alignment,graph_b_gatv2_s7b,graph_b_gcn_s7b,val,1734,1511,223,0.8713956170703575,True,,True,aligned on row_index/grna_target_id/label; source-row identity still requires separate metadata audit
+pair_alignment,graph_b_gatv2_s7b,graph_c_gatv2_s7b,test,1702,1533,169,0.900705052878966,True,,True,aligned on row_index/grna_target_id/label; source-row identity still requires separate metadata audit
+pair_alignment,graph_b_gatv2_s7b,graph_c_gatv2_s7b,val,1734,1511,223,0.8713956170703575,True,,True,aligned on row_index/grna_target_id/label; source-row identity still requires separate metadata audit
+pair_alignment,graph_b_gatv2_s7b,graph_c_gcn_s5b,test,1702,1533,169,0.900705052878966,True,,True,aligned on row_index/grna_target_id/label; source-row identity still requires separate metadata audit
+pair_alignment,graph_b_gatv2_s7b,graph_c_gcn_s5b,val,1734,1511,223,0.8713956170703575,True,,True,aligned on row_index/grna_target_id/label; source-row identity still requires separate metadata audit
+pair_alignment,graph_b_gcn_s7b,graph_c_gatv2_s7b,test,1702,1533,169,0.900705052878966,True,,True,aligned on row_index/grna_target_id/label; source-row identity still requires separate metadata audit
+pair_alignment,graph_b_gcn_s7b,graph_c_gatv2_s7b,val,1734,1511,223,0.8713956170703575,True,,True,aligned on row_index/grna_target_id/label; source-row identity still requires separate metadata audit
+pair_alignment,graph_b_gcn_s7b,graph_c_gcn_s5b,test,1702,1533,169,0.900705052878966,True,,True,aligned on row_index/grna_target_id/label; source-row identity still requires separate metadata audit
+pair_alignment,graph_b_gcn_s7b,graph_c_gcn_s5b,val,1734,1511,223,0.8713956170703575,True,,True,aligned on row_index/grna_target_id/label; source-row identity still requires separate metadata audit
+pair_alignment,graph_c_gatv2_s7b,graph_c_gcn_s5b,test,1702,1533,169,0.900705052878966,True,,True,aligned on row_index/grna_target_id/label; source-row identity still requires separate metadata audit
+pair_alignment,graph_c_gatv2_s7b,graph_c_gcn_s5b,val,1734,1511,223,0.8713956170703575,True,,True,aligned on row_index/grna_target_id/label; source-row identity still requires separate metadata audit

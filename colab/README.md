@@ -468,3 +468,37 @@ Returned Drive outputs should be copied under:
 
 This slice prepares the runner only. A notebook dry run or contract test does
 not complete Sprint 6 headline results.
+
+## Sprint 7 GAT/GATv2 Runner
+
+Use `colab/sprint7_gat_gatv2_runner.ipynb` for the Sprint 7 full GPU
+architecture comparison. The notebook is runner-only: it mounts Drive,
+installs/syncs with `uv`, clones or updates the approved repository checkout,
+copies existing Sprint 5 Graph A artifacts into
+`data/processed/graphs/sprint5/`, validates that Graph A exposes the
+`S5F2_energy` feature table, calls the repository Sprint 7 runner, copies
+`outputs/sprint7/` back to Drive, and lists/checks returned artifacts.
+
+The default notebook run executes both headline attention architectures in one
+Colab run: `S7R1_gat_edge_aware` and `S7R2_gatv2_edge_aware`. It also carries
+the Sprint 6 `S6R0_wbce` GCN row as the no-retrain `S7R0_gcn_reference`
+comparison row. The notebook must not define model, loss, sampler, training,
+evaluation, plotting, reporting, or attention-summary logic.
+
+The full repository command in the notebook is:
+
+```bash
+uv run python scripts/run_sprint7_gat_comparison.py \
+  --config configs/sweeps/sprint7_gat_gatv2.yaml \
+  --run-id sprint7_gat_gatv2_seed42_<yyyymmdd_hhmmss>
+```
+
+Returned Drive outputs should be copied under:
+
+```text
+/content/drive/MyDrive/crispr_gnn_offtarget/returned_outputs/
+  sprint7_gat_gatv2_seed42_<yyyymmdd_hhmmss>/
+```
+
+Optional edge-blind controls require explicit runner opt-in and must not run in
+the default headline notebook.

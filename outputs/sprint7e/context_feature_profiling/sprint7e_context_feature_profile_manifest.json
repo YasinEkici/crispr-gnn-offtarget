@@ -1,0 +1,34 @@
+{
+  "canonical_slice2_run_ids": [
+    "S7E_R1_mask_target_sequence",
+    "S7E_R2_mask_experimental_epigenetic",
+    "S7E_R3_mask_computed_nucleosome_aggregates",
+    "S7E_R4_mask_computed_nucleosome_missingness",
+    "S7E_R5_mask_all_nonsequence_context"
+  ],
+  "experimental_epigenetic_per_feature_audit_added": true,
+  "feature_tables": {
+    "S5F2_energy": 268,
+    "candidate_pair_features": 32,
+    "target_observation_features": 212
+  },
+  "generated_at_utc": "2026-06-07T21:39:08.854919+00:00",
+  "graph_c_dir": "data/processed/graphs/sprint5b/graph_c_context_observation",
+  "graph_name": "graph_c_context_observation",
+  "label_scheme": "scheme_a",
+  "manifest_type": "sprint7e_target_context_feature_profile_manifest",
+  "no_test_performance_selection": true,
+  "no_training_performed": true,
+  "outputs": [
+    "outputs/sprint7e/context_feature_profiling/figures/sprint7e_context_feature_group_distribution.png",
+    "outputs/sprint7e/context_feature_profiling/figures/sprint7e_context_feature_group_missingness.png",
+    "outputs/sprint7e/context_feature_profiling/figures/sprint7e_experimental_epigenetic_smd_by_split.png",
+    "outputs/sprint7e/context_feature_profiling/sprint7e_context_feature_distribution_by_split_label.csv",
+    "outputs/sprint7e/context_feature_profiling/sprint7e_context_feature_family_map.csv",
+    "outputs/sprint7e/context_feature_profiling/sprint7e_context_feature_group_summary.csv",
+    "outputs/sprint7e/context_feature_profiling/sprint7e_context_feature_profile_report.md",
+    "outputs/sprint7e/context_feature_profiling/sprint7e_experimental_epigenetic_feature_distribution_by_split_label.csv",
+    "outputs/sprint7e/context_feature_profiling/sprint7e_experimental_epigenetic_feature_smd_by_split.csv"
+  ],
+  "split_id": "sprint2_main_seed42"
+}

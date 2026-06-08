@@ -254,7 +254,7 @@ def graph_b_edge_feature_attrs(feature_sets: Sequence[str]) -> list[str]:
         normalized = feature_set.lower()
         if normalized == "s1_pair":
             attrs.append("edge_attr_s1_pair")
-        elif normalized in {"f1", "f2", "f3", "f4"}:
+        elif normalized in {"f1", "f2", "f3", "f4", "s5f2_energy"}:
             attrs.append(f"edge_attr_{normalized}")
         else:
             raise ValueError(f"Unsupported Graph B edge feature set: {feature_set}")
