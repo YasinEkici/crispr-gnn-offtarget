@@ -1,9 +1,9 @@
 # Execution Plan: Sprint 7B GATv2 Topology-Attention Interaction
 
-> Status: DRAFT / ACTIVE PLANNING. This plan scopes Sprint 7B only. It does not
-> implement new models, graph artifacts, configs, Colab runners, or reports yet.
-> Sprint 7B is an exploratory follow-up to the completed Graph A Sprint 7
-> attention result, not a post-hoc rerun or rescue of Sprint 7.
+> Status: COMPLETED. Sprint 7B code, Graph B S5F2 artifact builder, configs,
+> runner-only Colab notebook, contract tests, Colab headline run, returned
+> outputs, and final report are in place. Sprint 7B completed the predeclared
+> Graph B / Graph C GATv2 topology-attention comparison.
 
 ## 1. Goal
 

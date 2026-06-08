@@ -1,10 +1,9 @@
 # Execution Plan: Sprint 7D Graph C GATv2 Mechanism Ablation
 
-> Status: IMPLEMENTED / AWAITING RUN RESULTS. This plan scopes Sprint 7D only.
-> It is a small, predeclared mechanism/isolation ablation sprint around the
-> Sprint 7B Graph C GATv2 result. It is not a model-search sprint and must not
-> add new architectures, losses, samplers, feature families, sequence encoders,
-> or data regimes.
+> Status: COMPLETED. Sprint 7D code, configs, runner-only Colab notebook,
+> contract tests, Colab headline run, returned outputs, and final report are in
+> place. Sprint 7D completed the predeclared Graph C GATv2 mechanism/isolation
+> ablations around the Sprint 7B Graph C GATv2 result.
 
 ## 1. Goal
 

@@ -2,6 +2,32 @@
 
 Generated at UTC: `2026-06-07T19:41:06.474741+00:00`
 
+## Executive Summary
+
+Sprint 7C is an analysis-only follow-up to Sprint 7B. It did not train a model,
+change a threshold, change a graph, or select a new architecture from test
+data. Its purpose was to explain the Sprint 7B Graph C GATv2 result at the
+row/error-transition level before any mechanism ablation or model-improvement
+work.
+
+The identity gate passed for the relevant fixed validation/test universes:
+Scheme A, `sprint2_main_seed42`, guide-disjoint, measured-only rows, and the
+same test positive prevalence (`0.900705`). Within that aligned universe, Graph
+C GATv2 changed the Graph C GCN operating point in a clear way: it recovered 53
+Graph C GCN false positives as true negatives, lost 4 previous true negatives,
+and introduced 12 new false negatives. Net true-negative gain was therefore
+`+49`.
+
+The metric recheck matches the Sprint 7B claim. Graph C GATv2 did not improve
+over Graph C GCN on AUPRC (`0.969078` versus `0.972481`), but it strongly
+improved rare-negative threshold diagnostics: MCC `0.531774` versus `0.274287`,
+specificity `0.372781` versus `0.082840`, and TN `63` versus `14`.
+
+The defensible Sprint 7C conclusion is that the Sprint 7B Graph C GATv2 result
+is a real row-level rare-negative operating-point shift under the locked
+single-seed contract. It is not a primary AUPRC win, not biological causal
+evidence, and not robustness evidence.
+
 ## Contract
 
 - Analysis-only sprint: no model was trained and no threshold/model/graph
@@ -165,3 +191,13 @@ Figures:
 - `outputs/sprint7c/figures/sprint7c_threshold_transfer.png`
 - `outputs/sprint7c/figures/sprint7c_per_guide_negative_gain.png`
 - `outputs/sprint7c/figures/sprint7c_attention_edge_kind_summary.png`
+
+## Verdict
+
+Sprint 7C is complete as an explanation/audit sprint. It validates that the
+Sprint 7B Graph C GATv2 rare-negative improvement is row-level real relative to
+Graph C GCN, with 53 recovered false positives, 4 lost true negatives, and 12
+new false negatives. The result justifies Sprint 7D's mechanism ablation focus
+on Graph C GATv2 components, while preserving the boundary that XGBoost F4
+remains the AUPRC bar and that attention/context diagnostics are not biological
+causal evidence.

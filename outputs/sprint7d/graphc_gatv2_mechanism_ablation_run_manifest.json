@@ -1,0 +1,133 @@
+{
+  "attention_summary_path": "outputs/sprint7d/diagnostics/graphc_gatv2_mechanism_attention_summary.csv",
+  "batch_id": "sprint7d_graphc_gatv2_mechanism_seed42_20260607_203646",
+  "component_audit_path": "outputs/sprint7d/diagnostics/graphc_gatv2_component_ablation_audit.csv",
+  "config_path": "configs/sweeps/sprint7d_graphc_gatv2_mechanism_ablation.yaml",
+  "diagnostic_tables": [
+    "outputs/sprint7d/diagnostics/graphc_gatv2_mechanism_threshold_metrics.csv",
+    "outputs/sprint7d/diagnostics/graphc_gatv2_mechanism_deltas.csv",
+    "outputs/sprint7d/diagnostics/graphc_gatv2_component_ablation_audit.csv",
+    "outputs/sprint7d/diagnostics/graphc_gatv2_mechanism_attention_contract_summary.csv",
+    "outputs/sprint7d/diagnostics/graphc_gatv2_mechanism_per_guide_score_summary.csv",
+    "outputs/sprint7d/diagnostics/graphc_gatv2_mechanism_score_deciles.csv"
+  ],
+  "figures": [
+    "outputs/sprint7d/figures/graphc_gatv2_mechanism_auprc_comparison.png",
+    "outputs/sprint7d/figures/graphc_gatv2_mechanism_threshold_metrics.png",
+    "outputs/sprint7d/figures/graphc_gatv2_mechanism_pr_curves.png",
+    "outputs/sprint7d/figures/graphc_gatv2_mechanism_roc_curves.png",
+    "outputs/sprint7d/figures/graphc_gatv2_mechanism_score_distributions.png",
+    "outputs/sprint7d/figures/graphc_gatv2_mechanism_training_curves.png",
+    "outputs/sprint7d/figures/graphc_gatv2_mechanism_attention_by_edge_kind.png"
+  ],
+  "generated_at_utc": "2026-06-07T20:38:14.439085+00:00",
+  "graph_artifact_provenance_path": "outputs/sprint7d/graph_artifact_provenance.json",
+  "headline_run_ids": [
+    "S7D_R1_no_context_edges",
+    "S7D_R2_edge_blind_attention",
+    "S7D_R3_mask_target_context_features"
+  ],
+  "manifest_type": "sprint7d_graphc_gatv2_mechanism_ablation_run_manifest",
+  "predictions_path": "outputs/sprint7d/diagnostics/graphc_gatv2_mechanism_predictions.csv",
+  "reference_run_ids": [
+    "S7D_REF_XGB_F4",
+    "S7D_REF_GRAPH_A_GCN",
+    "S7D_REF_GRAPH_A_GATV2",
+    "S7D_REF_GRAPH_C_GCN",
+    "S7D_REF_FULL_GRAPH_C_GATV2"
+  ],
+  "report_path": "outputs/sprint7d/graphc_gatv2_mechanism_ablation_report.md",
+  "results_path": "outputs/sprint7d/graphc_gatv2_mechanism_ablation.csv",
+  "runs": [
+    {
+      "checkpoint_path": null,
+      "predeclared_id": "S7D_REF_XGB_F4",
+      "role": "carry_forward_reference_no_retrain",
+      "run_id": "sprint7d_graphc_gatv2_mechanism_seed42_20260607_203646_S7D_REF_XGB_F4",
+      "source": "Sprint 2 XGBoost F4 baseline"
+    },
+    {
+      "checkpoint_path": null,
+      "predeclared_id": "S7D_REF_GRAPH_A_GCN",
+      "role": "carry_forward_reference_no_retrain",
+      "run_id": "sprint7d_graphc_gatv2_mechanism_seed42_20260607_203646_S7D_REF_GRAPH_A_GCN",
+      "source": "Sprint 6 S6R0 weighted-BCE Graph A GCN"
+    },
+    {
+      "checkpoint_path": null,
+      "predeclared_id": "S7D_REF_GRAPH_A_GATV2",
+      "role": "carry_forward_reference_no_retrain",
+      "run_id": "sprint7d_graphc_gatv2_mechanism_seed42_20260607_203646_S7D_REF_GRAPH_A_GATV2",
+      "source": "Sprint 7 S7R2 Graph A GATv2"
+    },
+    {
+      "checkpoint_path": null,
+      "predeclared_id": "S7D_REF_GRAPH_C_GCN",
+      "role": "carry_forward_reference_no_retrain",
+      "run_id": "sprint7d_graphc_gatv2_mechanism_seed42_20260607_203646_S7D_REF_GRAPH_C_GCN",
+      "source": "Sprint 5B Graph C S5F2 GCN"
+    },
+    {
+      "checkpoint_path": null,
+      "predeclared_id": "S7D_REF_FULL_GRAPH_C_GATV2",
+      "role": "carry_forward_reference_no_retrain",
+      "run_id": "sprint7d_graphc_gatv2_mechanism_seed42_20260607_203646_S7D_REF_FULL_GRAPH_C_GATV2",
+      "source": NaN
+    },
+    {
+      "ablation": {
+        "drop_context_similarity_edges": true,
+        "edge_blind_candidate_attention": false,
+        "mask_target_observation_features": false
+      },
+      "architecture": "gatv2",
+      "attention_summary_path": "outputs/sprint7d/runs/sprint7d_graphc_gatv2_mechanism_seed42_20260607_203646_S7D_R1_no_context_edges/attention_summary.csv",
+      "checkpoint_path": "outputs/sprint7d/runs/sprint7d_graphc_gatv2_mechanism_seed42_20260607_203646_S7D_R1_no_context_edges/model.pt",
+      "component_audit_path": "outputs/sprint7d/runs/sprint7d_graphc_gatv2_mechanism_seed42_20260607_203646_S7D_R1_no_context_edges/component_audit.csv",
+      "graph_schema": "graph_c_context_observation",
+      "metrics_path": "outputs/sprint7d/runs/sprint7d_graphc_gatv2_mechanism_seed42_20260607_203646_S7D_R1_no_context_edges/metrics.csv",
+      "predeclared_id": "S7D_R1_no_context_edges",
+      "resolved_config_path": "outputs/sprint7d/runs/sprint7d_graphc_gatv2_mechanism_seed42_20260607_203646_S7D_R1_no_context_edges/resolved_config.yaml",
+      "role": "graph_c_gatv2_without_context_similarity_topology",
+      "run_id": "sprint7d_graphc_gatv2_mechanism_seed42_20260607_203646_S7D_R1_no_context_edges",
+      "training_history_path": "outputs/sprint7d/runs/sprint7d_graphc_gatv2_mechanism_seed42_20260607_203646_S7D_R1_no_context_edges/training_history.csv"
+    },
+    {
+      "ablation": {
+        "drop_context_similarity_edges": false,
+        "edge_blind_candidate_attention": true,
+        "mask_target_observation_features": false
+      },
+      "architecture": "gatv2",
+      "attention_summary_path": "outputs/sprint7d/runs/sprint7d_graphc_gatv2_mechanism_seed42_20260607_203646_S7D_R2_edge_blind_attention/attention_summary.csv",
+      "checkpoint_path": "outputs/sprint7d/runs/sprint7d_graphc_gatv2_mechanism_seed42_20260607_203646_S7D_R2_edge_blind_attention/model.pt",
+      "component_audit_path": "outputs/sprint7d/runs/sprint7d_graphc_gatv2_mechanism_seed42_20260607_203646_S7D_R2_edge_blind_attention/component_audit.csv",
+      "graph_schema": "graph_c_context_observation",
+      "metrics_path": "outputs/sprint7d/runs/sprint7d_graphc_gatv2_mechanism_seed42_20260607_203646_S7D_R2_edge_blind_attention/metrics.csv",
+      "predeclared_id": "S7D_R2_edge_blind_attention",
+      "resolved_config_path": "outputs/sprint7d/runs/sprint7d_graphc_gatv2_mechanism_seed42_20260607_203646_S7D_R2_edge_blind_attention/resolved_config.yaml",
+      "role": "graph_c_gatv2_candidate_s5f2_removed_from_attention_only",
+      "run_id": "sprint7d_graphc_gatv2_mechanism_seed42_20260607_203646_S7D_R2_edge_blind_attention",
+      "training_history_path": "outputs/sprint7d/runs/sprint7d_graphc_gatv2_mechanism_seed42_20260607_203646_S7D_R2_edge_blind_attention/training_history.csv"
+    },
+    {
+      "ablation": {
+        "drop_context_similarity_edges": false,
+        "edge_blind_candidate_attention": false,
+        "mask_target_observation_features": true
+      },
+      "architecture": "gatv2",
+      "attention_summary_path": "outputs/sprint7d/runs/sprint7d_graphc_gatv2_mechanism_seed42_20260607_203646_S7D_R3_mask_target_context_features/attention_summary.csv",
+      "checkpoint_path": "outputs/sprint7d/runs/sprint7d_graphc_gatv2_mechanism_seed42_20260607_203646_S7D_R3_mask_target_context_features/model.pt",
+      "component_audit_path": "outputs/sprint7d/runs/sprint7d_graphc_gatv2_mechanism_seed42_20260607_203646_S7D_R3_mask_target_context_features/component_audit.csv",
+      "graph_schema": "graph_c_context_observation",
+      "metrics_path": "outputs/sprint7d/runs/sprint7d_graphc_gatv2_mechanism_seed42_20260607_203646_S7D_R3_mask_target_context_features/metrics.csv",
+      "predeclared_id": "S7D_R3_mask_target_context_features",
+      "resolved_config_path": "outputs/sprint7d/runs/sprint7d_graphc_gatv2_mechanism_seed42_20260607_203646_S7D_R3_mask_target_context_features/resolved_config.yaml",
+      "role": "graph_c_gatv2_direct_target_observation_features_masked",
+      "run_id": "sprint7d_graphc_gatv2_mechanism_seed42_20260607_203646_S7D_R3_mask_target_context_features",
+      "training_history_path": "outputs/sprint7d/runs/sprint7d_graphc_gatv2_mechanism_seed42_20260607_203646_S7D_R3_mask_target_context_features/training_history.csv"
+    }
+  ],
+  "training_history_path": "outputs/sprint7d/diagnostics/graphc_gatv2_mechanism_training_history.csv"
+}

@@ -1,0 +1,127 @@
+{
+  "attention_summary_path": "outputs/sprint7f/diagnostics/target_context_encoder_attention_summary.csv",
+  "batch_id": "sprint7f_target_context_encoder_seed42_20260608_051125",
+  "config_path": "configs/sweeps/sprint7f_target_context_encoder.yaml",
+  "diagnostic_tables": [
+    "outputs/sprint7f/diagnostics/target_context_encoder_threshold_metrics.csv",
+    "outputs/sprint7f/diagnostics/target_context_encoder_deltas.csv",
+    "outputs/sprint7f/diagnostics/target_context_encoder_audit.csv",
+    "outputs/sprint7f/diagnostics/target_context_encoder_activation_contract_summary.csv",
+    "outputs/sprint7f/diagnostics/target_context_encoder_attention_contract_summary.csv",
+    "outputs/sprint7f/diagnostics/target_context_encoder_per_guide_score_summary.csv",
+    "outputs/sprint7f/diagnostics/target_context_encoder_score_deciles.csv"
+  ],
+  "figures": [
+    "outputs/sprint7f/figures/target_context_encoder_auprc_comparison.png",
+    "outputs/sprint7f/figures/target_context_encoder_threshold_metrics.png",
+    "outputs/sprint7f/figures/target_context_encoder_pr_curves.png",
+    "outputs/sprint7f/figures/target_context_encoder_roc_curves.png",
+    "outputs/sprint7f/figures/target_context_encoder_score_distributions.png",
+    "outputs/sprint7f/figures/target_context_encoder_training_curves.png",
+    "outputs/sprint7f/figures/target_context_encoder_attention_by_edge_kind.png",
+    "outputs/sprint7f/figures/target_context_encoder_branch_activation_norms.png"
+  ],
+  "generated_at_utc": "2026-06-08T05:13:20.791981+00:00",
+  "graph_artifact_provenance_path": "outputs/sprint7f/graph_artifact_provenance.json",
+  "headline_run_ids": [
+    "S7F_R1_unified_deep_context_encoder",
+    "S7F_R2_family_aware_context_encoder",
+    "S7F_R3_family_aware_experimental_emphasis"
+  ],
+  "manifest_type": "sprint7f_target_context_encoder_run_manifest",
+  "predictions_path": "outputs/sprint7f/diagnostics/target_context_encoder_predictions.csv",
+  "reference_run_ids": [
+    "S7F_REF_XGB_F4",
+    "S7F_REF_GRAPH_A_GCN",
+    "S7F_REF_GRAPH_C_GCN",
+    "S7F_REF_FULL_GRAPH_C_GATV2",
+    "S7F_REF_NO_CONTEXT_EDGE_GATV2"
+  ],
+  "report_path": "outputs/sprint7f/target_context_encoder_report.md",
+  "results_path": "outputs/sprint7f/target_context_encoder_comparison.csv",
+  "runs": [
+    {
+      "checkpoint_path": null,
+      "predeclared_id": "S7F_REF_XGB_F4",
+      "role": "carry_forward_reference_no_retrain",
+      "run_id": "sprint7f_target_context_encoder_seed42_20260608_051125_S7F_REF_XGB_F4",
+      "source": "Sprint 2 XGBoost F4 baseline"
+    },
+    {
+      "checkpoint_path": null,
+      "predeclared_id": "S7F_REF_GRAPH_A_GCN",
+      "role": "carry_forward_reference_no_retrain",
+      "run_id": "sprint7f_target_context_encoder_seed42_20260608_051125_S7F_REF_GRAPH_A_GCN",
+      "source": "Sprint 6 S6R0 weighted-BCE Graph A GCN"
+    },
+    {
+      "checkpoint_path": null,
+      "predeclared_id": "S7F_REF_GRAPH_C_GCN",
+      "role": "carry_forward_reference_no_retrain",
+      "run_id": "sprint7f_target_context_encoder_seed42_20260608_051125_S7F_REF_GRAPH_C_GCN",
+      "source": "Sprint 5B Graph C S5F2 GCN"
+    },
+    {
+      "checkpoint_path": null,
+      "predeclared_id": "S7F_REF_FULL_GRAPH_C_GATV2",
+      "role": "carry_forward_reference_no_retrain",
+      "run_id": "sprint7f_target_context_encoder_seed42_20260608_051125_S7F_REF_FULL_GRAPH_C_GATV2",
+      "source": NaN
+    },
+    {
+      "checkpoint_path": null,
+      "predeclared_id": "S7F_REF_NO_CONTEXT_EDGE_GATV2",
+      "role": "carry_forward_reference_no_retrain",
+      "run_id": "sprint7f_target_context_encoder_seed42_20260608_051125_S7F_REF_NO_CONTEXT_EDGE_GATV2",
+      "source": "Sprint 7D S7D_R1 Graph C GATv2 no-context-edges"
+    },
+    {
+      "architecture": "gatv2",
+      "attention_summary_path": "outputs/sprint7f/runs/sprint7f_target_context_encoder_seed42_20260608_051125_S7F_R1_unified_deep_context_encoder/attention_summary.csv",
+      "checkpoint_path": "outputs/sprint7f/runs/sprint7f_target_context_encoder_seed42_20260608_051125_S7F_R1_unified_deep_context_encoder/model.pt",
+      "graph_schema": "graph_c_context_observation",
+      "metrics_path": "outputs/sprint7f/runs/sprint7f_target_context_encoder_seed42_20260608_051125_S7F_R1_unified_deep_context_encoder/metrics.csv",
+      "predeclared_id": "S7F_R1_unified_deep_context_encoder",
+      "resolved_config_path": "outputs/sprint7f/runs/sprint7f_target_context_encoder_seed42_20260608_051125_S7F_R1_unified_deep_context_encoder/resolved_config.yaml",
+      "role": "graph_c_gatv2_unified_deep_target_context_encoder",
+      "run_id": "sprint7f_target_context_encoder_seed42_20260608_051125_S7F_R1_unified_deep_context_encoder",
+      "target_context_encoder_audit_path": "outputs/sprint7f/runs/sprint7f_target_context_encoder_seed42_20260608_051125_S7F_R1_unified_deep_context_encoder/target_context_encoder_audit.csv",
+      "target_context_encoder_summary_path": "outputs/sprint7f/runs/sprint7f_target_context_encoder_seed42_20260608_051125_S7F_R1_unified_deep_context_encoder/target_context_encoder_summary.csv",
+      "target_context_encoder_type": "unified_deep",
+      "training_history_path": "outputs/sprint7f/runs/sprint7f_target_context_encoder_seed42_20260608_051125_S7F_R1_unified_deep_context_encoder/training_history.csv"
+    },
+    {
+      "architecture": "gatv2",
+      "attention_summary_path": "outputs/sprint7f/runs/sprint7f_target_context_encoder_seed42_20260608_051125_S7F_R2_family_aware_context_encoder/attention_summary.csv",
+      "checkpoint_path": "outputs/sprint7f/runs/sprint7f_target_context_encoder_seed42_20260608_051125_S7F_R2_family_aware_context_encoder/model.pt",
+      "graph_schema": "graph_c_context_observation",
+      "metrics_path": "outputs/sprint7f/runs/sprint7f_target_context_encoder_seed42_20260608_051125_S7F_R2_family_aware_context_encoder/metrics.csv",
+      "predeclared_id": "S7F_R2_family_aware_context_encoder",
+      "resolved_config_path": "outputs/sprint7f/runs/sprint7f_target_context_encoder_seed42_20260608_051125_S7F_R2_family_aware_context_encoder/resolved_config.yaml",
+      "role": "graph_c_gatv2_family_aware_target_context_encoder",
+      "run_id": "sprint7f_target_context_encoder_seed42_20260608_051125_S7F_R2_family_aware_context_encoder",
+      "target_context_encoder_audit_path": "outputs/sprint7f/runs/sprint7f_target_context_encoder_seed42_20260608_051125_S7F_R2_family_aware_context_encoder/target_context_encoder_audit.csv",
+      "target_context_encoder_summary_path": "outputs/sprint7f/runs/sprint7f_target_context_encoder_seed42_20260608_051125_S7F_R2_family_aware_context_encoder/target_context_encoder_summary.csv",
+      "target_context_encoder_type": "family_aware",
+      "training_history_path": "outputs/sprint7f/runs/sprint7f_target_context_encoder_seed42_20260608_051125_S7F_R2_family_aware_context_encoder/training_history.csv"
+    },
+    {
+      "architecture": "gatv2",
+      "attention_summary_path": "outputs/sprint7f/runs/sprint7f_target_context_encoder_seed42_20260608_051125_S7F_R3_family_aware_experimental_emphasis/attention_summary.csv",
+      "checkpoint_path": "outputs/sprint7f/runs/sprint7f_target_context_encoder_seed42_20260608_051125_S7F_R3_family_aware_experimental_emphasis/model.pt",
+      "graph_schema": "graph_c_context_observation",
+      "metrics_path": "outputs/sprint7f/runs/sprint7f_target_context_encoder_seed42_20260608_051125_S7F_R3_family_aware_experimental_emphasis/metrics.csv",
+      "predeclared_id": "S7F_R3_family_aware_experimental_emphasis",
+      "resolved_config_path": "outputs/sprint7f/runs/sprint7f_target_context_encoder_seed42_20260608_051125_S7F_R3_family_aware_experimental_emphasis/resolved_config.yaml",
+      "role": "graph_c_gatv2_family_aware_experimental_emphasis_context_encoder",
+      "run_id": "sprint7f_target_context_encoder_seed42_20260608_051125_S7F_R3_family_aware_experimental_emphasis",
+      "target_context_encoder_audit_path": "outputs/sprint7f/runs/sprint7f_target_context_encoder_seed42_20260608_051125_S7F_R3_family_aware_experimental_emphasis/target_context_encoder_audit.csv",
+      "target_context_encoder_summary_path": "outputs/sprint7f/runs/sprint7f_target_context_encoder_seed42_20260608_051125_S7F_R3_family_aware_experimental_emphasis/target_context_encoder_summary.csv",
+      "target_context_encoder_type": "family_aware_experimental_emphasis",
+      "training_history_path": "outputs/sprint7f/runs/sprint7f_target_context_encoder_seed42_20260608_051125_S7F_R3_family_aware_experimental_emphasis/training_history.csv"
+    }
+  ],
+  "target_context_encoder_activation_summary_path": "outputs/sprint7f/diagnostics/target_context_encoder_activation_summary.csv",
+  "target_context_encoder_audit_path": "outputs/sprint7f/diagnostics/target_context_encoder_audit.csv",
+  "training_history_path": "outputs/sprint7f/diagnostics/target_context_encoder_training_history.csv"
+}

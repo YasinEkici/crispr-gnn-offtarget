@@ -1,8 +1,9 @@
 # Execution Plan: Sprint 7 Edge-Aware GAT / GATv2 Architecture Ablation
 
-> Status: IMPLEMENTED LOCALLY / ACTIVE. Sprint 7 code, config, runner-only
-> Colab notebook, and contract tests are in place. The full Colab headline run
-> has not been executed yet, and Sprint 6 loss/sampling decisions remain frozen.
+> Status: COMPLETED. Sprint 7 code, config, runner-only Colab notebook,
+> contract tests, Colab headline run, returned outputs, and final report are in
+> place. Sprint 7 preserved the Sprint 6 weighted-BCE Graph A contract and
+> completed the predeclared Graph A GCN/GAT/GATv2 architecture comparison.
 
 ## 1. Goal
 
@@ -541,7 +542,7 @@ Exit: runner and local tests pass; no full GPU claim yet.
 
 ### Slice 5 - Full headline run and local validation
 
-Status: pending Colab GPU execution.
+Status: complete.
 
 Run the predeclared headline architecture comparison on Colab GPU, copy outputs
 back, and validate locally. No reruns or hyperparameter changes from test
@@ -552,7 +553,7 @@ documented before interpreting results.
 
 ### Slice 6 - Sprint closure
 
-Status: pending headline-output validation and closure docs.
+Status: complete.
 
 Freeze report/results/status docs and move this plan to
 `docs/exec-plans/completed/`.

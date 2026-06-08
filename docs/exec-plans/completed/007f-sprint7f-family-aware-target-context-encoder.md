@@ -1,10 +1,10 @@
 # Execution Plan: Sprint 7F Family-Aware Target Context Encoder
 
-> Status: PLANNED. Sprint 7F is a model-improvement sprint guided by Sprint 7D
-> and Sprint 7E mechanism evidence. It changes only the Graph C
-> `target_observation` encoder. It is not a topology sprint, sequence-encoder
-> sprint, hyperparameter search, robustness sprint, or biological causality
-> audit.
+> Status: COMPLETED. Sprint 7F code, configs, runner-only Colab notebook,
+> contract tests, Colab headline run, returned outputs, and final report are in
+> place. Sprint 7F completed the predeclared family-aware Graph C
+> `target_observation` encoder comparison guided by Sprint 7D and Sprint 7E
+> mechanism evidence.
 
 ## 1. Goal
 
