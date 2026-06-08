@@ -14,31 +14,37 @@ The primary dataset is the Mak et al. 2022 crisprSQL-derived epigenetic/nucleoso
 | Sprint 4 | GCN baseline training — Graph A, B (control), C | ✅ Complete |
 | Sprint 5 | Graph A feature-family ablation + Graph C energy sensitivity | ✅ Complete |
 | Sprint 6 | Imbalance, threshold, and loss comparison | ✅ Complete (Slices 0–4; Slice 5 optional) |
-| Sprint 7 | GAT/GATv2 architecture | 🔜 Next |
+| Sprint 7 | GAT/GATv2 architecture, Graph C mechanism ablations, target-context encoder | ✅ Complete |
 | Sprint 8 | Robustness — bootstrap CIs + multi-seed variance | ⏳ Optional / stretch |
 
 ## Current Results
 
-All reported model runs use the frozen Sprint 2/3 contract (`scheme_a`, `sprint2_main_seed42`, measured-only headline rows, `experiment_id=18` excluded, `strict_inductive_primary`). Primary metric is AUPRC (threshold-free, appropriate for ~90% positive prevalence). No GCN result beats the XGBoost F4 reference on primary AUPRC.
+All reported model runs use the frozen Sprint 2/3 contract (`scheme_a`, `sprint2_main_seed42`, measured-only headline rows, `experiment_id=18` excluded, `strict_inductive_primary`). Primary metric is AUPRC (threshold-free, appropriate for ~90% positive prevalence). No GNN result beats the XGBoost F4 reference on primary AUPRC, but Sprint 7F narrows the gap and substantially improves rare-negative operating-point metrics with a Graph C GATv2 target-context encoder.
 
 | Model | Setting | Test AUPRC | Test AUROC | Test Macro F1 | Test MCC |
 |---|---|---:|---:|---:|---|
 | `xgboost_unweighted` | F4 tabular baseline | **0.9925** | 0.9384 | 0.6427 | 0.3452 |
-| `gcn_graph_a_sprint5` | Graph A + `S5F2_energy` | 0.9766 | 0.8178 | **0.6953** | **0.4779** |
+| `gatv2_graph_c_sprint7f_exp_emphasis` | Graph C + `S5F2_energy` + family-aware target-context encoder, experimental emphasis | 0.9849 | 0.9266 | 0.7772 | 0.5681 |
+| `gatv2_graph_c_sprint7f_family_aware` | Graph C + `S5F2_energy` + family-aware target-context encoder | 0.9821 | 0.9066 | **0.8017** | **0.6035** |
+| `gcn_graph_a_sprint6_wbce` | Graph A + `S5F2_energy` + weighted BCE | 0.9769 | 0.8200 | 0.6989 | 0.4837 |
 | `gcn_graph_c_sprint5b_energy` | Graph C + `S5F2_energy` | 0.9725 | 0.8362 | 0.5524 | 0.2743 |
 | `gcn_graph_a` | Sprint 4 Graph A — minimal physical target | 0.9663 | 0.7451 | 0.6021 | 0.3008 |
 | `gcn_graph_b` *(secondary control)* | Sprint 4 Graph B — guide-similarity topology | 0.9666 | 0.7436 | 0.4918 | 0.1266† |
 | `gcn_graph_c` | Sprint 4 Graph C — observation-level context | 0.9616 | 0.7599 | 0.6776 | 0.4537 |
 
-†Threshold-dependent metrics are interpretation-only. Several GCN runs have high AUPRC but weak negative-class recognition under the validation-selected threshold; Sprint 5B Graph C + `S5F2_energy` has TN/FP/FN/TP `14/155/0/1533`. This motivates Sprint 6 imbalance, threshold, and loss experiments.
+†Threshold-dependent metrics are interpretation-only. Several GCN runs have high AUPRC but weak negative-class recognition under the validation-selected threshold; Sprint 5B Graph C + `S5F2_energy` has TN/FP/FN/TP `14/155/0/1533`. Sprint 6 established weighted BCE as the fixed loss policy, and Sprint 7 showed that Graph C GATv2 target-context modeling can improve rare-negative recognition while keeping the same frozen evaluation contract.
 
 Sprint 5 takeaway: binding-energy features (`energy_1`-`energy_5`) are the strongest GCN feature-family signal. Raw experimental epigenetic scalars and computed context features do not improve the current Graph A GCN when appended as candidate-edge feature tables. Graph C must not be interpreted as a topology-only experiment — it changes both topology and target semantics relative to Graph A.
+
+Sprint 7 takeaway: edge-aware GAT/GATv2 on Graph A did not beat the weighted-BCE Graph A GCN reference, but Graph C GATv2 exposed a useful target-context signal. Sprint 7D/7E isolated direct `target_observation` features, especially experimental epigenetic features, as the critical mechanism; Sprint 7F's family-aware target-context encoder produced the strongest same-contract GNN results so far.
 
 Key reports:
 
 - Sprint 4 comparison: `outputs/sprint4/gcn_sprint4_comparison_report.md`
 - Sprint 5 Graph A feature ablation: `outputs/sprint5/graph_a_feature_ablation/sprint5_graph_a_feature_ablation_report.md`
 - Sprint 5B Graph C energy sensitivity: `outputs/sprint5b/graph_c/gcn_graph_c_report.md`
+- Sprint 6 loss/imbalance comparison: `outputs/sprint6/loss_comparison/sprint6_loss_comparison_report.md`
+- Sprint 7F target-context encoder: `outputs/sprint7f/target_context_encoder_report.md`
 
 ## Setup
 
