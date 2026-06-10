@@ -1,7 +1,9 @@
 # Execution Plan: Sprint 8A Target-Context & Context-Edge Interaction
 
-> Status: ACTIVE (planning complete, implementation pending approval). This plan
-> covers Sprint 8A, the model-improvement core of Sprint 8. Sprint 8B
+> Status: FROZEN — Slice 0 planning freeze complete (2026-06-10). All predeclared
+> defaults are pinned in §17 Frozen Specification; Slices 1–8 may proceed with no
+> remaining design decision. This plan covers Sprint 8A, the model-improvement
+> core of Sprint 8. Sprint 8B
 > (sequence-context encoder) is a separate companion plan,
 > `008b-sprint8b-sequence-context-encoder.md`. Robustness (multi-seed,
 > guide-level bootstrap CIs, paired-difference) is re-scoped to Sprint 9.
@@ -538,7 +540,7 @@ exp-branch dims (§6), selection rule (validation AUPRC), and the output contrac
 
 Exit: plan frozen; no code changed yet.
 
-### Slice 1 - Encoder deltas (`target_context_encoder.py`)
+### Slice 1 - Encoder deltas (`target_context_encoder.py`) — Status: COMPLETE (2026-06-10)
 
 Add the SENET-style learned family gate (§6.1) and the regularized
 experimental-epigenetic branch (§6.3), both config-flagged and default OFF. Add
@@ -548,6 +550,16 @@ train mode only.
 
 Exit: encoder unit tests pass; no training; base R3 path byte-for-byte unchanged
 when flags are OFF.
+
+Done: `FamilyAwareTargetContextEncoder` extended with `family_gate`,
+`gate_reduction`, `experimental_branch_bottleneck`,
+`experimental_branch_feature_dropout` (all keyword-only, default OFF; per §17.2/
+§17.4); `build_target_context_encoder` forwards them and rejects the new options
+on unified encoders; `activation_summary` adds `family_gate_enabled` /
+`family_gate_weight_mean` columns while keeping the 4-row family structure.
+Tests in `tests/test_sprint8a_target_context_interaction.py` (6) plus Sprint 7F/7B/
+7E regression (15) pass; ruff + `git diff --check` clean. No `gat.py` /
+`training/gcn.py` / config / runner change (Slices 2–3). No tech debt added.
 
 ### Slice 2 - Context-edge interaction head (`gat.py`)
 
@@ -615,3 +627,142 @@ update `README.md` / `CRISPR_GNN_PROJECT_PLAN.md` roadmap, and move this plan to
 Exit: the Sprint 8A conclusion is documented as one of the §11 allowed shapes; if
 target-context architecture is not the bottleneck, proceed to Sprint 8B (sequence
 context) or Sprint 9 (robustness) per a fresh plan.
+
+## 17. Frozen Specification (Slice 0)
+
+Slice 0 planning freeze (2026-06-10). Consistency re-audit against source and
+`outputs/sprint7f/target_context_encoder_comparison.csv`: **PASS** (no drift). All
+predeclared defaults below are pinned; Slices 1–8 implement against this section
+with zero remaining design decision. No `src/`, `configs/`, `scripts/`, `colab/`,
+or `tests/` file was changed in Slice 0.
+
+### 17.1 Pinned base & frozen contract (recap)
+
+- Base encoder = `family_aware_experimental_emphasis`, branch dims
+  `target_sequence_one_hot=24, experimental_epigenetic=48,
+  computed_nucleosome_aggregates=40, computed_nucleosome_missingness=16`
+  (sum 128 = `hidden_dim`). Matches `EXPERIMENTAL_EMPHASIS_BRANCH_DIMS`.
+- Target-observation input = 212 cols, family split `115/6/78/13`, resolved by
+  `validate_target_context_feature_names` / `target_context_family_indices`.
+- Frozen GATv2: 2 layers, hidden 128, 4 heads, concat true, dropout 0.2, attn
+  dropout 0.2, `share_weights=false`, `self_loop_edge_fill=0.0`,
+  `drop_context_similarity_edges=true`, `edge_aware_attention=true`; candidate
+  `S5F2_energy` = 268 cols. Loss `weighted_bce` (`pos_weight=auto`); AdamW,
+  `ReduceLROnPlateau(mode="max")` on `val_auprc`, grad clip 1.0, LR 1e-3, weight
+  decay 1e-4, seed 42. These are unchanged for all canonical runs; only the §6
+  deltas vary.
+
+### 17.2 Pinned family gate v2 (R1, R3)
+
+- Variant = **(b) excitation over the full 128-dim branch concat → 4 per-family
+  scalar gates**. Rationale: with only 4 families a per-family-descriptor
+  bottleneck (`4/r`) is degenerate; conditioning the gates on the full 128-dim
+  branch concat keeps the SENET reduction meaningful and parameter-light.
+- Squeeze: branch outputs `b = [b_seq(24), b_epi(48), b_agg(40), b_miss(16)]`
+  (concat = 128, per node).
+- Excitation: `s = σ(W2 · ReLU(W1 · b))`, `W1 ∈ R^{32×128}`, `W2 ∈ R^{4×32}`,
+  `gate_reduction = 4` (128 → 32 → 4). Output = 4 per-family scalars.
+- Re-weight: `b_f ← s_f · b_f` per family, then the existing fusion block
+  (`LayerNorm(128) → ReLU → Dropout(0.2) → Linear(128→128) → ReLU`) unchanged.
+- Parameter cost ≈ `128·32 + 32 + 32·4 + 4 ≈ 4.26k`. Reported in the audit.
+- Gate-OFF (`family_gate=false`) reproduces the base R3 encoder output exactly
+  (Slice 1 test).
+
+### 17.3 Pinned context-edge interaction head (R2, R3; gat.py, Graph-C-specific)
+
+- `interaction_edge_dim` (`d_e`) = **64**.
+- Edge embedding: `edge_embed = Linear(268 → 64)(candidate_S5F2)`.
+- Context embedding = post-GATv2 target-observation node embedding
+  `target = x[target_index] ∈ R^{128}` (already computed in the head).
+- **FiLM (primary, `context_edge_interaction=film`):** FiLM generator =
+  `Linear(128 → 2·64)(target)` → split into `γ, β ∈ R^{64}`; modulate
+  `edge_film = γ ⊙ edge_embed + β`. Classifier input =
+  `[source(128), target(128), source*target(128), |source-target|(128),
+  edge_film(64)]`, dim `128·4 + 64 = 576`.
+- **Interaction-MLP (fallback, `context_edge_interaction=mlp`):**
+  `proj = Linear(128 → 64)(target)`; `z = [edge_embed(64), target(128),
+  edge_embed * proj(128→64)(64)]` (dim 256) → `Linear(256 → 64) → ReLU` →
+  `interaction_vector(64)`; classifier input dim also `128·4 + 64 = 576`.
+- The shared `_classify_candidate_edges` / `_edge_classifier` helpers,
+  `_apply_attention_layers`, and `graph_c_attention_edge_tensors` are NOT modified
+  (Graph A/B and the `none` path keep the raw-`S5F2` classifier, dim
+  `128·4 + 268`). Full bilinear excluded.
+
+### 17.4 Pinned regularized experimental branch (R4)
+
+- Applied to the `experimental_epigenetic` (6-col) branch only.
+- `experimental_branch_feature_dropout` = **0.3** (Bernoulli over the 6 input
+  columns, train mode only).
+- `experimental_branch_bottleneck` = **4**. Branch shape becomes
+  `feature_dropout(6) → Linear(6→4) → LayerNorm(4) → ReLU → Linear(4→48) →
+  LayerNorm(48) → ReLU` (replaces the base `Linear(6→48) → LayerNorm → ReLU`).
+- OFF defaults (`bottleneck=None`, `feature_dropout=0.0`) reproduce the base
+  branch exactly.
+
+### 17.5 Pinned new config keys (defaults reproduce Sprint 7F R3 when OFF)
+
+| Key | Type | Default | Carried via |
+| --- | --- | --- | --- |
+| `model.target_context_encoder.type` | str | `family_aware_experimental_emphasis` | existing |
+| `model.target_context_encoder.family_gate` | bool | `false` | `GCNRunConfig.family_gate` |
+| `model.target_context_encoder.gate_reduction` | int | `4` | `GCNRunConfig.gate_reduction` |
+| `model.target_context_encoder.experimental_branch.bottleneck` | int \| null | `null` | `GCNRunConfig.experimental_branch_bottleneck` |
+| `model.target_context_encoder.experimental_branch.feature_dropout` | float | `0.0` | `GCNRunConfig.experimental_branch_feature_dropout` |
+| `model.context_edge_interaction` | str (`none\|film\|mlp`) | `none` | `GCNRunConfig.context_edge_interaction` |
+| `model.interaction_edge_dim` | int | `64` | `GCNRunConfig.interaction_edge_dim` |
+
+Selection mechanism is **flag-based** (a `family_gate` flag + branch/interaction
+fields), NOT new encoder-type aliases — keeps the encoder-type namespace small.
+Flow: `gcn_run_config_from_mapping` → `GCNRunConfig` → `_build_model` →
+`build_target_context_encoder` (gate + exp-branch flags) and `GraphCEdgeGATv2`
+(`context_edge_interaction`, `interaction_edge_dim`).
+
+### 17.6 Pinned 5-run canonical matrix (flag table)
+
+| Run ID | `type` | `family_gate` | `experimental_branch.bottleneck` | `experimental_branch.feature_dropout` | `context_edge_interaction` | `interaction_edge_dim` | Controlled variable |
+| --- | --- | :--: | :--: | :--: | :--: | :--: | --- |
+| `S8A_R0_base_reference` | exp_emphasis | false | null | 0.0 | none | (64, unused) | none (reproduces S7F R3) |
+| `S8A_R1_family_gated_v2` | exp_emphasis | **true** | null | 0.0 | none | (unused) | family gate |
+| `S8A_R2_context_edge_film` | exp_emphasis | false | null | 0.0 | **film** | 64 | FiLM head |
+| `S8A_R3_gated_plus_film` | exp_emphasis | **true** | null | 0.0 | **film** | 64 | gate + FiLM (R1+R2) |
+| `S8A_R4_regularized_exp_branch` | exp_emphasis | false | **4** | **0.3** | none | (unused) | exp-branch regularization |
+
+All canonical runs keep `drop_context_similarity_edges=true`,
+`edge_aware_attention=true`, and the frozen GATv2 config. No run sets
+`context_edge_interaction=mlp` (that is the optional `S8A_OPT_mlp_head` fallback,
+validation-gated only). Carry-forward reference IDs (no retrain):
+`S8A_REF_XGB_F4`, `S8A_REF_GRAPH_A_GCN`, `S8A_REF_GRAPH_C_GCN`,
+`S8A_REF_FULL_GRAPH_C_GATV2`, `S8A_REF_NO_CTX_EDGE_GATV2`, `S8A_REF_S7F_R2`,
+`S8A_REF_S7F_R3`.
+
+### 17.7 New modules/classes/functions to add (Slices 1–2)
+
+- `target_context_encoder.py`: extend `FamilyAwareTargetContextEncoder.__init__`
+  with `family_gate: bool=False`, `gate_reduction: int=4`,
+  `experimental_branch_bottleneck: int|None=None`,
+  `experimental_branch_feature_dropout: float=0.0`; add the gate submodule
+  (SE excitation per 17.2) and the regularized experimental branch (17.4); extend
+  `build_target_context_encoder(...)` signature to forward these; extend
+  `activation_summary` to emit per-family gate weights.
+- `gat.py`: extend `GraphCEdgeGATv2.__init__` with `context_edge_interaction:
+  str="none"`, `interaction_edge_dim: int=64`; add a Graph-C-specific interaction
+  head (FiLM + MLP per 17.3) and a `context_edge_interaction_summary(...)` audit
+  method (γ/β mean/std/L2 + interaction nonzero by split). Shared helpers untouched.
+- `training/gcn.py`: add the six `GCNRunConfig` fields (17.5); read them in
+  `gcn_run_config_from_mapping`; pass them in `_build_model`; add
+  `collect_context_edge_interaction_summary(...)` analogous to
+  `collect_target_context_encoder_summary`.
+
+### 17.8 Output contract & tests (already specified)
+
+- Output contract: see §10 (consolidated CSV/report/manifest/provenance,
+  diagnostics incl. `branch_gate_summary.csv` + `film_summary.csv`, figures,
+  per-run dirs).
+- Tests: see §12 (gate forward + gate-OFF base reproduction; FiLM/MLP shape;
+  exp-branch wiring + train-only feature-dropout; **frozen-message-passing
+  assertion**; family-index `115/6/78/13`; config parse; output-contract).
+
+### 17.9 Slice 0 exit
+
+Sprint 8A plan frozen; Slices 1–8 may proceed against §17 Frozen Specification;
+no code changed.
