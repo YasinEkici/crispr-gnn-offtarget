@@ -1,0 +1,15 @@
+title: HOW ATTENTIVE ARE GRAPH ATTENTION NETWORKS?
+authors:
+- Shaked Brody
+- Uri Alon
+- Eran Yahav
+abstract: 'Graph Attention Networks (GATs) are one of the most popular GNN architectures
+  and are considered as the state-of-the-art architecture for representation learning
+  with graphs. In GAT, every node attends to its neighbors given its own representation
+  as the query. However, in this paper we show that GAT computes a very limited kind
+  of attention: the ranking of the attention scores is unconditioned on the query
+  node. We formally define this restricted kind of attention as static attention and
+  distinguish it from a strictly more expressive dynamic attention...'
+keywords: []
+journal: ''
+year: null

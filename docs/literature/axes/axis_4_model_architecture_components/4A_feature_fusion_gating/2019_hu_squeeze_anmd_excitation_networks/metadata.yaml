@@ -1,0 +1,25 @@
+title: Squeeze-and-Excitation Networks
+authors:
+- Jie Hu
+- Li Shen
+- Samuel Albanie
+abstract: The central building block of convolutional neural networks (CNNs) is the
+  convolution operator, which enables networks to construct informative features by
+  fusing both spatial and channel-wise information within local receptive fields at
+  each layer. A broad range of prior research has investigated the spatial component
+  of this relationship, seeking to strengthen the representational power of a CNN
+  by enhancing the quality of spatial encodings throughout its feature hierarchy.
+  In this work, we focus instead on the channel relationship and propose a novel architectural
+  unit, which we term the 'Squeeze-and-Excitation' (SE) block, that adaptively recalibrates
+  channel-wise feature responses by explicitly modelling interdependencies between
+  channels. We show that these blocks can be stacked together to form SENet architectures
+  that generalise extremely effectively across different datasets. We further demonstrate
+  that SE blocks bring significant improvements in performance for existing state-of-the-art
+  CNNs at slight additional computational cost.
+keywords:
+- Squeeze-and-Excitation
+- Image representations
+- Attention
+- Convolutional Neural Networks
+journal: ''
+year: 2019

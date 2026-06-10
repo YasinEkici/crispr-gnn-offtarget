@@ -907,3 +907,82 @@ Outcome:
   bootstrap CIs (no retraining) provide the uniform uncertainty layer instead.
 - Literature anchors: Boyd 2013 (AUPRC CIs); cluster/block bootstrap for
   correlated data; paired-difference bootstrap / overlapping-CI fallacy; BCa.
+
+## 2026-06-10 - Re-scope Sprint 8 as model improvement (8A/8B); defer robustness to Sprint 9
+
+Decision: Sprint 8 is re-scoped from "Robustness" to a small, predeclared,
+mechanism-driven **model-improvement** sprint, split into Sprint 8A
+(target-context + context-edge interaction) and Sprint 8B (sequence-context
+encoder). The robustness work (guide-level bootstrap CIs, paired-difference
+bootstrap, multi-seed fixed-split variance) is moved to a new **Sprint 9**. This
+supersedes the 2026-06-06 "Open optional Sprint 8 (Robustness)" decision for the
+sprint *numbering and scope* only; the robustness *methodology* in that entry is
+unchanged and simply relabelled Sprint 9.
+
+Reason: Sprint 7F localized the strongest same-contract GNN signal to
+target-context representation (7D: direct `target_observation` features are
+critical; 7E: experimental epigenetic features are necessary; 7F: a family-aware
+encoder beat a larger unified-deep encoder, i.e. structure mattered more than raw
+capacity). The most informative next step is therefore a small model-improvement
+sprint on that axis, not robustness. Robustness is interpretation-only, requires
+no architecture change, and does not block model improvement, so it consolidates
+cleanly as a later Sprint 9.
+
+Scope and locked decisions (predeclared before any Sprint 8 training; carried in
+`docs/exec-plans/active/008-sprint8a-target-context-interaction.md` and
+`...008b-sprint8b-sequence-context-encoder.md`):
+
+- Frozen evaluation contract is inherited verbatim from Sprint 7F: `scheme_a`,
+  `sprint2_main_seed42`, guide-disjoint, measured-only headline, `experiment_id=18`
+  excluded, train-only preprocessing, validation-only checkpoint and threshold,
+  no test-driven selection, AUPRC primary, XGBoost F4 bar test AUPRC `0.992522`,
+  Graph C GATv2 + `S5F2_energy`, weighted BCE, seed 42, `context_similar_to`
+  edges dropped.
+- **Canonical base = Sprint 7F R3** (`family_aware_experimental_emphasis`, branch
+  dims 24/48/40/16), chosen by the highest **validation** AUPRC (`0.987522`; R2
+  `0.977541`, R1 `0.976594`) so the base selection never touches the test set.
+  Sprint 7F R2 is retained only as a carry-forward rare-negative reference row,
+  not as the base.
+- **Sprint 8A run matrix (exactly 5 canonical Graph C GATv2 runs):** R0 base
+  reference; R1 SENET-style learned family gate over the four target-context
+  family branches (115/6/78/13); R2 head-only FiLM interaction (context embedding
+  → γ,β → candidate `S5F2_energy` edge embedding) before classification; R3 gate
+  + FiLM; R4 regularized experimental-epigenetic branch (bottleneck +
+  feature-dropout). The **frozen GATv2 attention/message passing is unchanged** —
+  the interaction is applied in the classifier head only (GNN-FiLM/ECC cited as
+  principle, adapted head-only to preserve the contract). Interaction-MLP over
+  `[edge, context, edge*context]` is the predeclared fallback if FiLM
+  underperforms on validation; full bilinear is excluded (overfit risk at ~900
+  train negatives / single seed).
+- **Selection rule:** validation AUPRC primary, validation MCC/macro F1
+  tie-break; test metrics reported only; every predeclared run reported;
+  `parameter_count` reported next to performance as a capacity-confound control
+  (Sprint 7F family-aware already beat the larger unified-deep encoder with fewer
+  parameters). Optional axis-4 hyperparameter refinement is bounded, predeclared,
+  validation-only, and applied only to the single validation-AUPRC winner — the
+  sole sanctioned exception to the otherwise-frozen GATv2/training defaults.
+- **Sprint 8B** re-implements a CRISPR-Net-adapted Conv+BiLSTM sequence encoder
+  over the Sprint 2 `S1` sgRNA/target pair, trained **from scratch on the locked
+  split**. Externally-pretrained CRISPR/genomic weights (CRISPR-Net/DeepCRISPR
+  checkpoints; RNA-FM/DNABERT-2) must not be used as same-contract results
+  (leakage); any transfer experiment is a separately-labelled, approval-gated
+  slice. No reproduction claims (data/split/target/metric differ from the source
+  papers).
+
+Literature: a new axis `docs/literature/axes/axis_4_model_architecture_components/`
+was added with the design-justification papers (4A SENet; 4B FiLM, GNN-FiLM,
+FiBiNET; 4C Lengerich dropout-as-interaction-regularizer, Geirhos shortcut
+learning; 4D Schneider et al. overtuning, Kapoor & Narayanan leakage; 4E Brody
+GATv2 backbone, Dwivedi same-parameter-budget benchmarking), plus CRISPR-IP under
+`axis_1/1B`. All are cited as adaptations/precedents, never as reproductions.
+
+Outcome:
+
+- `CRISPR_GNN_PROJECT_PLAN.md` and `README.md` roadmaps updated: Sprint 8 =
+  model-improvement (8A/8B); Sprint 9 = robustness (optional/stretch). Robustness
+  deliverables move from `outputs/sprint8/` to `outputs/sprint9/`.
+- Sprint 8A outputs live under `outputs/sprint8a/`, Sprint 8B under
+  `outputs/sprint8b/`.
+- No label, split, dataset, loss, or evaluation-rule change — this is a
+  roadmap/scope decision plus predeclared architecture deltas under the existing
+  frozen contract.

@@ -20,6 +20,19 @@ axes:
         title: "3A. Epigenetigi entegre eden hesaplamali / ML makaleleri"
       - id: 3B_chromatin_epigenetics_cas9_biology
         title: "3B. Temel biyoloji - kromatin / epigenetik ve Cas9 aktivitesi"
+  - id: axis_4_model_architecture_components
+    title: "EKSEN 4 - Model mimari bilesenleri (Sprint 8 tasarim gerekçesi)"
+    sections:
+      - id: 4A_feature_fusion_gating
+        title: "4A. Ogrenilen ozellik fuzyonu / gating"
+      - id: 4B_feature_interaction_modulation
+        title: "4B. Ozellik etkilesimi / FiLM-tarzi modulasyon"
+      - id: 4C_regularization_robust_features
+        title: "4C. Regularizasyon ve kirilgan ozellik kullanimi"
+      - id: 4D_model_selection_practice
+        title: "4D. Model secimi / leakage-guvenli degerlendirme pratigi"
+      - id: 4E_graph_attention_backbones
+        title: "4E. Graf-attention backbone ve kapasite-kontrollu kiyas"
 
 papers:
   - id: 2017_kipf_classification_with_gcn
@@ -307,3 +320,208 @@ papers:
     metadata: docs/literature/axes/axis_3_epigenetics_crispr_activity/3B_chromatin_epigenetics_cas9_biology/2016_isaac_nucleosome_breathing_remodeling_crispr/metadata.yaml
     assets_dir: docs/literature/axes/axis_3_epigenetics_crispr_activity/3B_chromatin_epigenetics_cas9_biology/2016_isaac_nucleosome_breathing_remodeling_crispr/assets
     tags: [cas9, chromatin, nucleosome, remodeling]
+
+  - id: 2019_hu_squeeze_anmd_excitation_networks
+    title: "Squeeze-and-Excitation Networks"
+    year: 2019
+    authors:
+      - Jie Hu
+      - Li Shen
+      - Samuel Albanie
+      - Gang Sun
+      - Enhua Wu
+    axis: axis_4_model_architecture_components
+    section: 4A_feature_fusion_gating
+    project_role: feature_fusion_gating_reference
+    priority: useful
+    local_dir: docs/literature/axes/axis_4_model_architecture_components/4A_feature_fusion_gating/2019_hu_squeeze_anmd_excitation_networks
+    local_md: docs/literature/axes/axis_4_model_architecture_components/4A_feature_fusion_gating/2019_hu_squeeze_anmd_excitation_networks/paper.md
+    local_pdf: docs/literature/axes/axis_4_model_architecture_components/4A_feature_fusion_gating/2019_hu_squeeze_anmd_excitation_networks/original.pdf
+    metadata: docs/literature/axes/axis_4_model_architecture_components/4A_feature_fusion_gating/2019_hu_squeeze_anmd_excitation_networks/metadata.yaml
+    assets_dir: docs/literature/axes/axis_4_model_architecture_components/4A_feature_fusion_gating/2019_hu_squeeze_anmd_excitation_networks/assets
+    tags: [senet, gating, feature_recalibration, fusion]
+
+  - id: 2017_perez_FiLM
+    title: "FiLM: Visual Reasoning with a General Conditioning Layer"
+    year: 2017
+    authors:
+      - Ethan Perez
+      - Florian Strub
+      - Harm de Vries
+      - Vincent Dumoulin
+      - Aaron Courville
+    axis: axis_4_model_architecture_components
+    section: 4B_feature_interaction_modulation
+    project_role: feature_wise_modulation_reference
+    priority: must_read
+    local_dir: docs/literature/axes/axis_4_model_architecture_components/4B_feature_interaction_modulation/2017_perez_FiLM
+    local_md: docs/literature/axes/axis_4_model_architecture_components/4B_feature_interaction_modulation/2017_perez_FiLM/paper.md
+    local_pdf: docs/literature/axes/axis_4_model_architecture_components/4B_feature_interaction_modulation/2017_perez_FiLM/original.pdf
+    metadata: docs/literature/axes/axis_4_model_architecture_components/4B_feature_interaction_modulation/2017_perez_FiLM/metadata.yaml
+    assets_dir: docs/literature/axes/axis_4_model_architecture_components/4B_feature_interaction_modulation/2017_perez_FiLM/assets
+    tags: [film, conditioning, feature_wise_modulation]
+
+  - id: 2020_brockschmidt_gnn_FiLM
+    title: "GNN-FiLM: Graph Neural Networks with Feature-wise Linear Modulation"
+    year: 2020
+    authors:
+      - Marc Brockschmidt
+    axis: axis_4_model_architecture_components
+    section: 4B_feature_interaction_modulation
+    project_role: graph_feature_modulation_reference
+    priority: must_read
+    local_dir: docs/literature/axes/axis_4_model_architecture_components/4B_feature_interaction_modulation/2020_brockschmidt_gnn_FiLM
+    local_md: docs/literature/axes/axis_4_model_architecture_components/4B_feature_interaction_modulation/2020_brockschmidt_gnn_FiLM/paper.md
+    local_pdf: docs/literature/axes/axis_4_model_architecture_components/4B_feature_interaction_modulation/2020_brockschmidt_gnn_FiLM/original.pdf
+    metadata: docs/literature/axes/axis_4_model_architecture_components/4B_feature_interaction_modulation/2020_brockschmidt_gnn_FiLM/metadata.yaml
+    assets_dir: docs/literature/axes/axis_4_model_architecture_components/4B_feature_interaction_modulation/2020_brockschmidt_gnn_FiLM/assets
+    tags: [gnn, film, feature_modulation, graph]
+
+  - id: 2019_huang_FiBiNET
+    title: "FiBiNET: Combining Feature Importance and Bilinear Feature Interaction for Click-Through Rate Prediction"
+    year: 2019
+    authors:
+      - Tongwen Huang
+      - Zhiqi Zhang
+      - Junlin Zhang
+    axis: axis_4_model_architecture_components
+    section: 4B_feature_interaction_modulation
+    project_role: feature_importance_bilinear_interaction_reference
+    priority: useful
+    local_dir: docs/literature/axes/axis_4_model_architecture_components/4B_feature_interaction_modulation/2019_huang_FiBiNET
+    local_md: docs/literature/axes/axis_4_model_architecture_components/4B_feature_interaction_modulation/2019_huang_FiBiNET/paper.md
+    local_pdf: docs/literature/axes/axis_4_model_architecture_components/4B_feature_interaction_modulation/2019_huang_FiBiNET/original.pdf
+    metadata: docs/literature/axes/axis_4_model_architecture_components/4B_feature_interaction_modulation/2019_huang_FiBiNET/metadata.yaml
+    assets_dir: docs/literature/axes/axis_4_model_architecture_components/4B_feature_interaction_modulation/2019_huang_FiBiNET/assets
+    tags: [senet, bilinear, feature_interaction, ctr]
+
+  - id: 2021_lengerich_dropout
+    title: "Dropout as a Regularizer of Interaction Effects"
+    year: 2021
+    authors:
+      - Ben Lengerich
+      - Eric P. Xing
+      - Rich Caruana
+    axis: axis_4_model_architecture_components
+    section: 4C_regularization_robust_features
+    project_role: regularization_interaction_reference
+    priority: useful
+    local_dir: docs/literature/axes/axis_4_model_architecture_components/4C_regularization_robust_features/2021_lengerich_dropout
+    local_md: docs/literature/axes/axis_4_model_architecture_components/4C_regularization_robust_features/2021_lengerich_dropout/paper.md
+    local_pdf: docs/literature/axes/axis_4_model_architecture_components/4C_regularization_robust_features/2021_lengerich_dropout/original.pdf
+    metadata: docs/literature/axes/axis_4_model_architecture_components/4C_regularization_robust_features/2021_lengerich_dropout/metadata.yaml
+    assets_dir: docs/literature/axes/axis_4_model_architecture_components/4C_regularization_robust_features/2021_lengerich_dropout/assets
+    tags: [dropout, regularization, interaction_effects]
+
+  - id: 2023_geirhos_shorcut_learning_dnn
+    title: "Shortcut Learning in Deep Neural Networks"
+    year: 2023
+    authors:
+      - Robert Geirhos
+      - Jörn-Henrik Jacobsen
+      - Claudio Michaelis
+      - Richard Zemel
+      - Wieland Brendel
+      - Matthias Bethge
+      - Felix A. Wichmann
+    axis: axis_4_model_architecture_components
+    section: 4C_regularization_robust_features
+    project_role: shortcut_learning_robustness_reference
+    priority: useful
+    local_dir: docs/literature/axes/axis_4_model_architecture_components/4C_regularization_robust_features/2023_geirhos_shorcut_learning_dnn
+    local_md: docs/literature/axes/axis_4_model_architecture_components/4C_regularization_robust_features/2023_geirhos_shorcut_learning_dnn/paper.md
+    local_pdf: docs/literature/axes/axis_4_model_architecture_components/4C_regularization_robust_features/2023_geirhos_shorcut_learning_dnn/original.pdf
+    metadata: docs/literature/axes/axis_4_model_architecture_components/4C_regularization_robust_features/2023_geirhos_shorcut_learning_dnn/metadata.yaml
+    assets_dir: docs/literature/axes/axis_4_model_architecture_components/4C_regularization_robust_features/2023_geirhos_shorcut_learning_dnn/assets
+    tags: [shortcut_learning, robustness, generalization]
+
+  - id: 2025_schneider_overtuning
+    title: "Overtuning in Hyperparameter Optimization"
+    year: 2025
+    authors:
+      - Lennart Schneider
+      - Bernd Bischl
+      - Matthias Feurer
+    axis: axis_4_model_architecture_components
+    section: 4D_model_selection_practice
+    project_role: hpo_overfitting_reference
+    priority: useful
+    local_dir: docs/literature/axes/axis_4_model_architecture_components/4D_model_selection_practice/2025_schneider_overtuning
+    local_md: docs/literature/axes/axis_4_model_architecture_components/4D_model_selection_practice/2025_schneider_overtuning/paper.md
+    local_pdf: docs/literature/axes/axis_4_model_architecture_components/4D_model_selection_practice/2025_schneider_overtuning/original.pdf
+    metadata: docs/literature/axes/axis_4_model_architecture_components/4D_model_selection_practice/2025_schneider_overtuning/metadata.yaml
+    assets_dir: docs/literature/axes/axis_4_model_architecture_components/4D_model_selection_practice/2025_schneider_overtuning/assets
+    tags: [hyperparameter_optimization, overtuning, model_selection]
+
+  - id: 2023_kapoor_leakage
+    title: "Leakage and the Reproducibility Crisis in Machine-Learning-Based Science"
+    year: 2023
+    authors:
+      - Sayash Kapoor
+      - Arvind Narayanan
+    axis: axis_4_model_architecture_components
+    section: 4D_model_selection_practice
+    project_role: leakage_methodology_reference
+    priority: useful
+    local_dir: docs/literature/axes/axis_4_model_architecture_components/4D_model_selection_practice/2023_kapoor_leakage
+    local_md: docs/literature/axes/axis_4_model_architecture_components/4D_model_selection_practice/2023_kapoor_leakage/paper.md
+    local_pdf: docs/literature/axes/axis_4_model_architecture_components/4D_model_selection_practice/2023_kapoor_leakage/original.pdf
+    metadata: docs/literature/axes/axis_4_model_architecture_components/4D_model_selection_practice/2023_kapoor_leakage/metadata.yaml
+    assets_dir: docs/literature/axes/axis_4_model_architecture_components/4D_model_selection_practice/2023_kapoor_leakage/assets
+    tags: [data_leakage, reproducibility, evaluation]
+
+  - id: 2022_brody_gats
+    title: "How Attentive are Graph Attention Networks?"
+    year: 2022
+    authors:
+      - Shaked Brody
+      - Uri Alon
+      - Eran Yahav
+    axis: axis_4_model_architecture_components
+    section: 4E_graph_attention_backbones
+    project_role: gatv2_backbone_reference
+    priority: must_read
+    local_dir: docs/literature/axes/axis_4_model_architecture_components/4E_graph_attention_backbones/2022_brody_gats
+    local_md: docs/literature/axes/axis_4_model_architecture_components/4E_graph_attention_backbones/2022_brody_gats/paper.md
+    local_pdf: docs/literature/axes/axis_4_model_architecture_components/4E_graph_attention_backbones/2022_brody_gats/original.pdf
+    metadata: docs/literature/axes/axis_4_model_architecture_components/4E_graph_attention_backbones/2022_brody_gats/metadata.yaml
+    assets_dir: docs/literature/axes/axis_4_model_architecture_components/4E_graph_attention_backbones/2022_brody_gats/assets
+    tags: [gat, gatv2, attention, backbone]
+
+  - id: 2022_dwivedi_gnn_benchmark
+    title: "Benchmarking Graph Neural Networks"
+    year: 2022
+    authors:
+      - Vijay Prakash Dwivedi
+      - Chaitanya K. Joshi
+      - Anh Tuan Luu
+      - Thomas Laurent
+      - Yoshua Bengio
+      - Xavier Bresson
+    axis: axis_4_model_architecture_components
+    section: 4E_graph_attention_backbones
+    project_role: capacity_controlled_benchmark_reference
+    priority: useful
+    local_dir: docs/literature/axes/axis_4_model_architecture_components/4E_graph_attention_backbones/2022_dwivedi_gnn_benchmark
+    local_md: docs/literature/axes/axis_4_model_architecture_components/4E_graph_attention_backbones/2022_dwivedi_gnn_benchmark/paper.md
+    local_pdf: docs/literature/axes/axis_4_model_architecture_components/4E_graph_attention_backbones/2022_dwivedi_gnn_benchmark/original.pdf
+    metadata: docs/literature/axes/axis_4_model_architecture_components/4E_graph_attention_backbones/2022_dwivedi_gnn_benchmark/metadata.yaml
+    assets_dir: docs/literature/axes/axis_4_model_architecture_components/4E_graph_attention_backbones/2022_dwivedi_gnn_benchmark/assets
+    tags: [gnn, benchmarking, parameter_budget, fair_comparison]
+
+  - id: 2022_zhang_CRISPR-IP
+    title: "Effective use of sequence information to predict CRISPR-Cas9 off-target"
+    year: 2022
+    authors:
+      - Zhong-Rui Zhang
+      - Zhen-Ran Jiang
+    axis: axis_1_crispr_prediction_models
+    section: 1B_sequence_based_dl_baselines
+    project_role: sequence_pair_encoding_reference
+    priority: useful
+    local_dir: docs/literature/axes/axis_1_crispr_prediction_models/1B_sequence_based_dl_baselines/2022_zhang_CRISPR-IP
+    local_md: docs/literature/axes/axis_1_crispr_prediction_models/1B_sequence_based_dl_baselines/2022_zhang_CRISPR-IP/paper.md
+    local_pdf: docs/literature/axes/axis_1_crispr_prediction_models/1B_sequence_based_dl_baselines/2022_zhang_CRISPR-IP/original.pdf
+    metadata: docs/literature/axes/axis_1_crispr_prediction_models/1B_sequence_based_dl_baselines/2022_zhang_CRISPR-IP/metadata.yaml
+    assets_dir: docs/literature/axes/axis_1_crispr_prediction_models/1B_sequence_based_dl_baselines/2022_zhang_CRISPR-IP/assets
+    tags: [crispr, off_target, sequence_pair, encoding, attention]

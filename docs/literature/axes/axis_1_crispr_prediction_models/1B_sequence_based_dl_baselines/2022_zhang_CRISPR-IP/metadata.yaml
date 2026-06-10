@@ -1,0 +1,20 @@
+title: Effective use of sequence information to predict CRISPR-Cas9 off-target
+authors:
+- Zhong-Rui Zhang
+- Zhen-Ran Jiang
+abstract: The CRISPR/Cas9 gene-editing system is the third-generation gene-editing
+  technology that has been widely used in biomedical applications. However, off-target
+  effects occurring CRISPR/Cas9 system has been a challenging problem it faces in
+  practical applications. Although many predictive models have been developed to predict
+  off-target activities, current models do not effectively use sequence pair information.
+  There is still room for improved accuracy. This study aims to effectively use sequence
+  pair information to improve the model's performance for predicting off-target activities.
+  We propose a new coding scheme for coding sequence pairs and design a new model
+  called CRISPR-IP for predicting off-target activity.
+keywords:
+- CRISPR-Cas9
+- Off-target prediction
+- Deep learning
+- Encoding scheme
+journal: Computational and Structural Biotechnology Journal
+year: 2022

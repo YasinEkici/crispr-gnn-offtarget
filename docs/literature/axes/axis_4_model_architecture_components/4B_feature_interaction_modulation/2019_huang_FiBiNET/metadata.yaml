@@ -1,0 +1,20 @@
+title: 'FiBiNET: Combining Feature Importance and Bilinear feature Interaction for
+  Click-Through Rate Prediction'
+authors:
+- Tongwen Huang
+- Zhiqi Zhang
+- Junlin Zhang
+abstract: Advertising and feed ranking are essential to many Internet companies such
+  as Facebook and Sina Weibo. Among many real-world advertising and feed ranking systems,
+  click through rate (CTR) prediction plays a central role... The deep FiBiNET consistently
+  outperforms the other state-of-the-art deep models such as DeepFM and extreme deep
+  factorization machine(XdeepFM).
+keywords:
+- Display Advertising
+- CTR Prediction
+- Factorization Machines
+- Squeeze-Excitation network
+- Neural Network
+- Bilinear Function
+journal: ''
+year: 2019

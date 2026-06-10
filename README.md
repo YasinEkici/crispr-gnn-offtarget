@@ -15,7 +15,8 @@ The primary dataset is the Mak et al. 2022 crisprSQL-derived epigenetic/nucleoso
 | Sprint 5 | Graph A feature-family ablation + Graph C energy sensitivity | ✅ Complete |
 | Sprint 6 | Imbalance, threshold, and loss comparison | ✅ Complete (Slices 0–4; Slice 5 optional) |
 | Sprint 7 | GAT/GATv2 architecture, Graph C mechanism ablations, target-context encoder | ✅ Complete |
-| Sprint 8 | Robustness — bootstrap CIs + multi-seed variance | ⏳ Optional / stretch |
+| Sprint 8 | Model improvement — target-context + context-edge interaction (8A), CRISPR-Net-adapted sequence context (8B) | 🟡 Planned |
+| Sprint 9 | Robustness — guide-level bootstrap CIs, paired-difference, multi-seed variance | ⏳ Optional / stretch |
 
 ## Current Results
 

@@ -737,7 +737,7 @@ Tasks:
 - Implement GATConv model; GATv2Conv if feasible.
 - Use same splits, same features, same graph schemas.
 - Compare GCN vs GAT vs GATv2.
-- Run the headline GCN-vs-GAT(-vs-GATv2) comparison with a predeclared multi-seed set on the fixed split `sprint2_main_seed42` (report mean ± std; never select the best seed), so the architecture conclusion is not single-seed fragile. This is the inline multi-seed step; the optional Sprint 8 robustness layer consolidates it and adds bootstrap/paired-difference CIs.
+- Run the headline GCN-vs-GAT(-vs-GATv2) comparison with a predeclared multi-seed set on the fixed split `sprint2_main_seed42` (report mean ± std; never select the best seed), so the architecture conclusion is not single-seed fragile. This is the inline multi-seed step; the optional Sprint 9 robustness layer consolidates it and adds bootstrap/paired-difference CIs.
 - Analyze attention weights if available, treating them as model interpretation signals rather than biological causal evidence.
 
 Deliverables:
@@ -754,18 +754,53 @@ outputs/sprint7/figures/attention_weight_summary.png
 
 ---
 
-### Sprint 8 (Optional / Stretch): Robustness — Uncertainty and Variance Quantification
+### Sprint 8: Model Improvement — Target-Context, Context-Edge Interaction, and Sequence Context
+
+Goal: improve the best Sprint 7F Graph C GATv2 family-aware target-context model
+using the Sprint 7D/7E/7F mechanism evidence, while preserving the frozen
+evaluation contract. Sprint 8 is a small, predeclared, mechanism-driven
+model-improvement sprint — not a broad sweep. It is split in two:
+
+- **Sprint 8A — target-context + context-edge interaction** (core). Base = Sprint
+  7F R3 (`family_aware_experimental_emphasis`, selected by validation AUPRC
+  0.987522). Five predeclared canonical Graph C GATv2 runs: R0 base reference,
+  R1 SENET-style learned family gate, R2 head-only FiLM interaction between the
+  target-context embedding and the candidate `S5F2_energy` edge features, R3
+  gate + FiLM, R4 regularized experimental-epigenetic branch (bottleneck +
+  feature-dropout). The frozen GATv2 attention/message passing is unchanged; the
+  interaction is head-only. Optional bounded validation-only HP refinement on the
+  single validation winner. Plan: `docs/exec-plans/active/008-sprint8a-target-context-interaction.md`.
+- **Sprint 8B — sequence-context encoder** (companion, after 8A). A CRISPR-Net-
+  adapted Conv+BiLSTM encoder over the Sprint 2 `S1` sgRNA/target pair,
+  re-implemented in `src/` and trained from scratch on the locked split (no
+  externally-pretrained CRISPR/genomic weights as a same-contract result; no
+  reproduction claims). Plan: `docs/exec-plans/active/008b-sprint8b-sequence-context-encoder.md`.
+
+Selection rule for both: validation AUPRC primary, validation MCC/macro F1
+tie-break; test metrics reported only; every predeclared run reported; parameter
+counts reported next to performance (capacity-confound control). Literature is in
+`docs/literature/axes/axis_4_model_architecture_components/` (SENet, FiLM,
+GNN-FiLM, FiBiNET, Lengerich, Geirhos, Overtuning, Kapoor, Dwivedi, GATv2) and
+`.../1B_sequence_based_dl_baselines/` (CRISPR-IP, CRISPR-Net, DeepCRISPR);
+architectures are cited as adaptations, not reproductions.
+
+Robustness (multi-seed, guide-level bootstrap CIs, paired-difference) is **not**
+part of Sprint 8; it is re-scoped to Sprint 9 below.
+
+---
+
+### Sprint 9 (Optional / Stretch): Robustness — Uncertainty and Variance Quantification
 
 Goal: quantify and honestly report the uncertainty/variance behind the model
 results (single fixed split + single training seed) without changing any frozen
 conclusion. Interpretation-only; no test-driven tuning. This sprint is optional
-and does not block Sprint 7. It consolidates the robustness methodology
+and does not block Sprint 7 or Sprint 8. It consolidates the robustness methodology
 prototyped at the end of Sprint 6 (`scripts/compute_sprint6_bootstrap_ci.py`).
 
 Tasks:
 
 - Guide-level (cluster) bootstrap confidence intervals for all reported model
-  results (Sprints 4, 5, 5B, 6, and 7 once available), recomputed from saved
+  results (Sprints 4, 5, 5B, 6, 7, and 8 once available), recomputed from saved
   per-row predictions — no retraining. Resample guides (clusters), not rows,
   because rows within a guide are correlated. AUPRC is primary; AUROC/MCC/
   specificity use each model's frozen validation-selected threshold. Prefer BCa
@@ -788,10 +823,10 @@ Tasks:
 Deliverables:
 
 ```text
-outputs/sprint8/robustness_report.md
-outputs/sprint8/robustness_bootstrap_cis.csv
-outputs/sprint8/robustness_paired_differences.csv
-outputs/sprint8/figures/robustness_auprc_cis.png
+outputs/sprint9/robustness_report.md
+outputs/sprint9/robustness_bootstrap_cis.csv
+outputs/sprint9/robustness_paired_differences.csv
+outputs/sprint9/figures/robustness_auprc_cis.png
 ```
 
 Notes:
@@ -904,7 +939,7 @@ outputs/stretch_graphsage/graphsage_ablation.csv
 - Heterogeneous GNN / R-GCN / HGT.
 - GraphSAGE quick ablation.
 - Full systematic imbalance study.
-- Robustness / uncertainty quantification (Sprint 8): guide-level bootstrap CIs, paired-difference model comparisons, and multi-seed variance for headline configs.
+- Robustness / uncertainty quantification (Sprint 9): guide-level bootstrap CIs, paired-difference model comparisons, and multi-seed variance for headline configs.
 - sgRNA secondary-structure features inspired by Graph-CRISPR.
 
 ---
@@ -923,6 +958,8 @@ Sprint 4: GCN baseline
 Sprint 5: epigenetic ablation (main novelty)
 Sprint 6: minimal imbalance comparison
 Sprint 7: GAT/GATv2
+Sprint 8: model improvement (8A target-context + interaction, 8B sequence context)
+Sprint 9: robustness (bootstrap CIs, paired-difference, multi-seed) — optional
 Stretch: CRISPRoffT / HeteroGNN / GraphSAGE
 ```
 
