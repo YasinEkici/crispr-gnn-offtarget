@@ -561,7 +561,7 @@ Tests in `tests/test_sprint8a_target_context_interaction.py` (6) plus Sprint 7F/
 7E regression (15) pass; ruff + `git diff --check` clean. No `gat.py` /
 `training/gcn.py` / config / runner change (Slices 2–3). No tech debt added.
 
-### Slice 2 - Context-edge interaction head (`gat.py`)
+### Slice 2 - Context-edge interaction head (`gat.py`) — Status: COMPLETE (2026-06-10)
 
 Add the new Graph-C-specific FiLM head and the interaction-MLP fallback (§6.2)
 inside `GraphCEdgeGATv2`, plus γ/β and interaction audit hooks. Leave the shared
@@ -572,6 +572,21 @@ path within tolerance) and FiLM/MLP shape tests.
 
 Exit: model tests pass (incl. frozen-message-passing assertion); no canonical
 training.
+
+Done: added `ContextEdgeInteractionHead` (film/mlp, `edge_input_dim → d_e`
+embed; FiLM `γ⊙edge + β` from the post-GATv2 target embedding, or
+`[edge, ctx, edge*proj(ctx)] → MLP`); `GraphCEdgeGATv2` gained
+`context_edge_interaction` (`none|film|mlp`, default `none`) + `interaction_edge_dim`
+(default 64), a Graph-C-specific `_classify_with_interaction` path (classifier
+input `hidden*4 + d_e`), and a read-only `context_edge_interaction_summary` audit
+(γ/β + interaction L2 + candidate-S5F2 abs-sum). Interaction modules are built only
+when enabled, so the `none` parameter set / state_dict equals the Sprint 7F path.
+Shared helpers, `_apply_attention_layers`, `graph_c_attention_edge_tensors`, the
+GATv2 conv stack, and Graph A/B classes are untouched. Tests (8 new) cover
+none==base, the frozen-message-passing assertion (attention α identical with the
+head swapped), FiLM/MLP shapes + summaries, and validation errors; regression green
+across 7F/7B/7D/7E + GCN smoke; ruff + `git diff --check` clean. No
+`training/gcn.py` / config change (Slice 3). No tech debt added.
 
 ### Slice 3 - Trainer/config dispatch (`training/gcn.py`)
 
