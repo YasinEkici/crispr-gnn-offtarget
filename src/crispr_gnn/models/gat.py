@@ -390,6 +390,10 @@ class GraphCEdgeGATv2(nn.Module):
         target_context_feature_names: Sequence[str] | None = None,
         context_edge_interaction: str = CONTEXT_EDGE_INTERACTION_NONE,
         interaction_edge_dim: int = 64,
+        family_gate: bool = False,
+        gate_reduction: int = 4,
+        experimental_branch_bottleneck: int | None = None,
+        experimental_branch_feature_dropout: float = 0.0,
     ) -> None:
         super().__init__()
         _validate_attention_init(
@@ -423,12 +427,23 @@ class GraphCEdgeGATv2(nn.Module):
             if max(self.target_observation_mask_indices) >= target_observation_input_dim:
                 raise ValueError("target_observation_mask_indices exceed target_observation_input_dim")
         self.sgrna_encoder = nn.Sequential(nn.Linear(sgrna_input_dim, hidden_dim), nn.ReLU())
+        # Sprint 8A target-context encoder deltas (default OFF reproduces Sprint 7F).
+        self.family_gate = bool(family_gate)
+        self.gate_reduction = int(gate_reduction)
+        self.experimental_branch_bottleneck = (
+            int(experimental_branch_bottleneck) if experimental_branch_bottleneck is not None else None
+        )
+        self.experimental_branch_feature_dropout = float(experimental_branch_feature_dropout)
         self.target_observation_encoder = build_target_context_encoder(
             encoder_type=self.target_context_encoder_type,
             input_dim=target_observation_input_dim,
             hidden_dim=hidden_dim,
             dropout=dropout,
             feature_names=self.target_context_feature_names or None,
+            family_gate=self.family_gate,
+            gate_reduction=self.gate_reduction,
+            experimental_branch_bottleneck=self.experimental_branch_bottleneck,
+            experimental_branch_feature_dropout=self.experimental_branch_feature_dropout,
         )
         self.dropout = nn.Dropout(dropout)
         self.convs, self.norms = _gatv2_layers(

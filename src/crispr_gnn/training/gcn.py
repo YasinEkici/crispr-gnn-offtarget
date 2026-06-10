@@ -77,6 +77,12 @@ class GCNRunConfig:
     mask_target_observation_features: bool = False
     target_observation_mask_families: tuple[str, ...] = ()
     target_context_encoder_type: str = UNIFIED_SHALLOW_CONTEXT_ENCODER
+    family_gate: bool = False
+    gate_reduction: int = 4
+    experimental_branch_bottleneck: int | None = None
+    experimental_branch_feature_dropout: float = 0.0
+    context_edge_interaction: str = "none"
+    interaction_edge_dim: int = 64
     loss: str = "weighted_bce"
     clip_grad_norm: float = 1.0
     scheduler: str = "reduce_on_plateau"
@@ -158,6 +164,13 @@ def gcn_run_config_from_mapping(config: Mapping[str, Any]) -> GCNRunConfig:
         target_context_encoder = {}
     if not isinstance(target_context_encoder, Mapping):
         raise ValueError("model.target_context_encoder must be a mapping when provided")
+    experimental_branch = target_context_encoder.get("experimental_branch", {})
+    if experimental_branch is None:
+        experimental_branch = {}
+    if not isinstance(experimental_branch, Mapping):
+        raise ValueError("model.target_context_encoder.experimental_branch must be a mapping when provided")
+    experimental_branch_bottleneck = experimental_branch.get("bottleneck")
+    context_edge_interaction = str(model.get("context_edge_interaction", "none")).lower()
     loss = str(training.get("loss", "weighted_bce"))
     if loss.lower() not in SUPPORTED_LOSSES:
         raise ValueError(
@@ -217,6 +230,14 @@ def gcn_run_config_from_mapping(config: Mapping[str, Any]) -> GCNRunConfig:
             )
         ),
         target_context_encoder_type=str(target_context_encoder.get("type", UNIFIED_SHALLOW_CONTEXT_ENCODER)),
+        family_gate=bool(target_context_encoder.get("family_gate", False)),
+        gate_reduction=int(target_context_encoder.get("gate_reduction", 4)),
+        experimental_branch_bottleneck=(
+            int(experimental_branch_bottleneck) if experimental_branch_bottleneck is not None else None
+        ),
+        experimental_branch_feature_dropout=float(experimental_branch.get("feature_dropout", 0.0)),
+        context_edge_interaction=context_edge_interaction,
+        interaction_edge_dim=int(model.get("interaction_edge_dim", 64)),
         loss=loss,
         clip_grad_norm=float(training.get("clip_grad_norm", 1.0)),
         scheduler=scheduler,
@@ -332,6 +353,43 @@ def collect_target_context_encoder_summary(
     frame.insert(1, "architecture", config.architecture)
     frame.insert(2, "graph_schema", config.graph_schema)
     frame.insert(3, "split", split)
+    return frame
+
+
+def collect_context_edge_interaction_summary(
+    materialized: MaterializedGraph,
+    config: GCNRunConfig,
+    *,
+    checkpoint_path: Path,
+    split: str = "test",
+) -> pd.DataFrame:
+    """Summarize Graph C GATv2 context-edge interaction (FiLM/MLP) for interpretation-only artifacts.
+
+    Returns an empty frame when the interaction is disabled (``context_edge_interaction='none'``).
+    """
+    if config.graph_schema != GRAPH_C or config.architecture != "gatv2":
+        raise ValueError("Context-edge interaction summaries require Graph C GATv2 runs")
+    if config.context_edge_interaction == "none":
+        return pd.DataFrame()
+    if materialized.graph_name != config.graph_schema:
+        raise ValueError("Context-edge interaction summary materialized graph/config schema mismatch")
+    if not checkpoint_path.exists():
+        raise FileNotFoundError(f"Checkpoint not found for context-edge interaction summary: {checkpoint_path}")
+    device = torch.device(config.device)
+    edge_feature_attrs = _edge_feature_attrs(config)
+    view = materialized.view(split).to(device)
+    model, _edge_dim = _build_model(view, config, edge_feature_attrs)
+    state = torch.load(checkpoint_path, map_location=device, weights_only=True)
+    model.load_state_dict(_normalize_checkpoint_state_dict(state))
+    model = model.to(device)
+    model.eval()
+    rows = model.context_edge_interaction_summary(view, edge_feature_attrs=edge_feature_attrs, split=split)
+    frame = pd.DataFrame(rows)
+    if frame.empty:
+        return frame
+    frame.insert(0, "model_name", config.model_name)
+    frame.insert(1, "architecture", config.architecture)
+    frame.insert(2, "graph_schema", config.graph_schema)
     return frame
 
 
@@ -588,6 +646,33 @@ def _result_row(
             if config.graph_schema == GRAPH_C and config.architecture == "gatv2"
             else None
         ),
+        "family_gate": (
+            bool(config.family_gate)
+            if config.graph_schema == GRAPH_C and config.architecture == "gatv2"
+            else None
+        ),
+        "experimental_branch_bottleneck": (
+            config.experimental_branch_bottleneck
+            if config.graph_schema == GRAPH_C and config.architecture == "gatv2"
+            else None
+        ),
+        "experimental_branch_feature_dropout": (
+            float(config.experimental_branch_feature_dropout)
+            if config.graph_schema == GRAPH_C and config.architecture == "gatv2"
+            else None
+        ),
+        "context_edge_interaction": (
+            config.context_edge_interaction
+            if config.graph_schema == GRAPH_C and config.architecture == "gatv2"
+            else None
+        ),
+        "interaction_edge_dim": (
+            int(config.interaction_edge_dim)
+            if config.graph_schema == GRAPH_C
+            and config.architecture == "gatv2"
+            and config.context_edge_interaction != "none"
+            else None
+        ),
         "parameter_count": int(parameter_count),
         "baseline_reference": BASELINE_REFERENCE,
         "baseline_test_auprc": BASELINE_TEST_AUPRC,
@@ -810,6 +895,12 @@ def _build_model(
                     target_observation_mask_indices=target_mask_indices,
                     target_context_encoder_type=config.target_context_encoder_type,
                     target_context_feature_names=target_feature_names,
+                    family_gate=config.family_gate,
+                    gate_reduction=config.gate_reduction,
+                    experimental_branch_bottleneck=config.experimental_branch_bottleneck,
+                    experimental_branch_feature_dropout=config.experimental_branch_feature_dropout,
+                    context_edge_interaction=config.context_edge_interaction,
+                    interaction_edge_dim=config.interaction_edge_dim,
                 ),
                 edge_dim,
             )

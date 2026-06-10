@@ -588,7 +588,7 @@ head swapped), FiLM/MLP shapes + summaries, and validation errors; regression gr
 across 7F/7B/7D/7E + GCN smoke; ruff + `git diff --check` clean. No
 `training/gcn.py` / config change (Slice 3). No tech debt added.
 
-### Slice 3 - Trainer/config dispatch (`training/gcn.py`)
+### Slice 3 - Trainer/config dispatch (`training/gcn.py`) — Status: COMPLETE (2026-06-10)
 
 Extend `GCNRunConfig`, `gcn_run_config_from_mapping`, and `_build_model` to pass
 the new flags to `GraphCEdgeGATv2`. No change to the training loop, loss,
@@ -597,7 +597,23 @@ still pass and a tiny CPU smoke can build/forward R0–R4.
 
 Exit: dispatch tests pass; Sprint 4–7F GCN/GATv2 regression tests stay green.
 
-### Slice 4 - Runner, config, reporting, diagnostics, figures
+Done: `GCNRunConfig` gained the six §17.5 fields (`family_gate`, `gate_reduction`,
+`experimental_branch_bottleneck`, `experimental_branch_feature_dropout`,
+`context_edge_interaction`, `interaction_edge_dim`); `gcn_run_config_from_mapping`
+reads them (incl. nested `model.target_context_encoder.experimental_branch`);
+`_build_model` passes them to the Graph C GATv2 branch; `_result_row` records the
+run-distinguishing flags as provenance (Graph C GATv2 only); new
+`collect_context_edge_interaction_summary` mirrors
+`collect_target_context_encoder_summary` (empty for `none`). Filled a §17.7
+plumbing gap: `GraphCEdgeGATv2` now accepts the four encoder-flag params and
+forwards them to `build_target_context_encoder` (Slice 2 had wired only the
+interaction params), so config can actually activate the family gate /
+regularized branch. Defaults reproduce the Sprint 7F R3 path (all flags OFF).
+Tests (7 new dispatch tests) plus 7F/7B/7D/7E + GCN training smoke regression
+pass; ruff + `git diff --check` clean. No config yaml / runner / notebook change
+(Slice 4). No tech debt added.
+
+### Slice 4 - Runner, config, reporting, diagnostics, figures - Status: COMPLETE (2026-06-10)
 
 Add `configs/sweeps/sprint8a_target_context_interaction.yaml` (5 runs + new keys),
 `scripts/run_sprint8a_target_context_interaction.py` (mirror the 7F runner;
@@ -606,6 +622,20 @@ figures, manifest, provenance, and an output-contract test (monkeypatched
 training, as 7F).
 
 Exit: mocked/smoke outputs satisfy the §10 contract; no headline claim.
+
+Done: added the Sprint 8A sweep config with the exact R0-R4 canonical matrix plus
+seven carry-forward references; added `scripts/run_sprint8a_target_context_interaction.py`
+mirroring the 7F runner and writing the §10 comparison/report/manifest/provenance,
+diagnostics, figures, and per-run artifacts; added a monkeypatched runner
+output-contract test in `tests/test_sprint8a_runner.py`. The runner now rejects
+run-matrix drift against §17.6, and the test asserts every headline run's per-run
+files plus the exact gate/FiLM/experimental-branch flags in both comparison CSV
+and manifest. Validation passed:
+`uv run pytest tests/test_sprint8a_target_context_interaction.py tests/test_sprint8a_runner.py -q`;
+`uv run pytest tests/test_sprint7f_target_context_encoder.py tests/test_sprint7b_gatv2_model.py tests/test_sprint7b_gatv2_runner.py tests/test_sprint7d_gatv2_mechanism_runner.py tests/test_sprint7e_target_context_features.py tests/test_gcn_training_smoke.py -q`;
+`uv run ruff check src/crispr_gnn/models/gat.py src/crispr_gnn/models/target_context_encoder.py src/crispr_gnn/training/gcn.py scripts/run_sprint8a_target_context_interaction.py tests/test_sprint8a_target_context_interaction.py tests/test_sprint8a_runner.py`;
+`git diff --check` (clean except existing CRLF normalization warnings). No Colab
+notebook or real training was added; no headline claim; no tech debt added.
 
 ### Slice 5 - Colab runner preparation
 

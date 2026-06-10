@@ -19,6 +19,11 @@ from crispr_gnn.models.gat import (
     GraphCEdgeGATv2,
 )
 from crispr_gnn.models.gcn import GRAPH_C_CONTEXT_EDGE_TYPE, GRAPH_C_EDGE_TYPE
+from crispr_gnn.training.gcn import (
+    _build_model,
+    collect_context_edge_interaction_summary,
+    gcn_run_config_from_mapping,
+)
 from crispr_gnn.models.target_context_encoder import (
     EXPERIMENTAL_EMPHASIS_BRANCH_DIMS,
     FAMILY_AWARE_EXPERIMENTAL_EMPHASIS_CONTEXT_ENCODER,
@@ -275,3 +280,127 @@ def test_context_edge_interaction_head_film_params_shape() -> None:
     gamma, beta = head.film_params(context)
     assert gamma.shape == (4, 8) and beta.shape == (4, 8)
     assert head(edge, context).shape == (4, 8)
+
+
+# --- Slice 3: config dispatch (training/gcn.py) ---
+
+
+def _graph_c_config(
+    *,
+    encoder: dict | None = None,
+    context_edge_interaction: str = "none",
+    interaction_edge_dim: int = 64,
+) -> dict:
+    target_context_encoder = {"type": FAMILY_AWARE_EXPERIMENTAL_EMPHASIS_CONTEXT_ENCODER}
+    if encoder:
+        target_context_encoder.update(encoder)
+    model = {
+        "name": "gatv2_graph_c_sprint8a",
+        "architecture": "gatv2",
+        "hidden_dim": 128,
+        "num_layers": 2,
+        "dropout": 0.2,
+        "target_node_representation": "target_observation_context_encoder",
+        "attention": {
+            "heads": 4,
+            "concat": True,
+            "dropout": 0.2,
+            "edge_aware": True,
+            "drop_context_similarity_edges": True,
+        },
+        "target_context_encoder": target_context_encoder,
+        "context_edge_interaction": context_edge_interaction,
+        "interaction_edge_dim": interaction_edge_dim,
+    }
+    return {
+        "sprint": "sprint8a",
+        "seed": 42,
+        "data": {"split_id": "sprint2_main_seed42", "label_scheme": "scheme_a"},
+        "graph": {"schema": "graph_c_context_observation", "visibility_policy": "strict_inductive_primary"},
+        "features": {"edge_feature_sets": ["s5f2_energy"], "feature_set": "S5F2_energy"},
+        "model": model,
+        "training": {"loss": "weighted_bce"},
+    }
+
+
+def test_config_maps_sprint8a_keys() -> None:
+    parsed = gcn_run_config_from_mapping(
+        _graph_c_config(
+            encoder={
+                "family_gate": True,
+                "gate_reduction": 4,
+                "experimental_branch": {"bottleneck": 4, "feature_dropout": 0.3},
+            },
+            context_edge_interaction="film",
+            interaction_edge_dim=64,
+        )
+    )
+    assert parsed.family_gate is True
+    assert parsed.gate_reduction == 4
+    assert parsed.experimental_branch_bottleneck == 4
+    assert parsed.experimental_branch_feature_dropout == pytest.approx(0.3)
+    assert parsed.context_edge_interaction == "film"
+    assert parsed.interaction_edge_dim == 64
+
+
+def test_config_defaults_reproduce_base_off() -> None:
+    parsed = gcn_run_config_from_mapping(_graph_c_config())
+    assert parsed.family_gate is False
+    assert parsed.gate_reduction == 4
+    assert parsed.experimental_branch_bottleneck is None
+    assert parsed.experimental_branch_feature_dropout == 0.0
+    assert parsed.context_edge_interaction == "none"
+    assert parsed.interaction_edge_dim == 64
+
+
+def test_build_model_activates_gate_and_interaction() -> None:
+    view = _fake_graph_c_view()
+    config = gcn_run_config_from_mapping(
+        _graph_c_config(encoder={"family_gate": True}, context_edge_interaction="film")
+    )
+    model, _ = _build_model(view, config, EDGE_ATTRS)
+    assert isinstance(model, GraphCEdgeGATv2)
+    assert model.family_gate is True
+    assert model.target_observation_encoder.gate is not None  # family gate wired through to the encoder
+    assert model.context_edge_interaction == "film"
+    assert model.context_edge_interaction_head is not None
+
+
+def test_build_model_defaults_reproduce_base() -> None:
+    view = _fake_graph_c_view()
+    config = gcn_run_config_from_mapping(_graph_c_config())
+    model, _ = _build_model(view, config, EDGE_ATTRS)
+    assert model.context_edge_interaction == "none"
+    assert model.context_edge_interaction_head is None
+    assert model.target_observation_encoder.gate is None
+
+
+def test_collect_context_edge_interaction_summary_empty_for_none() -> None:
+    config = gcn_run_config_from_mapping(_graph_c_config())
+
+    class _FakeMat:
+        graph_name = "graph_c_context_observation"
+
+    frame = collect_context_edge_interaction_summary(
+        _FakeMat(), config, checkpoint_path=Path("does_not_exist.pt")
+    )
+    assert frame.empty
+
+
+def test_collect_context_edge_interaction_summary_film(tmp_path) -> None:
+    view = _fake_graph_c_view()
+    config = gcn_run_config_from_mapping(_graph_c_config(context_edge_interaction="film"))
+    model, _ = _build_model(view, config, EDGE_ATTRS)
+    checkpoint = tmp_path / "model.pt"
+    torch.save(model.state_dict(), checkpoint)
+
+    class _FakeMat:
+        graph_name = "graph_c_context_observation"
+
+        def view(self, _split: str) -> HeteroData:
+            return _fake_graph_c_view()
+
+    frame = collect_context_edge_interaction_summary(_FakeMat(), config, checkpoint_path=checkpoint, split="test")
+    assert not frame.empty
+    assert frame.iloc[0]["context_edge_interaction"] == "film"
+    assert {"model_name", "architecture", "graph_schema", "film_gamma_mean"}.issubset(frame.columns)
