@@ -637,13 +637,42 @@ and manifest. Validation passed:
 `git diff --check` (clean except existing CRLF normalization warnings). No Colab
 notebook or real training was added; no headline claim; no tech debt added.
 
-### Slice 5 - Colab runner preparation
+### Slice 5 - Colab runner preparation — Status: COMPLETE (2026-06-10)
 
 Add `colab/sprint8a_target_context_interaction_runner.ipynb` (runner-only) and the
 documented command path. Validate Drive artifact copy-in/out and returned-output
 checks.
 
 Exit: notebook contract checks pass; no full GPU claim yet.
+
+Done: added `colab/sprint8a_target_context_interaction_runner.ipynb` following the
+established Sprint 7D/7F Colab runner pattern. The notebook is runner-only (no
+model, training, encoder, interaction, or metric logic) and contains 8 steps:
+(1) mount Google Drive; (2) clone/update repo from configurable `GIT_REF`;
+(3) `pip install uv` + `uv sync` + torch/PyG runtime check; (4) rsync raw +
+processed data from Drive with Sprint 3 Graph C artifact validation;
+(5) build-or-validate Sprint 5B Graph C S5F2 artifact (268-col + 212-col
+target_observation check); (6) call the existing runner
+`scripts/run_sprint8a_target_context_interaction.py --config configs/sweeps/sprint8a_target_context_interaction.yaml --run-id <batch>`;
+(6b) optional smoke/debug cell with `--max-epochs 2 --run S8A_R0_base_reference`,
+clearly labelled debug-only; (7) rsync outputs to Drive
+`returned_outputs/<batch>/`, excluding `model.pt` and `.DS_Store`;
+(8) validate the §10 output contract — consolidated CSV/report/manifest/
+provenance, diagnostics (threshold/deltas/history/predictions/score-deciles/
+per-guide/attention/audit/gate/film/params), figures (AUPRC, threshold, PR/ROC,
+score distributions, training curves, gate weights, parameter counts), every
+canonical run's per-run artifacts, returned Drive-copy files, and checkpoint
+exclusion from returned outputs; plus Python manifest-ID validation (all 5
+canonical R0–R4 + 7 reference IDs present), audit checks
+(context_edges_used == 0, S5F2 attention + classifier abs_sum > 0). No model or
+metric code was added to the notebook.
+No full training was run. No headline claim was made. No tech debt added.
+Validation:
+`uv run pytest tests/test_sprint8a_target_context_interaction.py tests/test_sprint8a_runner.py -q` (20 passed, unchanged);
+`uv run python -m json.tool colab/sprint8a_target_context_interaction_runner.ipynb` (valid JSON);
+`uv run ruff check colab/sprint8a_target_context_interaction_runner.ipynb` (passed);
+`git diff --check` (clean except existing CRLF normalization warnings).
+
 
 ### Slice 6 - Full canonical run and local validation
 
