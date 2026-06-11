@@ -215,7 +215,7 @@ architecture pinned (§15.4); frozen-context assertion redefined as a wiring
 isolation test. No code/config/test added; no training; no Sprint 8A result
 changed. `DECISIONS.md` records the freeze.
 
-### Slice 1 - Sequence-context encoder (`sequence_context_encoder.py`)
+### Slice 1 - Sequence-context encoder (`sequence_context_encoder.py`) — Status: COMPLETE (2026-06-11)
 
 Implement the CRISPR-Net-adapted Conv + BiLSTM encoder over the Sprint 2 `S1`
 pair input, from scratch, documenting the adaptation (data/split/target/metric
@@ -224,6 +224,18 @@ differ from CRISPR-Net/CRISPR-IP). Add tests: forward + `S1` channel layout
 leakage into the sequence branch**.
 
 Exit: encoder unit tests pass; no training.
+
+Done: added `src/crispr_gnn/models/sequence_context_encoder.py` —
+`build_s1_pair_from_onehot` / `build_s1_pair_for_edges` reconstruct the 23×11 `S1`
+tensor from the frozen Graph C guide/target one-hot node features (decision (a), no
+raw join); `resolve_s1_onehot_indices` + `sequence_input_audit` enforce
+sequence-only provenance (raise on incomplete one-hot or non-sequence columns);
+`SequenceContextEncoder` is a 1D-Conv + BiLSTM → mean-pool → `seq_embed` (§15.4).
+The §15.2 channel-order verification is satisfied by a test that reproduces the
+Sprint 2 `build_sequence_pair_encoding` output **byte-exact** (channels + mismatch).
+Tests in `tests/test_sprint8b_sequence_context.py` (7) pass; 8A/7F regression green;
+ruff + `git diff --check` clean. No `gat.py` / `training/gcn.py` / config / runner /
+colab change (Slices 2–4). No training. No reproduction claim. No tech debt added.
 
 ### Slice 2 - Integration and dispatch
 
