@@ -986,3 +986,50 @@ Outcome:
 - No label, split, dataset, loss, or evaluation-rule change — this is a
   roadmap/scope decision plus predeclared architecture deltas under the existing
   frozen contract.
+
+## 2026-06-11 - Sprint 8A selects R2 by validation AUPRC; defer superiority to Sprint 9
+
+Decision: close Sprint 8A Slice 6 with `S8A_R2_context_edge_film` as the
+validation-selected canonical candidate, skip Slice 7 hyperparameter refinement
+unless a separate preapproved methodological reason is added, and defer any
+superiority claim to Sprint 9 robustness.
+
+Reason:
+
+- The predeclared selection rule was validation AUPRC. The authoritative
+  consolidated batch `sprint8a_target_context_interaction_seed42_20260611_011416`
+  selected R2 with validation AUPRC `0.987496`. R2's test diagnostics were AUPRC
+  `0.982757`, AUROC `0.910575`, MCC `0.563656`, TN/FP/FN/TP `88/81/39/1494`.
+- R2 improved the rare-negative operating point versus the Sprint 8A R0 harness
+  base, but no Sprint 8A variant surpassed the carry-forward XGBoost F4 bar
+  (test AUPRC `0.992522`). R0 also did not reproduce the S7F R3 carry-forward
+  reference exactly, so single-seed harness variance remains a material
+  interpretation risk.
+- R3 (`gate+FiLM`) underperformed R2 because it lost rare negatives at the
+  validation-selected operating point (`R2->R3`: `TN->FP=52`, `FP->TN=1`,
+  `FN->TP=25`, `TP->FN=17`) and also had lower ranking metrics. Aggregate gate
+  weights did not collapse; the result is best interpreted as gate+FiLM
+  interference/calibration degradation in this frozen setup, not evidence that
+  gating is globally harmful.
+- R4 (regularized experimental branch) gained some negatives relative to R0
+  (`FP->TN=48`) but created many false negatives (`TP->FN=88`), concentrated in
+  a few positive-heavy guides. The available outputs do not prove that
+  experimental epigenetic features are shortcuts; they show that this bottleneck
+  + dropout regularizer was too blunt or unstable for the single-seed canonical
+  setting.
+- Following the overtuning/leakage discipline already documented for Sprint 8,
+  a post-result HP refinement would risk optimizing to the observed validation/
+  test behavior. Sprint 9 should instead predeclare fixed configs, seeds, and
+  paired/guide-level uncertainty analysis.
+
+Outcome:
+
+- Treat R2 as the Sprint 8A candidate for robustness, not as a final superior
+  model.
+- Do not change labels, split, threshold policy, model code, or canonical Sprint
+  8A outputs based on these diagnostics.
+- Sprint 9 should test R2 against the frozen base/reference with predeclared
+  multi-seed fixed-split runs and paired guide-level/bootstrap diagnostics.
+- Record the parameter-count reporting caveat separately as tech debt: in
+  interaction mode the nominal parameter count includes an inactive base edge
+  classifier, so reported R2/R3 capacity overstates active parameters.

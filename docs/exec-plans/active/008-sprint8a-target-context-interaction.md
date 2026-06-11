@@ -674,7 +674,7 @@ Validation:
 `git diff --check` (clean except existing CRLF normalization warnings).
 
 
-### Slice 6 - Full canonical run and local validation
+### Slice 6 - Full canonical run and local validation - Status: COMPLETE (2026-06-11)
 
 Run the 5 predeclared canonical runs (R0–R4, seed 42) on Colab GPU, copy outputs
 back under `outputs/sprint8a/`, validate locally, and do not rerun or tune from
@@ -682,6 +682,62 @@ test diagnostics.
 
 Exit: all §10 outputs exist (or any technical omission is documented before
 interpreting results).
+
+Done: canonical Sprint 8A outputs were returned and locally validated under
+`outputs/sprint8a/`. The authoritative consolidated manifest is
+`sprint8a_target_context_interaction_seed42_20260611_011416`; the earlier
+`000411` full batch and the `sprint8a_smoke_20260611_000947` debug run remain
+diagnostic-only and are not mixed into the consolidated comparison. The §10
+output contract is complete: comparison/report/manifest/provenance files,
+diagnostics, figures, and per-run artifacts are present. No local `model.pt`
+checkpoints were available for per-example internal activation extraction, so
+the forensic validation used saved predictions plus aggregate gate/FiLM/
+attention/audit summaries only.
+
+Validation-AUPRC selected `S8A_R2_context_edge_film` as the Sprint 8A canonical
+candidate (`best_val_auprc=0.987496`, test AUPRC `0.982757`, MCC `0.563656`,
+TN/FP/FN/TP `88/81/39/1494`). This is a validation-selected candidate, not a
+superiority claim: no Sprint 8A variant surpassed the carry-forward XGBoost F4
+bar (`0.992522` test AUPRC), and R0 did not reproduce the S7F R3 carry-forward
+base perfectly in the Sprint 8A harness.
+
+Forensic failure analysis separated ranking quality, operating point, and model
+artifacts:
+
+- `S8A_R3_gated_plus_film` underperformed R2 mainly by losing rare negatives at
+  the recorded validation-selected threshold. Paired R2->R3 transitions on the
+  same test rows were `TN->FP=52`, `FP->TN=1`, `FN->TP=25`, `TP->FN=17`. R3
+  therefore gained some positives but lost a net 51 true negatives. The negative
+  losses were concentrated in the rare-negative guide subset (notably
+  `1060`, `9251`, `1088`, `1408`, `1028`, `1044`). R3 also had weaker ranking
+  than R2 (test AUPRC `0.979899` vs `0.982757`, AUROC `0.885077` vs
+  `0.910575`), so the failure is both threshold/calibration and ranking
+  degradation. Aggregate gate weights did not collapse; aggregate FiLM
+  interaction norm was higher than R2, consistent with possible gate+FiLM
+  interference but not causal proof.
+- `S8A_R4_regularized_exp_branch` improved some negatives but paid for it with
+  many more false negatives. Paired R0->R4 transitions were `FP->TN=48`,
+  `TP->FN=88`, `TN->TN=27`, `FP->FP=94`, `TP->TP=1443`, `FN->FN=2`. The FN
+  increase was concentrated in positive-heavy guides (`3420`, `1505`, `10990`)
+  and lower `energy_5` regimes. The available aggregate branch summaries do not
+  prove that experimental epigenetic signal was suppressed; the defensible
+  interpretation is that the bottleneck/dropout regularizer was too blunt in this
+  single-seed setup and degraded threshold transfer plus ranking (test AUROC
+  `0.825673`).
+- Test negatives are only `169/1702` rows and occur in only 9 of 29 test guides,
+  so MCC/specificity are highly sensitive to guide-local negative movements.
+  These threshold metrics remain secondary diagnostics.
+
+Capacity audit caveat: in interaction mode, `GraphCEdgeGATv2` still instantiates
+the base `edge_classifier`, but forward uses `interaction_edge_classifier`.
+Reported `parameter_count` for R2/R3 therefore includes inactive parameters and
+overstates active capacity by roughly the base edge-classifier size (~100k). This
+does not change predictions, but it must be documented as reporting tech debt.
+
+Conclusion: close Slice 6 with `S8A_R2_context_edge_film` as the
+validation-selected Sprint 8A candidate; make no headline superiority claim; skip
+test-driven reruns or threshold changes; defer robustness/superiority claims to
+Sprint 9 multi-seed and paired/guide-level uncertainty analysis.
 
 ### Slice 7 - Optional axis-4 HP refinement (approval-gated)
 
