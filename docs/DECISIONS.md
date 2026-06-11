@@ -1033,3 +1033,39 @@ Outcome:
 - Record the parameter-count reporting caveat separately as tech debt: in
   interaction mode the nominal parameter count includes an inactive base edge
   classifier, so reported R2/R3 capacity overstates active parameters.
+
+## 2026-06-11 - Sprint 8B Slice 0 planning freeze (sequence-context encoder)
+
+Decision: freeze the Sprint 8B plan
+(`docs/exec-plans/active/008b-sprint8b-sequence-context-encoder.md`, §15) before
+any implementation, pinning the design decisions below. No code, config, test, or
+training in Slice 0; no Sprint 8A result changed.
+
+- **R0 anchor:** `S8B_R0_reference` = `S8A_R2_context_edge_film` (Sprint 8A
+  validation-AUPRC winner), authoritative batch
+  `sprint8a_target_context_interaction_seed42_20260611_011416`, no retrain.
+- **(a) S1 input source:** reconstruct the `S1` sgRNA/target pair deterministically
+  from the frozen Graph C artifacts (guide one-hot `feature__guide_pos_*` 115 +
+  target one-hot `feature__target_pos_*` 115 + computed per-position mismatch =
+  23×11), NOT from a raw-data edge-id join. Rationale: lossless, deterministic,
+  leakage-clean (Kapoor & Narayanan — avoid silent wrong-key joins); both one-hot
+  tables verified present in the sha256-recorded artifacts. Sequence branch carries
+  sequence-only signal (no energy/epigenetic/context), proven by a sequence-input
+  audit.
+- **(b) Late-fusion injection point:** concatenate `seq_embed` into the Sprint 8A
+  R2 candidate-edge classifier input vector
+  `[source, target, source*target, |source-target|, edge_film, seq_embed]`; GATv2
+  message passing, target-context encoder, and FiLM head stay frozen. Matches the
+  project's Sprint 2 late-fusion precedent (2026-05-23). The frozen-context
+  assertion is a wiring/isolation test (zeroing `seq_embed` leaves the frozen 8A
+  path bit-identical), not numerical reproduction of the jointly-retrained head.
+- **Encoder:** small 1D-Conv + BiLSTM over the 23×11 `S1` tensor (CRISPR-Net /
+  CRISPR-IP adaptation; attention deferred to limit scope/overtuning); **no
+  reproduction claim** (data/split/target/metric differ).
+- **Discipline carried from Sprint 8A forensic review:** report active parameter
+  counts (nominal counts inflated by the inactive base classifier); MCC/specificity
+  are secondary threshold diagnostics and never used to rank; single-seed →
+  directional only; superiority/variance deferred to Sprint 9.
+
+Outcome: Slices 1–7 implement against §15 with no remaining design decision.
+External-pretrained transfer slice (RNA-FM / DNABERT-2) remains approval-gated.

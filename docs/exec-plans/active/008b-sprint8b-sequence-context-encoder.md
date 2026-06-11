@@ -1,6 +1,8 @@
 # Execution Plan: Sprint 8B Sequence-Context Encoder (CRISPR-Net-adapted)
 
-> Status: ACTIVE (planning; Sprint 8A is complete). Companion to
+> Status: FROZEN — Slice 0 planning freeze complete (2026-06-11). Concrete design
+> decisions are pinned in §15 Frozen Specification; Slices 1–7 implement against it
+> with no remaining design decision. Companion to
 > `../completed/008-sprint8a-target-context-interaction.md`. This is the sequence-context
 > slice of Sprint 8's model-improvement scope. Robustness remains Sprint 9.
 
@@ -88,8 +90,11 @@ change the split, labels, loss, or threshold policy.
   - `S8B_R1`: sequence-only — `seq_embed → classifier` (pure sequence baseline,
     re-trained on our split; comparable to Sprint 2 sequence baselines but
     re-evaluated under the 8A harness).
-  - `S8B_R2`: late fusion — concatenate `seq_embed` with the Sprint 8A
-    target-context/edge classifier head input, everything else frozen.
+  - `S8B_R2`: late fusion — concatenate `seq_embed` into the Sprint 8A R2
+    candidate-edge classifier input vector
+    `[source, target, source*target, |source-target|, edge_film, seq_embed]`
+    (see §15.3); the GATv2 message passing, target-context encoder, and FiLM head
+    stay frozen; only the sequence branch and the fusion-widened classifier are new.
 - The GATv2 message passing, target-context encoder, and S5F2 edge-aware
   attention from the Sprint 8A canonical model remain frozen in `S8B_R2`; only the
   added sequence branch + fused classifier head are new.
@@ -98,7 +103,7 @@ change the split, labels, loss, or threshold policy.
 
 | Run ID | Setting | Role |
 | --- | --- | --- |
-| `S8B_R0_reference` | Sprint 8A validation-AUPRC winner (no retrain) | anchor |
+| `S8B_R0_reference` | **`S8A_R2_context_edge_film`** — Sprint 8A validation-AUPRC winner (no retrain; batch `sprint8a_target_context_interaction_seed42_20260611_011416`) | anchor |
 | `S8B_R1_sequence_only` | CRISPR-Net-adapted `S1` encoder → classifier, from scratch | pure-sequence value test |
 | `S8B_R2_sequence_plus_context` | late fusion: `seq_embed` + 8A context/edge head | does sequence add over context? |
 
@@ -149,8 +154,13 @@ Per-run: `resolved_config.yaml`, `runtime.json`, `training_history.csv`,
 - sequence encoder forward (shape; `S1` channel layout 23×channels);
 - sequence-input audit (no energy/epigenetic/context leakage into the sequence
   branch);
-- late-fusion wiring: with the sequence branch zeroed, `S8B_R2` reproduces the
-  Sprint 8A head output (frozen-context assertion);
+- late-fusion wiring (frozen-context isolation assertion, §15.3): with `seq_embed`
+  set to zero, the seq columns contribute zero and the upstream GATv2 /
+  target-context / FiLM activations and the 8A classifier-input sub-vector are
+  bit-identical to the 8A R2 path — i.e. the sequence branch is purely additive
+  through the classifier and never perturbs the frozen context path. (Numerical
+  reproduction of the 8A *trained* classifier is NOT claimed: the fusion-widened
+  classifier is retrained jointly, standard for late fusion.);
 - config parse; output-contract schema; runner smoke test (monkeypatched
   training).
 
@@ -188,7 +198,7 @@ git diff --check
 Runs only AFTER Sprint 8A is complete. Incremental, test-gated; from-scratch
 training on the locked split only; no headline claim until Slice 5.
 
-### Slice 0 - Planning freeze
+### Slice 0 - Planning freeze — Status: COMPLETE (2026-06-11)
 
 Freeze this plan after Sprint 8A closure: run set (R0 reference / R1
 sequence-only / R2 late-fusion), the CRISPR-Net-adapted encoder design, the `S1`
@@ -196,6 +206,14 @@ sequence input, the leakage + no-reproduction rules (§3), and the output
 contract. Confirm the Sprint 8A validation-AUPRC winner that R0/R2 build on.
 
 Exit: plan frozen; no code changed yet.
+
+Done: R0 anchored to `S8A_R2_context_edge_film` (authoritative batch + metrics,
+§15.1); decision (a) S1-input-source and (b) late-fusion injection point pinned
+(§15.2–15.3) after literature validation (CRISPR-Net/CRISPR-IP/DeepCRISPR encoding,
+Kapoor leakage, Sprint 2 late-fusion precedent, Dwivedi parameter budget); encoder
+architecture pinned (§15.4); frozen-context assertion redefined as a wiring
+isolation test. No code/config/test added; no training; no Sprint 8A result
+changed. `DECISIONS.md` records the freeze.
 
 ### Slice 1 - Sequence-context encoder (`sequence_context_encoder.py`)
 
@@ -254,3 +272,102 @@ update the roadmap, and move this plan to `docs/exec-plans/completed/`.
 
 Exit: the Sprint 8B conclusion is documented (sequence-context adds / does not add
 over the Sprint 8A target-context model under the frozen contract).
+
+## 15. Frozen Specification (Slice 0)
+
+Slice 0 planning freeze (2026-06-11). All design decisions below are pinned;
+Slices 1–7 implement against this section with no remaining design choice. No
+`src/`, `configs/`, `scripts/`, `colab/`, or `tests/` file was changed in Slice 0;
+no training was run; no Sprint 8A output was modified.
+
+### 15.1 Sprint 8A anchor (R0, no retrain)
+
+- `S8B_R0_reference` = `S8A_R2_context_edge_film`, Sprint 8A validation-AUPRC
+  winner. Authoritative batch:
+  `sprint8a_target_context_interaction_seed42_20260611_011416`.
+- Recorded metrics (carry-forward, no recomputation): validation AUPRC `0.987496`;
+  test AUPRC `0.982757`; test AUROC `0.910575`; test MCC `0.563656`;
+  TN/FP/FN/TP `88/81/39/1494`; nominal `parameter_count` `381866`.
+- Carry-forward interpretation caveats (from the Sprint 8A forensic review):
+  - R2 is a **validation-selected candidate, not a superiority claim**; no Sprint 8A
+    variant beat XGBoost F4 test AUPRC `0.992522`; superiority/variance is deferred
+    to Sprint 9.
+  - R2's rare-negative operating-point edge is **partly threshold-landing**
+    (validation-max-F1), not purely ranking — so in Sprint 8B, MCC/specificity stay
+    secondary and are never used to rank runs.
+  - R2's nominal `parameter_count` is inflated by the inactive base
+    `edge_classifier` (~100k dead params; see `docs/exec-plans/tech-debt.md`).
+    Sprint 8B must report active parameter counts and not over-read nominal counts
+    (Dwivedi parameter-budget discipline).
+
+### 15.2 Decision (a) — S1 sequence input source: reconstruct from Graph C artifacts
+
+- The `S1` sgRNA/target pair is **reconstructed deterministically from the frozen
+  Graph C artifacts**, not re-derived from raw data:
+  - guide one-hot from `nodes_sgRNA.parquet` columns
+    `feature__guide_pos_{00..22}_{A,C,G,T,N}` (115 cols, verified present);
+  - target one-hot from `features_target_observation_features.parquet` columns
+    `feature__target_pos_{00..22}_{A,C,G,T,N}` (115 cols, verified present);
+  - aligned mismatch channel computed per position as
+    `argmax(guide_onehot) != argmax(target_onehot)`.
+  - Channel layout: 5 guide + 5 target + 1 mismatch = 11 channels × 23 positions
+    (matches the Sprint 2 `S1_sequence_pair` 23×11 contract; verify exact channel
+    order against the Sprint 2 builder in Slice 1).
+- Rationale: lossless, deterministic, and **leakage-clean** — no error-prone
+  edge-id join to raw data (Kapoor & Narayanan leakage discipline; "do not silently
+  join wrong keys"). The artifacts are already edge-aligned and sha256-recorded in
+  provenance.
+- The sequence branch carries **sequence-only** signal: no energy/epigenetic/
+  nucleosome/context scalars. A `sequence_input_audit` must prove this (§10).
+
+### 15.3 Decision (b) — late-fusion injection point: concatenate into the R2 classifier input
+
+- `seq_embed` (one fixed-dim vector per candidate edge = per guide/target pair) is
+  **concatenated into the Sprint 8A R2 candidate-edge classifier input vector**:
+  `[source, target, source*target, |source-target|, edge_film, seq_embed]`. The
+  fusion-widened first classifier layer is retrained jointly in `S8B_R2`.
+- Frozen: GATv2 attention/message passing, the target-context encoder, and the FiLM
+  head from the Sprint 8A R2 model are unchanged; only the sequence branch and the
+  fusion-widened classifier are new.
+- **Frozen-context isolation assertion** (replaces "reproduces 8A head"): zeroing
+  `seq_embed` makes the seq columns contribute zero and leaves the upstream
+  activations and the 8A classifier-input sub-vector bit-identical to the 8A R2
+  path. This is a wiring/no-confound test; numerical reproduction of the 8A
+  *trained* classifier is NOT claimed (joint retrain is standard late fusion).
+- Rationale: matches the project's own Sprint 2 late-fusion precedent
+  (`sequence_cnn_plus_F3/F4_late_fusion`, DECISIONS 2026-05-23) and the late-dense
+  combination in CRISPR-IP/DeepCRISPR; granularity-aligned (per candidate edge);
+  keeps the controlled "does sequence add over context?" question clean. An
+  early-fusion / seq×context FiLM interaction is explicitly **out of scope** for
+  the 8B core (it would entangle and confound the frozen 8A path).
+
+### 15.4 Encoder architecture (adapted, from-scratch)
+
+- `seq_embed` = small **1D-Conv (local mismatch/identity features) + BiLSTM
+  (positional features)** over the 23×11 `S1` tensor → fixed-dim embedding.
+- Adapted from CRISPR-Net (Inception-conv + BiLSTM) and CRISPR-IP (CNN-identity +
+  BiLSTM-position); attention is **deferred** (kept out of the core to limit scope
+  and overtuning risk — Overtuning discipline).
+- **No reproduction claim**: data (measured-only Mak/crisprSQL), split
+  (guide-disjoint `sprint2_main_seed42`), label (scheme_a), and primary metric
+  (AUPRC at ~90% prevalence) differ from the source papers. Document the adaptation
+  in code comments and this plan.
+
+### 15.5 Run matrix, contract, and discipline (pinned)
+
+- Canonical runs: `S8B_R0_reference` (no retrain), `S8B_R1_sequence_only`
+  (seq-encoder → classifier, from scratch), `S8B_R2_sequence_plus_context`
+  (late fusion per §15.3). Transfer slice (RNA-FM / DNABERT-2) is approval-gated
+  only (§7); no external pretrained weights in any headline row.
+- Frozen evaluation contract (inherited): `scheme_a`, `sprint2_main_seed42`,
+  guide-disjoint, measured-only headline, `experiment_id=18` excluded, train-only
+  preprocessing, validation-only checkpoint (val AUPRC) and threshold
+  (validation max-F1), no test-driven selection, AUPRC primary, seed 42, Colab
+  runner-only, core logic in `src/`.
+- Selection: validation AUPRC primary; report every predeclared run; report active
+  parameter counts; MCC/specificity are secondary threshold diagnostics (never
+  used to rank); single-seed → directional only, superiority deferred to Sprint 9.
+
+### 15.6 Slice 0 exit
+
+Sprint 8B plan frozen; Slices 1–7 may proceed against §15; no code changed.
