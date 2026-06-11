@@ -206,6 +206,49 @@ def test_sprint7_colab_runner_contract() -> None:
     assert "attention_weight_summary.csv" in sources["step8-returned-checks"]
 
 
+def test_sprint8b_colab_runner_contract() -> None:
+    notebook_path = ROOT / "colab" / "sprint8b_sequence_context_runner.ipynb"
+    assert notebook_path.exists()
+    notebook = json.loads(notebook_path.read_text(encoding="utf-8"))
+    sources = {
+        cell.get("id") or cell.get("metadata", {}).get("id"): "".join(cell.get("source", []))
+        for cell in notebook["cells"]
+        if cell.get("cell_type") == "code"
+    }
+    all_code = "\n".join(sources.values())
+    all_source = "\n".join("".join(cell.get("source", [])) for cell in notebook["cells"])
+
+    assert "rm -rf" not in all_code
+    assert "def " not in all_code
+    assert "class " not in all_code
+    assert "BCEWithLogitsLoss" not in all_source
+    assert "train_graph_c_gcn" not in all_source
+    assert "select_threshold" not in all_source
+    assert "scripts/train.py" not in all_source
+    assert "uv sync" in sources["step3-sync"]
+    assert "uv run python scripts/run_sprint8b_sequence_context.py" in sources["step6-run-sweep"]
+    assert "configs/sweeps/sprint8b_sequence_context.yaml" in sources["step6-run-sweep"]
+    assert "--run-id \"$RUN_ID\"" in sources["step6-run-sweep"]
+    assert "--max-epochs 2" in sources["step6b-smoke"]
+    assert "--run S8B_R1_sequence_only" in sources["step6b-smoke"]
+    assert "debug-only" in sources["step6b-smoke"].lower()
+    assert "data/processed/graphs/sprint5b" in all_source
+    assert "from crispr_gnn.graph.graph_schemas import GRAPH_C" in sources["step5-validate-artifacts"]
+    assert "from crispr_gnn.graph.pyg_dataset import Sprint3HeteroDataLoader" in sources["step5-validate-artifacts"]
+    assert "S5F2_energy" in sources["step5-validate-artifacts"]
+    assert "target_observation_features" in sources["step5-validate-artifacts"]
+    assert "Output already exists in Drive" in sources["step7-copy-outputs"]
+    assert "--exclude='model.pt'" in sources["step7-copy-outputs"]
+    assert "Returned Drive outputs must exclude model.pt checkpoints" in sources["step8-returned-checks"]
+    assert "S8B_R0_reference" in sources["step8-returned-checks"]
+    assert "S8B_R1_sequence_only" in sources["step8-returned-checks"]
+    assert "S8B_R2_sequence_plus_context" in sources["step8-returned-checks"]
+    assert "sequence_context_sequence_input_audit.csv" in sources["step8-returned-checks"]
+    assert "guide_onehot_columns" in sources["step8-returned-checks"]
+    assert "target_onehot_columns" in sources["step8-returned-checks"]
+    assert "context_edge_interaction_summary.csv" in sources["step8-returned-checks"]
+
+
 def test_gcn_headline_config_rejects_debug_or_random_edge_rules() -> None:
     config = load_yaml(ROOT / "configs" / "experiments" / "gcn_minimal.yaml")
     config["data"]["split_id"] = "debug"

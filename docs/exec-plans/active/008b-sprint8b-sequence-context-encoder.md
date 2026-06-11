@@ -288,12 +288,31 @@ fake Graph C view with real S1 guide/target feature-name layout so
 training, returned outputs, or headline interpretation were added; no new
 methodological decision or tech debt was introduced.
 
-### Slice 4 - Colab runner preparation
+### Slice 4 - Colab runner preparation - Status: COMPLETE (2026-06-12)
 
 Add a runner-only Colab notebook and documented command path; validate artifact
 copy and returned-output checks.
 
 Exit: notebook contract checks pass; no full GPU claim yet.
+
+Done: added `colab/sprint8b_sequence_context_runner.ipynb` following the Sprint
+8A/7F runner-only pattern. The notebook contains Drive mount, configurable
+clone/update (`GIT_REF` overrideable), `uv sync` + torch/PyG runtime check,
+Drive raw/processed artifact copy, Sprint 5B Graph C S5F2 build-or-validate,
+the full canonical runner call
+`scripts/run_sprint8b_sequence_context.py --config configs/sweeps/sprint8b_sequence_context.yaml --run-id <batch>`,
+an optional debug-only smoke path (`--max-epochs 2 --run S8B_R1_sequence_only`),
+Drive return copy excluding `model.pt`, and a Sprint 8B Section 9 output-contract
+validator. The validator checks consolidated comparison/report/manifest/
+provenance files, diagnostics, figures, R1/R2 per-run artifacts, R2-only
+attention/target-context/FiLM summaries, manifest IDs (`S8B_R0_reference`,
+`S8B_R1_sequence_only`, `S8B_R2_sequence_plus_context`), from-scratch/no external
+pretrained policy, and the sequence-input audit (`S1_sequence_pair_from_graph_c_onehot`,
+115 guide one-hot columns, 115 target one-hot columns, 11 channels). Added
+`test_sprint8b_colab_runner_contract` in `tests/test_config_loads.py` to keep the
+notebook runner-only and aligned with the expected command/output contract. No
+full training, returned outputs, result interpretation, transfer slice, or
+headline claim was added; no methodology/decision change and no new tech debt.
 
 ### Slice 5 - Full run and local validation
 
