@@ -929,7 +929,7 @@ no architecture change, and does not block model improvement, so it consolidates
 cleanly as a later Sprint 9.
 
 Scope and locked decisions (predeclared before any Sprint 8 training; carried in
-`docs/exec-plans/active/008-sprint8a-target-context-interaction.md` and
+`docs/exec-plans/completed/008-sprint8a-target-context-interaction.md` and
 `...008b-sprint8b-sequence-context-encoder.md`):
 
 - Frozen evaluation contract is inherited verbatim from Sprint 7F: `scheme_a`,

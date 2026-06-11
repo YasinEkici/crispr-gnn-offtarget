@@ -15,17 +15,18 @@ The primary dataset is the Mak et al. 2022 crisprSQL-derived epigenetic/nucleoso
 | Sprint 5 | Graph A feature-family ablation + Graph C energy sensitivity | ✅ Complete |
 | Sprint 6 | Imbalance, threshold, and loss comparison | ✅ Complete (Slices 0–4; Slice 5 optional) |
 | Sprint 7 | GAT/GATv2 architecture, Graph C mechanism ablations, target-context encoder | ✅ Complete |
-| Sprint 8 | Model improvement — target-context + context-edge interaction (8A), CRISPR-Net-adapted sequence context (8B) | 🟡 Planned |
+| Sprint 8 | Model improvement — target-context + context-edge interaction (8A), CRISPR-Net-adapted sequence context (8B) | 🟡 8A complete; 8B planned |
 | Sprint 9 | Robustness — guide-level bootstrap CIs, paired-difference, multi-seed variance | ⏳ Optional / stretch |
 
 ## Current Results
 
-All reported model runs use the frozen Sprint 2/3 contract (`scheme_a`, `sprint2_main_seed42`, measured-only headline rows, `experiment_id=18` excluded, `strict_inductive_primary`). Primary metric is AUPRC (threshold-free, appropriate for ~90% positive prevalence). No GNN result beats the XGBoost F4 reference on primary AUPRC, but Sprint 7F narrows the gap and substantially improves rare-negative operating-point metrics with a Graph C GATv2 target-context encoder.
+All reported model runs use the frozen Sprint 2/3 contract (`scheme_a`, `sprint2_main_seed42`, measured-only headline rows, `experiment_id=18` excluded, `strict_inductive_primary`). Primary metric is AUPRC (threshold-free, appropriate for ~90% positive prevalence). No GNN result beats the XGBoost F4 reference on primary AUPRC, but Sprint 7F/8A narrowed the gap and improved rare-negative operating-point metrics with Graph C GATv2 target-context modelling.
 
 | Model | Setting | Test AUPRC | Test AUROC | Test Macro F1 | Test MCC |
 |---|---|---:|---:|---:|---|
 | `xgboost_unweighted` | F4 tabular baseline | **0.9925** | 0.9384 | 0.6427 | 0.3452 |
 | `gatv2_graph_c_sprint7f_exp_emphasis` | Graph C + `S5F2_energy` + family-aware target-context encoder, experimental emphasis | 0.9849 | 0.9266 | 0.7772 | 0.5681 |
+| `S8A_R2_context_edge_film` | Sprint 8A validation-selected candidate: Graph C GATv2 + head-only FiLM context-edge interaction | 0.9828 | 0.9106 | 0.7780 | 0.5637 |
 | `gatv2_graph_c_sprint7f_family_aware` | Graph C + `S5F2_energy` + family-aware target-context encoder | 0.9821 | 0.9066 | **0.8017** | **0.6035** |
 | `gcn_graph_a_sprint6_wbce` | Graph A + `S5F2_energy` + weighted BCE | 0.9769 | 0.8200 | 0.6989 | 0.4837 |
 | `gcn_graph_c_sprint5b_energy` | Graph C + `S5F2_energy` | 0.9725 | 0.8362 | 0.5524 | 0.2743 |
@@ -39,6 +40,8 @@ Sprint 5 takeaway: binding-energy features (`energy_1`-`energy_5`) are the stron
 
 Sprint 7 takeaway: edge-aware GAT/GATv2 on Graph A did not beat the weighted-BCE Graph A GCN reference, but Graph C GATv2 exposed a useful target-context signal. Sprint 7D/7E isolated direct `target_observation` features, especially experimental epigenetic features, as the critical mechanism; Sprint 7F's family-aware target-context encoder produced the strongest same-contract GNN results so far.
 
+Sprint 8A takeaway: the predeclared 5-run target-context/context-edge interaction sprint selected `S8A_R2_context_edge_film` by validation AUPRC (`0.9875`). R2 improved the Sprint 8A operating point, but no Sprint 8A run beat the XGBoost F4 AUPRC bar; Slice 7 HP refinement was skipped to avoid post-result overtuning, and superiority/variance claims are deferred to Sprint 9 robustness.
+
 Key reports:
 
 - Sprint 4 comparison: `outputs/sprint4/gcn_sprint4_comparison_report.md`
@@ -46,6 +49,7 @@ Key reports:
 - Sprint 5B Graph C energy sensitivity: `outputs/sprint5b/graph_c/gcn_graph_c_report.md`
 - Sprint 6 loss/imbalance comparison: `outputs/sprint6/loss_comparison/sprint6_loss_comparison_report.md`
 - Sprint 7F target-context encoder: `outputs/sprint7f/target_context_encoder_report.md`
+- Sprint 8A target-context interaction: `outputs/sprint8a/target_context_interaction_report.md`
 
 ## Setup
 
@@ -143,6 +147,12 @@ Raw, interim, and processed data are gitignored. Use `data/sample/` for tiny tes
 - Sprint 5B Graph C results: `outputs/sprint5b/graph_c/gcn_graph_c_results.csv`
 - Sprint 5B diagnostics and figures: `outputs/sprint5b/graph_c/diagnostics/`, `outputs/sprint5b/graph_c/figures/`
 - Model checkpoints: Drive returned-output folders only; do not commit `model.pt`
+
+### Sprint 8A
+- Target-context interaction comparison: `outputs/sprint8a/target_context_interaction_comparison.csv`
+- Target-context interaction report: `outputs/sprint8a/target_context_interaction_report.md`
+- Diagnostics and figures: `outputs/sprint8a/diagnostics/`, `outputs/sprint8a/figures/`
+- Run manifest/provenance: `outputs/sprint8a/target_context_interaction_run_manifest.json`, `outputs/sprint8a/graph_artifact_provenance.json`
 
 ## Documentation
 

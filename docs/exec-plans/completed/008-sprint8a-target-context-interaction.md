@@ -1,12 +1,11 @@
 # Execution Plan: Sprint 8A Target-Context & Context-Edge Interaction
 
-> Status: FROZEN — Slice 0 planning freeze complete (2026-06-10). All predeclared
-> defaults are pinned in §17 Frozen Specification; Slices 1–8 may proceed with no
-> remaining design decision. This plan covers Sprint 8A, the model-improvement
-> core of Sprint 8. Sprint 8B
-> (sequence-context encoder) is a separate companion plan,
-> `008b-sprint8b-sequence-context-encoder.md`. Robustness (multi-seed,
-> guide-level bootstrap CIs, paired-difference) is re-scoped to Sprint 9.
+> Status: COMPLETE — Sprint 8A closed on 2026-06-11. Slice 7 HP refinement was
+> intentionally skipped after R2 won by validation AUPRC; superiority/robustness
+> claims are deferred to Sprint 9. Sprint 8B (sequence-context encoder) is a
+> separate companion plan, `008b-sprint8b-sequence-context-encoder.md`.
+> Robustness (multi-seed, guide-level bootstrap CIs, paired-difference) is
+> re-scoped to Sprint 9.
 
 ## 1. Goal
 
@@ -739,7 +738,7 @@ validation-selected Sprint 8A candidate; make no headline superiority claim; ski
 test-driven reruns or threshold changes; defer robustness/superiority claims to
 Sprint 9 multi-seed and paired/guide-level uncertainty analysis.
 
-### Slice 7 - Optional axis-4 HP refinement (approval-gated)
+### Slice 7 - Optional axis-4 HP refinement (approval-gated) - Status: SKIPPED (2026-06-11)
 
 Only after the validation-AUPRC winner among R0–R4 is identified: run the bounded,
 predeclared ≤ 8-config refinement (§7) on that single architecture, validation-
@@ -748,7 +747,12 @@ only, reported as a separate labelled block.
 Exit: refinement reported separately, or explicitly skipped. Canonical rows
 unchanged.
 
-### Slice 8 - Sprint closure
+Done: explicitly skipped. R2 already satisfied the predeclared validation-AUPRC
+selection rule, while post-result HP refinement would increase the documented
+Overtuning/Kapoor risk in a single-seed, small rare-negative setting. Canonical
+rows remain unchanged; no optional `S8A_OPT_*` runs were promoted.
+
+### Slice 8 - Sprint closure - Status: COMPLETE (2026-06-11)
 
 Freeze report/results/status, add the `docs/DECISIONS.md` re-scope entry (§15),
 update `README.md` / `CRISPR_GNN_PROJECT_PLAN.md` roadmap, and move this plan to
@@ -757,6 +761,14 @@ update `README.md` / `CRISPR_GNN_PROJECT_PLAN.md` roadmap, and move this plan to
 Exit: the Sprint 8A conclusion is documented as one of the §11 allowed shapes; if
 target-context architecture is not the bottleneck, proceed to Sprint 8B (sequence
 context) or Sprint 9 (robustness) per a fresh plan.
+
+Done: Sprint 8A is closed with `S8A_R2_context_edge_film` as the
+validation-selected candidate, no headline superiority claim, Slice 7 explicitly
+skipped, and robustness deferred to Sprint 9. `docs/DECISIONS.md` records the
+2026-06-11 R2/skip-HP decision; `docs/exec-plans/tech-debt.md` records the
+interaction-mode active-parameter-count caveat. Roadmap/context docs were
+updated to mark Sprint 8A complete and point next to Sprint 8B plus Sprint 9
+robustness.
 
 ## 17. Frozen Specification (Slice 0)
 

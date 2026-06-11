@@ -761,15 +761,18 @@ using the Sprint 7D/7E/7F mechanism evidence, while preserving the frozen
 evaluation contract. Sprint 8 is a small, predeclared, mechanism-driven
 model-improvement sprint — not a broad sweep. It is split in two:
 
-- **Sprint 8A — target-context + context-edge interaction** (core). Base = Sprint
-  7F R3 (`family_aware_experimental_emphasis`, selected by validation AUPRC
-  0.987522). Five predeclared canonical Graph C GATv2 runs: R0 base reference,
-  R1 SENET-style learned family gate, R2 head-only FiLM interaction between the
-  target-context embedding and the candidate `S5F2_energy` edge features, R3
-  gate + FiLM, R4 regularized experimental-epigenetic branch (bottleneck +
-  feature-dropout). The frozen GATv2 attention/message passing is unchanged; the
-  interaction is head-only. Optional bounded validation-only HP refinement on the
-  single validation winner. Plan: `docs/exec-plans/active/008-sprint8a-target-context-interaction.md`.
+- **Sprint 8A — target-context + context-edge interaction** (core; complete).
+  Base = Sprint 7F R3 (`family_aware_experimental_emphasis`, selected by
+  validation AUPRC `0.987522`). Five predeclared canonical Graph C GATv2 runs
+  were completed: R0 base reference, R1 SENET-style learned family gate, R2
+  head-only FiLM interaction between the target-context embedding and the
+  candidate `S5F2_energy` edge features, R3 gate + FiLM, R4 regularized
+  experimental-epigenetic branch (bottleneck + feature-dropout). The frozen GATv2
+  attention/message passing was unchanged; the interaction was head-only. R2 was
+  selected by validation AUPRC (`0.987496`; test AUPRC `0.982757`, MCC
+  `0.563656`) as a candidate for robustness, not a final superiority claim. The
+  optional bounded HP refinement was skipped to avoid post-result overtuning.
+  Plan: `docs/exec-plans/completed/008-sprint8a-target-context-interaction.md`.
 - **Sprint 8B — sequence-context encoder** (companion, after 8A). A CRISPR-Net-
   adapted Conv+BiLSTM encoder over the Sprint 2 `S1` sgRNA/target pair,
   re-implemented in `src/` and trained from scratch on the locked split (no
@@ -958,7 +961,7 @@ Sprint 4: GCN baseline
 Sprint 5: epigenetic ablation (main novelty)
 Sprint 6: minimal imbalance comparison
 Sprint 7: GAT/GATv2
-Sprint 8: model improvement (8A target-context + interaction, 8B sequence context)
+Sprint 8: model improvement (8A target-context + interaction complete, 8B sequence context next)
 Sprint 9: robustness (bootstrap CIs, paired-difference, multi-seed) — optional
 Stretch: CRISPRoffT / HeteroGNN / GraphSAGE
 ```

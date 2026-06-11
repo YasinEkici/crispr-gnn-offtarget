@@ -1,7 +1,7 @@
 # Execution Plan: Sprint 8B Sequence-Context Encoder (CRISPR-Net-adapted)
 
-> Status: ACTIVE (planning; runs only AFTER Sprint 8A is complete). Companion to
-> `008-sprint8a-target-context-interaction.md`. This is the sequence-context
+> Status: ACTIVE (planning; Sprint 8A is complete). Companion to
+> `../completed/008-sprint8a-target-context-interaction.md`. This is the sequence-context
 > slice of Sprint 8's model-improvement scope. Robustness remains Sprint 9.
 
 ## 1. Goal
