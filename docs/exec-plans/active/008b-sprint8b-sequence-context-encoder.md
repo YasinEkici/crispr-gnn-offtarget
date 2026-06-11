@@ -262,7 +262,7 @@ and touched-file `ruff check` passed. No runner/config sweep/Colab/output files
 were added; no training was run; no methodology/decision change beyond the frozen
 Slice 0 design, so `DECISIONS.md` and tech debt were not changed.
 
-### Slice 3 - Runner, config, reporting, diagnostics
+### Slice 3 - Runner, config, reporting, diagnostics — Status: COMPLETE (2026-06-11)
 
 Add `configs/sweeps/sprint8b_sequence_context.yaml`,
 `scripts/run_sprint8b_sequence_context.py`, the sequence-input audit, diagnostics,
@@ -270,6 +270,23 @@ figures, manifest, provenance, and an output-contract test (monkeypatched
 training).
 
 Exit: mocked/smoke outputs satisfy the §9 contract; no headline claim.
+
+Done: added the Sprint 8B sweep config with the exact canonical matrix
+(`S8B_R0_reference` carry-forward, `S8B_R1_sequence_only`, and
+`S8B_R2_sequence_plus_context`) plus the Sprint 8A R2 anchor metrics; added
+`scripts/run_sprint8b_sequence_context.py` to write the §9 comparison/report/
+manifest/provenance, diagnostics, figures, and per-run artifacts. The runner keeps
+R0 as a no-retrain reference row, trains only R1/R2, writes sequence-input audit
+rows for train/val/test, records nominal and active parameter counts, labels all
+same-contract rows as from-scratch/no external pretrained weights, and avoids
+attention/context summaries for the pure sequence-only path. Added
+`tests/test_sprint8b_runner.py`, a monkeypatched output-contract test that uses a
+fake Graph C view with real S1 guide/target feature-name layout so
+`sequence_input_audit` and S1 reconstruction execute. Validation passed:
+`uv run pytest tests/test_sprint8b_sequence_context.py tests/test_sprint8b_runner.py tests/test_sprint8a_target_context_interaction.py tests/test_sprint8a_runner.py -q`
+(34 passed), and touched Python-file `ruff check` passed. No Colab notebook, real
+training, returned outputs, or headline interpretation were added; no new
+methodological decision or tech debt was introduced.
 
 ### Slice 4 - Colab runner preparation
 
