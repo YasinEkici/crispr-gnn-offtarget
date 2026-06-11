@@ -156,8 +156,16 @@ def build_s1_pair_for_edges(
     leakage attempt fails loudly.
     """
     sequence_input_audit(guide_feature_names=guide_feature_names, target_feature_names=target_feature_names)
-    guide_idx = torch.as_tensor(resolve_s1_onehot_indices(guide_feature_names, kind="guide"), dtype=torch.long)
-    target_idx = torch.as_tensor(resolve_s1_onehot_indices(target_feature_names, kind="target"), dtype=torch.long)
+    guide_idx = torch.as_tensor(
+        resolve_s1_onehot_indices(guide_feature_names, kind="guide"),
+        dtype=torch.long,
+        device=guide_node_x.device,
+    )
+    target_idx = torch.as_tensor(
+        resolve_s1_onehot_indices(target_feature_names, kind="target"),
+        dtype=torch.long,
+        device=target_node_x.device,
+    )
     source = edge_index[0]
     target = edge_index[1]
     guide_onehot = guide_node_x[source][:, guide_idx]

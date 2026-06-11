@@ -23,6 +23,13 @@ from crispr_gnn.models.gcn import (
     _validate_graph_b_data,
     _validate_graph_c_data,
 )
+from crispr_gnn.models.sequence_context_encoder import (
+    S1_NUM_CHANNELS,
+    S1_NUM_POSITIONS,
+    SequenceContextEncoder,
+    build_s1_pair_for_edges,
+    sequence_input_audit,
+)
 from crispr_gnn.models.target_context_encoder import (
     UNIFIED_SHALLOW_CONTEXT_ENCODER,
     build_target_context_encoder,
@@ -31,6 +38,14 @@ from crispr_gnn.models.target_context_encoder import (
 
 
 AttentionConvName = Literal["gat", "gatv2"]
+SEQUENCE_CONTEXT_NONE = "none"
+SEQUENCE_CONTEXT_ONLY = "sequence_only"
+SEQUENCE_CONTEXT_LATE_FUSION = "late_fusion"
+SUPPORTED_SEQUENCE_CONTEXT_MODES = {
+    SEQUENCE_CONTEXT_NONE,
+    SEQUENCE_CONTEXT_ONLY,
+    SEQUENCE_CONTEXT_LATE_FUSION,
+}
 
 
 class GraphAEdgeAttentionGNN(nn.Module):
@@ -358,6 +373,91 @@ class ContextEdgeInteractionHead(nn.Module):
         return self.mlp(fused)
 
 
+class GraphCSequenceOnlyClassifier(nn.Module):
+    """Sprint 8B R1 pure sequence-context classifier over Graph C candidate edges.
+
+    The graph view is used only as the already-aligned source of sgRNA/target
+    one-hot node features and candidate edge indexes. No candidate edge features,
+    target context scalars, context topology, or message passing enter this model.
+    """
+
+    def __init__(
+        self,
+        *,
+        guide_feature_names: Sequence[str],
+        target_feature_names: Sequence[str],
+        hidden_dim: int = 128,
+        dropout: float = 0.2,
+        sequence_embed_dim: int = 64,
+        sequence_conv_channels: int = 32,
+        sequence_conv_kernel: int = 3,
+        sequence_lstm_hidden: int = 32,
+        sequence_dropout: float = 0.2,
+    ) -> None:
+        super().__init__()
+        self.sequence_context_mode = SEQUENCE_CONTEXT_ONLY
+        self.target_representation_policy = GRAPH_C_TARGET_REPRESENTATION_POLICY
+        self.guide_feature_names = tuple(str(name) for name in guide_feature_names)
+        self.target_feature_names = tuple(str(name) for name in target_feature_names)
+        if not self.guide_feature_names:
+            raise ValueError("Sprint 8B sequence-only mode requires sgRNA feature_names")
+        if not self.target_feature_names:
+            raise ValueError("Sprint 8B sequence-only mode requires target_observation feature_names")
+        sequence_input_audit(
+            guide_feature_names=self.guide_feature_names,
+            target_feature_names=self.target_feature_names,
+        )
+        self.sequence_encoder = SequenceContextEncoder(
+            in_channels=S1_NUM_CHANNELS,
+            seq_length=S1_NUM_POSITIONS,
+            conv_channels=sequence_conv_channels,
+            conv_kernel=sequence_conv_kernel,
+            lstm_hidden=sequence_lstm_hidden,
+            embed_dim=sequence_embed_dim,
+            dropout=sequence_dropout,
+        )
+        self.sequence_classifier = nn.Sequential(
+            nn.Linear(sequence_embed_dim, hidden_dim),
+            nn.ReLU(),
+            nn.Dropout(dropout),
+            nn.Linear(hidden_dim, 1),
+        )
+
+    def forward(
+        self,
+        data: HeteroData,
+        *,
+        edge_feature_attrs: Sequence[str],
+        return_attention: bool = False,
+    ) -> torch.Tensor | tuple[torch.Tensor, list[dict[str, torch.Tensor]]]:
+        if return_attention:
+            raise ValueError("Sequence-only Sprint 8B model has no attention records")
+        _ = edge_feature_attrs  # Training dispatch passes this for all graph models.
+        seq_embed = self.sequence_embedding(data)
+        return self.sequence_classifier(seq_embed).squeeze(-1)
+
+    def sequence_embedding(self, data: HeteroData) -> torch.Tensor:
+        _validate_graph_c_data(data)
+        edge_index = data[GRAPH_C_EDGE_TYPE].edge_index
+        s1 = build_s1_pair_for_edges(
+            guide_node_x=data["sgRNA"].x,
+            guide_feature_names=self.guide_feature_names,
+            target_node_x=data["target_observation"].x,
+            target_feature_names=self.target_feature_names,
+            edge_index=edge_index,
+        )
+        return self.sequence_encoder(s1)
+
+    def sequence_input_audit_summary(self) -> dict[str, object]:
+        return sequence_input_audit(
+            guide_feature_names=self.guide_feature_names,
+            target_feature_names=self.target_feature_names,
+        )
+
+    def active_parameter_count(self) -> int:
+        return sum(parameter.numel() for parameter in self.parameters())
+
+
 class GraphCEdgeGATv2(nn.Module):
     """Graph C GATv2 link predictor over target-observation context nodes.
 
@@ -394,6 +494,13 @@ class GraphCEdgeGATv2(nn.Module):
         gate_reduction: int = 4,
         experimental_branch_bottleneck: int | None = None,
         experimental_branch_feature_dropout: float = 0.0,
+        sequence_context_mode: str = SEQUENCE_CONTEXT_NONE,
+        guide_feature_names: Sequence[str] | None = None,
+        sequence_embed_dim: int = 64,
+        sequence_conv_channels: int = 32,
+        sequence_conv_kernel: int = 3,
+        sequence_lstm_hidden: int = 32,
+        sequence_dropout: float = 0.2,
     ) -> None:
         super().__init__()
         _validate_attention_init(
@@ -418,6 +525,7 @@ class GraphCEdgeGATv2(nn.Module):
         self.mask_target_observation_features = bool(mask_target_observation_features)
         self.target_context_encoder_type = str(target_context_encoder_type)
         self.target_context_feature_names = tuple(str(name) for name in (target_context_feature_names or ()))
+        self.guide_feature_names = tuple(str(name) for name in (guide_feature_names or ()))
         self.target_observation_mask_indices = tuple(int(index) for index in (target_observation_mask_indices or ()))
         if self.mask_target_observation_features and self.target_observation_mask_indices:
             raise ValueError("Use either full target-observation masking or column-index masking, not both")
@@ -469,6 +577,32 @@ class GraphCEdgeGATv2(nn.Module):
         self.interaction_edge_dim = int(interaction_edge_dim)
         self.context_edge_interaction_head: ContextEdgeInteractionHead | None = None
         self.interaction_edge_classifier: nn.Sequential | None = None
+        self.sequence_context_mode = str(sequence_context_mode)
+        if self.sequence_context_mode not in {SEQUENCE_CONTEXT_NONE, SEQUENCE_CONTEXT_LATE_FUSION}:
+            raise ValueError(
+                "GraphCEdgeGATv2 supports sequence_context_mode 'none' or 'late_fusion'; "
+                "use GraphCSequenceOnlyClassifier for 'sequence_only'"
+            )
+        self.sequence_embed_dim = int(sequence_embed_dim)
+        self.sequence_encoder: SequenceContextEncoder | None = None
+        if self.sequence_context_mode == SEQUENCE_CONTEXT_LATE_FUSION:
+            if not self.guide_feature_names:
+                raise ValueError("Sprint 8B late-fusion mode requires sgRNA feature_names")
+            if not self.target_context_feature_names:
+                raise ValueError("Sprint 8B late-fusion mode requires target_observation feature_names")
+            sequence_input_audit(
+                guide_feature_names=self.guide_feature_names,
+                target_feature_names=self.target_context_feature_names,
+            )
+            self.sequence_encoder = SequenceContextEncoder(
+                in_channels=S1_NUM_CHANNELS,
+                seq_length=S1_NUM_POSITIONS,
+                conv_channels=sequence_conv_channels,
+                conv_kernel=sequence_conv_kernel,
+                lstm_hidden=sequence_lstm_hidden,
+                embed_dim=self.sequence_embed_dim,
+                dropout=sequence_dropout,
+            )
         if self.context_edge_interaction != CONTEXT_EDGE_INTERACTION_NONE:
             if self.interaction_edge_dim <= 0:
                 raise ValueError("interaction_edge_dim must be positive when context_edge_interaction is enabled")
@@ -479,7 +613,15 @@ class GraphCEdgeGATv2(nn.Module):
                 interaction_edge_dim=self.interaction_edge_dim,
             )
             self.interaction_edge_classifier = _edge_classifier(
-                hidden_dim=hidden_dim, edge_input_dim=self.interaction_edge_dim, dropout=dropout
+                hidden_dim=hidden_dim,
+                edge_input_dim=self.interaction_edge_dim + self._sequence_classifier_extra_dim(),
+                dropout=dropout,
+            )
+        elif self.sequence_context_mode == SEQUENCE_CONTEXT_LATE_FUSION:
+            self.edge_classifier = _edge_classifier(
+                hidden_dim=hidden_dim,
+                edge_input_dim=edge_input_dim + self._sequence_classifier_extra_dim(),
+                dropout=dropout,
             )
 
     def forward(
@@ -489,9 +631,65 @@ class GraphCEdgeGATv2(nn.Module):
         edge_feature_attrs: Sequence[str],
         return_attention: bool = False,
     ) -> torch.Tensor | tuple[torch.Tensor, list[dict[str, torch.Tensor]]]:
-        _validate_graph_c_data(data)
+        x, attention_records = self._propagated_node_features(
+            data,
+            edge_feature_attrs=edge_feature_attrs,
+            return_attention=return_attention,
+        )
         edge_store = data[GRAPH_C_EDGE_TYPE]
         candidate_edge_attr = _candidate_edge_features(edge_store, edge_feature_attrs, graph_label="Graph C")
+        if self.context_edge_interaction == CONTEXT_EDGE_INTERACTION_NONE:
+            classifier_input = self._candidate_classifier_input(
+                x,
+                data=data,
+                candidate_edge_attr=candidate_edge_attr,
+            )
+            logits = self.edge_classifier(classifier_input).squeeze(-1)
+        else:
+            classifier_input = self._candidate_classifier_input(
+                x,
+                data=data,
+                candidate_edge_attr=candidate_edge_attr,
+            )
+            if self.interaction_edge_classifier is None:
+                raise RuntimeError("context-edge interaction classifier is not enabled")
+            logits = self.interaction_edge_classifier(classifier_input).squeeze(-1)
+        if return_attention:
+            return logits, attention_records
+        return logits
+
+    def classifier_input_snapshot(
+        self,
+        data: HeteroData,
+        *,
+        edge_feature_attrs: Sequence[str],
+        zero_sequence_embedding: bool = False,
+        include_sequence_embedding: bool = True,
+    ) -> torch.Tensor:
+        """Return the pre-classifier candidate tensor for wiring/isolation tests."""
+        x, _attention_records = self._propagated_node_features(
+            data,
+            edge_feature_attrs=edge_feature_attrs,
+            return_attention=False,
+        )
+        edge_store = data[GRAPH_C_EDGE_TYPE]
+        candidate_edge_attr = _candidate_edge_features(edge_store, edge_feature_attrs, graph_label="Graph C")
+        return self._candidate_classifier_input(
+            x,
+            data=data,
+            candidate_edge_attr=candidate_edge_attr,
+            zero_sequence_embedding=zero_sequence_embedding,
+            include_sequence_embedding=include_sequence_embedding,
+        )
+
+    def _propagated_node_features(
+        self,
+        data: HeteroData,
+        *,
+        edge_feature_attrs: Sequence[str],
+        return_attention: bool,
+    ) -> tuple[torch.Tensor, list[dict[str, torch.Tensor]]]:
+        _validate_graph_c_data(data)
         x = self._initial_node_features(data)
         attention_edge_index, attention_edge_attr = graph_c_attention_edge_tensors(
             data,
@@ -499,7 +697,7 @@ class GraphCEdgeGATv2(nn.Module):
             include_context_edges=not self.drop_context_similarity_edges,
             zero_candidate_attention_attr=self.edge_blind_candidate_attention,
         )
-        x, attention_records = _apply_attention_layers(
+        return _apply_attention_layers(
             x,
             self.convs,
             self.norms,
@@ -508,52 +706,71 @@ class GraphCEdgeGATv2(nn.Module):
             attention_edge_attr=attention_edge_attr if self.edge_aware_attention else None,
             return_attention=return_attention,
         )
-        edge_index = edge_store.edge_index
-        source_index = edge_index[0]
-        target_index = edge_index[1] + data["sgRNA"].num_nodes
-        if self.context_edge_interaction == CONTEXT_EDGE_INTERACTION_NONE:
-            logits = _classify_candidate_edges(
-                x,
-                source_index=source_index,
-                target_index=target_index,
-                candidate_edge_attr=candidate_edge_attr,
-                edge_classifier=self.edge_classifier,
-            )
-        else:
-            logits = self._classify_with_interaction(
-                x,
-                source_index=source_index,
-                target_index=target_index,
-                candidate_edge_attr=candidate_edge_attr,
-            )
-        if return_attention:
-            return logits, attention_records
-        return logits
 
-    def _classify_with_interaction(
+    def _candidate_classifier_input(
         self,
         x: torch.Tensor,
         *,
-        source_index: torch.Tensor,
-        target_index: torch.Tensor,
+        data: HeteroData,
         candidate_edge_attr: torch.Tensor,
+        zero_sequence_embedding: bool = False,
+        include_sequence_embedding: bool = True,
     ) -> torch.Tensor:
-        """Graph-C-specific edge classification with a head-only context-edge interaction.
-
-        Mirrors ``_classify_candidate_edges`` but replaces the raw candidate edge
-        features with the interaction vector (the post-GATv2 target embedding is the
-        interaction context). The shared helper is left untouched.
-        """
-        if self.context_edge_interaction_head is None or self.interaction_edge_classifier is None:
-            raise RuntimeError("context-edge interaction head is not enabled")
+        edge_index = data[GRAPH_C_EDGE_TYPE].edge_index
+        source_index = edge_index[0]
+        target_index = edge_index[1] + data["sgRNA"].num_nodes
         source = x[source_index]
         target = x[target_index]
-        interaction_vector = self.context_edge_interaction_head(candidate_edge_attr, target)
+        if self.context_edge_interaction == CONTEXT_EDGE_INTERACTION_NONE:
+            edge_vector = candidate_edge_attr
+        else:
+            if self.context_edge_interaction_head is None:
+                raise RuntimeError("context-edge interaction head is not enabled")
+            edge_vector = self.context_edge_interaction_head(candidate_edge_attr, target)
         pair = torch.cat(
-            [source, target, source * target, torch.abs(source - target), interaction_vector],
+            [source, target, source * target, torch.abs(source - target), edge_vector],
             dim=1,
         )
-        return self.interaction_edge_classifier(pair).squeeze(-1)
+        if self.sequence_context_mode == SEQUENCE_CONTEXT_LATE_FUSION and include_sequence_embedding:
+            seq_embed = self._sequence_embedding(data)
+            if zero_sequence_embedding:
+                seq_embed = torch.zeros_like(seq_embed)
+            pair = torch.cat([pair, seq_embed], dim=1)
+        return pair
+
+    def _sequence_embedding(self, data: HeteroData) -> torch.Tensor:
+        if self.sequence_encoder is None:
+            raise RuntimeError("Sprint 8B sequence encoder is not enabled")
+        edge_index = data[GRAPH_C_EDGE_TYPE].edge_index
+        s1 = build_s1_pair_for_edges(
+            guide_node_x=data["sgRNA"].x,
+            guide_feature_names=self.guide_feature_names,
+            target_node_x=data["target_observation"].x,
+            target_feature_names=self.target_context_feature_names,
+            edge_index=edge_index,
+        )
+        return self.sequence_encoder(s1)
+
+    def _sequence_classifier_extra_dim(self) -> int:
+        return self.sequence_embed_dim if self.sequence_context_mode == SEQUENCE_CONTEXT_LATE_FUSION else 0
+
+    def sequence_input_audit_summary(self) -> dict[str, object]:
+        if self.sequence_context_mode != SEQUENCE_CONTEXT_LATE_FUSION:
+            return {}
+        return sequence_input_audit(
+            guide_feature_names=self.guide_feature_names,
+            target_feature_names=self.target_context_feature_names,
+        )
+
+    def active_parameter_count(self) -> int:
+        inactive_prefixes = ()
+        if self.context_edge_interaction != CONTEXT_EDGE_INTERACTION_NONE:
+            inactive_prefixes = ("edge_classifier.",)
+        return sum(
+            parameter.numel()
+            for name, parameter in self.named_parameters()
+            if not any(name.startswith(prefix) for prefix in inactive_prefixes)
+        )
 
     def _initial_node_features(self, data: HeteroData) -> torch.Tensor:
         guide_features = self.sgrna_encoder(data["sgRNA"].x)

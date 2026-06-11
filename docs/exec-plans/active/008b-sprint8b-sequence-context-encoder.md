@@ -237,7 +237,7 @@ Tests in `tests/test_sprint8b_sequence_context.py` (7) pass; 8A/7F regression gr
 ruff + `git diff --check` clean. No `gat.py` / `training/gcn.py` / config / runner /
 colab change (Slices 2–4). No training. No reproduction claim. No tech debt added.
 
-### Slice 2 - Integration and dispatch
+### Slice 2 - Integration and dispatch — Status: COMPLETE (2026-06-11)
 
 Wire the sequence-only path (R1) and the late-fusion head (R2) into the Graph C
 GATv2 / training dispatch, keeping the Sprint 8A context path frozen in R2. Add
@@ -245,6 +245,22 @@ the **frozen-context assertion** (sequence branch zeroed ⇒ R2 reproduces the 8
 head output) and config-parse tests.
 
 Exit: model/dispatch tests pass; Sprint 8A regression tests stay green.
+
+Done: added opt-in Sprint 8B sequence-context dispatch with defaults off:
+`sequence_context_encoder.mode=sequence_only` builds the pure S1
+`GraphCSequenceOnlyClassifier` (R1; no context/message-passing/edge-feature
+signal), while `mode=late_fusion` appends `seq_embed` to the Graph C GATv2
+candidate classifier input (R2). The late-fusion path preserves the upstream
+Sprint 8A context/GATv2/FiLM tensor and tests the frozen-context isolation
+assertion by zeroing `seq_embed` and verifying the context prefix is unchanged.
+Training result rows now carry `sequence_context_mode`, `sequence_embed_dim`, and
+`active_parameter_count` alongside the legacy nominal `parameter_count` so the
+Sprint 8A inactive-classifier caveat remains visible. Tests:
+`uv run pytest tests/test_sprint8b_sequence_context.py -q` (12 passed),
+`uv run pytest tests/test_sprint8a_target_context_interaction.py -q` (19 passed),
+and touched-file `ruff check` passed. No runner/config sweep/Colab/output files
+were added; no training was run; no methodology/decision change beyond the frozen
+Slice 0 design, so `DECISIONS.md` and tech debt were not changed.
 
 ### Slice 3 - Runner, config, reporting, diagnostics
 

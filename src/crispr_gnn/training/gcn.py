@@ -37,7 +37,17 @@ from crispr_gnn.models.gcn import (
     graph_c_edge_feature_attrs,
     graph_c_feature_dimensions,
 )
-from crispr_gnn.models.gat import GraphAEdgeGAT, GraphAEdgeGATv2, GraphBEdgeGATv2, GraphCEdgeGATv2
+from crispr_gnn.models.gat import (
+    SEQUENCE_CONTEXT_LATE_FUSION,
+    SEQUENCE_CONTEXT_NONE,
+    SEQUENCE_CONTEXT_ONLY,
+    SUPPORTED_SEQUENCE_CONTEXT_MODES,
+    GraphAEdgeGAT,
+    GraphAEdgeGATv2,
+    GraphBEdgeGATv2,
+    GraphCEdgeGATv2,
+    GraphCSequenceOnlyClassifier,
+)
 from crispr_gnn.models.losses import SUPPORTED_LOSSES, build_loss
 from crispr_gnn.models.target_context_encoder import UNIFIED_SHALLOW_CONTEXT_ENCODER
 from crispr_gnn.training.samplers import balanced_subsample_mask
@@ -83,6 +93,12 @@ class GCNRunConfig:
     experimental_branch_feature_dropout: float = 0.0
     context_edge_interaction: str = "none"
     interaction_edge_dim: int = 64
+    sequence_context_mode: str = SEQUENCE_CONTEXT_NONE
+    sequence_embed_dim: int = 64
+    sequence_conv_channels: int = 32
+    sequence_conv_kernel: int = 3
+    sequence_lstm_hidden: int = 32
+    sequence_dropout: float = 0.2
     loss: str = "weighted_bce"
     clip_grad_norm: float = 1.0
     scheduler: str = "reduce_on_plateau"
@@ -171,6 +187,24 @@ def gcn_run_config_from_mapping(config: Mapping[str, Any]) -> GCNRunConfig:
         raise ValueError("model.target_context_encoder.experimental_branch must be a mapping when provided")
     experimental_branch_bottleneck = experimental_branch.get("bottleneck")
     context_edge_interaction = str(model.get("context_edge_interaction", "none")).lower()
+    sequence_context = model.get("sequence_context_encoder", {})
+    if sequence_context is None:
+        sequence_context = {}
+    if not isinstance(sequence_context, Mapping):
+        raise ValueError("model.sequence_context_encoder must be a mapping when provided")
+    sequence_context_mode = str(
+        sequence_context.get("mode", model.get("sequence_context_mode", SEQUENCE_CONTEXT_NONE))
+    ).lower()
+    if sequence_context_mode not in SUPPORTED_SEQUENCE_CONTEXT_MODES:
+        raise ValueError(
+            f"Unsupported sequence_context mode '{sequence_context_mode}'. "
+            f"Allowed: {sorted(SUPPORTED_SEQUENCE_CONTEXT_MODES)}"
+        )
+    if sequence_context_mode != SEQUENCE_CONTEXT_NONE:
+        if graph_schema != GRAPH_C or architecture != "gatv2":
+            raise ValueError("Sprint 8B sequence-context modes require Graph C GATv2 dispatch")
+        if sequence_context_mode == SEQUENCE_CONTEXT_ONLY and context_edge_interaction != "none":
+            raise ValueError("sequence_only mode must not enable context_edge_interaction")
     loss = str(training.get("loss", "weighted_bce"))
     if loss.lower() not in SUPPORTED_LOSSES:
         raise ValueError(
@@ -238,6 +272,12 @@ def gcn_run_config_from_mapping(config: Mapping[str, Any]) -> GCNRunConfig:
         experimental_branch_feature_dropout=float(experimental_branch.get("feature_dropout", 0.0)),
         context_edge_interaction=context_edge_interaction,
         interaction_edge_dim=int(model.get("interaction_edge_dim", 64)),
+        sequence_context_mode=sequence_context_mode,
+        sequence_embed_dim=int(sequence_context.get("embed_dim", 64)),
+        sequence_conv_channels=int(sequence_context.get("conv_channels", 32)),
+        sequence_conv_kernel=int(sequence_context.get("conv_kernel", 3)),
+        sequence_lstm_hidden=int(sequence_context.get("lstm_hidden", 32)),
+        sequence_dropout=float(sequence_context.get("dropout", model.get("dropout", 0.2))),
         loss=loss,
         clip_grad_norm=float(training.get("clip_grad_norm", 1.0)),
         scheduler=scheduler,
@@ -439,6 +479,9 @@ def _train_gcn(
     model, edge_dim = _build_model(train_view, config, edge_feature_attrs)
     model = model.to(device)
     parameter_count = sum(parameter.numel() for parameter in model.parameters())
+    active_parameter_count = (
+        int(model.active_parameter_count()) if hasattr(model, "active_parameter_count") else int(parameter_count)
+    )
     _use_amp = config.use_amp and device.type == "cuda"
     if config.use_compile and device.type == "cuda" and hasattr(torch, "compile"):
         model = torch.compile(model)
@@ -547,6 +590,7 @@ def _train_gcn(
         best_val_auprc=float(best_val_auprc),
         edge_dim=edge_dim,
         parameter_count=parameter_count,
+        active_parameter_count=active_parameter_count,
         pos_weight=float(pos_weight.detach().cpu()),
     )
     predictions = _prediction_records(
@@ -580,10 +624,20 @@ def _result_row(
     best_val_auprc: float,
     edge_dim: int,
     parameter_count: int,
+    active_parameter_count: int,
     pos_weight: float,
 ) -> dict[str, object]:
     val_metrics = binary_classification_metrics(val_labels, val_scores, threshold, prefix="val_")
     test_metrics = binary_classification_metrics(test_labels, test_scores, threshold, prefix="test_")
+    uses_attention_layers = (
+        config.architecture in {"gat", "gatv2"} and config.sequence_context_mode != SEQUENCE_CONTEXT_ONLY
+    )
+    uses_graph_c_context = (
+        config.graph_schema == GRAPH_C
+        and config.architecture == "gatv2"
+        and config.sequence_context_mode != SEQUENCE_CONTEXT_ONLY
+    )
+    uses_candidate_edge_features = config.sequence_context_mode != SEQUENCE_CONTEXT_ONLY
     return {
         "sprint": config.sprint,
         "label_scheme": config.label_scheme,
@@ -605,75 +659,84 @@ def _result_row(
         "best_epoch": int(best_epoch),
         "epochs_ran": int(epochs_ran),
         "best_val_auprc": float(best_val_auprc),
-        "edge_feature_sets": ",".join(config.edge_feature_sets),
-        "edge_feature_columns": int(edge_dim),
-        "edge_aware_attention": bool(config.edge_aware_attention) if config.architecture in {"gat", "gatv2"} else None,
-        "attention_heads": int(config.attention_heads) if config.architecture in {"gat", "gatv2"} else None,
-        "attention_concat": bool(config.attention_concat) if config.architecture in {"gat", "gatv2"} else None,
+        "edge_feature_sets": ",".join(config.edge_feature_sets) if uses_candidate_edge_features else "",
+        "edge_feature_columns": int(edge_dim) if uses_candidate_edge_features else 0,
+        "edge_aware_attention": bool(config.edge_aware_attention) if uses_attention_layers else None,
+        "attention_heads": int(config.attention_heads) if uses_attention_layers else None,
+        "attention_concat": bool(config.attention_concat) if uses_attention_layers else None,
         "attention_dropout": (
             float(config.attention_dropout)
-            if config.architecture in {"gat", "gatv2"} and config.attention_dropout is not None
+            if uses_attention_layers and config.attention_dropout is not None
             else None
         ),
         "self_loop_edge_fill": (
-            float(config.self_loop_edge_fill) if config.architecture in {"gat", "gatv2"} else None
+            float(config.self_loop_edge_fill) if uses_attention_layers else None
         ),
         "gatv2_share_weights": (
-            bool(config.gatv2_share_weights) if config.architecture == "gatv2" else None
+            bool(config.gatv2_share_weights) if config.architecture == "gatv2" and uses_attention_layers else None
         ),
         "drop_context_similarity_edges": (
             bool(config.drop_context_similarity_edges)
-            if config.graph_schema == GRAPH_C and config.architecture == "gatv2"
+            if uses_graph_c_context
             else None
         ),
         "edge_blind_candidate_attention": (
             bool(config.edge_blind_candidate_attention)
-            if config.graph_schema == GRAPH_C and config.architecture == "gatv2"
+            if uses_graph_c_context
             else None
         ),
         "mask_target_observation_features": (
             bool(config.mask_target_observation_features)
-            if config.graph_schema == GRAPH_C and config.architecture == "gatv2"
+            if uses_graph_c_context
             else None
         ),
         "target_observation_mask_families": (
             ",".join(config.target_observation_mask_families)
-            if config.graph_schema == GRAPH_C and config.architecture == "gatv2"
+            if uses_graph_c_context
             else None
         ),
         "target_context_encoder_type": (
             config.target_context_encoder_type
-            if config.graph_schema == GRAPH_C and config.architecture == "gatv2"
+            if uses_graph_c_context
             else None
         ),
         "family_gate": (
             bool(config.family_gate)
-            if config.graph_schema == GRAPH_C and config.architecture == "gatv2"
+            if uses_graph_c_context
             else None
         ),
         "experimental_branch_bottleneck": (
             config.experimental_branch_bottleneck
-            if config.graph_schema == GRAPH_C and config.architecture == "gatv2"
+            if uses_graph_c_context
             else None
         ),
         "experimental_branch_feature_dropout": (
             float(config.experimental_branch_feature_dropout)
-            if config.graph_schema == GRAPH_C and config.architecture == "gatv2"
+            if uses_graph_c_context
             else None
         ),
         "context_edge_interaction": (
             config.context_edge_interaction
-            if config.graph_schema == GRAPH_C and config.architecture == "gatv2"
+            if uses_graph_c_context
             else None
         ),
         "interaction_edge_dim": (
             int(config.interaction_edge_dim)
-            if config.graph_schema == GRAPH_C
-            and config.architecture == "gatv2"
-            and config.context_edge_interaction != "none"
+            if uses_graph_c_context and config.context_edge_interaction != "none"
+            else None
+        ),
+        "sequence_context_mode": (
+            config.sequence_context_mode
+            if config.graph_schema == GRAPH_C and config.architecture == "gatv2"
+            else None
+        ),
+        "sequence_embed_dim": (
+            int(config.sequence_embed_dim)
+            if config.sequence_context_mode != SEQUENCE_CONTEXT_NONE
             else None
         ),
         "parameter_count": int(parameter_count),
+        "active_parameter_count": int(active_parameter_count),
         "baseline_reference": BASELINE_REFERENCE,
         "baseline_test_auprc": BASELINE_TEST_AUPRC,
         "baseline_test_auroc": BASELINE_TEST_AUROC,
@@ -785,7 +848,8 @@ def _build_model(
     | GraphAEdgeGAT
     | GraphAEdgeGATv2
     | GraphBEdgeGATv2
-    | GraphCEdgeGATv2,
+    | GraphCEdgeGATv2
+    | GraphCSequenceOnlyClassifier,
     int,
 ]:
     if config.graph_schema == GRAPH_A:
@@ -867,6 +931,7 @@ def _build_model(
     if config.graph_schema == GRAPH_C:
         sgrna_dim, target_dim, edge_dim = graph_c_feature_dimensions(train_view, edge_feature_attrs)
         if config.architecture == "gatv2":
+            guide_feature_names = list(getattr(train_view["sgRNA"], "feature_names", []))
             target_feature_names = list(getattr(train_view["target_observation"], "feature_names", []))
             target_mask_indices: tuple[int, ...] = ()
             if config.target_observation_mask_families:
@@ -874,6 +939,21 @@ def _build_model(
                 target_mask_indices = target_context_mask_indices(
                     target_feature_names,
                     config.target_observation_mask_families,
+                )
+            if config.sequence_context_mode == SEQUENCE_CONTEXT_ONLY:
+                return (
+                    GraphCSequenceOnlyClassifier(
+                        guide_feature_names=guide_feature_names,
+                        target_feature_names=target_feature_names,
+                        hidden_dim=config.hidden_dim,
+                        dropout=config.dropout,
+                        sequence_embed_dim=config.sequence_embed_dim,
+                        sequence_conv_channels=config.sequence_conv_channels,
+                        sequence_conv_kernel=config.sequence_conv_kernel,
+                        sequence_lstm_hidden=config.sequence_lstm_hidden,
+                        sequence_dropout=config.sequence_dropout,
+                    ),
+                    edge_dim,
                 )
             return (
                 GraphCEdgeGATv2(
@@ -901,6 +981,13 @@ def _build_model(
                     experimental_branch_feature_dropout=config.experimental_branch_feature_dropout,
                     context_edge_interaction=config.context_edge_interaction,
                     interaction_edge_dim=config.interaction_edge_dim,
+                    sequence_context_mode=config.sequence_context_mode,
+                    guide_feature_names=guide_feature_names,
+                    sequence_embed_dim=config.sequence_embed_dim,
+                    sequence_conv_channels=config.sequence_conv_channels,
+                    sequence_conv_kernel=config.sequence_conv_kernel,
+                    sequence_lstm_hidden=config.sequence_lstm_hidden,
+                    sequence_dropout=config.sequence_dropout,
                 ),
                 edge_dim,
             )
@@ -934,6 +1021,12 @@ def _run_notes(config: GCNRunConfig) -> str:
             "when edge_aware_attention=True; self-loop edge features are zero-filled; no test-driven selection"
         )
     if config.architecture == "gatv2":
+        if config.sequence_context_mode == SEQUENCE_CONTEXT_ONLY:
+            return (
+                "Sprint 8B sequence-only Graph C path: S1 guide/target one-hot pair reconstructed from "
+                "Graph C node features, CRISPR-Net-adapted Conv+BiLSTM encoder, no context/message-passing/"
+                "candidate-edge-feature signal, no external pretrained weights, no test-driven selection"
+            )
         ablation_flags = []
         if config.drop_context_similarity_edges:
             ablation_flags.append("context_similar_to edges dropped")
@@ -946,6 +1039,12 @@ def _run_notes(config: GCNRunConfig) -> str:
             ablation_flags.append(f"target_observation families masked: {families}")
         if config.graph_schema == GRAPH_C:
             ablation_flags.append(f"target_context_encoder={config.target_context_encoder_type}")
+            if config.sequence_context_mode == SEQUENCE_CONTEXT_ONLY:
+                ablation_flags.append("Sprint 8B sequence_only S1 encoder; no context/message-passing signal")
+            elif config.sequence_context_mode == SEQUENCE_CONTEXT_LATE_FUSION:
+                ablation_flags.append(
+                    "Sprint 8B late_fusion S1 seq_embed appended at classifier input; context path additive/frozen"
+                )
         ablation_note = f"; Sprint 7D ablation: {', '.join(ablation_flags)}" if ablation_flags else ""
         return (
             f"{config.graph_schema} GATv2Conv path with dynamic attention; candidate edge features enter attention via edge_attr/edge_dim "
