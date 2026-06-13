@@ -907,3 +907,210 @@ Outcome:
   bootstrap CIs (no retraining) provide the uniform uncertainty layer instead.
 - Literature anchors: Boyd 2013 (AUPRC CIs); cluster/block bootstrap for
   correlated data; paired-difference bootstrap / overlapping-CI fallacy; BCa.
+
+## 2026-06-10 - Re-scope Sprint 8 as model improvement (8A/8B); defer robustness to Sprint 9
+
+Decision: Sprint 8 is re-scoped from "Robustness" to a small, predeclared,
+mechanism-driven **model-improvement** sprint, split into Sprint 8A
+(target-context + context-edge interaction) and Sprint 8B (sequence-context
+encoder). The robustness work (guide-level bootstrap CIs, paired-difference
+bootstrap, multi-seed fixed-split variance) is moved to a new **Sprint 9**. This
+supersedes the 2026-06-06 "Open optional Sprint 8 (Robustness)" decision for the
+sprint *numbering and scope* only; the robustness *methodology* in that entry is
+unchanged and simply relabelled Sprint 9.
+
+Reason: Sprint 7F localized the strongest same-contract GNN signal to
+target-context representation (7D: direct `target_observation` features are
+critical; 7E: experimental epigenetic features are necessary; 7F: a family-aware
+encoder beat a larger unified-deep encoder, i.e. structure mattered more than raw
+capacity). The most informative next step is therefore a small model-improvement
+sprint on that axis, not robustness. Robustness is interpretation-only, requires
+no architecture change, and does not block model improvement, so it consolidates
+cleanly as a later Sprint 9.
+
+Scope and locked decisions (predeclared before any Sprint 8 training; carried in
+`docs/exec-plans/completed/008-sprint8a-target-context-interaction.md` and
+`...008b-sprint8b-sequence-context-encoder.md`):
+
+- Frozen evaluation contract is inherited verbatim from Sprint 7F: `scheme_a`,
+  `sprint2_main_seed42`, guide-disjoint, measured-only headline, `experiment_id=18`
+  excluded, train-only preprocessing, validation-only checkpoint and threshold,
+  no test-driven selection, AUPRC primary, XGBoost F4 bar test AUPRC `0.992522`,
+  Graph C GATv2 + `S5F2_energy`, weighted BCE, seed 42, `context_similar_to`
+  edges dropped.
+- **Canonical base = Sprint 7F R3** (`family_aware_experimental_emphasis`, branch
+  dims 24/48/40/16), chosen by the highest **validation** AUPRC (`0.987522`; R2
+  `0.977541`, R1 `0.976594`) so the base selection never touches the test set.
+  Sprint 7F R2 is retained only as a carry-forward rare-negative reference row,
+  not as the base.
+- **Sprint 8A run matrix (exactly 5 canonical Graph C GATv2 runs):** R0 base
+  reference; R1 SENET-style learned family gate over the four target-context
+  family branches (115/6/78/13); R2 head-only FiLM interaction (context embedding
+  → γ,β → candidate `S5F2_energy` edge embedding) before classification; R3 gate
+  + FiLM; R4 regularized experimental-epigenetic branch (bottleneck +
+  feature-dropout). The **frozen GATv2 attention/message passing is unchanged** —
+  the interaction is applied in the classifier head only (GNN-FiLM/ECC cited as
+  principle, adapted head-only to preserve the contract). Interaction-MLP over
+  `[edge, context, edge*context]` is the predeclared fallback if FiLM
+  underperforms on validation; full bilinear is excluded (overfit risk at ~900
+  train negatives / single seed).
+- **Selection rule:** validation AUPRC primary, validation MCC/macro F1
+  tie-break; test metrics reported only; every predeclared run reported;
+  `parameter_count` reported next to performance as a capacity-confound control
+  (Sprint 7F family-aware already beat the larger unified-deep encoder with fewer
+  parameters). Optional axis-4 hyperparameter refinement is bounded, predeclared,
+  validation-only, and applied only to the single validation-AUPRC winner — the
+  sole sanctioned exception to the otherwise-frozen GATv2/training defaults.
+- **Sprint 8B** re-implements a CRISPR-Net-adapted Conv+BiLSTM sequence encoder
+  over the Sprint 2 `S1` sgRNA/target pair, trained **from scratch on the locked
+  split**. Externally-pretrained CRISPR/genomic weights (CRISPR-Net/DeepCRISPR
+  checkpoints; RNA-FM/DNABERT-2) must not be used as same-contract results
+  (leakage); any transfer experiment is a separately-labelled, approval-gated
+  slice. No reproduction claims (data/split/target/metric differ from the source
+  papers).
+
+Literature: a new axis `docs/literature/axes/axis_4_model_architecture_components/`
+was added with the design-justification papers (4A SENet; 4B FiLM, GNN-FiLM,
+FiBiNET; 4C Lengerich dropout-as-interaction-regularizer, Geirhos shortcut
+learning; 4D Schneider et al. overtuning, Kapoor & Narayanan leakage; 4E Brody
+GATv2 backbone, Dwivedi same-parameter-budget benchmarking), plus CRISPR-IP under
+`axis_1/1B`. All are cited as adaptations/precedents, never as reproductions.
+
+Outcome:
+
+- `CRISPR_GNN_PROJECT_PLAN.md` and `README.md` roadmaps updated: Sprint 8 =
+  model-improvement (8A/8B); Sprint 9 = robustness (optional/stretch). Robustness
+  deliverables move from `outputs/sprint8/` to `outputs/sprint9/`.
+- Sprint 8A outputs live under `outputs/sprint8a/`, Sprint 8B under
+  `outputs/sprint8b/`.
+- No label, split, dataset, loss, or evaluation-rule change — this is a
+  roadmap/scope decision plus predeclared architecture deltas under the existing
+  frozen contract.
+
+## 2026-06-11 - Sprint 8A selects R2 by validation AUPRC; defer superiority to Sprint 9
+
+Decision: close Sprint 8A Slice 6 with `S8A_R2_context_edge_film` as the
+validation-selected canonical candidate, skip Slice 7 hyperparameter refinement
+unless a separate preapproved methodological reason is added, and defer any
+superiority claim to Sprint 9 robustness.
+
+Reason:
+
+- The predeclared selection rule was validation AUPRC. The authoritative
+  consolidated batch `sprint8a_target_context_interaction_seed42_20260611_011416`
+  selected R2 with validation AUPRC `0.987496`. R2's test diagnostics were AUPRC
+  `0.982757`, AUROC `0.910575`, MCC `0.563656`, TN/FP/FN/TP `88/81/39/1494`.
+- R2 improved the rare-negative operating point versus the Sprint 8A R0 harness
+  base, but no Sprint 8A variant surpassed the carry-forward XGBoost F4 bar
+  (test AUPRC `0.992522`). R0 also did not reproduce the S7F R3 carry-forward
+  reference exactly, so single-seed harness variance remains a material
+  interpretation risk.
+- R3 (`gate+FiLM`) underperformed R2 because it lost rare negatives at the
+  validation-selected operating point (`R2->R3`: `TN->FP=52`, `FP->TN=1`,
+  `FN->TP=25`, `TP->FN=17`) and also had lower ranking metrics. Aggregate gate
+  weights did not collapse; the result is best interpreted as gate+FiLM
+  interference/calibration degradation in this frozen setup, not evidence that
+  gating is globally harmful.
+- R4 (regularized experimental branch) gained some negatives relative to R0
+  (`FP->TN=48`) but created many false negatives (`TP->FN=88`), concentrated in
+  a few positive-heavy guides. The available outputs do not prove that
+  experimental epigenetic features are shortcuts; they show that this bottleneck
+  + dropout regularizer was too blunt or unstable for the single-seed canonical
+  setting.
+- Following the overtuning/leakage discipline already documented for Sprint 8,
+  a post-result HP refinement would risk optimizing to the observed validation/
+  test behavior. Sprint 9 should instead predeclare fixed configs, seeds, and
+  paired/guide-level uncertainty analysis.
+
+Outcome:
+
+- Treat R2 as the Sprint 8A candidate for robustness, not as a final superior
+  model.
+- Do not change labels, split, threshold policy, model code, or canonical Sprint
+  8A outputs based on these diagnostics.
+- Sprint 9 should test R2 against the frozen base/reference with predeclared
+  multi-seed fixed-split runs and paired guide-level/bootstrap diagnostics.
+- Record the parameter-count reporting caveat separately as tech debt: in
+  interaction mode the nominal parameter count includes an inactive base edge
+  classifier, so reported R2/R3 capacity overstates active parameters.
+
+## 2026-06-11 - Sprint 8B Slice 0 planning freeze (sequence-context encoder)
+
+Decision: freeze the Sprint 8B plan
+(`docs/exec-plans/completed/008b-sprint8b-sequence-context-encoder.md`, §15) before
+any implementation, pinning the design decisions below. No code, config, test, or
+training in Slice 0; no Sprint 8A result changed.
+
+- **R0 anchor:** `S8B_R0_reference` = `S8A_R2_context_edge_film` (Sprint 8A
+  validation-AUPRC winner), authoritative batch
+  `sprint8a_target_context_interaction_seed42_20260611_011416`, no retrain.
+- **(a) S1 input source:** reconstruct the `S1` sgRNA/target pair deterministically
+  from the frozen Graph C artifacts (guide one-hot `feature__guide_pos_*` 115 +
+  target one-hot `feature__target_pos_*` 115 + computed per-position mismatch =
+  23×11), NOT from a raw-data edge-id join. Rationale: lossless, deterministic,
+  leakage-clean (Kapoor & Narayanan — avoid silent wrong-key joins); both one-hot
+  tables verified present in the sha256-recorded artifacts. Sequence branch carries
+  sequence-only signal (no energy/epigenetic/context), proven by a sequence-input
+  audit.
+- **(b) Late-fusion injection point:** concatenate `seq_embed` into the Sprint 8A
+  R2 candidate-edge classifier input vector
+  `[source, target, source*target, |source-target|, edge_film, seq_embed]`; GATv2
+  message passing, target-context encoder, and FiLM head stay frozen. Matches the
+  project's Sprint 2 late-fusion precedent (2026-05-23). The frozen-context
+  assertion is a wiring/isolation test (zeroing `seq_embed` leaves the frozen 8A
+  path bit-identical), not numerical reproduction of the jointly-retrained head.
+- **Encoder:** small 1D-Conv + BiLSTM over the 23×11 `S1` tensor (CRISPR-Net /
+  CRISPR-IP adaptation; attention deferred to limit scope/overtuning); **no
+  reproduction claim** (data/split/target/metric differ).
+- **Discipline carried from Sprint 8A forensic review:** report active parameter
+  counts (nominal counts inflated by the inactive base classifier); MCC/specificity
+  are secondary threshold diagnostics and never used to rank; single-seed →
+  directional only; superiority/variance deferred to Sprint 9.
+
+Outcome: Slices 1–7 implement against §15 with no remaining design decision.
+External-pretrained transfer slice (RNA-FM / DNABERT-2) remains approval-gated.
+
+## 2026-06-13 - Sprint 8B selects R2 by validation AUPRC; skip external-pretrained transfer slice
+
+Decision: close Sprint 8B Slice 5 with `S8B_R2_sequence_plus_context` as the
+validation-selected candidate and explicitly skip Slice 6 (RNA-FM / DNABERT-2
+transfer) for the canonical Sprint 8B scope. Any future RNA-FM / DNABERT-2 work
+must be a separate, approval-gated transfer-learning plan with leakage caveats,
+not a same-contract headline row.
+
+Reason:
+
+- The predeclared selection rule was validation AUPRC. The authoritative Sprint
+  8B batch `sprint8b_sequence_context_seed42_20260612_220002` selected
+  `S8B_R2_sequence_plus_context` with validation AUPRC `0.988449` and test AUPRC
+  `0.986020` (MCC `0.567309`, specificity `0.863905`, TN/FP/FN/TP
+  `146/23/180/1353`).
+- R2 improved over the Sprint 8A R2 carry-forward reference by only `+0.003263`
+  test AUPRC and `+0.003653` MCC, and remained below the XGBoost F4 AUPRC bar by
+  `-0.006502`. This is directional single-seed evidence, not a superiority
+  claim.
+- `S8B_R1_sequence_only` collapsed under the frozen measured-only benchmark
+  (validation AUPRC `0.810173`, test AUPRC `0.856666`, AUROC `0.304164`, MCC
+  `-0.019749`, specificity `0.0`, TN/FP/FN/TP `0/169/6/1527`). The defensible
+  conclusion is that this compact from-scratch `S1` Conv+BiLSTM path does not
+  recover the target-context signal; it is not evidence that all sequence models
+  are useless.
+- RNA-FM / DNABERT-2 would introduce external pretrained genomic/RNA weights.
+  Per the Kapoor leakage discipline already adopted for Sprint 8B, any positive
+  transfer result could overlap held-out guides/targets or training distribution
+  in unknown ways and therefore cannot be reported as a same-contract result.
+- Opening a new pretrained-foundation-model track after observing the modest R2
+  gain would expand thesis scope, add new dependencies/compute/literature, and
+  increase overtuning/scope-creep risk without addressing the frozen Sprint 8B
+  question.
+
+Outcome:
+
+- Treat `S8B_R2_sequence_plus_context` as a validation-selected candidate for
+  Sprint 9 robustness, not as a final superior model.
+- Do not run Slice 6 inside Sprint 8B; no transfer code/config/notebook/output is
+  added.
+- Do not change labels, split, threshold policy, model code, or canonical Sprint
+  8B outputs based on these diagnostics.
+- Sprint 9 should test the Sprint 8A/8B candidates with predeclared multi-seed
+  fixed-split runs and paired guide-level/bootstrap diagnostics.

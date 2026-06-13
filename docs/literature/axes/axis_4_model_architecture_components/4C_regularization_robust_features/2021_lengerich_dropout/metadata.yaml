@@ -1,0 +1,18 @@
+title: Dropout as a Regularizer of Interaction Effects
+authors:
+- Ben Lengerich
+- Eric P. Xing
+- Rich Caruana
+abstract: 'We examine Dropout through the perspective of interactions. This view provides
+  a symmetry to explain Dropout: given N variables, there are $\binom{N}{k}$ possible
+  sets of k variables to form an interaction (i.e. $\mathcal{O}(N^k)$); conversely,
+  the probability an interaction of k variables survives Dropout at rate p is $(1-p)^k$
+  (decaying with k). These rates effectively cancel, and so Dropout regularizes against
+  higher-order interactions.'
+keywords:
+- Dropout
+- Regularization
+- Interaction Effects
+- Neural Networks
+journal: ''
+year: 2021

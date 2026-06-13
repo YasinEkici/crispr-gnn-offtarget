@@ -1,0 +1,160 @@
+# Sprint 8B sequence-context encoder comparison.
+#
+# Fixed setting: Graph C + S5F2_energy + edge-aware GATv2 + weighted BCE, with
+# Sprint 8A R2 as the carry-forward anchor. Controlled variable: adding a
+# from-scratch CRISPR-Net-adapted S1 sequence-context encoder either as a pure
+# sequence path (R1) or late-fused into the Sprint 8A R2 classifier input (R2).
+
+experiment_name: sprint8b_sequence_context
+task: sprint8b_sequence_context
+sprint: sprint8b
+seed: 42
+run_id: null
+
+data:
+  dataset: mak2022
+  config: configs/data/mak2022.yaml
+  label_scheme: scheme_a
+  split_id: sprint2_main_seed42
+  split_manifest: outputs/splits/sprint2_guides.json
+  graph_c_artifact_dir: data/processed/graphs/sprint5b
+
+features:
+  edge_feature_sets: [s5f2_energy]
+  feature_set: S5F2_energy
+  sequence_input: S1_sequence_pair_from_graph_c_onehot
+  target_observation_feature_table: target_observation_features
+
+graph:
+  materialization: heterodata
+  visibility_policy: strict_inductive_primary
+  graph_c_schema: graph_c_context_observation
+  graph_c_policy: carry_forward_sprint5b_graph_c_s5f2
+  canonical_context_similarity_policy: drop_for_sprint8b
+
+model:
+  hidden_dim: 128
+  num_layers: 2
+  dropout: 0.2
+  target_node_representation: target_observation_context_encoder
+  attention:
+    heads: 4
+    concat: true
+    dropout: 0.2
+    edge_aware: true
+    self_loop_edge_fill: 0.0
+    gatv2_share_weights: false
+    drop_context_similarity_edges: true
+    edge_blind_candidate_attention: false
+
+training:
+  loss: weighted_bce
+  loss_params:
+    pos_weight: auto
+  clip_grad_norm: 1.0
+  scheduler: reduce_on_plateau
+  scheduler_factor: 0.5
+  scheduler_patience: 5
+  scheduler_min_lr: 0.00001
+  learning_rate: 0.001
+  weight_decay: 0.0001
+  max_epochs: 300
+  min_epochs: 5
+  patience: 15
+  device: cuda
+  num_threads: 1
+  use_compile: true
+  use_amp: true
+
+runs:
+  - id: S8B_R1_sequence_only
+    model_name: gatv2_graph_c_sprint8b_sequence_only
+    architecture: gatv2
+    role: pure_s1_sequence_context_encoder
+    target_context_encoder:
+      type: family_aware_experimental_emphasis
+      family_gate: false
+      gate_reduction: 4
+      experimental_branch:
+        bottleneck: null
+        feature_dropout: 0.0
+    context_edge_interaction: none
+    interaction_edge_dim: 64
+    sequence_context_encoder:
+      mode: sequence_only
+      embed_dim: 64
+      conv_channels: 32
+      conv_kernel: 3
+      lstm_hidden: 32
+      dropout: 0.2
+
+  - id: S8B_R2_sequence_plus_context
+    model_name: gatv2_graph_c_sprint8b_sequence_plus_context
+    architecture: gatv2
+    role: late_fusion_s1_sequence_context_plus_s8a_r2_film
+    target_context_encoder:
+      type: family_aware_experimental_emphasis
+      family_gate: false
+      gate_reduction: 4
+      experimental_branch:
+        bottleneck: null
+        feature_dropout: 0.0
+    context_edge_interaction: film
+    interaction_edge_dim: 64
+    sequence_context_encoder:
+      mode: late_fusion
+      embed_dim: 64
+      conv_channels: 32
+      conv_kernel: 3
+      lstm_hidden: 32
+      dropout: 0.2
+
+prior_context:
+  s8a_r2_context_edge_film:
+    source: Sprint 8A R2 context-edge FiLM validation-selected candidate
+    source_batch: sprint8a_target_context_interaction_seed42_20260611_011416
+    test_auprc: 0.982757
+    test_auroc: 0.910575
+    test_macro_f1: 0.777185
+    test_mcc: 0.563656
+    test_specificity: 0.520710
+    test_sensitivity: 0.974560
+    test_tn: 88
+    test_fp: 81
+    test_fn: 39
+    test_tp: 1494
+    best_val_auprc: 0.987496
+    parameter_count: 381866
+  xgboost_f4:
+    source: Sprint 2 XGBoost F4 baseline
+    test_auprc: 0.992522
+    test_auroc: 0.938416
+    test_mcc: 0.345198
+  test_positive_prevalence: 0.900705
+
+split_rules:
+  guide_disjoint: true
+  train_measured_only: true
+  validation_measured_only: true
+  test_measured_only: true
+  exclude_experiment_id: 18
+
+evaluation:
+  protocol: headline_guide_level
+  no_test_tuning: true
+  regime: measured_only
+  controlled_variable: sequence_context_encoder_delta
+  selection_metric: validation_auprc
+  threshold_policy: validation_max_f1
+  checkpoint_policy: validation_auprc
+  primary_ablation_reference: S8B_R0_reference
+  no_reproduction_claim: true
+  pretrained_weights_allowed: false
+
+metrics:
+  primary: auprc
+  secondary: [auroc, f1, macro_f1, mcc, specificity, sensitivity, tn, fp, fn, tp]
+  emphasis: [auprc, mcc, specificity, tn, fp]
+
+outputs:
+  output_dir: outputs/sprint8b
