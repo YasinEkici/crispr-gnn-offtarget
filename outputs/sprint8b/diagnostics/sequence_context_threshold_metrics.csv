@@ -1,0 +1,4 @@
+run_id,predeclared_run_id,sequence_context_mode,test_positive_rate,test_f1,test_macro_f1,test_mcc,test_specificity,test_sensitivity,test_tn,test_fp,test_fn,test_tp
+sprint8b_sequence_context_seed42_20260612_220002_S8B_R0_reference,S8B_R0_reference,reference_no_sequence_encoder,0.900705,,0.777185,0.563656,0.52071,0.97456,88,81,39,1494
+sprint8b_sequence_context_seed42_20260612_220002_S8B_R1_sequence_only,S8B_R1_sequence_only,sequence_only,0.900705052878966,0.9458036543821616,0.4729018271910808,-0.019748539187977365,0.0,0.9960861056751468,0,169,6,1527
+sprint8b_sequence_context_seed42_20260612_220002_S8B_R2_sequence_plus_context,S8B_R2_sequence_plus_context,late_fusion,0.900705052878966,0.9302165692677896,0.7600577795833898,0.5673088150643012,0.863905325443787,0.8825831702544031,146,23,180,1353

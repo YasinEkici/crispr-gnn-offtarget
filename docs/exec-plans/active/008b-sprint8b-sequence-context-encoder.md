@@ -314,13 +314,44 @@ notebook runner-only and aligned with the expected command/output contract. No
 full training, returned outputs, result interpretation, transfer slice, or
 headline claim was added; no methodology/decision change and no new tech debt.
 
-### Slice 5 - Full run and local validation
+### Slice 5 - Full run and local validation - Status: COMPLETE (2026-06-13)
 
 Run R1 and R2 (seed 42) on Colab GPU from scratch on the locked split, copy
 outputs under `outputs/sprint8b/`, validate locally, no test-driven tuning.
 
 Exit: all §9 outputs exist (or any technical omission is documented before
 interpreting results).
+
+Done: canonical Sprint 8B outputs were returned and locally validated under
+`outputs/sprint8b/`. The authoritative consolidated manifest is
+`sprint8b_sequence_context_seed42_20260612_220002`; earlier local/returned smoke
+or partial run directories (`213400`, `215703`, `sprint8b_smoke_20260612_213648`)
+are diagnostic noise only and are not referenced by the consolidated manifest or
+comparison table. The §9 output contract is complete: comparison/report/manifest/
+provenance files, diagnostics, figures, and authoritative per-run artifacts for
+`S8B_R1_sequence_only` and `S8B_R2_sequence_plus_context` are present. Returned
+outputs exclude `model.pt`, as intended.
+
+Validation-AUPRC selected `S8B_R2_sequence_plus_context` as the Sprint 8B
+canonical candidate (`best_val_auprc=0.988449`; test AUPRC `0.986020`, MCC
+`0.567309`, TN/FP/FN/TP `146/23/180/1353`). This is a validation-selected
+single-seed result, not a superiority claim; R2 improves over the Sprint 8A R2
+carry-forward reference by `+0.003263` test AUPRC and `+0.003653` MCC, but remains
+below the XGBoost F4 AUPRC bar by `-0.006502`. The threshold operating point
+changes the error profile substantially versus the R0 reference: R2 retrieves
+more negatives (`146` TN vs `88`) and reduces false positives (`23` FP vs `81`),
+but creates many more false negatives (`180` FN vs `39`). MCC/specificity remain
+secondary diagnostics and must not be used to re-rank or tune.
+
+`S8B_R1_sequence_only` underperformed strongly (`best_val_auprc=0.810173`, test
+AUPRC `0.856666`, MCC `-0.019749`, specificity `0.0`, TN/FP/FN/TP
+`0/169/6/1527`), confirming that this pure S1 Conv+BiLSTM path alone does not
+recover the target-context signal under the frozen contract. Sequence-input audit
+passed for both trained runs: S1 reconstructed from Graph C one-hot features
+(`115` guide + `115` target one-hot columns, `23x11` representation), no raw-data
+join, no external pretrained weights, and no reproduction claim. No rerun,
+threshold change, hyperparameter change, transfer slice, or result-driven tuning
+was performed.
 
 ### Slice 6 - Optional transfer slice (approval-gated)
 
