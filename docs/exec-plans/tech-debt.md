@@ -89,6 +89,41 @@ Required fix:
 
 ---
 
+## Sprint 8B carry-forward reference lacks active parameter count
+
+**Discovered:** Sprint 8B Slice 5/6 validation and transfer-skip review
+(2026-06-13)
+**Fix needed before:** Sprint 9 robustness reporting, or any parameter-budget
+claim comparing Sprint 8A R2 carry-forward against Sprint 8B late-fusion.
+
+Sprint 8B added `active_parameter_count` for the trained R1/R2 rows, but
+`S8B_R0_reference` is a no-retrain carry-forward of Sprint 8A R2 and still has
+`active_parameter_count` empty in `outputs/sprint8b/diagnostics/
+sequence_context_parameter_counts.csv`.
+
+Known current numbers:
+
+- `S8B_R0_reference`: nominal `parameter_count=381866`, active count missing.
+- `S8B_R1_sequence_only`: nominal/active `30593`.
+- `S8B_R2_sequence_plus_context`: nominal `412202`, active `312105`.
+
+Predictions and metric selection are unaffected. The issue is reporting only:
+capacity comparisons can be misleading if R0 is compared by nominal parameters
+while R2 is compared by active parameters. This is the same Dwivedi-style
+parameter-budget caveat as the Sprint 8A interaction-mode inactive-classifier
+issue.
+
+Recommended fix:
+
+- Add a small utility or reporting hook that can compute active parameter counts
+  for carry-forward reference rows from the original run config/checkpoint when
+  available, or explicitly mark the reference active count as unavailable in
+  Sprint 9 tables.
+- Keep the historical Sprint 8B outputs unchanged unless regenerated under a new,
+  documented reporting version.
+
+---
+
 ## Sprint 5B output rename / working-tree integrity issue
 
 **Discovered:** Sprint 8A Slice 6 validation workspace check (2026-06-11)

@@ -121,6 +121,17 @@ explicit leakage caveats, reported apart from the headline:
   as a same-contract baseline. Cite Kapoor & Narayanan. Not part of the canonical
   8B claim.
 
+Status after Slice 5: **skipped**. The returned Sprint 8B results do not justify
+opening this transfer slice inside the current sprint. The pure `S1` sequence-only
+path (`S8B_R1_sequence_only`) collapsed under the frozen contract (test AUPRC
+`0.856666`, AUROC `0.304164`, MCC `-0.019749`, specificity `0.0`), while the
+late-fusion candidate (`S8B_R2_sequence_plus_context`) added only a modest
+single-seed AUPRC gain over the Sprint 8A R2 reference (`+0.003263`) and remained
+below XGBoost F4 (`-0.006502`). RNA-FM / DNABERT-2 would require external
+pretrained weights, new literature/infra, and a separate leakage-caveated
+transfer-learning claim outside the same-contract headline. This remains
+reopenable only via a fresh approval-gated plan, not as Sprint 8B core work.
+
 ## 8. Selection & Reporting Rules
 
 - Primary selection = validation AUPRC; tie-break = validation MCC / macro F1.
@@ -353,12 +364,26 @@ join, no external pretrained weights, and no reproduction claim. No rerun,
 threshold change, hyperparameter change, transfer slice, or result-driven tuning
 was performed.
 
-### Slice 6 - Optional transfer slice (approval-gated)
+### Slice 6 - Optional transfer slice (approval-gated) - Status: SKIPPED (2026-06-13)
 
 Only with a plan amendment: the RNA-FM / DNABERT-2 transfer experiment (§7),
 reported separately with explicit leakage caveats, never as a same-contract row.
 
 Exit: transfer slice reported separately, or explicitly skipped.
+
+Done: explicitly skipped. The Slice 5 forensic review found that the compact
+from-scratch `S1` sequence-only path was not merely weak but badly calibrated /
+anti-ranked in this measured-only frozen benchmark (`S8B_R1_sequence_only`: AUROC
+`0.304164`, specificity `0.0`, TN/FP/FN/TP `0/169/6/1527`). The late-fusion run
+was validation-selected (`S8B_R2_sequence_plus_context`, val AUPRC `0.988449`,
+test AUPRC `0.986020`) but its gain over the Sprint 8A R2 carry-forward was small
+(`+0.003263` test AUPRC) and still below XGBoost F4 (`0.992522`). Opening
+RNA-FM / DNABERT-2 after seeing these results would add external pretrained
+weights, leakage caveats, dependency/compute scope, and a thesis-scope expansion
+without producing a same-contract headline result. No transfer code, config,
+notebook, checkpoint, or output was added; no threshold/model rerun/tuning was
+performed. The transfer idea remains possible future work only under a separate,
+preapproved, leakage-caveated plan.
 
 ### Slice 7 - Sprint closure
 

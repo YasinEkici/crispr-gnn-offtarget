@@ -1069,3 +1069,48 @@ training in Slice 0; no Sprint 8A result changed.
 
 Outcome: Slices 1–7 implement against §15 with no remaining design decision.
 External-pretrained transfer slice (RNA-FM / DNABERT-2) remains approval-gated.
+
+## 2026-06-13 - Sprint 8B selects R2 by validation AUPRC; skip external-pretrained transfer slice
+
+Decision: close Sprint 8B Slice 5 with `S8B_R2_sequence_plus_context` as the
+validation-selected candidate and explicitly skip Slice 6 (RNA-FM / DNABERT-2
+transfer) for the canonical Sprint 8B scope. Any future RNA-FM / DNABERT-2 work
+must be a separate, approval-gated transfer-learning plan with leakage caveats,
+not a same-contract headline row.
+
+Reason:
+
+- The predeclared selection rule was validation AUPRC. The authoritative Sprint
+  8B batch `sprint8b_sequence_context_seed42_20260612_220002` selected
+  `S8B_R2_sequence_plus_context` with validation AUPRC `0.988449` and test AUPRC
+  `0.986020` (MCC `0.567309`, specificity `0.863905`, TN/FP/FN/TP
+  `146/23/180/1353`).
+- R2 improved over the Sprint 8A R2 carry-forward reference by only `+0.003263`
+  test AUPRC and `+0.003653` MCC, and remained below the XGBoost F4 AUPRC bar by
+  `-0.006502`. This is directional single-seed evidence, not a superiority
+  claim.
+- `S8B_R1_sequence_only` collapsed under the frozen measured-only benchmark
+  (validation AUPRC `0.810173`, test AUPRC `0.856666`, AUROC `0.304164`, MCC
+  `-0.019749`, specificity `0.0`, TN/FP/FN/TP `0/169/6/1527`). The defensible
+  conclusion is that this compact from-scratch `S1` Conv+BiLSTM path does not
+  recover the target-context signal; it is not evidence that all sequence models
+  are useless.
+- RNA-FM / DNABERT-2 would introduce external pretrained genomic/RNA weights.
+  Per the Kapoor leakage discipline already adopted for Sprint 8B, any positive
+  transfer result could overlap held-out guides/targets or training distribution
+  in unknown ways and therefore cannot be reported as a same-contract result.
+- Opening a new pretrained-foundation-model track after observing the modest R2
+  gain would expand thesis scope, add new dependencies/compute/literature, and
+  increase overtuning/scope-creep risk without addressing the frozen Sprint 8B
+  question.
+
+Outcome:
+
+- Treat `S8B_R2_sequence_plus_context` as a validation-selected candidate for
+  Sprint 9 robustness, not as a final superior model.
+- Do not run Slice 6 inside Sprint 8B; no transfer code/config/notebook/output is
+  added.
+- Do not change labels, split, threshold policy, model code, or canonical Sprint
+  8B outputs based on these diagnostics.
+- Sprint 9 should test the Sprint 8A/8B candidates with predeclared multi-seed
+  fixed-split runs and paired guide-level/bootstrap diagnostics.
