@@ -39,8 +39,10 @@ single generic interval because they target different sources of variation:
   contract, and (e) runs predeclared multi-seed retraining for the headline
   configs — then consolidates a robustness report with explicit claim boundaries.
 - **Expected file changes (implementation phase, NOT this plan):**
-  `src/crispr_gnn/evaluation/bootstrap.py` (new; generalizes
-  `scripts/compute_sprint6_bootstrap_ci.py`), `scripts/run_sprint9_robustness.py`,
+  `src/crispr_gnn/evaluation/robustness.py` (new; registry + replay + bootstrap +
+  paired-difference; generalizes `scripts/compute_sprint6_bootstrap_ci.py` — named
+  `robustness.py` rather than the working title `bootstrap.py` since it spans more
+  than resampling), `scripts/run_sprint9_robustness.py`,
   `scripts/regenerate_f4_predictions.py`, a `--seed` override on the existing
   `scripts/run_sprint7f/8a/8b` runners (seed value only; no training-loop change),
   `configs/sweeps/sprint9_multiseed.yaml`, a runner-only
@@ -318,7 +320,7 @@ runs in the consolidated manifest.
 
 ```bash
 uv run pytest tests/test_sprint9_robustness.py -q
-uv run ruff check src/crispr_gnn/evaluation/bootstrap.py scripts/run_sprint9_robustness.py scripts/regenerate_f4_predictions.py tests/test_sprint9_robustness.py
+uv run ruff check src/crispr_gnn/evaluation/robustness.py scripts/run_sprint9_robustness.py scripts/regenerate_f4_predictions.py tests/test_sprint9_robustness.py
 git diff --check
 ```
 
@@ -376,11 +378,29 @@ fixed test geometry (1702 rows / 29 guides / 169 negatives in 9 guides / guide
 
 ### Slice 1 — Prediction registry & metric replay
 
-Build `src/crispr_gnn/evaluation/bootstrap.py` + a registry loader for the §3.1
+Build `src/crispr_gnn/evaluation/robustness.py` + a registry loader for the §3.1
 GNN predictions; replay full-split metrics using `evaluation/metrics.py`.
 
 Exit: `metric_replay_check.csv` shows replayed full-test metrics match the source
 comparison CSVs within tolerance for `S7F_R1..R3`, `S8A_R0..R4`, `S8B_R1/R2`.
+
+Done (2026-06-13): added `src/crispr_gnn/evaluation/robustness.py` (`RegistryEntry`,
+`GNN_REGISTRY` per §3.1, `ModelScores`, `load_model_scores`/`load_registry`,
+`replay_split_metrics`, `replay_check_records`) reusing the canonical
+`binary_classification_metrics`; thresholds are read from each run's comparison CSV
+(`threshold`, validation-selected) and never recomputed from test; the guide key
+`grna_target_id` is loaded but not resampled (Slice 3). Added
+`scripts/run_sprint9_robustness.py` (Slice 1 replay stage) writing
+`outputs/sprint9/diagnostics/metric_replay_check.csv`, and
+`tests/test_sprint9_robustness.py` (registry completeness/single-batch, threshold
+read + not-recomputed-from-test, guide-cluster geometry 29/169/9/80, replay match).
+Validation: replay reproduces all 10 GNN models' test AUPRC/AUROC/MCC/specificity/
+macro-F1/F1/sensitivity and TN/FP/FN/TP with max abs diff `1.11e-16` (atol `1e-9`,
+integer cells exact); `uv run pytest tests/test_sprint9_robustness.py -q` (5 passed);
+ruff + `git diff --check` clean. `XGB_F4` deferred to Slice 2. Module named
+`robustness.py` (not the §1 working title `bootstrap.py`); §1/§10 updated. No
+frozen artifact, threshold, label, split, or model changed; no DECISIONS/tech-debt
+entry needed (additive replay foundation, no methodological or result change).
 
 ### Slice 2 — F4 per-row prediction recovery
 
