@@ -773,11 +773,15 @@ model-improvement sprint — not a broad sweep. It is split in two:
   `0.563656`) as a candidate for robustness, not a final superiority claim. The
   optional bounded HP refinement was skipped to avoid post-result overtuning.
   Plan: `docs/exec-plans/completed/008-sprint8a-target-context-interaction.md`.
-- **Sprint 8B — sequence-context encoder** (companion, after 8A). A CRISPR-Net-
-  adapted Conv+BiLSTM encoder over the Sprint 2 `S1` sgRNA/target pair,
-  re-implemented in `src/` and trained from scratch on the locked split (no
+- **Sprint 8B — sequence-context encoder** (companion, after 8A; complete). A
+  CRISPR-Net-adapted Conv+BiLSTM encoder over the Sprint 2 `S1` sgRNA/target pair
+  was re-implemented in `src/` and trained from scratch on the locked split (no
   externally-pretrained CRISPR/genomic weights as a same-contract result; no
-  reproduction claims). Plan: `docs/exec-plans/active/008b-sprint8b-sequence-context-encoder.md`.
+  reproduction claims). `S8B_R2_sequence_plus_context` was selected by validation
+  AUPRC (`0.988449`; test AUPRC `0.986020`, MCC `0.567309`) as a candidate for
+  Sprint 9 robustness, but did not beat XGBoost F4; the pure sequence-only path
+  underperformed strongly. The optional external-pretrained transfer slice was
+  skipped. Plan: `docs/exec-plans/completed/008b-sprint8b-sequence-context-encoder.md`.
 
 Selection rule for both: validation AUPRC primary, validation MCC/macro F1
 tie-break; test metrics reported only; every predeclared run reported; parameter
@@ -961,8 +965,8 @@ Sprint 4: GCN baseline
 Sprint 5: epigenetic ablation (main novelty)
 Sprint 6: minimal imbalance comparison
 Sprint 7: GAT/GATv2
-Sprint 8: model improvement (8A target-context + interaction complete, 8B sequence context next)
-Sprint 9: robustness (bootstrap CIs, paired-difference, multi-seed) — optional
+Sprint 8: model improvement (8A target-context + interaction complete, 8B sequence context complete)
+Sprint 9: robustness (bootstrap CIs, paired-difference, multi-seed) — next / optional
 Stretch: CRISPRoffT / HeteroGNN / GraphSAGE
 ```
 

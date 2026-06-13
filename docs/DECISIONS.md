@@ -1037,7 +1037,7 @@ Outcome:
 ## 2026-06-11 - Sprint 8B Slice 0 planning freeze (sequence-context encoder)
 
 Decision: freeze the Sprint 8B plan
-(`docs/exec-plans/active/008b-sprint8b-sequence-context-encoder.md`, §15) before
+(`docs/exec-plans/completed/008b-sprint8b-sequence-context-encoder.md`, §15) before
 any implementation, pinning the design decisions below. No code, config, test, or
 training in Slice 0; no Sprint 8A result changed.
 

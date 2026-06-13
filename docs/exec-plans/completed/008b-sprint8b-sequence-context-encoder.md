@@ -1,8 +1,8 @@
 # Execution Plan: Sprint 8B Sequence-Context Encoder (CRISPR-Net-adapted)
 
-> Status: FROZEN — Slice 0 planning freeze complete (2026-06-11). Concrete design
-> decisions are pinned in §15 Frozen Specification; Slices 1–7 implement against it
-> with no remaining design decision. Companion to
+> Status: COMPLETE — Sprint 8B closure complete (2026-06-13). Concrete design
+> decisions are pinned in §15 Frozen Specification; Slices 1–7 were implemented
+> against it with no post-result design change. Companion to
 > `../completed/008-sprint8a-target-context-interaction.md`. This is the sequence-context
 > slice of Sprint 8's model-improvement scope. Robustness remains Sprint 9.
 
@@ -385,13 +385,32 @@ notebook, checkpoint, or output was added; no threshold/model rerun/tuning was
 performed. The transfer idea remains possible future work only under a separate,
 preapproved, leakage-caveated plan.
 
-### Slice 7 - Sprint closure
+### Slice 7 - Sprint closure - Status: COMPLETE (2026-06-13)
 
 Freeze report/results/status, add the `docs/DECISIONS.md` outcome entry (§13),
 update the roadmap, and move this plan to `docs/exec-plans/completed/`.
 
 Exit: the Sprint 8B conclusion is documented (sequence-context adds / does not add
 over the Sprint 8A target-context model under the frozen contract).
+
+Done: Sprint 8B is closed as a single-seed, validation-selected model-improvement
+sprint. `S8B_R2_sequence_plus_context` is the canonical Sprint 8B candidate by
+validation AUPRC (`0.988449`) and directionally improves over the Sprint 8A R2
+carry-forward on test AUPRC (`0.986020` vs `0.982757`, `+0.003263`), but it
+remains below the XGBoost F4 AUPRC bar (`0.992522`) and is not a superiority
+claim. The pure sequence-only path (`S8B_R1_sequence_only`) failed under the
+frozen measured-only contract (test AUPRC `0.856666`, AUROC `0.304164`, MCC
+`-0.019749`, specificity `0.0`), so Sprint 8B does not support a claim that this
+compact S1 Conv+BiLSTM sequence branch alone recovers the target-context signal.
+
+The optional transfer slice remains skipped: RNA-FM / DNABERT-2 would require a
+separate approval-gated, leakage-caveated transfer-learning plan and would not be
+a same-contract headline row. `docs/DECISIONS.md` already records the R2
+validation-selection and Slice 6 skip decision; `docs/exec-plans/tech-debt.md`
+already records the active-parameter reporting caveat. Roadmap/context docs were
+updated to mark Sprint 8B complete and Sprint 9 robustness as the next
+interpretation step. No code, config, threshold, label, split, checkpoint, or
+output artifact was changed in this closure slice.
 
 ## 15. Frozen Specification (Slice 0)
 
