@@ -364,6 +364,16 @@ BCa-sensitivity), paired matrix (§5.1), F4 reproduction gate (§6), output cont
 
 Exit: plan frozen; no code changed.
 
+Done (2026-06-13): plan frozen. Consistency re-audit against the repo — **PASS, no
+drift**: all four runners (`run_sprint7f/8a/8b`, `compute_sprint6_bootstrap_ci.py`)
+exist; the F4 validation-threshold artifact
+(`outputs/sprint2/diagnostics/xgboost_unweighted_fixed_threshold_metrics.csv`)
+exists; every registry `predeclared_run_id` resolves in the source prediction files
+with both `val` and `test` splits (`S7F_R1/R2/R3`, `S8A_R0..R4`, `S8B_R1/R2`); the
+fixed test geometry (1702 rows / 29 guides / 169 negatives in 9 guides / guide
+`9251` = 47.3%) is confirmed empirically. No `src/`, `configs/`, `scripts/`,
+`colab/`, or `tests/` file changed in Slice 0.
+
 ### Slice 1 — Prediction registry & metric replay
 
 Build `src/crispr_gnn/evaluation/bootstrap.py` + a registry loader for the §3.1
