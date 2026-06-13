@@ -1,21 +1,27 @@
-"""Sprint 9 robustness layer — prediction registry and metric replay (Slice 1).
+"""Sprint 9 robustness layer — registry, metric replay, and guide-cluster bootstrap.
 
-Loads the saved per-row predictions of the frozen Sprint 7F/8A/8B runs and each
-model's validation-selected classification threshold, then replays full-split
-metrics with the canonical :func:`binary_classification_metrics` so the Sprint 9
-uncertainty layer is anchored to the exact frozen numbers. The guide-cluster
-bootstrap (Slice 3) and paired-difference bootstrap (Slice 4) build on this
-registry; the XGBoost ``F4`` entry is added in Slice 2.
+Loads the saved per-row predictions of the frozen Sprint 7F/8A/8B runs (plus the
+regenerated XGBoost ``F4`` bar) and each model's validation-selected classification
+threshold, then:
 
-Discipline (see ``docs/exec-plans/active/009-sprint9-robustness.md`` and
-``docs/literature/sprint9-deep-research.pdf``):
+- replays full-split metrics with the canonical
+  :func:`binary_classification_metrics` (Slice 1), anchoring Sprint 9 to the frozen
+  numbers;
+- computes **guide-cluster bootstrap** confidence intervals (Slice 3): resample
+  guides (clusters), not rows; percentile CI primary, BCa as a sensitivity check
+  with a leave-one-guide jackknife trust gate (009 plan §4/§14;
+  ``docs/literature/sprint9-deep-research.pdf`` §2.1/§3.3).
 
-- Thresholds are **read** from each run's comparison CSV (``threshold`` column,
-  validation-selected) and are **never recomputed from test**.
-- The guide cluster key is :data:`GUIDE_KEY` (``grna_target_id``). It is loaded here
-  but resampled only in Slice 3 — rows are never the resampling unit.
-- AUPRC uses the same ``average_precision_score`` definition as the source reports
-  (via ``metrics.binary_classification_metrics``); no trapezoidal PR-AUC switch.
+Discipline (see ``docs/exec-plans/active/009-sprint9-robustness.md`` and the PDF):
+
+- Thresholds are **read** (validation-selected) and **never recomputed from test**;
+  thresholded metrics apply the frozen threshold in every bootstrap replicate.
+- The resampling unit is the guide cluster :data:`GUIDE_KEY` (``grna_target_id``);
+  a guide drawn k times contributes its rows k times. Rows are never resampled.
+- AUPRC uses the same ``average_precision_score`` definition as the source reports;
+  no trapezoidal PR-AUC switch. ``0.900705`` is the no-skill PR baseline, not a floor.
+- Degenerate replicates (no positives → AUPRC; no negatives → specificity; single
+  class → AUROC/MCC/macro-F1) yield NaN and are counted, never crash.
 
 This module reads frozen artifacts and computes metrics; it does not modify any
 prediction, threshold, label, split, or model.
@@ -23,11 +29,19 @@ prediction, threshold, label, split, or model.
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
+from scipy.stats import norm
+from sklearn.metrics import (
+    average_precision_score,
+    confusion_matrix,
+    f1_score,
+    matthews_corrcoef,
+    roc_auc_score,
+)
 
 from crispr_gnn.evaluation.metrics import binary_classification_metrics
 
@@ -290,6 +304,273 @@ def replay_check_records(
                     "abs_diff": diff,
                     "atol": tolerance,
                     "within_tol": bool(diff <= tolerance),
+                }
+            )
+    return records
+
+
+# --------------------------------------------------------------------------------
+# Slice 3 — guide-cluster bootstrap (percentile primary, BCa sensitivity)
+# --------------------------------------------------------------------------------
+
+#: Metrics carried through the bootstrap (ranking: auprc/auroc; operating point at
+#: the frozen threshold: mcc/specificity/macro_f1).
+BOOTSTRAP_METRICS = ("auprc", "auroc", "mcc", "specificity", "macro_f1")
+#: Metrics bounded in [0, 1] whose upper edge (1.0) is inspected for pile-up.
+_UPPER_BOUNDED_METRICS = frozenset({"auprc", "auroc", "specificity", "macro_f1"})
+DEFAULT_N_BOOT = 5000
+DEFAULT_BOOTSTRAP_SEED = 12345
+#: Test positive prevalence — the no-skill PR baseline (NOT a floor).
+NO_SKILL_BASELINE = 0.900705
+#: Negative-class-dominant test guide (holds 80/169 = 47.3% of negatives).
+DOMINANT_NEGATIVE_GUIDE = 9251
+
+
+def _split_metrics(labels: np.ndarray, scores: np.ndarray, threshold: float) -> dict[str, float]:
+    """Lean NaN-aware metrics for one (resampled) row set; never raises on degeneracy."""
+    labels = np.asarray(labels, dtype=int)
+    scores = np.asarray(scores, dtype=float)
+    both_classes = np.unique(labels).shape[0] == 2
+    predictions = (scores >= threshold).astype(int)
+    tn, fp, _fn, _tp = confusion_matrix(labels, predictions, labels=[0, 1]).ravel()
+    return {
+        "auprc": float(average_precision_score(labels, scores)) if labels.sum() > 0 else float("nan"),
+        "auroc": float(roc_auc_score(labels, scores)) if both_classes else float("nan"),
+        "mcc": float(matthews_corrcoef(labels, predictions)) if both_classes else float("nan"),
+        "specificity": float(tn / (tn + fp)) if (tn + fp) > 0 else float("nan"),
+        "macro_f1": float(f1_score(labels, predictions, average="macro", zero_division=0))
+        if both_classes
+        else float("nan"),
+    }
+
+
+def _guide_groups(frame: pd.DataFrame) -> tuple[list, list[np.ndarray], list[np.ndarray]]:
+    """Per-guide (label, score) arrays in stable guide order — the resampling units."""
+    guide_ids: list = []
+    labels: list[np.ndarray] = []
+    scores: list[np.ndarray] = []
+    for guide_id, group in frame.groupby(GUIDE_KEY, sort=True):
+        guide_ids.append(guide_id)
+        labels.append(group["label"].to_numpy().astype(int))
+        scores.append(group["score"].to_numpy().astype(float))
+    return guide_ids, labels, scores
+
+
+def _bca_interval(
+    point: float, samples: np.ndarray, jackknife: np.ndarray, ci: float
+) -> tuple[float, float, bool, str]:
+    """BCa interval with a leave-one-guide jackknife trust gate (009 plan §14).
+
+    Returns (lo, hi, trusted, note). With only ~29 clusters and a few influential
+    negative-bearing guides the acceleration term is fragile, so BCa is reported as
+    a sensitivity check only: ``trusted`` is False whenever the bias-correction or
+    jackknife acceleration is degenerate, non-finite, or dominated by one guide.
+    """
+    if samples.size < 2 or np.isnan(point):
+        return float("nan"), float("nan"), False, "insufficient_samples"
+    proportion = float(np.mean(samples < point))
+    if proportion <= 0.0 or proportion >= 1.0:
+        return float("nan"), float("nan"), False, "bias_correction_degenerate"
+    z0 = float(norm.ppf(proportion))
+
+    finite_jack = jackknife[~np.isnan(jackknife)]
+    if finite_jack.size < 3 or finite_jack.size < jackknife.size:
+        # A dropped guide left the metric undefined → jackknife unreliable.
+        return float("nan"), float("nan"), False, "jackknife_undefined"
+    diffs = finite_jack.mean() - finite_jack
+    sum_sq = float(np.sum(diffs**2))
+    denom = 6.0 * (sum_sq**1.5)
+    if denom == 0.0 or not np.isfinite(denom):
+        return float("nan"), float("nan"), False, "acceleration_degenerate"
+    acceleration = float(np.sum(diffs**3) / denom)
+    if not np.isfinite(acceleration):
+        return float("nan"), float("nan"), False, "acceleration_nonfinite"
+
+    cubed = np.abs(diffs**3)
+    dominated = bool(cubed.max() > 0.5 * cubed.sum()) if cubed.sum() > 0 else True
+
+    z_lo = float(norm.ppf((1.0 - ci) / 2.0))
+    z_hi = float(norm.ppf(1.0 - (1.0 - ci) / 2.0))
+
+    def _adjust(z: float) -> float:
+        scale = 1.0 - acceleration * (z0 + z)
+        if scale == 0.0:
+            return float("nan")
+        return float(norm.cdf(z0 + (z0 + z) / scale))
+
+    alpha_lo = _adjust(z_lo)
+    alpha_hi = _adjust(z_hi)
+    if not (np.isfinite(alpha_lo) and np.isfinite(alpha_hi)) or not (0.0 < alpha_lo < 1.0 and 0.0 < alpha_hi < 1.0):
+        return float("nan"), float("nan"), False, "alpha_out_of_range"
+
+    lo = float(np.quantile(samples, alpha_lo))
+    hi = float(np.quantile(samples, alpha_hi))
+    return lo, hi, (not dominated), ("dominated_by_one_guide" if dominated else "ok")
+
+
+@dataclass
+class GuideBootstrapResult:
+    """Guide-cluster bootstrap output for one model (009 plan §4/§4.1)."""
+
+    registry_id: str
+    n_test_guides: int
+    n_boot: int
+    ci: float
+    seed: int
+    threshold: float
+    point: dict[str, float]
+    percentile: dict[str, tuple[float, float]]
+    bca: dict[str, tuple[float, float]]
+    bca_trusted: dict[str, bool]
+    bca_note: dict[str, str]
+    undefined_rate: dict[str, float]
+    shape: dict[str, dict[str, object]]
+    samples: dict[str, np.ndarray]
+    jackknife: dict[str, list[float]]
+    guide_ids: list
+    mean_unique_guides: float
+    mean_negative_bearing_guides: float
+    dominant_guide: object
+    dominant_guide_inclusion_rate: float
+    negatives_per_guide: dict = field(default_factory=dict)
+
+
+def guide_cluster_bootstrap(
+    scores: ModelScores,
+    *,
+    split: str = "test",
+    metrics: tuple[str, ...] = BOOTSTRAP_METRICS,
+    n_boot: int = DEFAULT_N_BOOT,
+    seed: int = DEFAULT_BOOTSTRAP_SEED,
+    ci: float = 0.95,
+    dominant_guide: object = DOMINANT_NEGATIVE_GUIDE,
+) -> GuideBootstrapResult:
+    """Guide-cluster (not row) bootstrap CIs for one model.
+
+    Resamples the ``n_guides`` test guides with replacement (a guide drawn k times
+    contributes its rows k times), applies the frozen threshold every replicate, and
+    returns percentile + BCa intervals, per-metric undefined rates, distribution
+    shape flags, leave-one-guide jackknife values, and guide-composition diagnostics.
+    """
+    frame = scores.split(split)
+    guide_ids, group_labels, group_scores = _guide_groups(frame)
+    n_guides = len(guide_ids)
+    if n_guides < 2:
+        raise ValueError(f"{scores.registry_id}: need >=2 guides to bootstrap, found {n_guides}")
+
+    full_labels = np.concatenate(group_labels)
+    full_scores = np.concatenate(group_scores)
+    point = _split_metrics(full_labels, full_scores, scores.threshold)
+
+    negatives_per_guide = np.array([int((lab == 0).sum()) for lab in group_labels])
+    is_negative_bearing = negatives_per_guide > 0
+    dominant_index = guide_ids.index(dominant_guide) if dominant_guide in guide_ids else None
+
+    rng = np.random.default_rng(seed)
+    boot: dict[str, list[float]] = {metric: [] for metric in metrics}
+    unique_guide_counts: list[int] = []
+    negative_bearing_counts: list[int] = []
+    dominant_inclusions = 0
+    for _ in range(n_boot):
+        pick = rng.integers(0, n_guides, size=n_guides)
+        labels = np.concatenate([group_labels[i] for i in pick])
+        values = np.concatenate([group_scores[i] for i in pick])
+        replicate = _split_metrics(labels, values, scores.threshold)
+        for metric in metrics:
+            value = replicate[metric]
+            if not np.isnan(value):
+                boot[metric].append(value)
+        drawn = np.unique(pick)
+        unique_guide_counts.append(int(drawn.size))
+        negative_bearing_counts.append(int(is_negative_bearing[drawn].sum()))
+        if dominant_index is not None and dominant_index in drawn:
+            dominant_inclusions += 1
+
+    # Leave-one-guide jackknife (reused for BCa acceleration and LOGO influence).
+    jackknife: dict[str, list[float]] = {metric: [] for metric in metrics}
+    for i in range(n_guides):
+        keep = [j for j in range(n_guides) if j != i]
+        labels = np.concatenate([group_labels[j] for j in keep])
+        values = np.concatenate([group_scores[j] for j in keep])
+        replicate = _split_metrics(labels, values, scores.threshold)
+        for metric in metrics:
+            jackknife[metric].append(replicate[metric])
+
+    lo_q = (1.0 - ci) / 2.0
+    hi_q = 1.0 - lo_q
+    percentile: dict[str, tuple[float, float]] = {}
+    bca: dict[str, tuple[float, float]] = {}
+    bca_trusted: dict[str, bool] = {}
+    bca_note: dict[str, str] = {}
+    undefined_rate: dict[str, float] = {}
+    shape: dict[str, dict[str, object]] = {}
+    samples_out: dict[str, np.ndarray] = {}
+    for metric in metrics:
+        samples = np.asarray(boot[metric], dtype=float)
+        samples_out[metric] = samples
+        undefined_rate[metric] = float((n_boot - samples.size) / n_boot)
+        if samples.size:
+            percentile[metric] = (float(np.quantile(samples, lo_q)), float(np.quantile(samples, hi_q)))
+        else:
+            percentile[metric] = (float("nan"), float("nan"))
+        lo, hi, trusted, note = _bca_interval(
+            point[metric], samples, np.asarray(jackknife[metric], dtype=float), ci
+        )
+        bca[metric] = (lo, hi)
+        bca_trusted[metric] = trusted
+        bca_note[metric] = note
+        n_unique = int(np.unique(samples).size) if samples.size else 0
+        frac_upper = (
+            float(np.mean(np.isclose(samples, 1.0))) if (samples.size and metric in _UPPER_BOUNDED_METRICS) else 0.0
+        )
+        flags = []
+        if samples.size and n_unique < 20:
+            flags.append("discrete")
+        if frac_upper > 0.05:
+            flags.append("upper_bound_pileup")
+        shape[metric] = {"n_unique": n_unique, "frac_at_upper_bound": frac_upper, "flag": ";".join(flags) or "ok"}
+
+    return GuideBootstrapResult(
+        registry_id=scores.registry_id,
+        n_test_guides=n_guides,
+        n_boot=n_boot,
+        ci=ci,
+        seed=seed,
+        threshold=scores.threshold,
+        point=point,
+        percentile=percentile,
+        bca=bca,
+        bca_trusted=bca_trusted,
+        bca_note=bca_note,
+        undefined_rate=undefined_rate,
+        shape=shape,
+        samples=samples_out,
+        jackknife=jackknife,
+        guide_ids=guide_ids,
+        mean_unique_guides=float(np.mean(unique_guide_counts)),
+        mean_negative_bearing_guides=float(np.mean(negative_bearing_counts)),
+        dominant_guide=dominant_guide if dominant_index is not None else None,
+        dominant_guide_inclusion_rate=float(dominant_inclusions / n_boot),
+        negatives_per_guide=dict(zip(guide_ids, negatives_per_guide.tolist())),
+    )
+
+
+def leave_one_guide_influence(result: GuideBootstrapResult, metrics: tuple[str, ...] = BOOTSTRAP_METRICS) -> list[dict[str, object]]:
+    """Per (model, metric, guide) leave-one-guide jackknife value and its delta from
+    the full-sample point estimate (009 plan §4.1; flags negative-class fragility)."""
+    records: list[dict[str, object]] = []
+    for metric in metrics:
+        point = result.point[metric]
+        for guide_id, value in zip(result.guide_ids, result.jackknife[metric]):
+            records.append(
+                {
+                    "registry_id": result.registry_id,
+                    "metric": metric,
+                    "guide": guide_id,
+                    "negatives_in_guide": int(result.negatives_per_guide.get(guide_id, 0)),
+                    "point_estimate": float(point),
+                    "leave_one_guide_value": float(value),
+                    "delta": float(value - point) if not np.isnan(value) else float("nan"),
                 }
             )
     return records

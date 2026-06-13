@@ -1009,3 +1009,74 @@ def _require_columns(df: pd.DataFrame, columns: set[str], table_name: str) -> No
     missing = sorted(columns.difference(df.columns))
     if missing:
         raise ValueError(f"{table_name} missing required columns: {missing}")
+
+
+def write_sprint9_bootstrap_plots(
+    ci_table: pd.DataFrame,
+    distributions: dict[str, dict[str, np.ndarray]],
+    figures_dir: Path,
+    *,
+    baseline: float,
+    metric: str = "auprc",
+) -> list[Path]:
+    """Sprint 9 Slice 3 figures: AUPRC point+percentile-CI forest plot (with the
+    no-skill baseline) and per-model bootstrap distribution diagnostics."""
+    figures_dir = Path(figures_dir)
+    figures_dir.mkdir(parents=True, exist_ok=True)
+    forest = _write_bootstrap_ci_forest(ci_table, figures_dir / "robustness_auprc_cis.png", metric=metric, baseline=baseline)
+    dist = _write_bootstrap_distribution_grid(
+        distributions, ci_table, figures_dir / "bootstrap_distribution_diagnostics.png", metric=metric, baseline=baseline
+    )
+    return [forest, dist]
+
+
+def _write_bootstrap_ci_forest(ci_table: pd.DataFrame, path: Path, *, metric: str, baseline: float) -> Path:
+    rows = ci_table.loc[ci_table["metric"] == metric].copy().sort_values("point").reset_index(drop=True)
+    y = np.arange(len(rows))
+    lower = (rows["point"] - rows["percentile_lo"]).clip(lower=0).to_numpy()
+    upper = (rows["percentile_hi"] - rows["point"]).clip(lower=0).to_numpy()
+    colors = ["#c44e52" if rid == "XGB_F4" else "#4c72b0" for rid in rows["registry_id"]]
+
+    fig, ax = plt.subplots(figsize=(8, max(4, 0.45 * len(rows) + 1.5)))
+    ax.errorbar(rows["point"], y, xerr=[lower, upper], fmt="o", ecolor="#888888", elinewidth=1.4, capsize=3, color="none")
+    ax.scatter(rows["point"], y, c=colors, zorder=3)
+    ax.axvline(baseline, color="#444444", linestyle="--", linewidth=1.2, label=f"no-skill baseline {baseline:.4f}")
+    ax.set_yticks(y)
+    ax.set_yticklabels(rows["registry_id"])
+    ax.set_xlabel(f"Test {metric.upper()} (point + guide-cluster percentile 95% CI)")
+    ax.set_title("Sprint 9 guide-cluster bootstrap — finite-sample compatibility intervals (29 guides)")
+    ax.legend(loc="lower left")
+    fig.tight_layout()
+    fig.savefig(path, dpi=180)
+    plt.close(fig)
+    return path
+
+
+def _write_bootstrap_distribution_grid(
+    distributions: dict[str, dict[str, np.ndarray]], ci_table: pd.DataFrame, path: Path, *, metric: str, baseline: float
+) -> Path:
+    model_ids = sorted(distributions, key=lambda rid: (rid != "XGB_F4", rid))
+    n = len(model_ids)
+    ncols = 3
+    nrows = int(np.ceil(n / ncols))
+    flags = {
+        (r["registry_id"], r["metric"]): r.get("shape_flag", "")
+        for _, r in ci_table.iterrows()
+    }
+    fig, axes = plt.subplots(nrows, ncols, figsize=(4 * ncols, 2.6 * nrows), squeeze=False)
+    for idx, rid in enumerate(model_ids):
+        ax = axes[idx // ncols][idx % ncols]
+        samples = np.asarray(distributions[rid].get(metric, np.array([])), dtype=float)
+        if samples.size:
+            ax.hist(samples, bins=40, color="#c44e52" if rid == "XGB_F4" else "#4c72b0", alpha=0.85)
+        ax.axvline(baseline, color="#444444", linestyle="--", linewidth=1.0)
+        flag = flags.get((rid, metric), "")
+        ax.set_title(f"{rid}\n{flag}" if flag and flag != "ok" else rid, fontsize=9)
+        ax.set_yticks([])
+    for idx in range(n, nrows * ncols):
+        axes[idx // ncols][idx % ncols].axis("off")
+    fig.suptitle(f"Sprint 9 bootstrap {metric.upper()} distributions (ceiling / lumpiness inspection)", y=1.0)
+    fig.tight_layout()
+    fig.savefig(path, dpi=180)
+    plt.close(fig)
+    return path

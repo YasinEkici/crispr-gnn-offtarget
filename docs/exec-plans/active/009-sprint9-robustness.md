@@ -445,6 +445,26 @@ Exit: `robustness_bootstrap_cis.csv`, `bootstrap_replicate_diagnostics.csv`,
 `leave_one_guide_influence.csv`, `robustness_auprc_cis.png`,
 `bootstrap_distribution_diagnostics.png` written.
 
+Done (2026-06-13): added `guide_cluster_bootstrap` / `leave_one_guide_influence` /
+`_bca_interval` to `robustness.py` (percentile primary; BCa with a leave-one-guide
+jackknife trust gate per §14), `write_sprint9_bootstrap_plots` to `plots.py`, and a
+`--stage {replay,bootstrap,all}` runner. Ran B=5000, seed 12345 over the full
+11-model registry (incl. F4). All §9 Slice-3 outputs written. **Findings confirm the
+PDF/§14 predictions:** CIs are wide (AUPRC half-widths ~0.05-0.09 at 29 guides) —
+e.g. `XGB_F4 0.992338 [0.950, 0.999]`, `S8B_R2 0.986020 [0.930, 0.999]`,
+`S8A_R2 0.982757 [0.910, 1.000]` — so all GNN candidates' AUPRC CIs heavily overlap
+F4 and each other (the *paired* test is Slice 4). **BCa is mostly untrusted at 29
+clusters** (specificity & macro-F1 0/11 trusted; auprc 3/11), validating the
+percentile-primary choice. Dominant guide `9251` inclusion `0.637`
+(≈ `1-(28/29)^29`); LOGO shows dropping `9251` swings specificity `+0.27..+0.38`, so
+negative-class CIs are flagged fragile. The ~0.05-0.09 CI width is ~300-500× the F4
+version-drift (`1.84e-4`), empirically vindicating Slice 2 Option C. Validation:
+`uv run pytest tests/test_sprint9_robustness.py -q` (13 passed: guides-not-rows,
+threshold-read, degenerate handling, point==replay, output contract); ruff +
+`git diff --check` clean. No DECISIONS/tech-debt change (percentile-vs-BCa already
+fixed in §14; empirical confirmation recorded here and for the Slice 6 report).
+Compatibility-interval language only; no superiority claim from single CIs.
+
 ### Slice 4 — Paired-difference bootstrap
 
 Implement §5 paired bootstrap on common guide resamples for the §5.1 matrix

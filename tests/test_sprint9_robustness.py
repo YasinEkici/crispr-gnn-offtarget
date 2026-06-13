@@ -9,23 +9,40 @@ metrics must reproduce the source comparison CSVs within tolerance.
 
 from __future__ import annotations
 
+from pathlib import Path
+
 import pandas as pd
 import pytest
-
 from sklearn.metrics import average_precision_score, confusion_matrix
 
 from crispr_gnn.evaluation.metrics import select_threshold_by_f1
 from crispr_gnn.evaluation.robustness import (
+    BOOTSTRAP_METRICS,
     GNN_REGISTRY,
     GUIDE_KEY,
     _PRED_F4,
     F4_REGISTRY_ID,
+    ModelScores,
+    _guide_groups,
+    guide_cluster_bootstrap,
+    leave_one_guide_influence,
     load_f4_model_scores,
     load_full_registry,
     load_model_scores,
     load_registry,
     replay_check_records,
+    replay_split_metrics,
 )
+
+ROOT = Path(__file__).resolve().parents[1]
+
+
+def _synthetic_scores() -> ModelScores:
+    """2-guide synthetic: guide 1 all-positive, guide 2 holds all negatives."""
+    rows = [{"split": "test", GUIDE_KEY: 1, "label": 1, "score": 0.9} for _ in range(10)]
+    rows += [{"split": "test", GUIDE_KEY: 2, "label": 1, "score": 0.8} for _ in range(5)]
+    rows += [{"split": "test", GUIDE_KEY: 2, "label": 0, "score": 0.2} for _ in range(5)]
+    return ModelScores("SYN", "SYN", "run", "synthetic", 0.5, "validation", pd.DataFrame(rows))
 
 
 def _entry(registry_id: str):
@@ -129,3 +146,74 @@ def test_full_registry_includes_f4():
     registry = load_full_registry()
     assert F4_REGISTRY_ID in registry
     assert len(registry) == 11
+
+
+# --- Slice 3: guide-cluster bootstrap ------------------------------------------
+
+
+def test_guide_groups_partition_whole_guides():
+    scores = load_model_scores(_entry("S8B_R2"))
+    frame = scores.split("test")
+    guide_ids, labels, values = _guide_groups(frame)
+    # One group per guide; concatenation reproduces the full row set (no row split).
+    assert len(guide_ids) == 29
+    assert sum(len(a) for a in labels) == len(frame)
+    assert sum(len(a) for a in values) == len(frame)
+    assert sorted(guide_ids) == sorted(frame[GUIDE_KEY].unique())
+
+
+def test_bootstrap_resamples_guides_not_rows_and_handles_degeneracy():
+    # Guide-level resampling: with 2 equal guides, the negative-bearing guide (2) is
+    # absent in ~(1/2)^2 = 25% of replicates -> specificity undefined there (counted,
+    # not crashed); AUPRC always defined (positives always present).
+    result = guide_cluster_bootstrap(_synthetic_scores(), n_boot=4000, seed=12345, dominant_guide=2)
+    assert result.n_test_guides == 2
+    assert result.undefined_rate["auprc"] == 0.0
+    assert 0.18 < result.undefined_rate["specificity"] < 0.32
+    assert 1.3 < result.mean_unique_guides < 1.7  # E[unique of 2 with replacement] = 1.5
+    assert 0.6 < result.dominant_guide_inclusion_rate < 0.9  # P(guide 2 drawn) = 0.75
+
+
+def test_bootstrap_point_matches_replay_and_reads_threshold():
+    scores = load_model_scores(_entry("S8B_R2"))
+    result = guide_cluster_bootstrap(scores, n_boot=100, seed=12345)
+    replay = replay_split_metrics(scores, "test")
+    # Threshold-free metric: point matches the Slice 1 replay exactly.
+    assert result.point["auprc"] == pytest.approx(replay["test_auprc"], abs=1e-9)
+    # Thresholded metric matching proves the frozen (read) threshold is applied.
+    assert result.point["mcc"] == pytest.approx(replay["test_mcc"], abs=1e-9)
+    assert result.n_test_guides == 29
+    # Percentile CI brackets the point estimate; BCa carries a trust flag + note.
+    lo, hi = result.percentile["auprc"]
+    assert lo <= result.point["auprc"] <= hi
+    assert isinstance(result.bca_trusted["auprc"], bool)
+    assert result.bca_note["auprc"]
+
+
+def test_leave_one_guide_influence_shape():
+    result = guide_cluster_bootstrap(load_model_scores(_entry("S8B_R2")), n_boot=50, seed=12345)
+    influence = leave_one_guide_influence(result)
+    assert len(influence) == 29 * len(BOOTSTRAP_METRICS)
+    assert {row["metric"] for row in influence} == set(BOOTSTRAP_METRICS)
+
+
+@f4_available
+def test_bootstrap_output_contract(tmp_path):
+    import sys
+
+    sys.path.insert(0, str(ROOT / "scripts"))
+    import run_sprint9_robustness as runner
+
+    status = runner.run_bootstrap_stage(tmp_path, n_boot=50, seed=12345, ci=0.95)
+    assert status == 0
+    for rel in [
+        "robustness_bootstrap_cis.csv",
+        "diagnostics/bootstrap_replicate_diagnostics.csv",
+        "diagnostics/leave_one_guide_influence.csv",
+        "figures/robustness_auprc_cis.png",
+        "figures/bootstrap_distribution_diagnostics.png",
+    ]:
+        assert (tmp_path / rel).exists(), f"missing {rel}"
+    ci = pd.read_csv(tmp_path / "robustness_bootstrap_cis.csv")
+    assert ci["registry_id"].nunique() == 11
+    assert set(ci["metric"]) == set(BOOTSTRAP_METRICS)
