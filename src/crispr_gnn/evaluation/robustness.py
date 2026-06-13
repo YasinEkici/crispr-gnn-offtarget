@@ -64,6 +64,10 @@ _COMP_8A = ROOT / "outputs/sprint8a/target_context_interaction_comparison.csv"
 _PRED_8B = ROOT / "outputs/sprint8b/diagnostics/sequence_context_predictions.csv"
 _COMP_8B = ROOT / "outputs/sprint8b/sequence_context_comparison.csv"
 
+#: XGBoost F4 bar — regenerated in Slice 2 (Sprint 2 saved no per-row predictions).
+F4_REGISTRY_ID = "XGB_F4"
+_PRED_F4 = ROOT / "outputs/sprint9/diagnostics/f4_predictions.csv"
+
 
 @dataclass(frozen=True)
 class RegistryEntry:
@@ -167,6 +171,64 @@ def load_model_scores(entry: RegistryEntry) -> ModelScores:
 def load_registry(entries: tuple[RegistryEntry, ...] = GNN_REGISTRY) -> dict[str, ModelScores]:
     """Load every registry entry, keyed by ``registry_id``."""
     return {entry.registry_id: load_model_scores(entry) for entry in entries}
+
+
+def load_f4_model_scores(predictions_path: Path = _PRED_F4) -> ModelScores:
+    """Load the regenerated XGBoost F4 scores and its validation-selected threshold.
+
+    F4 is regenerated under the current pinned XGBoost (2026-06-13 Option C; the
+    historical ``0.992522`` was an earlier build — version drift ~1e-4, negligible
+    vs the bootstrap CI width). The F4 bar is therefore a single self-consistent
+    model: the threshold is the regenerated model's own ``validation_max_f1``
+    threshold (computed on regenerated validation scores; never from test), carried
+    in the ``threshold`` column of the predictions file. Raises ``FileNotFoundError``
+    until ``scripts/regenerate_f4_predictions.py`` has run.
+    """
+    if not predictions_path.exists():
+        raise FileNotFoundError(
+            f"F4 predictions not found ({predictions_path}); run "
+            "scripts/regenerate_f4_predictions.py (Slice 2) first"
+        )
+    preds = pd.read_csv(predictions_path)
+    _require_columns(
+        preds,
+        ["predeclared_run_id", "run_id", "split", GUIDE_KEY, "label", "score", "threshold"],
+        predictions_path,
+    )
+    sub = preds[preds["predeclared_run_id"] == F4_REGISTRY_ID]
+    if sub.empty:
+        raise ValueError(f"{F4_REGISTRY_ID}: not found in {predictions_path}")
+    run_ids = sorted(sub["run_id"].unique())
+    if len(run_ids) != 1:
+        raise ValueError(f"{F4_REGISTRY_ID}: expected one run_id, found {run_ids}")
+    thresholds = sub["threshold"].unique()
+    if len(thresholds) != 1:
+        raise ValueError(f"{F4_REGISTRY_ID}: expected one threshold, found {sorted(thresholds)}")
+
+    frame = sub[["split", GUIDE_KEY, "label", "score"]].reset_index(drop=True)
+    frame["label"] = frame["label"].astype(int)
+    frame["score"] = frame["score"].astype(float)
+    return ModelScores(
+        registry_id=F4_REGISTRY_ID,
+        predeclared_run_id=F4_REGISTRY_ID,
+        run_id=str(run_ids[0]),
+        sprint="sprint2",
+        threshold=float(thresholds[0]),
+        threshold_selection_split="validation",  # regenerated validation_max_f1
+        frame=frame,
+    )
+
+
+def load_full_registry(
+    entries: tuple[RegistryEntry, ...] = GNN_REGISTRY,
+    *,
+    include_f4: bool = True,
+) -> dict[str, ModelScores]:
+    """Load the GNN registry plus (optionally) the regenerated XGBoost F4 bar."""
+    registry = load_registry(entries)
+    if include_f4:
+        registry[F4_REGISTRY_ID] = load_f4_model_scores()
+    return registry
 
 
 def replay_split_metrics(scores: ModelScores, split: str = "test") -> dict[str, float | int]:

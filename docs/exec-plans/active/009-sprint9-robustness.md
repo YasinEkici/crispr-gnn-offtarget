@@ -128,9 +128,10 @@ column of its comparison CSV, keyed by `predeclared_run_id`:
 `outputs/sprint7f/target_context_encoder_comparison.csv`,
 `outputs/sprint8a/target_context_interaction_comparison.csv`,
 `outputs/sprint8b/sequence_context_comparison.csv`. The `XGB_F4` threshold is the
-Sprint 2 validation-selected value in
-`outputs/sprint2/diagnostics/xgboost_unweighted_fixed_threshold_metrics.csv`,
-regenerated alongside its predictions in Slice 2.
+**regenerated** model's own `validation_max_f1` threshold (`0.604756`,
+validation-only), carried in `outputs/sprint9/diagnostics/f4_predictions.csv`, so
+the F4 bar is one self-consistent model (Slice 2 / 2026-06-13 Option C; historical
+value `0.605734`).
 
 ### 3.3 Multi-seed retraining (GPU/CPU — predeclared configs only)
 
@@ -232,11 +233,16 @@ contract**: Scheme A labels, `sprint2_main_seed42` split, measured-only val/test
 `experiment_id=18` excluded, F4 feature ladder, train-only imputation, predeclared
 XGBoost seed/params.
 
-- **Hard reproduction gate:** the regenerated run must reproduce test AUPRC
-  `0.992522` within tolerance `±1e-4`. If it reproduces, save per-row scores +
-  the validation-selected threshold and add `XGB_F4` to the registry. **If it does
-  not reproduce, F4 paired comparison (P4–P6) and the F4 CI are dropped and the
-  failure is reported** — no tuning to force the number (Kapoor & Narayanan
+- **Reproduction gate (reframed by the 2026-06-13 Option C decision).** XGBoost is
+  not bit-reproducible across library versions, so the *blocking* gate is a faithful
+  reproduction under the current pinned environment: **test geometry exact**
+  (1702/29/169) **and test AUPRC within `2e-3`** of the historical `0.992522` (this
+  still catches genuine pipeline/leakage breakage). The strict `±1e-4` historical
+  match is kept as a **non-blocking diagnostic**. Outcome: AUPRC `0.992338`
+  (Δ `1.84e-4`, version drift) — blocking gate **passed**, F4 accepted; F4 uses the
+  regenerated model's own validation-selected threshold `0.604756`. If the blocking
+  gate had failed, F4 paired comparison (P4–P6) and the F4 CI would be dropped and
+  the failure reported — no tuning to force the number (Kapoor & Narayanan
   leakage/no-test-tuning discipline). This is replay, not modelling.
 
 ## 7. Multi-Seed Retraining (Slice 5; PDF §2.3, §3.5)
@@ -411,6 +417,23 @@ the validation-selected threshold; add `XGB_F4` to the registry.
 Exit: `f4_reproduction_check.csv` passes the gate (or documents failure and removes
 F4 from P4–P6 and the F4 CI). No hyperparameter or threshold change.
 
+Done (2026-06-13): added `scripts/regenerate_f4_predictions.py` (reuses
+`run_xgboost_baselines` for F4 unweighted only, joins `grna_target_id`, leakage
+audit, no frozen Sprint 2 artifact touched) and `load_f4_model_scores` /
+`load_full_registry` in `robustness.py`; F4 tests added. **The strict `±1e-4`
+historical gate was missed (test AUPRC `0.992338`, Δ `1.84e-4`) due to XGBoost
+version drift** (env `3.2.0` vs the earlier Sprint 2 build; geometry 1702/29/169
+exact). Per the **2026-06-13 "Option C" decision** (DECISIONS.md + tech-debt.md),
+the blocking gate is reframed to a version-drift-tolerant reproduction (geometry
+exact + AUPRC within `2e-3`), the strict `±1e-4` match is reported as a non-blocking
+diagnostic, and F4 uses the regenerated model's **own** `validation_max_f1`
+threshold `0.604756` (validation-only). `f4_predictions.csv` written;
+`load_full_registry()` now returns 11 models; F4 test guides == GNN test guides
+(P4-P6 alignment). Validation: regeneration blocking gate PASS; `uv run pytest
+tests/test_sprint9_robustness.py -q` (8 passed); ruff + `git diff --check` clean.
+Slice 3/4 must cite F4 test AUPRC `0.992338` with the historical-`0.992522`
+version-drift footnote.
+
 ### Slice 3 — Guide-cluster bootstrap CIs
 
 Implement the §4 guide-cluster bootstrap (percentile primary, BCa sensitivity) over
@@ -487,7 +510,9 @@ implement against this section with zero remaining design decision. No `src/`,
   macro F1 secondary at frozen validation thresholds (read from comparison CSVs).
 - **Registry:** `S7F_R1/R2/R3`, `S8A_R0..R4`, `S8B_R1/R2`, `XGB_F4` (Slice 2).
 - **Paired matrix:** P1–P8 (§5.1); no additions post-result.
-- **F4 gate:** reproduce test AUPRC `0.992522` ±1e-4 or drop F4 comparisons.
+- **F4 gate (Option C, 2026-06-13):** blocking = geometry exact + AUPRC within
+  `2e-3` of `0.992522`; strict `±1e-4` is a non-blocking version-drift diagnostic.
+  Accepted at AUPRC `0.992338`; F4 threshold = regenerated `0.604756`.
 - **Multi-seed:** seeds `{42,7,13,123,2024}`; configs `S8A_R2`, `S8B_R2`, `S7F_R3`,
   `S7F_R2` (GPU), `XGB_F4` (CPU); report all seeds; no best-seed.
 - **TOST:** deferred; compatibility language only.

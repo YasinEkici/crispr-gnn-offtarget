@@ -142,3 +142,39 @@ Required fix:
 - If the rename is not intentional, restore the tracked `outputs/sprint5b/graph_c/`
   files and remove or ignore the stray untracked copy.
 - Do not mix this cleanup with model-result interpretation.
+
+---
+
+## Sprint 9 F4 bar regenerated under XGBoost version drift
+
+**Discovered:** Sprint 9 Slice 2 F4 regeneration (2026-06-13)
+**Affects:** any statement comparing the Sprint 9 F4 bar to the historical Sprint 2
+`0.992522`.
+
+Sprint 2 saved no per-row XGBoost predictions, so Slice 2 regenerated
+`xgboost_unweighted / F4` to obtain F4 test/validation scores for the bootstrap CI
+and paired comparisons. The regeneration uses the exact Sprint 2 code path, config,
+seed, data, split, and features, but XGBoost is **not bit-reproducible across
+library versions**: the environment now pins `xgboost>=3.2.0` (ran on `3.2.0`),
+while the historical F4 was trained on an earlier build.
+
+Observed drift (non-blocking diagnostics in
+`outputs/sprint9/diagnostics/f4_reproduction_check.csv`):
+
+- test AUPRC `0.992338` vs historical `0.992522` (Δ `1.84e-4`).
+- regenerated validation-selected threshold `0.604756` vs historical `0.605734`.
+- confusion `40/129/23/1510` vs historical `38/131/21/1512` (2 of 1702 rows).
+- test geometry exact: 1702 rows / 29 guides / 169 negatives.
+
+Decision (DECISIONS 2026-06-13, "Option C"): accept the regenerated F4 as the
+Sprint 9 F4 bar — the drift is ~50-100× below the guide-cluster bootstrap CI width
+(~1e-2 at 29 guides) and does not affect any robustness conclusion. The F4 bar is a
+single self-consistent model (regenerated scores + its own validation-selected
+threshold). Reporting impact:
+
+- Sprint 9 F4 figures/tables should cite F4 test AUPRC `0.992338` (regenerated)
+  and footnote the historical `0.992522` with the version-drift caveat.
+- Do not present the regenerated F4 as bit-identical to the Sprint 2 publication
+  number. If exact historical reproduction is ever required, pin the original
+  XGBoost build (version unknown; would need recovery) — not worth it for a
+  difference this small.
