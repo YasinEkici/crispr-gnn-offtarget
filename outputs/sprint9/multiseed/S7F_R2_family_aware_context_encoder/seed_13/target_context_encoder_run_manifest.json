@@ -1,0 +1,62 @@
+{
+  "attention_summary_path": "outputs/sprint9/multiseed/S7F_R2_family_aware_context_encoder/seed_13/diagnostics/target_context_encoder_attention_summary.csv",
+  "batch_id": "sprint9_multiseed_S7F_R2_seed13",
+  "config_path": "configs/sweeps/sprint7f_target_context_encoder.yaml",
+  "diagnostic_tables": [
+    "outputs/sprint9/multiseed/S7F_R2_family_aware_context_encoder/seed_13/diagnostics/target_context_encoder_threshold_metrics.csv",
+    "outputs/sprint9/multiseed/S7F_R2_family_aware_context_encoder/seed_13/diagnostics/target_context_encoder_deltas.csv",
+    "outputs/sprint9/multiseed/S7F_R2_family_aware_context_encoder/seed_13/diagnostics/target_context_encoder_audit.csv",
+    "outputs/sprint9/multiseed/S7F_R2_family_aware_context_encoder/seed_13/diagnostics/target_context_encoder_activation_contract_summary.csv",
+    "outputs/sprint9/multiseed/S7F_R2_family_aware_context_encoder/seed_13/diagnostics/target_context_encoder_attention_contract_summary.csv",
+    "outputs/sprint9/multiseed/S7F_R2_family_aware_context_encoder/seed_13/diagnostics/target_context_encoder_per_guide_score_summary.csv",
+    "outputs/sprint9/multiseed/S7F_R2_family_aware_context_encoder/seed_13/diagnostics/target_context_encoder_score_deciles.csv"
+  ],
+  "figures": [
+    "outputs/sprint9/multiseed/S7F_R2_family_aware_context_encoder/seed_13/figures/target_context_encoder_auprc_comparison.png",
+    "outputs/sprint9/multiseed/S7F_R2_family_aware_context_encoder/seed_13/figures/target_context_encoder_threshold_metrics.png",
+    "outputs/sprint9/multiseed/S7F_R2_family_aware_context_encoder/seed_13/figures/target_context_encoder_pr_curves.png",
+    "outputs/sprint9/multiseed/S7F_R2_family_aware_context_encoder/seed_13/figures/target_context_encoder_roc_curves.png",
+    "outputs/sprint9/multiseed/S7F_R2_family_aware_context_encoder/seed_13/figures/target_context_encoder_score_distributions.png",
+    "outputs/sprint9/multiseed/S7F_R2_family_aware_context_encoder/seed_13/figures/target_context_encoder_training_curves.png",
+    "outputs/sprint9/multiseed/S7F_R2_family_aware_context_encoder/seed_13/figures/target_context_encoder_attention_by_edge_kind.png",
+    "outputs/sprint9/multiseed/S7F_R2_family_aware_context_encoder/seed_13/figures/target_context_encoder_branch_activation_norms.png"
+  ],
+  "generated_at_utc": "2026-06-14T00:56:04.444235+00:00",
+  "graph_artifact_provenance_path": "outputs/sprint9/multiseed/S7F_R2_family_aware_context_encoder/seed_13/graph_artifact_provenance.json",
+  "headline_run_ids": [
+    "S7F_R1_unified_deep_context_encoder",
+    "S7F_R2_family_aware_context_encoder",
+    "S7F_R3_family_aware_experimental_emphasis"
+  ],
+  "manifest_type": "sprint7f_target_context_encoder_run_manifest",
+  "predictions_path": "outputs/sprint9/multiseed/S7F_R2_family_aware_context_encoder/seed_13/diagnostics/target_context_encoder_predictions.csv",
+  "reference_run_ids": [
+    "S7F_REF_XGB_F4",
+    "S7F_REF_GRAPH_A_GCN",
+    "S7F_REF_GRAPH_C_GCN",
+    "S7F_REF_FULL_GRAPH_C_GATV2",
+    "S7F_REF_NO_CONTEXT_EDGE_GATV2"
+  ],
+  "report_path": "outputs/sprint9/multiseed/S7F_R2_family_aware_context_encoder/seed_13/target_context_encoder_report.md",
+  "results_path": "outputs/sprint9/multiseed/S7F_R2_family_aware_context_encoder/seed_13/target_context_encoder_comparison.csv",
+  "runs": [
+    {
+      "architecture": "gatv2",
+      "attention_summary_path": "outputs/sprint9/multiseed/S7F_R2_family_aware_context_encoder/seed_13/runs/sprint9_multiseed_S7F_R2_seed13_S7F_R2_family_aware_context_encoder/attention_summary.csv",
+      "checkpoint_path": "outputs/sprint9/multiseed/S7F_R2_family_aware_context_encoder/seed_13/runs/sprint9_multiseed_S7F_R2_seed13_S7F_R2_family_aware_context_encoder/model.pt",
+      "graph_schema": "graph_c_context_observation",
+      "metrics_path": "outputs/sprint9/multiseed/S7F_R2_family_aware_context_encoder/seed_13/runs/sprint9_multiseed_S7F_R2_seed13_S7F_R2_family_aware_context_encoder/metrics.csv",
+      "predeclared_id": "S7F_R2_family_aware_context_encoder",
+      "resolved_config_path": "outputs/sprint9/multiseed/S7F_R2_family_aware_context_encoder/seed_13/runs/sprint9_multiseed_S7F_R2_seed13_S7F_R2_family_aware_context_encoder/resolved_config.yaml",
+      "role": "graph_c_gatv2_family_aware_target_context_encoder",
+      "run_id": "sprint9_multiseed_S7F_R2_seed13_S7F_R2_family_aware_context_encoder",
+      "target_context_encoder_audit_path": "outputs/sprint9/multiseed/S7F_R2_family_aware_context_encoder/seed_13/runs/sprint9_multiseed_S7F_R2_seed13_S7F_R2_family_aware_context_encoder/target_context_encoder_audit.csv",
+      "target_context_encoder_summary_path": "outputs/sprint9/multiseed/S7F_R2_family_aware_context_encoder/seed_13/runs/sprint9_multiseed_S7F_R2_seed13_S7F_R2_family_aware_context_encoder/target_context_encoder_summary.csv",
+      "target_context_encoder_type": "family_aware",
+      "training_history_path": "outputs/sprint9/multiseed/S7F_R2_family_aware_context_encoder/seed_13/runs/sprint9_multiseed_S7F_R2_seed13_S7F_R2_family_aware_context_encoder/training_history.csv"
+    }
+  ],
+  "target_context_encoder_activation_summary_path": "outputs/sprint9/multiseed/S7F_R2_family_aware_context_encoder/seed_13/diagnostics/target_context_encoder_activation_summary.csv",
+  "target_context_encoder_audit_path": "outputs/sprint9/multiseed/S7F_R2_family_aware_context_encoder/seed_13/diagnostics/target_context_encoder_audit.csv",
+  "training_history_path": "outputs/sprint9/multiseed/S7F_R2_family_aware_context_encoder/seed_13/diagnostics/target_context_encoder_training_history.csv"
+}

@@ -531,16 +531,30 @@ now blocking **only for the canonical seed (42/unset)** — for fresh seeds ther
 historical bar to reproduce and the AUPRC *is* the variance signal; geometry checks
 (1702 rows / 29 guides / 169 negatives) stay blocking for every seed. Without this,
 seeds 7 (Δ0.0033) and 2024 (Δ0.0044) exceeded the 2e-3 tolerance and were silently
-dropped. F4 CPU seeds run + consolidated: `test_auprc` mean 0.990649, std 0.001944,
-range [0.988110, 0.992557] (5/5 `complete`); the four GNN configs remain
-`missing_output` until the Colab GPU runs return (consolidation is partial-safe and
-selects no best seed).
+dropped. F4 CPU seeds (5) run locally; GNN seeds (4 configs × 5) run on Colab GPU and
+returned via Drive.
+
+**Consolidation complete (2026-06-14): 25/25 observed, 0 missing, all `complete`.**
+Per-seed `test_auprc` (mean ± std [min, max]): XGB_F4 0.9906 ± 0.0019 [0.9881, 0.9926],
+S8B_R2 0.9790 ± 0.0113 [0.9590, 0.9865], S8A_R2 0.9755 ± 0.0122 [0.9548, 0.9845],
+S7F_R2 0.9748 ± 0.0038 [0.9692, 0.9796], S7F_R3 0.9687 ± 0.0046 [0.9631, 0.9745].
+**Two headline observations for Slice 6:** (1) GNN AUPRC seed-std (0.004–0.012) dwarfs
+the ~0.003 Sprint 8 paired gains (Slice 4) → reinforces "not robust within seed
+uncertainty"; F4 stays highest with the smallest spread. (2) On `test_mcc` the GNNs
+beat F4 on the mean (0.38–0.46 vs 0.36) but with large seed-std (0.10–0.17 vs F4's
+0.033; S8A drops to 0.206 at its worst seed) → the Slice-4 operating-point win is
+itself seed-fragile. Reported descriptively (training-stochasticity conditional on the
+fixed split; Bengio & Grandvalet — no unbiased variance estimator); **no best-seed
+selection**; the fresh seed-42 reruns differ slightly from the frozen single-seed
+headline (separate Colab environment) and do not replace it.
 
 Validation: `uv run pytest tests/test_sprint9_robustness.py -q` (22 passed),
 `ruff check` clean, F4 gate verified both ways (seed 42 blocking-canonical passes;
-seed 7 non-blocking writes), consolidation end-to-end produces the F4 summary rows.
-GNN per-seed rows finalize after the Colab outputs return. Interpretation-only;
-no frozen artifact modified.
+seed 7 non-blocking writes), all 25 returned per-seed CSVs contract-checked (one row
+per `predeclared_run_id`, `seed` column matches the requested seed, metrics vary across
+seeds), `--stage multiseed` reports 25 observed / 0 missing and writes
+`robustness_model_seed_summary.csv` + `per_seed_metric_variance.png`. Interpretation-
+only; no frozen artifact modified.
 
 ### Slice 6 — Consolidated robustness report & docs
 

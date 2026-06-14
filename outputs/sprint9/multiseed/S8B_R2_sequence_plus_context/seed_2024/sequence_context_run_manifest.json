@@ -1,0 +1,66 @@
+{
+  "batch_id": "sprint9_multiseed_S8B_R2_seed2024",
+  "config_path": "configs/sweeps/sprint8b_sequence_context.yaml",
+  "diagnostic_tables": [
+    "outputs/sprint9/multiseed/S8B_R2_sequence_plus_context/seed_2024/diagnostics/sequence_context_threshold_metrics.csv",
+    "outputs/sprint9/multiseed/S8B_R2_sequence_plus_context/seed_2024/diagnostics/sequence_context_deltas.csv",
+    "outputs/sprint9/multiseed/S8B_R2_sequence_plus_context/seed_2024/diagnostics/sequence_context_sequence_input_audit.csv",
+    "outputs/sprint9/multiseed/S8B_R2_sequence_plus_context/seed_2024/diagnostics/sequence_context_parameter_counts.csv",
+    "outputs/sprint9/multiseed/S8B_R2_sequence_plus_context/seed_2024/diagnostics/sequence_context_attention_summary.csv",
+    "outputs/sprint9/multiseed/S8B_R2_sequence_plus_context/seed_2024/diagnostics/sequence_context_target_context_encoder_summary.csv",
+    "outputs/sprint9/multiseed/S8B_R2_sequence_plus_context/seed_2024/diagnostics/sequence_context_film_summary.csv",
+    "outputs/sprint9/multiseed/S8B_R2_sequence_plus_context/seed_2024/diagnostics/sequence_context_per_guide_score_summary.csv",
+    "outputs/sprint9/multiseed/S8B_R2_sequence_plus_context/seed_2024/diagnostics/sequence_context_score_deciles.csv"
+  ],
+  "figures": [
+    "outputs/sprint9/multiseed/S8B_R2_sequence_plus_context/seed_2024/figures/sequence_context_auprc_comparison.png",
+    "outputs/sprint9/multiseed/S8B_R2_sequence_plus_context/seed_2024/figures/sequence_context_threshold_metrics.png",
+    "outputs/sprint9/multiseed/S8B_R2_sequence_plus_context/seed_2024/figures/sequence_context_pr_curves.png",
+    "outputs/sprint9/multiseed/S8B_R2_sequence_plus_context/seed_2024/figures/sequence_context_roc_curves.png",
+    "outputs/sprint9/multiseed/S8B_R2_sequence_plus_context/seed_2024/figures/sequence_context_score_distributions.png",
+    "outputs/sprint9/multiseed/S8B_R2_sequence_plus_context/seed_2024/figures/sequence_context_training_curves.png",
+    "outputs/sprint9/multiseed/S8B_R2_sequence_plus_context/seed_2024/figures/sequence_context_parameter_counts.png"
+  ],
+  "generated_at_utc": "2026-06-14T00:51:43.408840+00:00",
+  "graph_artifact_provenance_path": "outputs/sprint9/multiseed/S8B_R2_sequence_plus_context/seed_2024/graph_artifact_provenance.json",
+  "headline_run_ids": [
+    "S8B_R1_sequence_only",
+    "S8B_R2_sequence_plus_context"
+  ],
+  "manifest_type": "sprint8b_sequence_context_run_manifest",
+  "predictions_path": "outputs/sprint9/multiseed/S8B_R2_sequence_plus_context/seed_2024/diagnostics/sequence_context_predictions.csv",
+  "reference_run_ids": [
+    "S8B_R0_reference"
+  ],
+  "report_path": "outputs/sprint9/multiseed/S8B_R2_sequence_plus_context/seed_2024/sequence_context_report.md",
+  "results_path": "outputs/sprint9/multiseed/S8B_R2_sequence_plus_context/seed_2024/sequence_context_comparison.csv",
+  "runs": [
+    {
+      "architecture": "gatv2",
+      "attention_summary_path": "outputs/sprint9/multiseed/S8B_R2_sequence_plus_context/seed_2024/runs/sprint9_multiseed_S8B_R2_seed2024_S8B_R2_sequence_plus_context/attention_summary.csv",
+      "checkpoint_path": "outputs/sprint9/multiseed/S8B_R2_sequence_plus_context/seed_2024/runs/sprint9_multiseed_S8B_R2_seed2024_S8B_R2_sequence_plus_context/model.pt",
+      "context_edge_interaction": "film",
+      "context_edge_interaction_summary_path": "outputs/sprint9/multiseed/S8B_R2_sequence_plus_context/seed_2024/runs/sprint9_multiseed_S8B_R2_seed2024_S8B_R2_sequence_plus_context/context_edge_interaction_summary.csv",
+      "graph_schema": "graph_c_context_observation",
+      "interaction_edge_dim": 64,
+      "metrics_path": "outputs/sprint9/multiseed/S8B_R2_sequence_plus_context/seed_2024/runs/sprint9_multiseed_S8B_R2_seed2024_S8B_R2_sequence_plus_context/metrics.csv",
+      "predeclared_id": "S8B_R2_sequence_plus_context",
+      "resolved_config_path": "outputs/sprint9/multiseed/S8B_R2_sequence_plus_context/seed_2024/runs/sprint9_multiseed_S8B_R2_seed2024_S8B_R2_sequence_plus_context/resolved_config.yaml",
+      "role": "late_fusion_s1_sequence_context_plus_s8a_r2_film",
+      "run_id": "sprint9_multiseed_S8B_R2_seed2024_S8B_R2_sequence_plus_context",
+      "sequence_context_mode": "late_fusion",
+      "sequence_conv_channels": 32,
+      "sequence_conv_kernel": 3,
+      "sequence_dropout": 0.2,
+      "sequence_embed_dim": 64,
+      "sequence_input_audit_path": "outputs/sprint9/multiseed/S8B_R2_sequence_plus_context/seed_2024/runs/sprint9_multiseed_S8B_R2_seed2024_S8B_R2_sequence_plus_context/sequence_input_audit.csv",
+      "sequence_lstm_hidden": 32,
+      "target_context_encoder_summary_path": "outputs/sprint9/multiseed/S8B_R2_sequence_plus_context/seed_2024/runs/sprint9_multiseed_S8B_R2_seed2024_S8B_R2_sequence_plus_context/target_context_encoder_summary.csv",
+      "target_context_encoder_type": "family_aware_experimental_emphasis",
+      "training_history_path": "outputs/sprint9/multiseed/S8B_R2_sequence_plus_context/seed_2024/runs/sprint9_multiseed_S8B_R2_seed2024_S8B_R2_sequence_plus_context/training_history.csv"
+    }
+  ],
+  "selection_metric": "validation_auprc",
+  "sequence_input_audit_path": "outputs/sprint9/multiseed/S8B_R2_sequence_plus_context/seed_2024/diagnostics/sequence_context_sequence_input_audit.csv",
+  "training_history_path": "outputs/sprint9/multiseed/S8B_R2_sequence_plus_context/seed_2024/diagnostics/sequence_context_training_history.csv"
+}

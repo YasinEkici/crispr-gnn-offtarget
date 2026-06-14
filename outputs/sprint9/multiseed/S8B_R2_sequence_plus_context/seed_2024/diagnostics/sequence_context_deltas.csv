@@ -1,0 +1,2 @@
+run_id,predeclared_run_id,sequence_context_mode,test_auprc,delta_auprc_vs_s8a_r2_reference,delta_mcc_vs_s8a_r2_reference,delta_auprc_vs_xgboost_f4,test_mcc,test_specificity,test_tn,test_fp
+sprint9_multiseed_S8B_R2_seed2024_S8B_R2_sequence_plus_context,S8B_R2_sequence_plus_context,late_fusion,0.9589625496100603,,,-0.03355945038993968,0.17493698774728247,0.3431952662721893,58,111

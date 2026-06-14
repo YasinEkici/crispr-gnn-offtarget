@@ -1,0 +1,73 @@
+{
+  "attention_summary_path": "outputs/sprint9/multiseed/S8A_R2_context_edge_film/seed_42/diagnostics/target_context_interaction_attention_summary.csv",
+  "batch_id": "sprint9_multiseed_S8A_R2_seed42",
+  "config_path": "configs/sweeps/sprint8a_target_context_interaction.yaml",
+  "diagnostic_tables": [
+    "outputs/sprint9/multiseed/S8A_R2_context_edge_film/seed_42/diagnostics/target_context_interaction_audit.csv",
+    "outputs/sprint9/multiseed/S8A_R2_context_edge_film/seed_42/diagnostics/target_context_interaction_threshold_metrics.csv",
+    "outputs/sprint9/multiseed/S8A_R2_context_edge_film/seed_42/diagnostics/target_context_interaction_deltas.csv",
+    "outputs/sprint9/multiseed/S8A_R2_context_edge_film/seed_42/diagnostics/target_context_interaction_branch_gate_summary.csv",
+    "outputs/sprint9/multiseed/S8A_R2_context_edge_film/seed_42/diagnostics/target_context_interaction_film_summary.csv",
+    "outputs/sprint9/multiseed/S8A_R2_context_edge_film/seed_42/diagnostics/target_context_interaction_parameter_counts.csv",
+    "outputs/sprint9/multiseed/S8A_R2_context_edge_film/seed_42/diagnostics/target_context_interaction_per_guide_score_summary.csv",
+    "outputs/sprint9/multiseed/S8A_R2_context_edge_film/seed_42/diagnostics/target_context_interaction_score_deciles.csv"
+  ],
+  "figures": [
+    "outputs/sprint9/multiseed/S8A_R2_context_edge_film/seed_42/figures/target_context_interaction_auprc_comparison.png",
+    "outputs/sprint9/multiseed/S8A_R2_context_edge_film/seed_42/figures/target_context_interaction_threshold_metrics.png",
+    "outputs/sprint9/multiseed/S8A_R2_context_edge_film/seed_42/figures/target_context_interaction_pr_curves.png",
+    "outputs/sprint9/multiseed/S8A_R2_context_edge_film/seed_42/figures/target_context_interaction_roc_curves.png",
+    "outputs/sprint9/multiseed/S8A_R2_context_edge_film/seed_42/figures/target_context_interaction_score_distributions.png",
+    "outputs/sprint9/multiseed/S8A_R2_context_edge_film/seed_42/figures/target_context_interaction_training_curves.png",
+    "outputs/sprint9/multiseed/S8A_R2_context_edge_film/seed_42/figures/target_context_interaction_gate_weights.png",
+    "outputs/sprint9/multiseed/S8A_R2_context_edge_film/seed_42/figures/target_context_interaction_parameter_counts.png"
+  ],
+  "generated_at_utc": "2026-06-14T00:44:52.222717+00:00",
+  "graph_artifact_provenance_path": "outputs/sprint9/multiseed/S8A_R2_context_edge_film/seed_42/graph_artifact_provenance.json",
+  "headline_run_ids": [
+    "S8A_R0_base_reference",
+    "S8A_R1_family_gated_v2",
+    "S8A_R2_context_edge_film",
+    "S8A_R3_gated_plus_film",
+    "S8A_R4_regularized_exp_branch"
+  ],
+  "manifest_type": "sprint8a_target_context_interaction_run_manifest",
+  "predictions_path": "outputs/sprint9/multiseed/S8A_R2_context_edge_film/seed_42/diagnostics/target_context_interaction_predictions.csv",
+  "reference_run_ids": [
+    "S8A_REF_XGB_F4",
+    "S8A_REF_GRAPH_A_GCN",
+    "S8A_REF_GRAPH_C_GCN",
+    "S8A_REF_FULL_GRAPH_C_GATV2",
+    "S8A_REF_NO_CTX_EDGE_GATV2",
+    "S8A_REF_S7F_R2",
+    "S8A_REF_S7F_R3"
+  ],
+  "report_path": "outputs/sprint9/multiseed/S8A_R2_context_edge_film/seed_42/target_context_interaction_report.md",
+  "results_path": "outputs/sprint9/multiseed/S8A_R2_context_edge_film/seed_42/target_context_interaction_comparison.csv",
+  "runs": [
+    {
+      "architecture": "gatv2",
+      "attention_summary_path": "outputs/sprint9/multiseed/S8A_R2_context_edge_film/seed_42/runs/sprint9_multiseed_S8A_R2_seed42_S8A_R2_context_edge_film/attention_summary.csv",
+      "checkpoint_path": "outputs/sprint9/multiseed/S8A_R2_context_edge_film/seed_42/runs/sprint9_multiseed_S8A_R2_seed42_S8A_R2_context_edge_film/model.pt",
+      "context_edge_interaction": "film",
+      "experimental_branch_bottleneck": null,
+      "experimental_branch_feature_dropout": 0.0,
+      "family_gate": false,
+      "gate_reduction": 4,
+      "graph_schema": "graph_c_context_observation",
+      "interaction_edge_dim": 64,
+      "metrics_path": "outputs/sprint9/multiseed/S8A_R2_context_edge_film/seed_42/runs/sprint9_multiseed_S8A_R2_seed42_S8A_R2_context_edge_film/metrics.csv",
+      "predeclared_id": "S8A_R2_context_edge_film",
+      "resolved_config_path": "outputs/sprint9/multiseed/S8A_R2_context_edge_film/seed_42/runs/sprint9_multiseed_S8A_R2_seed42_S8A_R2_context_edge_film/resolved_config.yaml",
+      "role": "graph_c_gatv2_context_edge_film_interaction",
+      "run_id": "sprint9_multiseed_S8A_R2_seed42_S8A_R2_context_edge_film",
+      "target_context_encoder_summary_path": "outputs/sprint9/multiseed/S8A_R2_context_edge_film/seed_42/runs/sprint9_multiseed_S8A_R2_seed42_S8A_R2_context_edge_film/target_context_encoder_summary.csv",
+      "target_context_encoder_type": "family_aware_experimental_emphasis",
+      "target_context_interaction_audit_path": "outputs/sprint9/multiseed/S8A_R2_context_edge_film/seed_42/runs/sprint9_multiseed_S8A_R2_seed42_S8A_R2_context_edge_film/target_context_interaction_audit.csv",
+      "training_history_path": "outputs/sprint9/multiseed/S8A_R2_context_edge_film/seed_42/runs/sprint9_multiseed_S8A_R2_seed42_S8A_R2_context_edge_film/training_history.csv"
+    }
+  ],
+  "selection_metric": "validation_auprc",
+  "target_context_interaction_audit_path": "outputs/sprint9/multiseed/S8A_R2_context_edge_film/seed_42/diagnostics/target_context_interaction_audit.csv",
+  "training_history_path": "outputs/sprint9/multiseed/S8A_R2_context_edge_film/seed_42/diagnostics/target_context_interaction_training_history.csv"
+}

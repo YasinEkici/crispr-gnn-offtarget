@@ -1,0 +1,2 @@
+run_id,predeclared_run_id,graph_schema,architecture,target_context_encoder_type,test_auprc,test_auroc,test_macro_f1,test_mcc,test_specificity,test_sensitivity,test_tn,test_fp,test_fn,test_tp
+sprint9_multiseed_S7F_R2_seed2024_S7F_R2_family_aware_context_encoder,S7F_R2_family_aware_context_encoder,graph_c_context_observation,gatv2,family_aware,0.9764485843582817,0.8776618534258154,0.6477180324960452,0.31914965882272794,0.26627218934911245,0.9712981082844097,45,124,44,1489
