@@ -1,0 +1,25 @@
+\refstepcounter{chapter}
+\chapter*{EK A}
+Ekler bölümünde verilen şekil ve çizelgeler, bulundukları ekin adı altında numaralandırılabilir. LaTeX varsayılanı bu bölümde A.1, A.2 şeklindedir.
+
+\begin{figure}[htbp]
+\centering
+\fbox{\rule{0pt}{3cm}\rule{6cm}{0pt}}
+\caption{Ekler bölümünde şekil örneği.}
+\label{fig:ek-ornek}
+\end{figure}
+
+\begin{table}[htbp]
+\caption{Ekler bölümünde çizelge örneği.}
+\label{tab:ek-ornek}
+\centering
+\begin{tabular}{c c c c}
+\toprule\toprule
+Kolon A & Kolon B & Kolon C & Kolon D\\
+\midrule
+Satır A & Satır A & Satır A & Satır A\\
+Satır B & Satır B & Satır B & Satır B\\
+Satır C & Satır C & Satır C & Satır C\\
+\bottomrule
+\end{tabular}
+\end{table}

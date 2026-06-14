@@ -1,0 +1,79 @@
+\documentclass{btu-thesis}
+\input{metadata.tex}
+
+\begin{document}
+
+\BTUfrontmatter
+\BTUmakecover
+% Word şablonunda dış kapaktan sonra boş sayfa yorumu var. Bölüm özellikle isterse şu satırı aç:
+% \thispagestyle{btunofooter}\null\clearpage
+\BTUmakeinnercover
+\BTUmakeapprovalpage
+\BTUmakeplagiarism
+
+\begin{BTUforeword}
+Önsöz bölümünün içerisindeki metinler 1 satır aralıklı yazılır. Bitirme çalışmasının ilk sayfası niteliğinde yazılan önsöz iki sayfayı geçmez.
+
+Bitirme çalışmasını destekleyen kurumlara ve yardımcı olan kişilere bu kısımda teşekkür edilir. Önsöz metninin altında sağa dayalı olarak ad-soyad, sola dayalı olarak ay, yıl biçiminde tarih yazılır. Bu iki unsur aynı hizada olur.
+
+\BTUforewordsignature
+\end{BTUforeword}
+
+\BTUaddcontents
+
+\begin{BTUabbr}{KISALTMALAR}
+AIC & Akaike Information Criteria\\
+ANN & Artificial Neural Network\\
+CRISPR & Clustered Regularly Interspaced Short Palindromic Repeats\\
+GNN & Graph Neural Network\\
+\end{BTUabbr}
+
+\begin{BTUabbr}{SEMBOLLER}
+C & Dokunun kapasitansı\\
+H & Isı miktarı\\
+t & Zaman\\
+w & Açısal hız\\
+\end{BTUabbr}
+
+\BTUaddtablelist
+\BTUaddfigurelist
+
+\begin{BTUabstractTR}
+Türkçe özet 300 ile 500 kelime arasında olmalıdır. Özetlerde tezde ele alınan konu kısaca tanıtılır, kullanılan yöntemler ve ulaşılan sonuçlar belirtilir. Özetlerde kaynak, şekil ve çizelge verilmez. Bu paragraf yalnızca şablonun derlenebilmesi için bırakılmıştır; gerçek tez metni yazılırken bu alan kendi özetinle değiştirilmelidir.
+\end{BTUabstractTR}
+
+\begin{BTUabstractEN}
+The English summary must be between 300 and 500 words. It should briefly introduce the subject of the thesis, describe the methods used, and summarize the conclusions. References, figures, and tables must not be included in the summary. This paragraph is only a placeholder for compilation and should be replaced with the actual thesis summary.
+\end{BTUabstractEN}
+
+\BTUmainmatter
+\include{chapters/01_giris}
+\include{chapters/02_materyal_yontem}
+\include{chapters/03_deneysel_calismalar}
+\include{chapters/04_sonuc_oneriler}
+
+\begin{BTUreferences}
+\item Ertas, M. \& Bayhan, B. (2016). Makale Başlığı, \textit{Dergi Adı}, 15(1), 110--126.
+\item Bayhan, B. (2010). Tez Başlığı. (Doktora tezi). Bursa Teknik Üniversitesi, Fen Bilimleri Enstitüsü, Bursa.
+\end{BTUreferences}
+
+\BTUappendices
+\include{appendices/ek-a}
+
+\begin{BTUcv}
+\begin{tabular}{@{}p{4.3cm}@{ : }p{9cm}@{}}
+Ad-Soyad & \\
+Doğum Tarihi ve Yeri & \\
+E-posta & \\
+\end{tabular}
+
+\vspace{1cm}
+\textbf{BİTİRME ÇALIŞMASINDAN TÜRETİLEN MAKALE, BİLDİRİ VEYA SUNUMLAR:}
+
+\begin{itemize}
+\item \ldots
+\item \ldots
+\end{itemize}
+\end{BTUcv}
+
+\end{document}

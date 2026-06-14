@@ -194,6 +194,23 @@ crispr-gnn-offtarget/
 │   │           ├── original.pdf
 │   │           └── assets/
 │   │
+│   ├── thesis/
+│   │   ├── README.md
+│   │   ├── notes/
+│   │   │   ├── main_narrative_framing.md
+│   │   │   └── btu_template_verification.md
+│   │   ├── templates/
+│   │   │   └── btu_docx/
+│   │   │       └── BTU_BM_Tez_Yazım_Sablonu_2019.docx
+│   │   └── latex/
+│   │       └── btu_template/
+│   │           ├── main.tex
+│   │           ├── metadata.tex
+│   │           ├── btu-thesis.cls
+│   │           ├── chapters/
+│   │           ├── appendices/
+│   │           └── figures/
+│   │
 │   └── exec-plans/
 │       ├── active/
 │       ├── completed/
