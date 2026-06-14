@@ -8,6 +8,8 @@
 
 ## 1. Register: akademik Türkçe
 
+- Tezin ana metni Türkçe yazılır. İngilizce yalnızca zorunlu alanlarda (ör. `SUMMARY`, İngilizce başlık/anahtar kelimeler) ve teknik terimlerin ilk tanımında kullanılmalıdır.
+- İngilizce teknik terim ilk geçtiği yerde Türkçe karşılığıyla birlikte verilebilir: "hedef dışı bölge (off-target site)" gibi. Sonraki kullanımlarda seçilen Türkçe/teknik karşılık tutarlı kullanılmalıdır.
 - Edilgen cümle yapısı kullan: "yapılmıştır", "gözlemlenmiştir", "elde edilmiştir".
 - Birinci şahıs yok ("ben/biz/yaptım"). İstisna: yalnızca Önsöz ve dipnot.
 - Cümleler kısa ve öz, tek cümlede tek fikir. Ama "kısa olsun" diye telgraf/shortcut üslubu yazma: cümleler eksiksiz, anlaşılır ve düzgün akademik Türkçe olmalı; özne ve yüklemi tam, devrik olmayan tam cümleler kurulmalı.
