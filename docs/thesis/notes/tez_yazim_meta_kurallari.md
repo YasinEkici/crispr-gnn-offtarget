@@ -6,11 +6,11 @@
 
 ---
 
-## 1. Register — akademik Türkçe
+## 1. Register: akademik Türkçe
 
 - Edilgen cümle yapısı kullan: "yapılmıştır", "gözlemlenmiştir", "elde edilmiştir".
 - Birinci şahıs yok ("ben/biz/yaptım"). İstisna: yalnızca Önsöz ve dipnot.
-- Cümleler kısa ve öz, tek cümlede tek fikir. Ama "kısa olsun" diye telgraf/shortcut üslubu yazma: cümleler eksiksiz, anlaşılır ve düzgün akademik Türkçe olmalı — özne ve yüklemi tam, devrik olmayan tam cümleler.
+- Cümleler kısa ve öz, tek cümlede tek fikir. Ama "kısa olsun" diye telgraf/shortcut üslubu yazma: cümleler eksiksiz, anlaşılır ve düzgün akademik Türkçe olmalı; özne ve yüklemi tam, devrik olmayan tam cümleler kurulmalı.
 - TDK imla ve noktalama kurallarına uy. Grameri bilerek bozma, üslubu "konuşma diline" çekme.
 - SI birimleri kullan. Her sembol/kısaltma metinde ilk geçtiği yerde tanımlanır.
 
@@ -34,7 +34,7 @@ Resmi dilde bile sırıtan, AI işareti veren kalıplar:
 
 ---
 
-## 3. Kaynak ve atıf — APA (yazar-tarih)
+## 3. Kaynak ve atıf: APA (yazar-tarih)
 
 Tek sistem: **APA / yazar-tarih.** Numaralı `[n]` gösterim kullanılmaz.
 
@@ -61,18 +61,18 @@ Metinde geçen her atıf KAYNAKLAR'da olmalı. Sana ait olmayan her bilgi atıfl
 - Gerçek parafraz, kelime değiştirmek değildir: cümle yapısını ve ifadeyi baştan kur. Araya eş anlamlı kelime serpiştirmek yine intihaldir.
 - Parafraz da olsa fikir başkasınınsa atıflanır; atıfsız parafraz da intihaldir.
 - Tek kaynağa yaslanma; birden çok kaynaktan derleyip sentezle.
-- Derlenen bilgiye kendi değerlendirmeni ve analizini ekle (özgün katkı) — register kuralına uygun, birinci şahıs olmadan.
+- Derlenen bilgiye kendi değerlendirmeni ve analizini ekle (özgün katkı). Bu değerlendirme register kuralına uygun ve birinci şahıs kullanılmadan yazılmalı.
 
 ---
 
-## 5. Bölüm bölüm — her bölümün işi
+## 5. Bölüm bölüm: her bölümün işi
 
 Literatür ve Hipotez, Giriş'in alt başlıkları. Gövde bölümleri konuya göre esnek.
 
 | Bölüm | Ne yapmalı |
 |---|---|
 | **1. Giriş** | Konuya ön bilgi. Alt başlıklar: **Tezin Amacı**, **Literatür Araştırması**, **Hipotez**. Amaç, kapsam ve literatürden fark net olmalı. |
-| **Gövde bölümleri** (esnek) | Yöntem, tasarım, uygulama, deney/değerlendirme — konuya göre adlandır. Bir başkası tekrar edebilecek açıklıkta. |
+| **Gövde bölümleri** (esnek) | Yöntem, tasarım, uygulama, deney/değerlendirme konuya göre adlandırılır. Bir başkası tekrar edebilecek açıklıkta yazılır. |
 | **Sonuç ve Öneriler** | Veri tekrarı değil; çıkarımlar ve sonraki çalışmalara öneri. |
 
 - **Özet/Summary:** Türkçe ve İngilizce özet **her biri 300–500 kelime**. Özette kaynak, şekil, çizelge **verilmez**. En fazla 6 anahtar kelime, virgülle. Türkçe tezde Türkçe özet (ÖZET) önce, İngilizce özet (SUMMARY) sonra önerilir.
@@ -101,6 +101,60 @@ Literatür ve Hipotez, Giriş'in alt başlıkları. Gövde bölümleri konuya g�
 
 ---
 
+## 8. Proje-özel iddia ve metrik disiplini
+
+Bu tezde ana anlatı "GNN tüm yöntemleri geçti" değildir. Ana anlatı, bağlam-duyarlı GNN modellerinin hangi koşullarda fayda sağladığını ve hangi sınırlara takıldığını göstermektir.
+
+- **AUPRC birincil metrik olarak kalır.** Çünkü eşik bağımsızdır ve literatürle karşılaştırmaya daha uygundur.
+- **MCC, macro-F1, specificity ve TN/FP/FN/TP ikincil ama merkezi sonuçlardır.** Bunlar sadece ek tanı metriği gibi yazılmamalıdır. Bu çalışmada rare negative-class recognition ana katkı eksenlerinden biridir.
+- Measured-only test evreninin pozitif ağırlıklı olduğu açık yazılmalı. Pozitif prevalans yaklaşık `0.9007` olduğu için yüksek AUPRC tek başına negatif sınıfı iyi ayırma anlamına gelmez.
+- XGBoost F4, primary AUPRC açısından güçlü referans barı olarak korunmalı. GNN sonuçları AUPRC'de rekabetçi olarak yazılabilir; robust şekilde XGBoost'u geçtiği iddia edilmemelidir.
+- Context-aware Graph C GATv2 ve target-context encoder sonuçları, özellikle validation-locked eşikte negatif sınıf tanıma davranışını iyileştiren modeller olarak anlatılmalıdır.
+- Tek-seed point sonuçları "kesin üstünlük" gibi yazılmamalı. Sprint 9 guide-level bootstrap / paired-delta sonuçları geniş ve sıfırı kesen aralıklar veriyorsa bu belirsizlik açık belirtilmelidir.
+- Attention ağırlıkları, feature importance ve ablation bulguları biyolojik nedensellik kanıtı gibi yazılmamalıdır. Bunlar model içi yorumlama ve hipotez üretme sinyalleridir.
+- "State-of-the-art", "kanıtlandı", "biyolojik olarak doğrulandı", "kesin olarak gösterildi" gibi güçlü iddialar ancak doğrudan deneysel veya istatistiksel kanıt varsa kullanılmalıdır. Bu tez için çoğu yerde "bulgular göstermektedir", "işaret etmektedir", "desteklemektedir" daha uygundur.
+
+---
+
+## 9. Deney sözleşmesi ve tekrar üretilebilirlik
+
+Deney bölümlerinde sonuç tek başına verilmez; sonucu üreten sözleşme de kısa yazılır.
+
+- Label scheme, split, headline universe ve test policy açık olmalı: Scheme A, guide-disjoint split, measured-only test, validation-only checkpoint/threshold.
+- Train-only preprocessing vurgulanmalı. Test setinden threshold, mimari, loss veya feature seçimi yapılmadığı belirtilmeli.
+- Model karşılaştırmalarında kontrollü değişken açık yazılmalı. Örneğin Sprint 7'de amaç yalnızca architecture değişimini, Sprint 7D/7E'de ise Graph C mekanizma ve context-feature ablationlarını incelemektir.
+- "Bu model daha iyi" demeden önce hangi metrikte, hangi eşikte, hangi split altında ve hangi referansa göre daha iyi olduğu yazılmalı.
+- Colab, local run ve saved-prediction robustness çıktıları karıştırılmamalı. Her tablo, ilgili output dosyası ve sprint raporu ile izlenebilir olmalı.
+- Grafik veya tablo üretirken kaynak path not edilmeli. Tezde path yazılması gerekmez; fakat çalışma notunda hangi `outputs/...` dosyasından geldiği tutulmalıdır.
+
+---
+
+## 10. Literatür sentezi ve terminoloji
+
+Literatür bölümü paper özeti listesine dönmemeli. Her kaynak, tezin araştırma sorusuna bağlanarak kullanılmalıdır.
+
+- CRISPR off-target literatürü üç eksende sentezlenmeli: sequence/energy modelleri, epigenetic/chromatin context modelleri ve imbalance/evaluation çalışmaları.
+- Makale aktarırken "X çalışması şunu yapmıştır" cümlesinden sonra mutlaka bu tezle ilişkisi yazılmalı: hangi boşluğu bırakıyor, hangi tasarım kararını destekliyor veya hangi sınıra işaret ediyor?
+- Paper'ın yöntemi birebir yeniden uygulanmadıysa "reproduce edildi" denmemeli. "Esinlenilmiştir", "yakın literatür olarak kullanılmıştır" veya "konumlandırma amacıyla tartışılmıştır" denmeli.
+- Terminoloji tutarlı kalmalı: `sgRNA`, `candidate pair`, `target site`, `off-target`, `cleavage frequency`, `Graph A`, `Graph B`, `Graph C`, `S5F2_energy`, `target-observation context`.
+- Türkçede ilk kullanımda İngilizce teknik terim parantez içinde verilebilir. Sonrasında tek biçim kullanılmalı.
+- Graph adları çevrilmemeli. `Graph C context-observation topology` gibi teknik adlar korunmalı; gerekirse cümle içinde açıklanmalı.
+
+---
+
+## 11. AI ile düzeltme yaparken değiştirilmeyecekler
+
+AI ile paragraf parlatılırken teknik anlam, sayı ve claim sınırı bozulmamalıdır.
+
+- Sayılar, metrik adları, confidence interval değerleri, run ID'leri ve model adları değiştirilmez.
+- "AUPRC düşük" veya "başarısız" gibi düzleştirici yorumlardan kaçınılır. Hangi metrikte düşüş, hangi metrikte kazanç olduğu birlikte yazılır.
+- "MCC/macro-F1 sadece secondary" diye etkisi küçültülmez. Bu tezde rare negative recognition bilimsel katkının parçasıdır.
+- Paragrafın sonunda yeni ve kaynaksız bir genelleme eklenmez. Her sonuç ya deney çıktısına ya literatüre bağlanır.
+- Aynı paragrafta hem sonuç hem yorum varsa önce sonuç verilir, sonra yorum yapılır.
+- Giriş ve literatürde genel CRISPR tanıtımı kısa tutulur. Tezin özgün ekseni olan context-aware GNN, epigenetic context ve rare negative recognition anlatısına hızlı geçilir.
+
+---
+
 ## Hızlı kontrol listesi (her parça sonrası)
 
 - [ ] Edilgen yapı, birinci şahıs yok
@@ -110,6 +164,10 @@ Literatür ve Hipotez, Giriş'in alt başlıkları. Gövde bölümleri konuya g�
 - [ ] Kaynaktan 5+ kelime birebir kopya yok; parafrazlar baştan yazılmış ve atıflı
 - [ ] Şekil/çizelgeye metinde önce atıf var; çizelge başlığı nokta ile bitiyor
 - [ ] Özet 300–500 kelime, kaynak/şekil/çizelge içermiyor
+- [ ] AUPRC primary, MCC/macro-F1/specificity rare-negative katkısı olarak doğru çerçevelenmiş
+- [ ] XGBoost F4 ve Sprint 9 robustness sınırları abartılmamış
+- [ ] Attention/feature importance biyolojik nedensellik gibi yazılmamış
+- [ ] Run ID, metrik, split ve output kaynağı teknik notlarda izlenebilir
 - [ ] Süs tire, sahte üçleme, şişirme kelime temiz
 
 ---
