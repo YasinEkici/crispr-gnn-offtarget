@@ -142,3 +142,72 @@ Required fix:
 - If the rename is not intentional, restore the tracked `outputs/sprint5b/graph_c/`
   files and remove or ignore the stray untracked copy.
 - Do not mix this cleanup with model-result interpretation.
+
+---
+
+## Sprint 9 F4 bar regenerated under XGBoost version drift
+
+**Discovered:** Sprint 9 Slice 2 F4 regeneration (2026-06-13)
+**Affects:** any statement comparing the Sprint 9 F4 bar to the historical Sprint 2
+`0.992522`.
+
+Sprint 2 saved no per-row XGBoost predictions, so Slice 2 regenerated
+`xgboost_unweighted / F4` to obtain F4 test/validation scores for the bootstrap CI
+and paired comparisons. The regeneration uses the exact Sprint 2 code path, config,
+seed, data, split, and features, but XGBoost is **not bit-reproducible across
+library versions**: the environment now pins `xgboost>=3.2.0` (ran on `3.2.0`),
+while the historical F4 was trained on an earlier build.
+
+Observed drift (non-blocking diagnostics in
+`outputs/sprint9/diagnostics/f4_reproduction_check.csv`):
+
+- test AUPRC `0.992338` vs historical `0.992522` (Δ `1.84e-4`).
+- regenerated validation-selected threshold `0.604756` vs historical `0.605734`.
+- confusion `40/129/23/1510` vs historical `38/131/21/1512` (2 of 1702 rows).
+- test geometry exact: 1702 rows / 29 guides / 169 negatives.
+
+Decision (DECISIONS 2026-06-13, "Option C"): accept the regenerated F4 as the
+Sprint 9 F4 bar — the drift is ~50-100× below the guide-cluster bootstrap CI width
+(~1e-2 at 29 guides) and does not affect any robustness conclusion. The F4 bar is a
+single self-consistent model (regenerated scores + its own validation-selected
+threshold). Reporting impact:
+
+- Sprint 9 F4 figures/tables should cite F4 test AUPRC `0.992338` (regenerated)
+  and footnote the historical `0.992522` with the version-drift caveat.
+- Do not present the regenerated F4 as bit-identical to the Sprint 2 publication
+  number. If exact historical reproduction is ever required, pin the original
+  XGBoost build (version unknown; would need recovery) — not worth it for a
+  difference this small.
+
+---
+
+## Sprint 9 output-contract name supersession: per_guide_metric_contributions.csv
+
+**Discovered:** Sprint 9 Slice 6 report consolidation (2026-06-14)
+**Affects:** anyone cross-checking the §9 output contract in
+`docs/exec-plans/active/009-sprint9-robustness.md` against produced files.
+
+The §9 output contract listed `outputs/sprint9/diagnostics/per_guide_metric_contributions.csv`.
+The implemented per-guide influence diagnostic is
+`outputs/sprint9/diagnostics/leave_one_guide_influence.csv` (leave-one-guide deltas per
+model/metric), which is the quantity the robustness report relies on. The original
+filename was **superseded** rather than producing a second, redundant test-derived table
+(generating an extra per-guide table risks duplicating the same information under a
+different name). No analysis depends on the original name. No further action required;
+recorded for contract traceability.
+
+---
+
+## Sprint 9 robustness is statistical-power-limited (29-guide ceiling)
+
+**Discovered:** Sprint 9 Slice 6 consolidation (2026-06-14)
+**Affects:** any future attempt to claim a robust AUPRC improvement on this split.
+
+The fixed test universe has only 29 guides / 9 negative-bearing guides (guide `9251`
+carries 47.3% of negatives); guide-cluster bootstrap intervals are ≈±0.05 on AUPRC and
+the effective per-replicate negative-class sample is ~5.7 guides. Sprint 8 candidate
+AUPRC effects (~0.003) are well inside this uncertainty, so **no robust AUPRC superiority
+is achievable on this benchmark by further tuning** — it is a power limitation, not a
+pipeline defect. A genuine robust win would require more held-out guides / a larger guide
+population, not more modeling on `sprint2_main_seed42`. This is a methodological caveat,
+not a code fix.

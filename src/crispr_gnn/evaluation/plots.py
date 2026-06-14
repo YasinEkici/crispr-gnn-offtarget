@@ -1009,3 +1009,165 @@ def _require_columns(df: pd.DataFrame, columns: set[str], table_name: str) -> No
     missing = sorted(columns.difference(df.columns))
     if missing:
         raise ValueError(f"{table_name} missing required columns: {missing}")
+
+
+def write_sprint9_bootstrap_plots(
+    ci_table: pd.DataFrame,
+    distributions: dict[str, dict[str, np.ndarray]],
+    figures_dir: Path,
+    *,
+    baseline: float,
+    metric: str = "auprc",
+) -> list[Path]:
+    """Sprint 9 Slice 3 figures: AUPRC point+percentile-CI forest plot (with the
+    no-skill baseline) and per-model bootstrap distribution diagnostics."""
+    figures_dir = Path(figures_dir)
+    figures_dir.mkdir(parents=True, exist_ok=True)
+    forest = _write_bootstrap_ci_forest(ci_table, figures_dir / "robustness_auprc_cis.png", metric=metric, baseline=baseline)
+    dist = _write_bootstrap_distribution_grid(
+        distributions, ci_table, figures_dir / "bootstrap_distribution_diagnostics.png", metric=metric, baseline=baseline
+    )
+    return [forest, dist]
+
+
+def _write_bootstrap_ci_forest(ci_table: pd.DataFrame, path: Path, *, metric: str, baseline: float) -> Path:
+    rows = ci_table.loc[ci_table["metric"] == metric].copy().sort_values("point").reset_index(drop=True)
+    y = np.arange(len(rows))
+    lower = (rows["point"] - rows["percentile_lo"]).clip(lower=0).to_numpy()
+    upper = (rows["percentile_hi"] - rows["point"]).clip(lower=0).to_numpy()
+    colors = ["#c44e52" if rid == "XGB_F4" else "#4c72b0" for rid in rows["registry_id"]]
+
+    fig, ax = plt.subplots(figsize=(8, max(4, 0.45 * len(rows) + 1.5)))
+    ax.errorbar(rows["point"], y, xerr=[lower, upper], fmt="o", ecolor="#888888", elinewidth=1.4, capsize=3, color="none")
+    ax.scatter(rows["point"], y, c=colors, zorder=3)
+    ax.axvline(baseline, color="#444444", linestyle="--", linewidth=1.2, label=f"no-skill baseline {baseline:.4f}")
+    ax.set_yticks(y)
+    ax.set_yticklabels(rows["registry_id"])
+    ax.set_xlabel(f"Test {metric.upper()} (point + guide-cluster percentile 95% CI)")
+    ax.set_title("Sprint 9 guide-cluster bootstrap — finite-sample compatibility intervals (29 guides)")
+    ax.legend(loc="lower left")
+    fig.tight_layout()
+    fig.savefig(path, dpi=180)
+    plt.close(fig)
+    return path
+
+
+def _write_bootstrap_distribution_grid(
+    distributions: dict[str, dict[str, np.ndarray]], ci_table: pd.DataFrame, path: Path, *, metric: str, baseline: float
+) -> Path:
+    model_ids = sorted(distributions, key=lambda rid: (rid != "XGB_F4", rid))
+    n = len(model_ids)
+    ncols = 3
+    nrows = int(np.ceil(n / ncols))
+    flags = {
+        (r["registry_id"], r["metric"]): r.get("shape_flag", "")
+        for _, r in ci_table.iterrows()
+    }
+    fig, axes = plt.subplots(nrows, ncols, figsize=(4 * ncols, 2.6 * nrows), squeeze=False)
+    for idx, rid in enumerate(model_ids):
+        ax = axes[idx // ncols][idx % ncols]
+        samples = np.asarray(distributions[rid].get(metric, np.array([])), dtype=float)
+        if samples.size:
+            ax.hist(samples, bins=40, color="#c44e52" if rid == "XGB_F4" else "#4c72b0", alpha=0.85)
+        ax.axvline(baseline, color="#444444", linestyle="--", linewidth=1.0)
+        flag = flags.get((rid, metric), "")
+        ax.set_title(f"{rid}\n{flag}" if flag and flag != "ok" else rid, fontsize=9)
+        ax.set_yticks([])
+    for idx in range(n, nrows * ncols):
+        axes[idx // ncols][idx % ncols].axis("off")
+    fig.suptitle(f"Sprint 9 bootstrap {metric.upper()} distributions (ceiling / lumpiness inspection)", y=1.0)
+    fig.tight_layout()
+    fig.savefig(path, dpi=180)
+    plt.close(fig)
+    return path
+
+
+def write_sprint9_paired_plots(
+    paired_table: pd.DataFrame,
+    distributions: dict[str, dict[str, np.ndarray]],
+    figures_dir: Path,
+    *,
+    metric: str = "auprc",
+) -> list[Path]:
+    """Sprint 9 Slice 4 figure: per-comparison paired-difference (A-B) distributions
+    with a zero line and percentile CI — the inferential target for model comparison
+    (overlap of marginal CIs is NOT used)."""
+    figures_dir = Path(figures_dir)
+    figures_dir.mkdir(parents=True, exist_ok=True)
+    path = figures_dir / "paired_difference_distributions.png"
+
+    rows = paired_table[paired_table["metric"] == metric].copy()
+    comparison_ids = list(rows["comparison_id"])
+    n = len(comparison_ids)
+    ncols = 2
+    nrows = int(np.ceil(n / ncols)) if n else 1
+    fig, axes = plt.subplots(nrows, ncols, figsize=(5.2 * ncols, 2.6 * nrows), squeeze=False)
+    for idx, comparison_id in enumerate(comparison_ids):
+        ax = axes[idx // ncols][idx % ncols]
+        row = rows[rows["comparison_id"] == comparison_id].iloc[0]
+        samples = np.asarray(distributions.get(comparison_id, {}).get(metric, np.array([])), dtype=float)
+        if samples.size:
+            ax.hist(samples, bins=40, color="#55a868", alpha=0.85)
+        ax.axvline(0.0, color="#c44e52", linestyle="--", linewidth=1.4)
+        ax.axvline(row["percentile_lo"], color="#444444", linestyle=":", linewidth=1.0)
+        ax.axvline(row["percentile_hi"], color="#444444", linestyle=":", linewidth=1.0)
+        verdict = "excludes 0" if bool(row["interval_excludes_zero"]) else "includes 0"
+        ax.set_title(
+            f"{comparison_id}: {row['a_id']} - {row['b_id']}\n"
+            f"Δ={row['point_delta']:.4f} [{row['percentile_lo']:.4f}, {row['percentile_hi']:.4f}] ({verdict})",
+            fontsize=8,
+        )
+        ax.set_yticks([])
+    for idx in range(n, nrows * ncols):
+        axes[idx // ncols][idx % ncols].axis("off")
+    fig.suptitle(f"Sprint 9 paired-difference bootstrap — {metric.upper()} Δ = A − B (29-guide resamples)", y=1.0)
+    fig.tight_layout()
+    fig.savefig(path, dpi=180)
+    plt.close(fig)
+    return [path]
+
+
+def write_sprint9_multiseed_plot(seed_summary: pd.DataFrame, figures_dir: Path) -> list[Path]:
+    """Sprint 9 Slice 5 figure: per-seed metric spread for predeclared configs.
+
+    This is descriptive training-stochasticity sensitivity only. The plot shows
+    every observed seed and a mean +/- std overlay; it does not select a best seed.
+    """
+    figures_dir = Path(figures_dir)
+    figures_dir.mkdir(parents=True, exist_ok=True)
+    path = figures_dir / "per_seed_metric_variance.png"
+    metrics = ["test_auprc", "test_mcc", "test_specificity", "test_auroc"]
+    seed_rows = seed_summary.loc[seed_summary["record_type"] == "seed"].copy()
+
+    fig, axes = plt.subplots(2, 2, figsize=(12, 8), squeeze=False)
+    if seed_rows.empty:
+        for ax in axes.ravel():
+            ax.axis("off")
+        axes.ravel()[0].text(0.05, 0.55, "No multiseed outputs found yet.\nRun the Colab/CPU seed jobs first.")
+    else:
+        models = seed_rows["registry_id"].astype(str).drop_duplicates().tolist()
+        x_positions = np.arange(len(models))
+        offsets = {seed: offset for seed, offset in zip(sorted(seed_rows["seed"].dropna().unique()), np.linspace(-0.18, 0.18, max(1, seed_rows["seed"].nunique())))}
+        for ax, metric in zip(axes.ravel(), metrics, strict=True):
+            for model_index, model in enumerate(models):
+                rows = seed_rows.loc[seed_rows["registry_id"].astype(str) == model]
+                values = rows[metric].dropna().astype(float)
+                if values.empty:
+                    continue
+                for _, row in rows.iterrows():
+                    if pd.isna(row.get(metric)):
+                        continue
+                    x = model_index + offsets.get(row["seed"], 0.0)
+                    ax.scatter(x, float(row[metric]), color="#4c72b0", alpha=0.85, s=35)
+                mean = float(values.mean())
+                std = float(values.std(ddof=1)) if len(values) > 1 else 0.0
+                ax.errorbar(model_index, mean, yerr=std, fmt="D", color="#c44e52", capsize=4)
+            ax.set_title(metric)
+            ax.set_xticks(x_positions)
+            ax.set_xticklabels(models, rotation=25, ha="right")
+            ax.grid(axis="y", alpha=0.25)
+    fig.suptitle("Sprint 9 multiseed sensitivity (all observed seeds; no best-seed selection)", y=1.0)
+    fig.tight_layout()
+    fig.savefig(path, dpi=180)
+    plt.close(fig)
+    return [path]

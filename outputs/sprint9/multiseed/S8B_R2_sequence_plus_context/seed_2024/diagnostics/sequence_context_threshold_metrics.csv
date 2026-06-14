@@ -1,0 +1,2 @@
+run_id,predeclared_run_id,sequence_context_mode,test_positive_rate,test_f1,test_macro_f1,test_mcc,test_specificity,test_sensitivity,test_tn,test_fp,test_fn,test_tp
+sprint9_multiseed_S8B_R2_seed2024_S8B_R2_sequence_plus_context,S8B_R2_sequence_plus_context,late_fusion,0.900705052878966,0.8944182918628111,0.5820928668616381,0.17493698774728247,0.3431952662721893,0.867579908675799,58,111,203,1330

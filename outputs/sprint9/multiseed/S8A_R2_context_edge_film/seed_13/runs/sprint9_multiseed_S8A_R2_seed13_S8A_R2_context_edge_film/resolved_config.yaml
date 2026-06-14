@@ -1,0 +1,273 @@
+data:
+  config: configs/data/mak2022.yaml
+  dataset: mak2022
+  graph_artifact_dir: data/processed/graphs/sprint5b
+  graph_c_artifact_dir: data/processed/graphs/sprint5b
+  label_scheme: scheme_a
+  split_id: sprint2_main_seed42
+  split_manifest: outputs/splits/sprint2_guides.json
+evaluation:
+  attention_interpretation: model_interpretation_only_not_biological_causality
+  checkpoint_policy: validation_auprc
+  controlled_variable: target_context_interaction_delta
+  no_test_tuning: true
+  primary_ablation_reference: S8A_REF_S7F_R3
+  protocol: headline_guide_level
+  regime: measured_only
+  selection_metric: validation_auprc
+  threshold_policy: validation_max_f1
+experiment_name: sprint8a_target_context_interaction
+features:
+  edge_feature_sets:
+  - s5f2_energy
+  feature_set: S5F2_energy
+graph:
+  materialization: heterodata
+  schema: graph_c_context_observation
+  visibility_policy: strict_inductive_primary
+metrics:
+  emphasis:
+  - specificity
+  - tn
+  - mcc
+  - macro_f1
+  primary: auprc
+  secondary:
+  - auroc
+  - f1
+  - macro_f1
+  - mcc
+  - specificity
+  - sensitivity
+  - tn
+  - fp
+  - fn
+  - tp
+model:
+  architecture: gatv2
+  attention:
+    concat: true
+    drop_context_similarity_edges: true
+    dropout: 0.2
+    edge_aware: true
+    edge_blind_candidate_attention: false
+    gatv2_share_weights: false
+    heads: 4
+    self_loop_edge_fill: 0.0
+  context_edge_interaction: film
+  dropout: 0.2
+  hidden_dim: 128
+  interaction_edge_dim: 64
+  mask_target_observation_features: false
+  name: gatv2_graph_c_sprint8a_context_edge_film
+  num_layers: 2
+  target_context_encoder:
+    experimental_branch:
+      bottleneck: null
+      feature_dropout: 0.0
+    family_gate: false
+    gate_reduction: 4
+    type: family_aware_experimental_emphasis
+  target_node_representation: target_observation_context_encoder
+  target_observation_mask_families: []
+outputs:
+  output_dir: outputs/sprint8a
+prior_context:
+  full_graph_c_gatv2_s5f2:
+    source: Sprint 7B S7B_R3 full Graph C GATv2
+    test_auprc: 0.969078
+    test_auroc: 0.849705
+    test_fn: 12
+    test_fp: 106
+    test_macro_f1: 0.739526
+    test_mcc: 0.531774
+    test_sensitivity: 0.992172
+    test_specificity: 0.372781
+    test_tn: 63
+    test_tp: 1521
+  graph_a_gcn_s5f2:
+    source: Sprint 6 S6R0 weighted-BCE Graph A GCN
+    test_auprc: 0.976935
+    test_auroc: 0.819972
+    test_fn: 6
+    test_fp: 120
+    test_macro_f1: 0.698939
+    test_mcc: 0.483719
+    test_sensitivity: 0.996087
+    test_specificity: 0.289941
+    test_tn: 49
+    test_tp: 1527
+  graph_c_gcn_s5f2:
+    source: Sprint 5B Graph C S5F2 GCN
+    test_auprc: 0.972481
+    test_auroc: 0.836219
+    test_fn: 0
+    test_fp: 155
+    test_macro_f1: 0.552442
+    test_mcc: 0.274287
+    test_sensitivity: 1.0
+    test_specificity: 0.08284
+    test_tn: 14
+    test_tp: 1533
+  no_context_edge_graph_c_gatv2_s5f2:
+    source: Sprint 7D S7D_R1 Graph C GATv2 no-context-edge
+    test_auprc: 0.965598
+    test_auroc: 0.850137
+    test_fn: 14
+    test_fp: 107
+    test_macro_f1: 0.73391
+    test_mcc: 0.51797
+    test_sensitivity: 0.990868
+    test_specificity: 0.366864
+    test_tn: 62
+    test_tp: 1519
+  s7f_r2:
+    source: Sprint 7F R2 balanced family-aware
+    target_context_encoder_type: family_aware
+    test_auprc: 0.982062
+    test_auroc: 0.906557
+    test_fn: 63
+    test_fp: 59
+    test_macro_f1: 0.801716
+    test_mcc: 0.603489
+    test_sensitivity: 0.958904
+    test_specificity: 0.650888
+    test_tn: 110
+    test_tp: 1470
+  s7f_r3:
+    source: Sprint 7F R3 family-aware experimental-emphasis (canonical base)
+    target_context_encoder_type: family_aware_experimental_emphasis
+    test_auprc: 0.984945
+    test_auroc: 0.926551
+    test_fn: 31
+    test_fp: 85
+    test_macro_f1: 0.777185
+    test_mcc: 0.568108
+    test_sensitivity: 0.979778
+    test_specificity: 0.497041
+    test_tn: 84
+    test_tp: 1502
+  test_positive_prevalence: 0.900705
+  xgboost_f4:
+    source: Sprint 2 XGBoost F4 baseline
+    test_auprc: 0.992522
+    test_auroc: 0.938416
+    test_fn: 21
+    test_fp: 131
+    test_macro_f1: 0.6427
+    test_mcc: 0.345198
+    test_tn: 38
+    test_tp: 1512
+references:
+  sprint7f_results_csv: outputs/sprint7f/target_context_encoder_comparison.csv
+run_id: null
+runs:
+- architecture: gatv2
+  context_edge_interaction: none
+  id: S8A_R0_base_reference
+  interaction_edge_dim: 64
+  model_name: gatv2_graph_c_sprint8a_base_reference
+  role: graph_c_gatv2_base_reference_reproduces_s7f_r3
+  target_context_encoder:
+    experimental_branch:
+      bottleneck: null
+      feature_dropout: 0.0
+    family_gate: false
+    gate_reduction: 4
+    type: family_aware_experimental_emphasis
+- architecture: gatv2
+  context_edge_interaction: none
+  id: S8A_R1_family_gated_v2
+  interaction_edge_dim: 64
+  model_name: gatv2_graph_c_sprint8a_family_gated_v2
+  role: graph_c_gatv2_learned_family_gate
+  target_context_encoder:
+    experimental_branch:
+      bottleneck: null
+      feature_dropout: 0.0
+    family_gate: true
+    gate_reduction: 4
+    type: family_aware_experimental_emphasis
+- architecture: gatv2
+  context_edge_interaction: film
+  id: S8A_R2_context_edge_film
+  interaction_edge_dim: 64
+  model_name: gatv2_graph_c_sprint8a_context_edge_film
+  role: graph_c_gatv2_context_edge_film_interaction
+  target_context_encoder:
+    experimental_branch:
+      bottleneck: null
+      feature_dropout: 0.0
+    family_gate: false
+    gate_reduction: 4
+    type: family_aware_experimental_emphasis
+- architecture: gatv2
+  context_edge_interaction: film
+  id: S8A_R3_gated_plus_film
+  interaction_edge_dim: 64
+  model_name: gatv2_graph_c_sprint8a_gated_plus_film
+  role: graph_c_gatv2_family_gate_plus_film_interaction
+  target_context_encoder:
+    experimental_branch:
+      bottleneck: null
+      feature_dropout: 0.0
+    family_gate: true
+    gate_reduction: 4
+    type: family_aware_experimental_emphasis
+- architecture: gatv2
+  context_edge_interaction: none
+  id: S8A_R4_regularized_exp_branch
+  interaction_edge_dim: 64
+  model_name: gatv2_graph_c_sprint8a_regularized_exp_branch
+  role: graph_c_gatv2_regularized_experimental_branch
+  target_context_encoder:
+    experimental_branch:
+      bottleneck: 4
+      feature_dropout: 0.3
+    family_gate: false
+    gate_reduction: 4
+    type: family_aware_experimental_emphasis
+seed: 13
+split_rules:
+  exclude_experiment_id: 18
+  guide_disjoint: true
+  test_measured_only: true
+  train_measured_only: true
+  validation_measured_only: true
+sprint: sprint8a
+sprint8a_run:
+  architecture: gatv2
+  context_edge_interaction: film
+  drop_context_similarity_edges: true
+  experimental_branch_bottleneck: null
+  experimental_branch_feature_dropout: 0.0
+  family_gate: false
+  feature_set: S5F2_energy
+  gate_reduction: 4
+  graph_schema: graph_c_context_observation
+  id: S8A_R2_context_edge_film
+  interaction_edge_dim: 64
+  loss: weighted_bce
+  loss_params:
+    pos_weight: auto
+  role: graph_c_gatv2_context_edge_film_interaction
+  target_context_encoder_type: family_aware_experimental_emphasis
+task: sprint8a_target_context_interaction
+training:
+  clip_grad_norm: 1.0
+  device: cuda
+  learning_rate: 0.001
+  loss: weighted_bce
+  loss_params:
+    pos_weight: auto
+  max_epochs: 300
+  min_epochs: 5
+  num_threads: 1
+  patience: 15
+  scheduler: reduce_on_plateau
+  scheduler_factor: 0.5
+  scheduler_min_lr: 1.0e-05
+  scheduler_patience: 5
+  use_amp: true
+  use_compile: true
+  weight_decay: 0.0001

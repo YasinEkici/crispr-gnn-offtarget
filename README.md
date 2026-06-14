@@ -16,7 +16,7 @@ The primary dataset is the Mak et al. 2022 crisprSQL-derived epigenetic/nucleoso
 | Sprint 6 | Imbalance, threshold, and loss comparison | ✅ Complete (Slices 0–4; Slice 5 optional) |
 | Sprint 7 | GAT/GATv2 architecture, Graph C mechanism ablations, target-context encoder | ✅ Complete |
 | Sprint 8 | Model improvement — target-context + context-edge interaction (8A), CRISPR-Net-adapted sequence context (8B) | ✅ Complete |
-| Sprint 9 | Robustness — guide-level bootstrap CIs, paired-difference, multi-seed variance | ⏭️ Next / optional |
+| Sprint 9 | Robustness — guide-level bootstrap CIs, paired-difference, multi-seed variance | ✅ Complete |
 
 ## Current Results
 
@@ -45,6 +45,8 @@ Sprint 8A takeaway: the predeclared 5-run target-context/context-edge interactio
 
 Sprint 8B takeaway: the predeclared sequence-context sprint selected `S8B_R2_sequence_plus_context` by validation AUPRC (`0.9884`). Late fusion added a small single-seed AUPRC gain over the Sprint 8A R2 carry-forward (`+0.003263`) but remained below XGBoost F4; the pure S1 sequence-only Conv+BiLSTM path underperformed strongly. The external-pretrained RNA-FM/DNABERT-2 transfer slice was skipped because it would require a separate leakage-caveated transfer-learning plan, not a same-contract headline result.
 
+Sprint 9 takeaway (robustness, interpretation-only): guide-cluster bootstrap CIs, paired-difference, and multi-seed retraining (seeds `{42,7,13,123,2024}`) show **no robust AUPRC improvement** by any Sprint 8 candidate over its lineage or over XGBoost F4 — all eight predeclared paired AUPRC differences include zero, single-seed guide-cluster intervals are wide/overlapping (≈±0.05), and per-config seed-std (0.004–0.012) exceeds the ~0.003 candidate gains. F4 keeps the highest mean AUPRC with the smallest spread. At their frozen thresholds the GNNs do robustly recover more rare negatives than F4 (operating-point specificity/MCC/macro-F1), but that effect is seed-fragile and does not override the AUPRC ranking. Δ-CIs containing zero are reported as "compatible with no difference," not "equivalent" (TOST deferred). Intervals are percentile-primary, BCa-sensitivity-only.
+
 Key reports:
 
 - Sprint 4 comparison: `outputs/sprint4/gcn_sprint4_comparison_report.md`
@@ -54,6 +56,7 @@ Key reports:
 - Sprint 7F target-context encoder: `outputs/sprint7f/target_context_encoder_report.md`
 - Sprint 8A target-context interaction: `outputs/sprint8a/target_context_interaction_report.md`
 - Sprint 8B sequence context: `outputs/sprint8b/sequence_context_report.md`
+- Sprint 9 robustness: `outputs/sprint9/robustness_report.md`
 
 ## Setup
 

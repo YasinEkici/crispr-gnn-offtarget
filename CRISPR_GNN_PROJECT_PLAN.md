@@ -810,9 +810,11 @@ Tasks:
   results (Sprints 4, 5, 5B, 6, 7, and 8 once available), recomputed from saved
   per-row predictions — no retraining. Resample guides (clusters), not rows,
   because rows within a guide are correlated. AUPRC is primary; AUROC/MCC/
-  specificity use each model's frozen validation-selected threshold. Prefer BCa
-  intervals (bias/skew-corrected; AUPRC is bounded near the ~0.90 prevalence
-  floor); B >= 2000 (e.g. 5000).
+  specificity use each model's frozen validation-selected threshold. ~~Prefer BCa
+  intervals~~ **SUPERSEDED (2026-06-14): percentile-primary, BCa-sensitivity-only**
+  — at 29 guide clusters the leave-one-guide jackknife acceleration is unstable and
+  was untrusted for nearly every model/metric (see `009-sprint9-robustness.md` §14 and
+  DECISIONS 2026-06-14); B = 5000.
 - Paired-difference bootstrap for headline comparisons — do not infer
   significance from overlapping independent CIs (the overlap fallacy). Resample
   guides once, compute the metric for both models on the same resample, and form
@@ -844,6 +846,19 @@ Notes:
 - Literature anchors: Boyd et al. 2013 (AUPRC point estimates + CIs); cluster /
   block bootstrap for correlated data; paired-difference bootstrap and the
   overlapping-CI fallacy; BCa intervals.
+
+Status (2026-06-14): **COMPLETE** (interpretation-only). Full plan:
+`docs/exec-plans/completed/009-sprint9-robustness.md`; report:
+`outputs/sprint9/robustness_report.md`. Outcome: **no robust AUPRC improvement** —
+all eight predeclared paired AUPRC differences (P1–P8) include zero, single-seed
+guide-cluster AUPRC intervals are wide/overlapping (≈±0.05), and per-config seed-std
+(0.004–0.012) exceeds the ~0.003 Sprint 8 candidate gains; XGBoost F4 keeps the
+highest mean AUPRC with the smallest spread. A threshold-dependent operating-point
+effect (GNNs recover more rare negatives than F4; P4–P6 specificity, P5/P6 MCC and
+macro-F1 exclude zero) exists but is seed-fragile, guide-`9251`-fragile, and does not
+override AUPRC. Δ-CIs containing zero are reported as "compatible with no difference,"
+not "equivalent" (TOST deferred). F4 per-row predictions were regenerated under
+XGBoost version drift (Option C, test AUPRC 0.992338 vs historical 0.992522).
 
 ---
 
@@ -966,7 +981,7 @@ Sprint 5: epigenetic ablation (main novelty)
 Sprint 6: minimal imbalance comparison
 Sprint 7: GAT/GATv2
 Sprint 8: model improvement (8A target-context + interaction complete, 8B sequence context complete)
-Sprint 9: robustness (bootstrap CIs, paired-difference, multi-seed) — next / optional
+Sprint 9: robustness (bootstrap CIs, paired-difference, multi-seed) — COMPLETE (no robust AUPRC improvement; F4 remains the bar)
 Stretch: CRISPRoffT / HeteroGNN / GraphSAGE
 ```
 

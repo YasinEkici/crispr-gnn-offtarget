@@ -1,0 +1,2 @@
+run_id,predeclared_run_id,sequence_context_mode,sequence_embed_dim,parameter_count,active_parameter_count,test_auprc
+sprint9_multiseed_S8B_R2_seed42_S8B_R2_sequence_plus_context,S8B_R2_sequence_plus_context,late_fusion,64,412202,312105,0.9864792526594253
