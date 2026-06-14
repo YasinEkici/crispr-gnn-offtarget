@@ -178,3 +178,36 @@ threshold). Reporting impact:
   number. If exact historical reproduction is ever required, pin the original
   XGBoost build (version unknown; would need recovery) — not worth it for a
   difference this small.
+
+---
+
+## Sprint 9 output-contract name supersession: per_guide_metric_contributions.csv
+
+**Discovered:** Sprint 9 Slice 6 report consolidation (2026-06-14)
+**Affects:** anyone cross-checking the §9 output contract in
+`docs/exec-plans/active/009-sprint9-robustness.md` against produced files.
+
+The §9 output contract listed `outputs/sprint9/diagnostics/per_guide_metric_contributions.csv`.
+The implemented per-guide influence diagnostic is
+`outputs/sprint9/diagnostics/leave_one_guide_influence.csv` (leave-one-guide deltas per
+model/metric), which is the quantity the robustness report relies on. The original
+filename was **superseded** rather than producing a second, redundant test-derived table
+(generating an extra per-guide table risks duplicating the same information under a
+different name). No analysis depends on the original name. No further action required;
+recorded for contract traceability.
+
+---
+
+## Sprint 9 robustness is statistical-power-limited (29-guide ceiling)
+
+**Discovered:** Sprint 9 Slice 6 consolidation (2026-06-14)
+**Affects:** any future attempt to claim a robust AUPRC improvement on this split.
+
+The fixed test universe has only 29 guides / 9 negative-bearing guides (guide `9251`
+carries 47.3% of negatives); guide-cluster bootstrap intervals are ≈±0.05 on AUPRC and
+the effective per-replicate negative-class sample is ~5.7 guides. Sprint 8 candidate
+AUPRC effects (~0.003) are well inside this uncertainty, so **no robust AUPRC superiority
+is achievable on this benchmark by further tuning** — it is a power limitation, not a
+pipeline defect. A genuine robust win would require more held-out guides / a larger guide
+population, not more modeling on `sprint2_main_seed42`. This is a methodological caveat,
+not a code fix.

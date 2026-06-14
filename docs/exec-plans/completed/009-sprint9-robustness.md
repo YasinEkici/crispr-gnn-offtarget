@@ -566,6 +566,33 @@ boundaries; update source-of-truth docs (§16) including the BCa supersession en
 Exit: report complete; plan moved to `docs/exec-plans/completed/` after validated
 outputs.
 
+Done (2026-06-14): authored `outputs/sprint9/robustness_report.md` — interpretation-only,
+every number read from the committed Slice 1–5 outputs, nothing recomputed from test.
+The report separates **ranking quality** (AUPRC primary / AUROC), **operating point**
+(MCC / specificity / macro-F1 / confusion), and the **three uncertainty lenses**
+(guide-cluster CIs, paired-Δ, multi-seed), with a per-pair verdict table and an overall
+verdict. **Verdict: no robust AUPRC improvement** — all 8 predeclared paired AUPRC
+differences (P1–P8) include zero; single-seed guide-cluster intervals are wide/overlapping
+(≈±0.05); per-config seed-std (0.004–0.012) exceeds the ~0.003 candidate gains; XGB_F4
+keeps the highest mean AUPRC with the smallest spread. A threshold-dependent operating-point
+effect (P4–P6 specificity, P5/P6 MCC + macro-F1 exclude zero) is reported as directional,
+seed-fragile, guide-`9251`-fragile, and **does not override AUPRC** (§11). Δ-CI∋0 →
+"compatible with no difference," never "equivalent" (TOST deferred). BCa supersession (§14)
+recorded.
+
+§16 source-of-truth updates applied: `docs/DECISIONS.md` (Sprint 9 outcome + BCa→percentile
+supersession), `docs/PROJECT_CONTEXT.md` (status lines), `CRISPR_GNN_PROJECT_PLAN.md`
+(§12 "prefer BCa" reconciled + completion block + footer), `README.md` (status table +
+takeaway + report pointer), `docs/exec-plans/tech-debt.md` (output-contract name supersession
+for `per_guide_metric_contributions.csv` → `leave_one_guide_influence.csv`; 29-guide
+power-ceiling caveat). The `per_guide_metric_contributions.csv` filename in §9 is superseded
+(per-guide influence is captured by `leave_one_guide_influence.csv`); no redundant test-derived
+table generated.
+
+Validation: `uv run ruff check` clean; `uv run pytest tests/test_sprint9_robustness.py -q`
+(22 passed); `git diff --check` clean; no `src/`/`scripts/`/`tests/` or frozen
+Sprint 2/3/7/8 artifact modified. Plan moved to `docs/exec-plans/completed/` on completion.
+
 ## 13. Acceptance Criteria
 
 Sprint 9 plan/run is acceptable only if it: keeps the Sprint 2/3/8 frozen contract;

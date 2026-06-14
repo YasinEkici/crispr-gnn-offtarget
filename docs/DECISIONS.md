@@ -1170,3 +1170,53 @@ Outcome:
   footnote the historical `0.992522` with the version-drift caveat
   (`docs/exec-plans/tech-debt.md`). The regenerated F4 is not presented as
   bit-identical to the Sprint 2 publication number.
+
+## 2026-06-14 - Sprint 9 outcome: no robust AUPRC improvement; BCa→percentile supersession
+
+Decision: Sprint 9 (robustness/uncertainty, interpretation-only) concludes that
+**no Sprint 8 candidate is a robust AUPRC improvement** over its lineage or over the
+XGBoost F4 bar on the fixed `sprint2_main_seed42` split, and the Sprint 9 interval
+method is **percentile-primary, BCa-sensitivity-only** (superseding the earlier
+"prefer BCa" wording). Full report: `outputs/sprint9/robustness_report.md`.
+
+Method (predeclared, no test-driven tuning): guide-cluster bootstrap (`grna_target_id`,
+29 clusters, resample 29 with replacement, all rows of each drawn guide), `B=5000`,
+RNG seed `12345`, percentile 2.5/97.5 primary; paired-difference bootstrap on a shared
+guide draw (Schenker & Gentleman 2001 — never judge a difference by marginal-CI
+overlap); multi-seed fixed-split retraining over seeds `{42,7,13,123,2024}` reported as
+mean/std/min/max with **no best-seed selection** (Bengio & Grandvalet 2004). Thresholds
+read from prior validation-selected outputs, never recomputed from test. Cites
+`docs/literature/sprint9-deep-research.pdf` and its references (Efron 1979; Efron &
+Tibshirani 1993; Davison & Hinkley 1997; Carpenter & Bithell 2000; Field & Welsh 2007;
+Cameron & Miller 2015; Boyd et al. 2013; Davis & Goadrich 2006; Saito & Rehmsmeier 2015;
+Schenker & Gentleman 2001; Bengio & Grandvalet 2004; Schuirmann 1987; Lakens 2017).
+
+Findings:
+
+- **AUPRC (primary): all 8 predeclared paired differences (P1–P8) include zero** —
+  including the headline S8B−S8A gain (`+0.0033`, [−0.015, +0.037]) and F4's lead over
+  each GNN (P4–P6). Single-seed guide-cluster AUPRC intervals are wide (≈±0.05) and
+  overlapping; multi-seed AUPRC seed-std (0.004–0.012) exceeds the candidate gains. F4
+  has the highest mean AUPRC and the smallest seed spread (0.990649 ± 0.001944).
+- **Operating point (each model's frozen threshold):** P4–P6 specificity and P5/P6
+  MCC + macro-F1 deltas vs F4 exclude zero — directional evidence that the GNNs recover
+  more rare negatives than F4 *conditional on these trained models and thresholds*. This
+  is threshold-dependent, negative-class-fragile (guide `9251`), and seed-fragile
+  (GNN MCC seed-std 0.10–0.17; S8A specificity drops to 0.053 at a bad seed) and, per the
+  §11 claim boundaries, **does not override the AUPRC ranking**.
+- BCa was untrusted for nearly every model/metric at 29 clusters (only `S8B_R2`
+  AUPRC/AUROC passed the leave-one-guide trust gate), confirming percentile-primary.
+
+Claim boundary: Δ-CI ∋ 0 is reported as "compatible with no difference," **not**
+"equivalent" — equivalence requires a prespecified margin + TOST (Schuirmann 1987;
+Lakens 2017), which Sprint 9 **defers** (no defensible AUPRC margin; deriving one from
+observed variance would be circular). The outcome is a statistical-power limitation of
+the 29-guide benchmark, not a pipeline failure.
+
+Supersession (interval-method wording only): this supersedes DECISIONS 2026-06-06
+("BCa preferred") and `CRISPR_GNN_PROJECT_PLAN.md` §12 ("Prefer BCa intervals"); all
+other robustness methodology in those entries is unchanged.
+
+Scope: interpretation-only. No label, split, threshold, feature, architecture, or
+frozen Sprint 2/3/7/8 result was modified. Sprint 8 candidates remain
+validation-selected mechanism results, not superiority claims.
