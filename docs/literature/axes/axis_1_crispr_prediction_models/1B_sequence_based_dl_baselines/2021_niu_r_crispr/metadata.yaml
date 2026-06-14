@@ -1,0 +1,22 @@
+title: "R-CRISPR: A Deep Learning Network to Predict Off-Target Activities with Mismatch, Insertion and Deletion in CRISPR-Cas9 System"
+authors:
+- Rui Niu
+- Jiajie Peng
+- Zhipeng Zhang
+- Xuequn Shang
+year: 2021
+journal: "Genes"
+volume: 12
+issue: 12
+pages: "1878"
+doi: "10.3390/genes12121878"
+url: "https://pubmed.ncbi.nlm.nih.gov/34946828/"
+keywords:
+- CRISPR
+- off-target
+- mismatch
+- insertion
+- deletion
+- RNN
+project_role: indel_aware_sequence_baseline
+priority: useful

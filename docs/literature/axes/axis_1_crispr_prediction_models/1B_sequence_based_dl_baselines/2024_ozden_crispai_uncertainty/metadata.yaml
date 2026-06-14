@@ -1,0 +1,19 @@
+title: "Learning to quantify uncertainty in off-target activity for CRISPR guide RNAs"
+authors:
+- Furkan Ozden
+- Peter Minary
+year: 2024
+journal: "Nucleic Acids Research"
+volume: 52
+issue: 18
+pages: "e87"
+doi: "10.1093/nar/gkae759"
+url: "https://pmc.ncbi.nlm.nih.gov/articles/PMC11472043/"
+keywords:
+- CRISPR
+- off-target
+- uncertainty quantification
+- zero-inflated negative binomial
+- genome-wide specificity
+project_role: uncertainty_quantification_related_work
+priority: useful

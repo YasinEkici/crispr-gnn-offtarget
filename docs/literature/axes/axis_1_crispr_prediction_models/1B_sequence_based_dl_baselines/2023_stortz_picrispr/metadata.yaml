@@ -1,0 +1,19 @@
+title: "piCRISPR: physically informed deep learning models for CRISPR/Cas9 off-target cleavage prediction"
+authors:
+- Florian Stortz
+- Jeffrey K. Mak
+- Peter Minary
+year: 2023
+journal: "Artificial Intelligence in the Life Sciences"
+volume: 3
+pages: "100075"
+doi: "10.1016/j.ailsci.2023.100075"
+url: "https://pubmed.ncbi.nlm.nih.gov/38047242/"
+keywords:
+- CRISPR
+- off-target
+- physically informed features
+- epigenetics
+- crisprSQL
+project_role: close_crisprsql_epigenetic_deep_learning_precedent
+priority: must_read

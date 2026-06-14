@@ -1,0 +1,18 @@
+title: "Learning Imbalanced Datasets with Label-Distribution-Aware Margin Loss"
+authors:
+- Kaidi Cao
+- Colin Wei
+- Adrien Gaidon
+- Nikos Arechiga
+- Tengyu Ma
+year: 2019
+conference: "NeurIPS"
+url: "https://arxiv.org/abs/1906.07413"
+keywords:
+- class imbalance
+- LDAM
+- margin loss
+- deferred reweighting
+- long-tailed recognition
+project_role: advanced_imbalance_loss_reference_not_implemented
+priority: later

@@ -1,0 +1,21 @@
+title: "Deep learning improves the ability of sgRNA off-target propensity prediction"
+authors:
+- Qiaoyue Liu
+- Xiang Cheng
+- Gan Liu
+- Bing Li
+- Xiuqin Liu
+year: 2020
+journal: "BMC Bioinformatics"
+volume: 21
+pages: "51"
+doi: "10.1186/s12859-020-3395-z"
+url: "https://link.springer.com/article/10.1186/s12859-020-3395-z"
+keywords:
+- CnnCrispr
+- CRISPR
+- off-target
+- CNN
+- BiLSTM
+project_role: sequence_baseline_metric_comparability
+priority: useful

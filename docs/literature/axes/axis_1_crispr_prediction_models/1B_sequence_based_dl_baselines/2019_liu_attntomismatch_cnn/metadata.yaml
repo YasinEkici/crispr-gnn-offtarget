@@ -1,0 +1,20 @@
+title: "Prediction of off-target specificity and cell-specific fitness of CRISPR-Cas System using attention boosted deep learning and network-based gene feature"
+authors:
+- Qiao Liu
+- Deyu He
+- Lei Xie
+year: 2019
+journal: "PLOS Computational Biology"
+volume: 15
+issue: 10
+pages: "e1007480"
+doi: "10.1371/journal.pcbi.1007480"
+url: "https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1007480"
+keywords:
+- CRISPR
+- off-target
+- attention
+- cell-specific features
+- network-based features
+project_role: attention_and_context_sequence_baseline
+priority: useful

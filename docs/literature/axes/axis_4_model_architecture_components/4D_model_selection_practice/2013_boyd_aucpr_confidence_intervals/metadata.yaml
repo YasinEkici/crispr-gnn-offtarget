@@ -1,0 +1,19 @@
+title: "Area Under the Precision-Recall Curve: Point Estimates and Confidence Intervals"
+authors:
+- Kendrick Boyd
+- Kevin H. Eng
+- C. David Page
+year: 2013
+booktitle: "Machine Learning and Knowledge Discovery in Databases"
+series: "Lecture Notes in Computer Science"
+volume: 8190
+pages: "451-466"
+doi: "10.1007/978-3-642-40994-3_29"
+url: "https://link.springer.com/chapter/10.1007/978-3-642-40994-3_29"
+keywords:
+- precision recall
+- AUPRC
+- confidence intervals
+- imbalanced classification
+project_role: sprint9_auprc_interval_anchor
+priority: must_read

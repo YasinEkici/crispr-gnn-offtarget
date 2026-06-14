@@ -1,0 +1,20 @@
+title: "CRISPR-DIPOFF: an interpretable deep learning approach for CRISPR Cas-9 off-target prediction"
+authors:
+- Md. Toufikuzzaman
+- Md. Abul Hassan Samee
+- M. Sohel Rahman
+year: 2024
+journal: "Briefings in Bioinformatics"
+volume: 25
+issue: 2
+pages: "bbad530"
+doi: "10.1093/bib/bbad530"
+url: "https://pmc.ncbi.nlm.nih.gov/articles/PMC10883906/"
+keywords:
+- CRISPR
+- off-target
+- interpretable deep learning
+- integrated gradients
+- hyperparameter optimization
+project_role: interpretable_sequence_baseline_close_to_crisprsql_lineage
+priority: useful

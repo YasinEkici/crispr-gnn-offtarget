@@ -1,0 +1,34 @@
+title: "Genome-wide binding of the CRISPR endonuclease Cas9 in mammalian cells"
+authors:
+- Xuebing Wu
+- David A. Scott
+- Andrea J. Kriz
+- Anthony C. Chiu
+- Patrick D. Hsu
+- David B. Dadon
+- Albert W. Cheng
+- Alexei E. Trevino
+- Silvana Konermann
+- Shengdar Q. Tsai
+- Nicolas J. Delebecque
+- David M. Niemi
+- Chengzu Long
+- Rudolf Jaenisch
+- Feng Zhang
+- Phillip A. Sharp
+year: 2014
+journal: "Nature Biotechnology"
+volume: 32
+issue: 7
+pages: "670-676"
+doi: "10.1038/nbt.2889"
+url: "https://pmc.ncbi.nlm.nih.gov/articles/PMC4145672/"
+keywords:
+- CRISPR
+- Cas9
+- dCas9
+- ChIP-seq
+- genome-wide binding
+- chromatin
+project_role: genome_wide_cas9_binding_chromatin_context_reference
+priority: useful

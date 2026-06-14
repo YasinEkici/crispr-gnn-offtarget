@@ -1,0 +1,18 @@
+title: "The Precision-Recall Plot Is More Informative than the ROC Plot When Evaluating Binary Classifiers on Imbalanced Datasets"
+authors:
+- Takaya Saito
+- Marc Rehmsmeier
+year: 2015
+journal: "PLOS ONE"
+volume: 10
+issue: 3
+pages: "e0118432"
+doi: "10.1371/journal.pone.0118432"
+url: "https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0118432"
+keywords:
+- precision recall
+- ROC
+- class imbalance
+- classifier evaluation
+project_role: sprint9_imbalance_metric_anchor
+priority: useful

@@ -1,0 +1,19 @@
+title: "Bootstrapping Clustered Data"
+authors:
+- C. A. Field
+- A. H. Welsh
+year: 2007
+journal: "Journal of the Royal Statistical Society: Series B (Statistical Methodology)"
+volume: 69
+issue: 3
+pages: "369-390"
+doi: "10.1111/j.1467-9868.2007.00593.x"
+url: "https://researchportalplus.anu.edu.au/en/publications/bootstrapping-clustered-data/"
+keywords:
+- bootstrap
+- clustered data
+- resampling
+- one-way arrays
+- cluster-aware inference
+project_role: sprint9_guide_cluster_bootstrap_reference
+priority: must_read

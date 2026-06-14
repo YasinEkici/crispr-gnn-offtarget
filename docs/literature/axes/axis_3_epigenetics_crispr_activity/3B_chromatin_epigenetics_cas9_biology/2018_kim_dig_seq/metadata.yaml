@@ -1,0 +1,19 @@
+title: "DIG-seq: a genome-wide CRISPR off-target profiling method using chromatin DNA"
+authors:
+- Daesik Kim
+- Jin-Soo Kim
+year: 2018
+journal: "Genome Research"
+volume: 28
+issue: 12
+pages: "1894-1900"
+doi: "10.1101/gr.236620.118"
+url: "https://pmc.ncbi.nlm.nih.gov/articles/PMC6280750/"
+keywords:
+- DIG-seq
+- CRISPR
+- off-target
+- chromatin DNA
+- genome-wide profiling
+project_role: chromatin_aware_off_target_assay_reference
+priority: useful

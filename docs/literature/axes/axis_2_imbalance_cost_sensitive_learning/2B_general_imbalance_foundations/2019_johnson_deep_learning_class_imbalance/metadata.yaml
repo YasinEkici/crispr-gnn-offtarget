@@ -1,0 +1,18 @@
+title: "Survey on deep learning with class imbalance"
+authors:
+- Justin M. Johnson
+- Taghi M. Khoshgoftaar
+year: 2019
+journal: "Journal of Big Data"
+volume: 6
+pages: "27"
+doi: "10.1186/s40537-019-0192-5"
+url: "https://link.springer.com/article/10.1186/s40537-019-0192-5"
+keywords:
+- class imbalance
+- deep learning
+- survey
+- sampling
+- cost-sensitive learning
+project_role: general_deep_imbalance_survey
+priority: useful

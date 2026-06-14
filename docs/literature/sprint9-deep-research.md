@@ -141,7 +141,37 @@ You may say that the fixed-split guide-bootstrap analysis did not provide clear 
 
 - Do not write: "BCa is automatically better here." With 29 clusters and influential guides, BCa can be unstable and should be treated as sensitivity evidence only. 
 
-## **7. Implementation pseudocode** 
+## **7. Literature-facing metric comparability note**
+
+The CRISPR off-target literature uses several labels for the precision-recall ranking metric: PR-AUC, AUPRC, PRAUC, AUC-PR, and auPRC. In the primary off-target papers checked for this project, these labels are usually treated as the same precision-recall curve area family. The project should still state the exact implementation it uses, because average precision and trapezoidal PR-AUC can differ numerically in general.
+
+For literature-facing reporting, AUPRC/AP and AUROC remain necessary because DeepCRISPR, AttnToMismatch_CNN / AttnToOff, CnnCrispr, CRISPR-IP, and related off-target papers center threshold-free ranking metrics. However, this project must not compare raw AUPRC values naively against classic genome-wide off-target candidate-pool papers. The current headline evaluation is measured-only and positive-heavy: 1533/1702 positives, prevalence 0.9007. In many classic off-target retrieval settings, the candidate pool is extremely negative-heavy, so the no-skill PR baseline can be orders of magnitude lower. Raw AUPRC is therefore prevalence- and candidate-universe-dependent.
+
+The reporting convention should be two-layered:
+
+1. Report AUPRC/AP and AUROC as the literature-comparable ranking metrics, always with the measured-only positive prevalence.
+
+2. Report MCC, macro-F1, negative-class behavior, specificity, and the validation-locked confusion matrix as operating-point metrics, because they reveal whether the model recognizes rare measured negatives rather than relying on the high positive prior.
+
+Mak et al. 2022 and crisprSQL should be framed as the closest dataset lineage, not as directly comparable binary benchmarks. Mak et al. primarily used continuous activity / correlation-style analysis and the public `260520_putative_nucleosomal.parquet.gz` lineage; this project uses a locked guide-disjoint, measured-only Scheme A classification contract. A direct "better than Mak" claim is not licensed unless dataset, target, split, metric, and architecture are aligned.
+
+Useful literature-comparability notes preserved from the external report:
+
+- DeepCRISPR reports ROC-AUC and PR-AUC and includes stricter unseen-guide settings; it is useful for split-protocol framing, but not directly comparable to the measured-only positive-heavy test set.
+- AttnToMismatch_CNN / AttnToOff explicitly motivates PR-AUC over AUROC for highly imbalanced off-target retrieval.
+- CnnCrispr reports auROC/auPRC and also uses recall/confusion-matrix language, making it useful support for including thresholded diagnostics alongside ranking metrics.
+- GCN-CRISPR reports AUROC-oriented graph link-prediction results, but its graph construction and metric set are not the same as this project's frozen measured-only contract.
+- CRISPR-IP / LOGOCV-style reporting is useful for guide-aware validation framing, but exact metric values should not be imported unless the source text is verified and the dataset/split differences are stated.
+
+Optional supplementary normalization: baseline-adjusted PR headroom can be reported for internal interpretation, for example `(AUPRC - prevalence) / (1 - prevalence)`. This is not standard in the CRISPR off-target literature, so it should not replace raw AUPRC/AP as the headline metric.
+
+Reference triage from the deleted external comparison report:
+
+- Already represented in the local literature registry: DeepCRISPR; AttnToMismatch_CNN / AttnToOff; CnnCrispr; CRISPR-IP; GCN-CRISPR / Vinodkumar et al.; CRISPR-Net; CRISPR-BERT; CRISPR-DIPOFF; Mak et al. 2022; crisprSQL; Efron 1979; Field & Welsh 2007; Williams 2021; Bethard 2022; Boyd et al. 2013; Davis & Goadrich 2006; Saito & Rehmsmeier 2015; Schenker & Gentleman 2001; Bengio & Grandvalet 2004.
+- Methodology references mentioned but not promoted to standalone local paper folders yet: Efron & Tibshirani 1993; Davison & Hinkley 1997; Carpenter & Bithell 2000; Cameron & Miller 2015; Schuirmann 1987; Lakens 2017. These are useful if Sprint 9 becomes a formal statistical-methods appendix, but they are not required to interpret the current implemented percentile-primary / BCa-sensitivity robustness analysis.
+- CRISPR papers named in the external report but not used for exact local metric claims should stay citation-only unless their primary full text is rechecked: CrisprPr and any paper whose exact dataset/split/metric values were not verified from a primary source.
+
+## **8. Implementation pseudocode** 
 
 ```
 for b in 1..B:
@@ -187,7 +217,7 @@ Report bootstrap quantiles, undefined rates, distribution diagnostics, and guide
 summaries.
 ```
 
-## **8. References** 
+## **9. References** 
 
 1. Efron, B. (1979). Bootstrap methods: Another look at the jackknife. The Annals of Statistics, 7(1), 1-26. 
 
@@ -220,4 +250,3 @@ summaries.
 15. Lakens, D. (2017). Equivalence tests: A practical primer for t tests, correlations, and meta-analyses. Social Psychological and Personality Science, 8(4), 355-362. 
 
 Corrected robustness/uncertainty analysis - fixed guide-disjoint split 
-

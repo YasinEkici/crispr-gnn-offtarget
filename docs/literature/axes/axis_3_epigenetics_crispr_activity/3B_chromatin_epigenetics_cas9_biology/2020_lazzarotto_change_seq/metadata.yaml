@@ -1,0 +1,21 @@
+title: "CHANGE-seq reveals genetic and epigenetic effects on CRISPR-Cas9 genome-wide activity"
+authors:
+- Cicera R. Lazzarotto
+- Nikolay L. Malinin
+- Yichao Li
+- Shengdar Q. Tsai
+year: 2020
+journal: "Nature Biotechnology"
+volume: 38
+issue: 11
+pages: "1317-1327"
+doi: "10.1038/s41587-020-0555-7"
+url: "https://www.nature.com/articles/s41587-020-0555-7"
+keywords:
+- CHANGE-seq
+- CRISPR
+- off-target
+- epigenetics
+- chromatin accessibility
+project_role: epigenetic_context_off_target_evidence
+priority: useful

@@ -1,0 +1,22 @@
+title: "Nucleosomes inhibit target cleavage by CRISPR-Cas9 in vivo"
+authors:
+- Robert M. Yarrington
+- Sneh Verma
+- Seth Schwartz
+- Jennifer K. Trautman
+- Dana Carroll
+year: 2018
+journal: "Proceedings of the National Academy of Sciences"
+volume: 115
+issue: 38
+pages: "9351-9358"
+doi: "10.1073/pnas.1810062115"
+url: "https://pubmed.ncbi.nlm.nih.gov/30201707/"
+keywords:
+- nucleosome
+- CRISPR
+- Cas9
+- chromatin
+- in vivo
+project_role: nucleosome_context_biology_reference
+priority: useful

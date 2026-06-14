@@ -1,0 +1,18 @@
+title: "On Judging the Significance of Differences by Examining the Overlap Between Confidence Intervals"
+authors:
+- Nathaniel Schenker
+- Jane F. Gentleman
+year: 2001
+journal: "The American Statistician"
+volume: 55
+issue: 3
+pages: "182-186"
+doi: "10.1198/000313001317097960"
+url: "https://www.tandfonline.com/doi/abs/10.1198/000313001317097960"
+keywords:
+- confidence intervals
+- model comparison
+- paired differences
+- statistical inference
+project_role: sprint9_paired_difference_anchor
+priority: must_read

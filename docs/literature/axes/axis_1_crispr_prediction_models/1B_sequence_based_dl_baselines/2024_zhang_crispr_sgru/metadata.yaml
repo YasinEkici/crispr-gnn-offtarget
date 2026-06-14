@@ -1,0 +1,22 @@
+title: "Crispr-SGRU: Prediction of CRISPR/Cas9 Off-Target Activities with Mismatches and Indels Using Stacked BiGRU"
+authors:
+- Guishan Zhang
+- Ye Luo
+- Huanzeng Xie
+- Zhiming Dai
+year: 2024
+journal: "International Journal of Molecular Sciences"
+volume: 25
+issue: 20
+pages: "10945"
+doi: "10.3390/ijms252010945"
+url: "https://pubmed.ncbi.nlm.nih.gov/39456727/"
+keywords:
+- CRISPR
+- off-target
+- mismatch
+- indel
+- stacked BiGRU
+- dice loss
+project_role: sequence_recurrent_baseline_and_loss_context
+priority: useful

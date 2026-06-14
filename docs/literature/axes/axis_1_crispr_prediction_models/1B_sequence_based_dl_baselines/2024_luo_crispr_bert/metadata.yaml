@@ -1,0 +1,23 @@
+title: "Interpretable CRISPR/Cas9 off-target activities with mismatches and indels prediction using BERT"
+authors:
+- Ye Luo
+- Yaowen Chen
+- Huanzeng Xie
+- Wenhai Zhu
+- Guishan Zhang
+year: 2024
+journal: "Computers in Biology and Medicine"
+volume: 169
+pages: "107932"
+doi: "10.1016/j.compbiomed.2024.107932"
+url: "https://pubmed.ncbi.nlm.nih.gov/38199209/"
+keywords:
+- CRISPR
+- off-target
+- BERT
+- transformer
+- mismatch
+- indel
+- interpretability
+project_role: transformer_sequence_baseline_for_future_encoder_work
+priority: later

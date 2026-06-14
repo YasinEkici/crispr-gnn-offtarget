@@ -1,0 +1,16 @@
+title: "No Unbiased Estimator of the Variance of K-Fold Cross-Validation"
+authors:
+- Yoshua Bengio
+- Yves Grandvalet
+year: 2004
+journal: "Journal of Machine Learning Research"
+volume: 5
+pages: "1089-1105"
+url: "https://www.jmlr.org/papers/v5/grandvalet04a.html"
+keywords:
+- cross validation
+- variance estimation
+- model comparison
+- uncertainty
+project_role: sprint9_multiseed_claim_boundary
+priority: must_read

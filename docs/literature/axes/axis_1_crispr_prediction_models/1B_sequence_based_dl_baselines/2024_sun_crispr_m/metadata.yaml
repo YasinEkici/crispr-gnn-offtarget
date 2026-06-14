@@ -1,0 +1,21 @@
+title: "CRISPR-M: Predicting sgRNA off-target effect using a multi-view deep learning network"
+authors:
+- Jialiang Sun
+- Jun Guo
+- Jian Liu
+year: 2024
+journal: "PLOS Computational Biology"
+volume: 20
+issue: 3
+pages: "e1011972"
+doi: "10.1371/journal.pcbi.1011972"
+url: "https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1011972"
+keywords:
+- CRISPR
+- off-target
+- multi-view deep learning
+- mismatch
+- indel
+- sequence model
+project_role: multi_view_sequence_baseline_for_future_encoder_work
+priority: useful

@@ -1,0 +1,17 @@
+title: "Bootstrap Methods: Another Look at the Jackknife"
+authors:
+- Bradley Efron
+year: 1979
+journal: "The Annals of Statistics"
+volume: 7
+issue: 1
+pages: "1-26"
+doi: "10.1214/aos/1176344552"
+url: "https://projecteuclid.org/journals/annals-of-statistics/volume-7/issue-1/Bootstrap-Methods-Another-Look-at-the-Jackknife/10.1214/aos/1176344552.short"
+keywords:
+- bootstrap
+- jackknife
+- resampling
+- uncertainty
+project_role: sprint9_bootstrap_foundation
+priority: useful

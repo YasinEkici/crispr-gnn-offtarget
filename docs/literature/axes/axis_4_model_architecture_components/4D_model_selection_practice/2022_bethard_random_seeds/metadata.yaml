@@ -1,0 +1,15 @@
+title: "We need to talk about random seeds"
+authors:
+- Steven Bethard
+year: 2022
+journal: "arXiv"
+doi: null
+url: "https://arxiv.org/abs/2210.13393"
+keywords:
+- random seeds
+- reproducibility
+- neural networks
+- reporting
+- multi-seed
+project_role: sprint9_multiseed_reporting_reference
+priority: useful

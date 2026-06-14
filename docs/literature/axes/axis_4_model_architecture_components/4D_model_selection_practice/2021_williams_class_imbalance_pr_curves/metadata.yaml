@@ -1,0 +1,18 @@
+title: "The Effect of Class Imbalance on Precision-Recall Curves"
+authors:
+- Christopher K. I. Williams
+year: 2021
+journal: "Neural Computation"
+volume: 33
+issue: 4
+pages: "853-857"
+doi: "10.1162/neco_a_01362"
+url: "https://arxiv.org/abs/2007.01905"
+keywords:
+- precision-recall
+- class imbalance
+- prevalence
+- metrics
+- precision gain
+project_role: sprint9_pr_prevalence_baseline_reference
+priority: must_read

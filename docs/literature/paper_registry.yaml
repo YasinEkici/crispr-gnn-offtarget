@@ -129,6 +129,155 @@ papers:
     assets_dir: docs/literature/axes/axis_1_crispr_prediction_models/1B_sequence_based_dl_baselines/2020_lin_crisprnet_rcn_mismatch_indels/assets
     tags: [crispr, off_target, sequence_model, mismatch, indel]
 
+  - id: 2019_liu_attntomismatch_cnn
+    title: "Prediction of off-target specificity and cell-specific fitness of CRISPR-Cas System using attention boosted deep learning and network-based gene feature"
+    year: 2019
+    authors:
+      - Qiao Liu
+      - Deyu He
+      - Lei Xie
+    axis: axis_1_crispr_prediction_models
+    section: 1B_sequence_based_dl_baselines
+    project_role: attention_and_context_sequence_baseline
+    priority: useful
+    local_dir: docs/literature/axes/axis_1_crispr_prediction_models/1B_sequence_based_dl_baselines/2019_liu_attntomismatch_cnn
+    local_md: docs/literature/axes/axis_1_crispr_prediction_models/1B_sequence_based_dl_baselines/2019_liu_attntomismatch_cnn/paper.md
+    metadata: docs/literature/axes/axis_1_crispr_prediction_models/1B_sequence_based_dl_baselines/2019_liu_attntomismatch_cnn/metadata.yaml
+    tags: [crispr, off_target, attention, context_features, sequence_model]
+
+  - id: 2020_liu_cnncrispr
+    title: "Deep learning improves the ability of sgRNA off-target propensity prediction"
+    year: 2020
+    authors:
+      - Qiaoyue Liu
+      - Xiang Cheng
+      - Gan Liu
+      - Bing Li
+      - Xiuqin Liu
+    axis: axis_1_crispr_prediction_models
+    section: 1B_sequence_based_dl_baselines
+    project_role: sequence_baseline_metric_comparability
+    priority: useful
+    local_dir: docs/literature/axes/axis_1_crispr_prediction_models/1B_sequence_based_dl_baselines/2020_liu_cnncrispr
+    local_md: docs/literature/axes/axis_1_crispr_prediction_models/1B_sequence_based_dl_baselines/2020_liu_cnncrispr/paper.md
+    metadata: docs/literature/axes/axis_1_crispr_prediction_models/1B_sequence_based_dl_baselines/2020_liu_cnncrispr/metadata.yaml
+    tags: [crispr, off_target, cnn, bilstm, sequence_model]
+
+  - id: 2021_niu_r_crispr
+    title: "R-CRISPR: A Deep Learning Network to Predict Off-Target Activities with Mismatch, Insertion and Deletion in CRISPR-Cas9 System"
+    year: 2021
+    authors:
+      - Rui Niu
+      - Jiajie Peng
+      - Zhipeng Zhang
+      - Xuequn Shang
+    axis: axis_1_crispr_prediction_models
+    section: 1B_sequence_based_dl_baselines
+    project_role: indel_aware_sequence_baseline
+    priority: useful
+    local_dir: docs/literature/axes/axis_1_crispr_prediction_models/1B_sequence_based_dl_baselines/2021_niu_r_crispr
+    local_md: docs/literature/axes/axis_1_crispr_prediction_models/1B_sequence_based_dl_baselines/2021_niu_r_crispr/paper.md
+    metadata: docs/literature/axes/axis_1_crispr_prediction_models/1B_sequence_based_dl_baselines/2021_niu_r_crispr/metadata.yaml
+    tags: [crispr, off_target, mismatch, indel, sequence_model]
+
+  - id: 2023_stortz_picrispr
+    title: "piCRISPR: physically informed deep learning models for CRISPR/Cas9 off-target cleavage prediction"
+    year: 2023
+    authors:
+      - Florian Stortz
+      - Jeffrey K. Mak
+      - Peter Minary
+    axis: axis_1_crispr_prediction_models
+    section: 1B_sequence_based_dl_baselines
+    project_role: close_crisprsql_epigenetic_deep_learning_precedent
+    priority: must_read
+    local_dir: docs/literature/axes/axis_1_crispr_prediction_models/1B_sequence_based_dl_baselines/2023_stortz_picrispr
+    local_md: docs/literature/axes/axis_1_crispr_prediction_models/1B_sequence_based_dl_baselines/2023_stortz_picrispr/paper.md
+    metadata: docs/literature/axes/axis_1_crispr_prediction_models/1B_sequence_based_dl_baselines/2023_stortz_picrispr/metadata.yaml
+    tags: [crispr, off_target, crisprsql, epigenetics, physically_informed_features]
+
+  - id: 2024_toufikuzzaman_crispr_dipoff
+    title: "CRISPR-DIPOFF: an interpretable deep learning approach for CRISPR Cas-9 off-target prediction"
+    year: 2024
+    authors:
+      - Md. Toufikuzzaman
+      - Md. Abul Hassan Samee
+      - M. Sohel Rahman
+    axis: axis_1_crispr_prediction_models
+    section: 1B_sequence_based_dl_baselines
+    project_role: interpretable_sequence_baseline_close_to_crisprsql_lineage
+    priority: useful
+    local_dir: docs/literature/axes/axis_1_crispr_prediction_models/1B_sequence_based_dl_baselines/2024_toufikuzzaman_crispr_dipoff
+    local_md: docs/literature/axes/axis_1_crispr_prediction_models/1B_sequence_based_dl_baselines/2024_toufikuzzaman_crispr_dipoff/paper.md
+    metadata: docs/literature/axes/axis_1_crispr_prediction_models/1B_sequence_based_dl_baselines/2024_toufikuzzaman_crispr_dipoff/metadata.yaml
+    tags: [crispr, off_target, interpretable_deep_learning, integrated_gradients]
+
+  - id: 2024_ozden_crispai_uncertainty
+    title: "Learning to quantify uncertainty in off-target activity for CRISPR guide RNAs"
+    year: 2024
+    authors:
+      - Furkan Ozden
+      - Peter Minary
+    axis: axis_1_crispr_prediction_models
+    section: 1B_sequence_based_dl_baselines
+    project_role: uncertainty_quantification_related_work
+    priority: useful
+    local_dir: docs/literature/axes/axis_1_crispr_prediction_models/1B_sequence_based_dl_baselines/2024_ozden_crispai_uncertainty
+    local_md: docs/literature/axes/axis_1_crispr_prediction_models/1B_sequence_based_dl_baselines/2024_ozden_crispai_uncertainty/paper.md
+    metadata: docs/literature/axes/axis_1_crispr_prediction_models/1B_sequence_based_dl_baselines/2024_ozden_crispai_uncertainty/metadata.yaml
+    tags: [crispr, off_target, uncertainty_quantification, probabilistic_modeling]
+
+  - id: 2024_sun_crispr_m
+    title: "CRISPR-M: Predicting sgRNA off-target effect using a multi-view deep learning network"
+    year: 2024
+    authors:
+      - Jialiang Sun
+      - Jun Guo
+      - Jian Liu
+    axis: axis_1_crispr_prediction_models
+    section: 1B_sequence_based_dl_baselines
+    project_role: multi_view_sequence_baseline_for_future_encoder_work
+    priority: useful
+    local_dir: docs/literature/axes/axis_1_crispr_prediction_models/1B_sequence_based_dl_baselines/2024_sun_crispr_m
+    local_md: docs/literature/axes/axis_1_crispr_prediction_models/1B_sequence_based_dl_baselines/2024_sun_crispr_m/paper.md
+    metadata: docs/literature/axes/axis_1_crispr_prediction_models/1B_sequence_based_dl_baselines/2024_sun_crispr_m/metadata.yaml
+    tags: [crispr, off_target, sequence_model, multi_view, mismatch, indel]
+
+  - id: 2024_zhang_crispr_sgru
+    title: "Crispr-SGRU: Prediction of CRISPR/Cas9 Off-Target Activities with Mismatches and Indels Using Stacked BiGRU"
+    year: 2024
+    authors:
+      - Guishan Zhang
+      - Ye Luo
+      - Huanzeng Xie
+      - Zhiming Dai
+    axis: axis_1_crispr_prediction_models
+    section: 1B_sequence_based_dl_baselines
+    project_role: sequence_recurrent_baseline_and_loss_context
+    priority: useful
+    local_dir: docs/literature/axes/axis_1_crispr_prediction_models/1B_sequence_based_dl_baselines/2024_zhang_crispr_sgru
+    local_md: docs/literature/axes/axis_1_crispr_prediction_models/1B_sequence_based_dl_baselines/2024_zhang_crispr_sgru/paper.md
+    metadata: docs/literature/axes/axis_1_crispr_prediction_models/1B_sequence_based_dl_baselines/2024_zhang_crispr_sgru/metadata.yaml
+    tags: [crispr, off_target, sequence_model, bigru, mismatch, indel, dice_loss]
+
+  - id: 2024_luo_crispr_bert
+    title: "Interpretable CRISPR/Cas9 off-target activities with mismatches and indels prediction using BERT"
+    year: 2024
+    authors:
+      - Ye Luo
+      - Yaowen Chen
+      - Huanzeng Xie
+      - Wenhai Zhu
+      - Guishan Zhang
+    axis: axis_1_crispr_prediction_models
+    section: 1B_sequence_based_dl_baselines
+    project_role: transformer_sequence_baseline_for_future_encoder_work
+    priority: later
+    local_dir: docs/literature/axes/axis_1_crispr_prediction_models/1B_sequence_based_dl_baselines/2024_luo_crispr_bert
+    local_md: docs/literature/axes/axis_1_crispr_prediction_models/1B_sequence_based_dl_baselines/2024_luo_crispr_bert/paper.md
+    metadata: docs/literature/axes/axis_1_crispr_prediction_models/1B_sequence_based_dl_baselines/2024_luo_crispr_bert/metadata.yaml
+    tags: [crispr, off_target, sequence_model, bert, transformer, mismatch, indel]
+
   - id: 2020_gao_data_imbalance_off_target_prediction
     title: "Data imbalance in CRISPR off-target prediction"
     year: 2020
@@ -226,6 +375,72 @@ papers:
     assets_dir: docs/literature/axes/axis_2_imbalance_cost_sensitive_learning/2B_general_imbalance_foundations/2019_cui_class_balanced_loss/assets
     tags: [class_balanced_loss, effective_number, imbalance]
 
+  - id: 2002_chawla_smote
+    title: "SMOTE: Synthetic Minority Over-sampling Technique"
+    year: 2002
+    authors:
+      - Nitesh V. Chawla
+      - Kevin W. Bowyer
+      - Lawrence O. Hall
+      - W. Philip Kegelmeyer
+    axis: axis_2_imbalance_cost_sensitive_learning
+    section: 2B_general_imbalance_foundations
+    project_role: imbalance_reference_not_used_for_graph_sequence_artifacts
+    priority: useful
+    local_dir: docs/literature/axes/axis_2_imbalance_cost_sensitive_learning/2B_general_imbalance_foundations/2002_chawla_smote
+    local_md: docs/literature/axes/axis_2_imbalance_cost_sensitive_learning/2B_general_imbalance_foundations/2002_chawla_smote/paper.md
+    metadata: docs/literature/axes/axis_2_imbalance_cost_sensitive_learning/2B_general_imbalance_foundations/2002_chawla_smote/metadata.yaml
+    tags: [smote, oversampling, imbalance, synthetic_samples]
+
+  - id: 2018_buda_cnn_class_imbalance
+    title: "A systematic study of the class imbalance problem in convolutional neural networks"
+    year: 2018
+    authors:
+      - Mateusz Buda
+      - Atsuto Maki
+      - Maciej A. Mazurowski
+    axis: axis_2_imbalance_cost_sensitive_learning
+    section: 2B_general_imbalance_foundations
+    project_role: deep_imbalance_sampling_reference
+    priority: useful
+    local_dir: docs/literature/axes/axis_2_imbalance_cost_sensitive_learning/2B_general_imbalance_foundations/2018_buda_cnn_class_imbalance
+    local_md: docs/literature/axes/axis_2_imbalance_cost_sensitive_learning/2B_general_imbalance_foundations/2018_buda_cnn_class_imbalance/paper.md
+    metadata: docs/literature/axes/axis_2_imbalance_cost_sensitive_learning/2B_general_imbalance_foundations/2018_buda_cnn_class_imbalance/metadata.yaml
+    tags: [imbalance, cnn, oversampling, undersampling, thresholding]
+
+  - id: 2019_johnson_deep_learning_class_imbalance
+    title: "Survey on deep learning with class imbalance"
+    year: 2019
+    authors:
+      - Justin M. Johnson
+      - Taghi M. Khoshgoftaar
+    axis: axis_2_imbalance_cost_sensitive_learning
+    section: 2B_general_imbalance_foundations
+    project_role: general_deep_imbalance_survey
+    priority: useful
+    local_dir: docs/literature/axes/axis_2_imbalance_cost_sensitive_learning/2B_general_imbalance_foundations/2019_johnson_deep_learning_class_imbalance
+    local_md: docs/literature/axes/axis_2_imbalance_cost_sensitive_learning/2B_general_imbalance_foundations/2019_johnson_deep_learning_class_imbalance/paper.md
+    metadata: docs/literature/axes/axis_2_imbalance_cost_sensitive_learning/2B_general_imbalance_foundations/2019_johnson_deep_learning_class_imbalance/metadata.yaml
+    tags: [imbalance, deep_learning, survey, cost_sensitive_learning]
+
+  - id: 2019_cao_ldam_loss
+    title: "Learning Imbalanced Datasets with Label-Distribution-Aware Margin Loss"
+    year: 2019
+    authors:
+      - Kaidi Cao
+      - Colin Wei
+      - Adrien Gaidon
+      - Nikos Arechiga
+      - Tengyu Ma
+    axis: axis_2_imbalance_cost_sensitive_learning
+    section: 2B_general_imbalance_foundations
+    project_role: advanced_imbalance_loss_reference_not_implemented
+    priority: later
+    local_dir: docs/literature/axes/axis_2_imbalance_cost_sensitive_learning/2B_general_imbalance_foundations/2019_cao_ldam_loss
+    local_md: docs/literature/axes/axis_2_imbalance_cost_sensitive_learning/2B_general_imbalance_foundations/2019_cao_ldam_loss/paper.md
+    metadata: docs/literature/axes/axis_2_imbalance_cost_sensitive_learning/2B_general_imbalance_foundations/2019_cao_ldam_loss/metadata.yaml
+    tags: [imbalance, ldam, margin_loss, deferred_reweighting]
+
   - id: 2021_stortz_crisprsql_database_platform_off_target
     title: "crisprSQL: a novel database platform for CRISPR/Cas off-target cleavage assays"
     year: 2021
@@ -320,6 +535,117 @@ papers:
     metadata: docs/literature/axes/axis_3_epigenetics_crispr_activity/3B_chromatin_epigenetics_cas9_biology/2016_isaac_nucleosome_breathing_remodeling_crispr/metadata.yaml
     assets_dir: docs/literature/axes/axis_3_epigenetics_crispr_activity/3B_chromatin_epigenetics_cas9_biology/2016_isaac_nucleosome_breathing_remodeling_crispr/assets
     tags: [cas9, chromatin, nucleosome, remodeling]
+
+  - id: 2017_daer_chromatin_dynamics_cas9
+    title: "The Impact of Chromatin Dynamics on Cas9-Mediated Genome Editing in Human Cells"
+    year: 2017
+    authors:
+      - Rene M. Daer
+      - Josh P. Cutts
+      - David A. Brafman
+      - Karmella A. Haynes
+    axis: axis_3_epigenetics_crispr_activity
+    section: 3B_chromatin_epigenetics_cas9_biology
+    project_role: chromatin_accessibility_biology_reference
+    priority: useful
+    local_dir: docs/literature/axes/axis_3_epigenetics_crispr_activity/3B_chromatin_epigenetics_cas9_biology/2017_daer_chromatin_dynamics_cas9
+    local_md: docs/literature/axes/axis_3_epigenetics_crispr_activity/3B_chromatin_epigenetics_cas9_biology/2017_daer_chromatin_dynamics_cas9/paper.md
+    metadata: docs/literature/axes/axis_3_epigenetics_crispr_activity/3B_chromatin_epigenetics_cas9_biology/2017_daer_chromatin_dynamics_cas9/metadata.yaml
+    tags: [cas9, chromatin, accessibility, human_cells]
+
+  - id: 2014_wu_dcas9_chipseq
+    title: "Genome-wide binding of the CRISPR endonuclease Cas9 in mammalian cells"
+    year: 2014
+    authors:
+      - Xuebing Wu
+      - David A. Scott
+      - Andrea J. Kriz
+      - Anthony C. Chiu
+      - Patrick D. Hsu
+      - David B. Dadon
+      - Albert W. Cheng
+      - Alexei E. Trevino
+      - Silvana Konermann
+      - Shengdar Q. Tsai
+      - Nicolas J. Delebecque
+      - David M. Niemi
+      - Chengzu Long
+      - Rudolf Jaenisch
+      - Feng Zhang
+      - Phillip A. Sharp
+    axis: axis_3_epigenetics_crispr_activity
+    section: 3B_chromatin_epigenetics_cas9_biology
+    project_role: genome_wide_cas9_binding_chromatin_context_reference
+    priority: useful
+    local_dir: docs/literature/axes/axis_3_epigenetics_crispr_activity/3B_chromatin_epigenetics_cas9_biology/2014_wu_dcas9_chipseq
+    local_md: docs/literature/axes/axis_3_epigenetics_crispr_activity/3B_chromatin_epigenetics_cas9_biology/2014_wu_dcas9_chipseq/paper.md
+    metadata: docs/literature/axes/axis_3_epigenetics_crispr_activity/3B_chromatin_epigenetics_cas9_biology/2014_wu_dcas9_chipseq/metadata.yaml
+    tags: [cas9, dcas9, chip_seq, chromatin, genome_wide_binding]
+
+  - id: 2018_yarrington_nucleosomes_inhibit_cas9
+    title: "Nucleosomes inhibit target cleavage by CRISPR-Cas9 in vivo"
+    year: 2018
+    authors:
+      - Robert M. Yarrington
+      - Sneh Verma
+      - Seth Schwartz
+      - Jennifer K. Trautman
+      - Dana Carroll
+    axis: axis_3_epigenetics_crispr_activity
+    section: 3B_chromatin_epigenetics_cas9_biology
+    project_role: nucleosome_context_biology_reference
+    priority: useful
+    local_dir: docs/literature/axes/axis_3_epigenetics_crispr_activity/3B_chromatin_epigenetics_cas9_biology/2018_yarrington_nucleosomes_inhibit_cas9
+    local_md: docs/literature/axes/axis_3_epigenetics_crispr_activity/3B_chromatin_epigenetics_cas9_biology/2018_yarrington_nucleosomes_inhibit_cas9/paper.md
+    metadata: docs/literature/axes/axis_3_epigenetics_crispr_activity/3B_chromatin_epigenetics_cas9_biology/2018_yarrington_nucleosomes_inhibit_cas9/metadata.yaml
+    tags: [cas9, chromatin, nucleosome, in_vivo]
+
+  - id: 2018_kim_dig_seq
+    title: "DIG-seq: a genome-wide CRISPR off-target profiling method using chromatin DNA"
+    year: 2018
+    authors:
+      - Daesik Kim
+      - Jin-Soo Kim
+    axis: axis_3_epigenetics_crispr_activity
+    section: 3B_chromatin_epigenetics_cas9_biology
+    project_role: chromatin_aware_off_target_assay_reference
+    priority: useful
+    local_dir: docs/literature/axes/axis_3_epigenetics_crispr_activity/3B_chromatin_epigenetics_cas9_biology/2018_kim_dig_seq
+    local_md: docs/literature/axes/axis_3_epigenetics_crispr_activity/3B_chromatin_epigenetics_cas9_biology/2018_kim_dig_seq/paper.md
+    metadata: docs/literature/axes/axis_3_epigenetics_crispr_activity/3B_chromatin_epigenetics_cas9_biology/2018_kim_dig_seq/metadata.yaml
+    tags: [dig_seq, cas9, chromatin, off_target_assay]
+
+  - id: 2020_lazzarotto_change_seq
+    title: "CHANGE-seq reveals genetic and epigenetic effects on CRISPR-Cas9 genome-wide activity"
+    year: 2020
+    authors:
+      - Cicera R. Lazzarotto
+      - Nikolay L. Malinin
+      - Yichao Li
+      - Shengdar Q. Tsai
+    axis: axis_3_epigenetics_crispr_activity
+    section: 3B_chromatin_epigenetics_cas9_biology
+    project_role: epigenetic_context_off_target_evidence
+    priority: useful
+    local_dir: docs/literature/axes/axis_3_epigenetics_crispr_activity/3B_chromatin_epigenetics_cas9_biology/2020_lazzarotto_change_seq
+    local_md: docs/literature/axes/axis_3_epigenetics_crispr_activity/3B_chromatin_epigenetics_cas9_biology/2020_lazzarotto_change_seq/paper.md
+    metadata: docs/literature/axes/axis_3_epigenetics_crispr_activity/3B_chromatin_epigenetics_cas9_biology/2020_lazzarotto_change_seq/metadata.yaml
+    tags: [change_seq, cas9, epigenetics, chromatin, off_target]
+
+  - id: 2019_verkuijl_rots_chromatin_review
+    title: "The influence of eukaryotic chromatin state on CRISPR-Cas9 editing efficiencies"
+    year: 2019
+    authors:
+      - Sebald A. N. Verkuijl
+      - Marianne G. Rots
+    axis: axis_3_epigenetics_crispr_activity
+    section: 3B_chromatin_epigenetics_cas9_biology
+    project_role: chromatin_state_review_for_epigenetic_context_framing
+    priority: useful
+    local_dir: docs/literature/axes/axis_3_epigenetics_crispr_activity/3B_chromatin_epigenetics_cas9_biology/2019_verkuijl_rots_chromatin_review
+    local_md: docs/literature/axes/axis_3_epigenetics_crispr_activity/3B_chromatin_epigenetics_cas9_biology/2019_verkuijl_rots_chromatin_review/paper.md
+    metadata: docs/literature/axes/axis_3_epigenetics_crispr_activity/3B_chromatin_epigenetics_cas9_biology/2019_verkuijl_rots_chromatin_review/metadata.yaml
+    tags: [cas9, chromatin, epigenetics, review, editing_efficiency]
 
   - id: 2019_hu_squeeze_anmd_excitation_networks
     title: "Squeeze-and-Excitation Networks"
@@ -469,6 +795,139 @@ papers:
     metadata: docs/literature/axes/axis_4_model_architecture_components/4D_model_selection_practice/2023_kapoor_leakage/metadata.yaml
     assets_dir: docs/literature/axes/axis_4_model_architecture_components/4D_model_selection_practice/2023_kapoor_leakage/assets
     tags: [data_leakage, reproducibility, evaluation]
+
+  - id: 1979_efron_bootstrap_jackknife
+    title: "Bootstrap Methods: Another Look at the Jackknife"
+    year: 1979
+    authors:
+      - Bradley Efron
+    axis: axis_4_model_architecture_components
+    section: 4D_model_selection_practice
+    project_role: sprint9_bootstrap_foundation
+    priority: useful
+    local_dir: docs/literature/axes/axis_4_model_architecture_components/4D_model_selection_practice/1979_efron_bootstrap_jackknife
+    local_md: docs/literature/axes/axis_4_model_architecture_components/4D_model_selection_practice/1979_efron_bootstrap_jackknife/paper.md
+    metadata: docs/literature/axes/axis_4_model_architecture_components/4D_model_selection_practice/1979_efron_bootstrap_jackknife/metadata.yaml
+    tags: [bootstrap, jackknife, resampling, robustness]
+
+  - id: 2001_schenker_gentleman_ci_overlap
+    title: "On Judging the Significance of Differences by Examining the Overlap Between Confidence Intervals"
+    year: 2001
+    authors:
+      - Nathaniel Schenker
+      - Jane F. Gentleman
+    axis: axis_4_model_architecture_components
+    section: 4D_model_selection_practice
+    project_role: sprint9_paired_difference_anchor
+    priority: must_read
+    local_dir: docs/literature/axes/axis_4_model_architecture_components/4D_model_selection_practice/2001_schenker_gentleman_ci_overlap
+    local_md: docs/literature/axes/axis_4_model_architecture_components/4D_model_selection_practice/2001_schenker_gentleman_ci_overlap/paper.md
+    metadata: docs/literature/axes/axis_4_model_architecture_components/4D_model_selection_practice/2001_schenker_gentleman_ci_overlap/metadata.yaml
+    tags: [confidence_intervals, paired_difference, model_comparison, robustness]
+
+  - id: 2004_bengio_grandvalet_cv_variance
+    title: "No Unbiased Estimator of the Variance of K-Fold Cross-Validation"
+    year: 2004
+    authors:
+      - Yoshua Bengio
+      - Yves Grandvalet
+    axis: axis_4_model_architecture_components
+    section: 4D_model_selection_practice
+    project_role: sprint9_multiseed_claim_boundary
+    priority: must_read
+    local_dir: docs/literature/axes/axis_4_model_architecture_components/4D_model_selection_practice/2004_bengio_grandvalet_cv_variance
+    local_md: docs/literature/axes/axis_4_model_architecture_components/4D_model_selection_practice/2004_bengio_grandvalet_cv_variance/paper.md
+    metadata: docs/literature/axes/axis_4_model_architecture_components/4D_model_selection_practice/2004_bengio_grandvalet_cv_variance/metadata.yaml
+    tags: [cross_validation, variance, uncertainty, robustness]
+
+  - id: 2006_davis_goadrich_pr_roc
+    title: "The Relationship Between Precision-Recall and ROC Curves"
+    year: 2006
+    authors:
+      - Jesse Davis
+      - Mark Goadrich
+    axis: axis_4_model_architecture_components
+    section: 4D_model_selection_practice
+    project_role: sprint9_pr_roc_metric_anchor
+    priority: useful
+    local_dir: docs/literature/axes/axis_4_model_architecture_components/4D_model_selection_practice/2006_davis_goadrich_pr_roc
+    local_md: docs/literature/axes/axis_4_model_architecture_components/4D_model_selection_practice/2006_davis_goadrich_pr_roc/paper.md
+    metadata: docs/literature/axes/axis_4_model_architecture_components/4D_model_selection_practice/2006_davis_goadrich_pr_roc/metadata.yaml
+    tags: [precision_recall, roc, imbalance, metrics]
+
+  - id: 2013_boyd_aucpr_confidence_intervals
+    title: "Area Under the Precision-Recall Curve: Point Estimates and Confidence Intervals"
+    year: 2013
+    authors:
+      - Kendrick Boyd
+      - Kevin H. Eng
+      - C. David Page
+    axis: axis_4_model_architecture_components
+    section: 4D_model_selection_practice
+    project_role: sprint9_auprc_interval_anchor
+    priority: must_read
+    local_dir: docs/literature/axes/axis_4_model_architecture_components/4D_model_selection_practice/2013_boyd_aucpr_confidence_intervals
+    local_md: docs/literature/axes/axis_4_model_architecture_components/4D_model_selection_practice/2013_boyd_aucpr_confidence_intervals/paper.md
+    metadata: docs/literature/axes/axis_4_model_architecture_components/4D_model_selection_practice/2013_boyd_aucpr_confidence_intervals/metadata.yaml
+    tags: [auprc, precision_recall, confidence_intervals, metrics]
+
+  - id: 2015_saito_rehmsmeier_pr_imbalance
+    title: "The Precision-Recall Plot Is More Informative than the ROC Plot When Evaluating Binary Classifiers on Imbalanced Datasets"
+    year: 2015
+    authors:
+      - Takaya Saito
+      - Marc Rehmsmeier
+    axis: axis_4_model_architecture_components
+    section: 4D_model_selection_practice
+    project_role: sprint9_imbalance_metric_anchor
+    priority: useful
+    local_dir: docs/literature/axes/axis_4_model_architecture_components/4D_model_selection_practice/2015_saito_rehmsmeier_pr_imbalance
+    local_md: docs/literature/axes/axis_4_model_architecture_components/4D_model_selection_practice/2015_saito_rehmsmeier_pr_imbalance/paper.md
+    metadata: docs/literature/axes/axis_4_model_architecture_components/4D_model_selection_practice/2015_saito_rehmsmeier_pr_imbalance/metadata.yaml
+    tags: [precision_recall, roc, imbalance, metrics]
+
+  - id: 2007_field_welsh_clustered_bootstrap
+    title: "Bootstrapping Clustered Data"
+    year: 2007
+    authors:
+      - C. A. Field
+      - A. H. Welsh
+    axis: axis_4_model_architecture_components
+    section: 4D_model_selection_practice
+    project_role: sprint9_guide_cluster_bootstrap_reference
+    priority: must_read
+    local_dir: docs/literature/axes/axis_4_model_architecture_components/4D_model_selection_practice/2007_field_welsh_clustered_bootstrap
+    local_md: docs/literature/axes/axis_4_model_architecture_components/4D_model_selection_practice/2007_field_welsh_clustered_bootstrap/paper.md
+    metadata: docs/literature/axes/axis_4_model_architecture_components/4D_model_selection_practice/2007_field_welsh_clustered_bootstrap/metadata.yaml
+    tags: [bootstrap, clustered_data, resampling, robustness, guide_cluster]
+
+  - id: 2021_williams_class_imbalance_pr_curves
+    title: "The Effect of Class Imbalance on Precision-Recall Curves"
+    year: 2021
+    authors:
+      - Christopher K. I. Williams
+    axis: axis_4_model_architecture_components
+    section: 4D_model_selection_practice
+    project_role: sprint9_pr_prevalence_baseline_reference
+    priority: must_read
+    local_dir: docs/literature/axes/axis_4_model_architecture_components/4D_model_selection_practice/2021_williams_class_imbalance_pr_curves
+    local_md: docs/literature/axes/axis_4_model_architecture_components/4D_model_selection_practice/2021_williams_class_imbalance_pr_curves/paper.md
+    metadata: docs/literature/axes/axis_4_model_architecture_components/4D_model_selection_practice/2021_williams_class_imbalance_pr_curves/metadata.yaml
+    tags: [precision_recall, class_imbalance, prevalence, metrics]
+
+  - id: 2022_bethard_random_seeds
+    title: "We need to talk about random seeds"
+    year: 2022
+    authors:
+      - Steven Bethard
+    axis: axis_4_model_architecture_components
+    section: 4D_model_selection_practice
+    project_role: sprint9_multiseed_reporting_reference
+    priority: useful
+    local_dir: docs/literature/axes/axis_4_model_architecture_components/4D_model_selection_practice/2022_bethard_random_seeds
+    local_md: docs/literature/axes/axis_4_model_architecture_components/4D_model_selection_practice/2022_bethard_random_seeds/paper.md
+    metadata: docs/literature/axes/axis_4_model_architecture_components/4D_model_selection_practice/2022_bethard_random_seeds/metadata.yaml
+    tags: [random_seeds, reproducibility, multiseed, reporting]
 
   - id: 2022_brody_gats
     title: "How Attentive are Graph Attention Networks?"
