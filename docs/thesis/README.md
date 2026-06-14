@@ -29,6 +29,12 @@ The DOCX-to-LaTeX verification note is under:
 docs/thesis/notes/btu_template_verification.md
 ```
 
+The thesis writing meta-rules note is under:
+
+```text
+docs/thesis/notes/tez_yazim_meta_kurallari.md
+```
+
 To compile the LaTeX template locally:
 
 ```bash

@@ -198,7 +198,8 @@ crispr-gnn-offtarget/
 │   │   ├── README.md
 │   │   ├── notes/
 │   │   │   ├── main_narrative_framing.md
-│   │   │   └── btu_template_verification.md
+│   │   │   ├── btu_template_verification.md
+│   │   │   └── tez_yazim_meta_kurallari.md
 │   │   ├── templates/
 │   │   │   └── btu_docx/
 │   │   │       └── BTU_BM_Tez_Yazım_Sablonu_2019.docx
