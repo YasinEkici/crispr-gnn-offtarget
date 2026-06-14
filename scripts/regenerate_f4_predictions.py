@@ -62,8 +62,9 @@ RUN_ID = "xgboost_unweighted_F4_sprint2_main_seed42_regen"
 XGBOOST_CONFIG_PATH = ROOT / "configs/experiments/baseline_xgboost.yaml"
 DATA_CONFIG_PATH = ROOT / "configs/data/mak2022.yaml"
 SPLIT_PATH = ROOT / "outputs/splits/sprint2_guides.json"
-PRED_OUTPUT = ROOT / "outputs/sprint9/diagnostics/f4_predictions.csv"
-CHECK_OUTPUT = ROOT / "outputs/sprint9/diagnostics/f4_reproduction_check.csv"
+OUTPUT_ROOT = ROOT / "outputs/sprint9"
+PRED_OUTPUT = OUTPUT_ROOT / "diagnostics/f4_predictions.csv"
+CHECK_OUTPUT = OUTPUT_ROOT / "diagnostics/f4_reproduction_check.csv"
 
 
 def parse_args() -> argparse.Namespace:
@@ -74,19 +75,21 @@ def parse_args() -> argparse.Namespace:
         default=2e-3,
         help="Blocking AUPRC tolerance vs the historical bar (catches real breakage; absorbs version drift).",
     )
-    parser.add_argument("--pred-output", default=str(PRED_OUTPUT))
-    parser.add_argument("--check-output", default=str(CHECK_OUTPUT))
+    parser.add_argument("--seed", type=int, default=None, help="Override the XGBoost training seed for Sprint 9 multiseed.")
+    parser.add_argument("--output-dir", default=None, help="Output root; defaults to outputs/sprint9.")
+    parser.add_argument("--pred-output", default=None)
+    parser.add_argument("--check-output", default=None)
     return parser.parse_args()
 
 
-def _xgboost_config() -> XGBoostRunConfig:
+def _xgboost_config(seed_override: int | None = None) -> XGBoostRunConfig:
     config = load_yaml(str(XGBOOST_CONFIG_PATH))
     split = load_split_manifest(SPLIT_PATH)
     xgb = config.get("xgboost", {})
     return XGBoostRunConfig(
         sprint=str(config.get("sprint", "sprint2")),
         split_id=split.config.split_id,
-        seed=int(config.get("seed", split.config.seed)),
+        seed=int(seed_override if seed_override is not None else config.get("seed", split.config.seed)),
         n_estimators=int(xgb.get("n_estimators", 400)),
         max_depth=int(xgb.get("max_depth", 3)),
         learning_rate=float(xgb.get("learning_rate", 0.05)),
@@ -102,7 +105,7 @@ def _xgboost_config() -> XGBoostRunConfig:
     )
 
 
-def _prediction_frame(assigned: pd.DataFrame, predictions: list[dict[str, object]]) -> pd.DataFrame:
+def _prediction_frame(assigned: pd.DataFrame, predictions: list[dict[str, object]], *, run_id: str) -> pd.DataFrame:
     """Extract xgboost_unweighted / F4 val+test predictions, keyed by grna_target_id."""
     has_genome = "genome" in assigned.columns
     frames: list[pd.DataFrame] = []
@@ -113,7 +116,7 @@ def _prediction_frame(assigned: pd.DataFrame, predictions: list[dict[str, object
         frames.append(
             pd.DataFrame(
                 {
-                    "run_id": RUN_ID,
+                    "run_id": run_id,
                     "predeclared_run_id": PREDECLARED_RUN_ID,
                     "split": record["split"],
                     "row_index": row_index,
@@ -131,13 +134,23 @@ def _prediction_frame(assigned: pd.DataFrame, predictions: list[dict[str, object
 
 def main() -> int:
     args = parse_args()
+    output_root = _resolve_output_root(args.output_dir)
+    pred_output = Path(args.pred_output) if args.pred_output else output_root / "diagnostics/f4_predictions.csv"
+    check_output = Path(args.check_output) if args.check_output else output_root / "diagnostics/f4_reproduction_check.csv"
 
     raw_path = ROOT / load_yaml(str(DATA_CONFIG_PATH))["dataset"]["raw_path"]
     if not raw_path.exists():
         print(f"Raw dataset not found ({raw_path}); cannot regenerate F4 predictions.")
         return 1
 
-    config = _xgboost_config()
+    config = _xgboost_config(seed_override=args.seed)
+    run_id = RUN_ID if args.seed is None else f"{RUN_ID}_seed{config.seed}"
+    # The vs-historical AUPRC bar reproduces the canonical seed-42 F4 result (Option C
+    # version-drift guard). For any other Sprint 9 multi-seed run there is no historical
+    # bar to reproduce — the AUPRC *is* the seed-variance signal we want to measure — so
+    # that comparison must not block. Geometry checks (rows/guides/negatives) stay
+    # blocking for every seed because they catch genuine pipeline breakage.
+    is_canonical_seed = args.seed is None or int(config.seed) == 42
     split = load_split_manifest(SPLIT_PATH)
     assigned = assign_measured_splits(pd.read_parquet(raw_path), split)
 
@@ -151,7 +164,7 @@ def main() -> int:
         forbidden = feature_audit.loc[feature_audit["is_forbidden"], "feature"].unique().tolist()
         raise ValueError(f"Forbidden (leakage) columns in F4 feature audit: {forbidden}")
 
-    preds = _prediction_frame(assigned, predictions)
+    preds = _prediction_frame(assigned, predictions, run_id=run_id)
     test = preds[preds["split"] == "test"]
     val = preds[preds["split"] == "val"]
 
@@ -171,7 +184,7 @@ def main() -> int:
         ("test_rows", 1702, n_test, abs(n_test - 1702), 0, True),
         ("test_guides", 29, n_guides, abs(n_guides - 29), 0, True),
         ("test_negatives", 169, n_neg, abs(n_neg - 169), 0, True),
-        ("test_auprc_sanity_vs_historical", HISTORICAL_TEST_AUPRC, test_auprc, auprc_diff, args.sanity_atol, True),
+        ("test_auprc_sanity_vs_historical", HISTORICAL_TEST_AUPRC, test_auprc, auprc_diff, args.sanity_atol, is_canonical_seed),
         # Non-blocking diagnostics: document the XGBoost version drift transparently.
         ("test_auprc_strict_vs_historical", HISTORICAL_TEST_AUPRC, test_auprc, auprc_diff, 1e-4, False),
         ("regen_threshold_vs_historical", HISTORICAL_THRESHOLD, f4_threshold, abs(f4_threshold - HISTORICAL_THRESHOLD), 1e-6, False),
@@ -198,28 +211,38 @@ def main() -> int:
     check_table = pd.DataFrame(check_rows)
     reproduced = bool(check_table.loc[check_table["blocking"], "pass"].all())
 
-    pred_output = Path(args.pred_output)
-    check_output = Path(args.check_output)
     pred_output.parent.mkdir(parents=True, exist_ok=True)
     if reproduced:
         preds.to_csv(pred_output, index=False)
     check_table.to_csv(check_output, index=False)
 
-    print(f"XGBoost {xgboost.__version__} — F4 regeneration (seed {config.seed})")
+    mode = "canonical reproduction" if is_canonical_seed else "multi-seed variance (vs-historical non-blocking)"
+    print(f"XGBoost {xgboost.__version__} - F4 regeneration (seed {config.seed}; {mode})")
     print(f"Regenerated validation-selected threshold: {f4_threshold:.6f}")
     print(check_table[["check", "expected", "observed", "abs_diff", "atol", "pass", "blocking"]].to_string(index=False))
     if reproduced:
         strict = check_table.loc[check_table["check"] == "test_auprc_strict_vs_historical"].iloc[0]
-        print(
-            f"\nACCEPTED (Option C). Test AUPRC {test_auprc:.6f} vs historical {HISTORICAL_TEST_AUPRC:.6f} "
-            f"(diff {strict['abs_diff']:.2e}; XGBoost version drift, non-blocking)."
-        )
+        if is_canonical_seed:
+            print(
+                f"\nACCEPTED (Option C). Test AUPRC {test_auprc:.6f} vs historical {HISTORICAL_TEST_AUPRC:.6f} "
+                f"(diff {strict['abs_diff']:.2e}; XGBoost version drift, non-blocking)."
+            )
+        else:
+            print(
+                f"\nACCEPTED (seed variance). Test AUPRC {test_auprc:.6f}; the vs-historical bar is "
+                f"non-blocking for non-canonical seeds (geometry checks passed)."
+            )
         print(f"Predictions: {pred_output.relative_to(ROOT)}")
         print(f"Check table: {check_output.relative_to(ROOT)}")
         return 0
     print(f"\nFAILED blocking gate. Check table: {check_output.relative_to(ROOT)}")
-    print("F4 predictions NOT written; drop F4 from the registry and paired matrix (009 plan §6).")
+    print("F4 predictions NOT written; geometry/reproduction check failed (009 plan section 6).")
     return 1
+
+
+def _resolve_output_root(output_dir: str | None) -> Path:
+    path = Path(output_dir) if output_dir else OUTPUT_ROOT
+    return path if path.is_absolute() else ROOT / path
 
 
 if __name__ == "__main__":

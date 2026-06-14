@@ -31,9 +31,11 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from pathlib import Path
+from typing import Any, Mapping
 
 import numpy as np
 import pandas as pd
+import yaml
 from scipy.stats import norm
 from sklearn.metrics import (
     average_precision_score,
@@ -316,6 +318,19 @@ def replay_check_records(
 #: Metrics carried through the bootstrap (ranking: auprc/auroc; operating point at
 #: the frozen threshold: mcc/specificity/macro_f1).
 BOOTSTRAP_METRICS = ("auprc", "auroc", "mcc", "specificity", "macro_f1")
+MULTISEED_METRICS = (
+    "val_auprc",
+    "test_auprc",
+    "test_auroc",
+    "test_mcc",
+    "test_specificity",
+    "test_macro_f1",
+    "test_tn",
+    "test_fp",
+    "test_fn",
+    "test_tp",
+    "threshold",
+)
 #: Metrics bounded in [0, 1] whose upper edge (1.0) is inspected for pile-up.
 _UPPER_BOUNDED_METRICS = frozenset({"auprc", "auroc", "specificity", "macro_f1"})
 DEFAULT_N_BOOT = 5000
@@ -574,3 +589,368 @@ def leave_one_guide_influence(result: GuideBootstrapResult, metrics: tuple[str, 
                 }
             )
     return records
+
+
+# --------------------------------------------------------------------------------
+# Slice 4 — paired-difference bootstrap on common guide resamples
+# --------------------------------------------------------------------------------
+
+#: Predeclared paired comparison matrix (009 plan §5.1; registry IDs). Each entry is
+#: ``(comparison_id, A, B)`` and the reported statistic is Delta = metric(A) - metric(B).
+PAIRED_COMPARISONS: tuple[tuple[str, str, str], ...] = (
+    # Primary (AUPRC ranking question).
+    ("P1", "S8B_R2", "S8A_R2"),  # does sequence-context add over target-context interaction?
+    ("P2", "S8B_R2", "S7F_R3"),  # 8B candidate vs strongest carry-forward GNN
+    ("P3", "S8A_R2", "S7F_R3"),  # 8A interaction vs its own base lineage
+    ("P4", "S8B_R2", "XGB_F4"),  # is XGBoost's lead over the 8B candidate robust?
+    ("P5", "S8A_R2", "XGB_F4"),  # is XGBoost's lead over the 8A candidate robust?
+    ("P6", "S7F_R3", "XGB_F4"),  # is XGBoost's lead over the strongest GNN robust?
+    # Secondary (operating point; MCC + specificity emphasised, fragility-caveated).
+    ("P7", "S8B_R2", "S7F_R2"),
+    ("P8", "S8A_R2", "S7F_R2"),
+)
+
+
+@dataclass
+class PairedBootstrapResult:
+    """Paired guide-cluster bootstrap output for one A-vs-B comparison (009 plan §5)."""
+
+    comparison_id: str
+    a_id: str
+    b_id: str
+    n_test_guides: int
+    n_boot: int
+    ci: float
+    seed: int
+    point_a: dict[str, float]
+    point_b: dict[str, float]
+    point_delta: dict[str, float]
+    percentile: dict[str, tuple[float, float]]
+    bca: dict[str, tuple[float, float]]
+    bca_trusted: dict[str, bool]
+    bca_note: dict[str, str]
+    interval_excludes_zero: dict[str, bool]
+    prob_positive: dict[str, float]
+    undefined_delta_rate: dict[str, float]
+    samples: dict[str, np.ndarray] = field(default_factory=dict)
+
+
+def paired_guide_bootstrap(
+    scores_a: ModelScores,
+    scores_b: ModelScores,
+    *,
+    comparison_id: str = "",
+    split: str = "test",
+    metrics: tuple[str, ...] = BOOTSTRAP_METRICS,
+    n_boot: int = DEFAULT_N_BOOT,
+    seed: int = DEFAULT_BOOTSTRAP_SEED,
+    ci: float = 0.95,
+) -> PairedBootstrapResult:
+    """Paired-difference bootstrap of ``Delta = metric(A) - metric(B)``.
+
+    A single guide resample per replicate is applied to **both** models (so the
+    comparison is genuinely paired and preserves the covariance from common guide
+    composition; PDF §2.2/§3.4 — never judge a difference by marginal-CI overlap).
+    Each model uses its own frozen threshold for thresholded metrics. Delta is
+    undefined for a replicate if the metric is undefined for either model; the
+    undefined-Delta rate is reported. Resamples guides, never rows.
+    """
+    guides_a, labels_a, values_a = _guide_groups(scores_a.split(split))
+    guides_b, labels_b, values_b = _guide_groups(scores_b.split(split))
+    if guides_a != guides_b:
+        raise ValueError(
+            f"paired bootstrap requires identical guide sets: "
+            f"{scores_a.registry_id} vs {scores_b.registry_id}"
+        )
+    for i, guide in enumerate(guides_a):
+        if labels_a[i].shape[0] != labels_b[i].shape[0]:
+            raise ValueError(
+                f"per-guide row-count mismatch at guide {guide} "
+                f"({scores_a.registry_id}={labels_a[i].shape[0]} vs "
+                f"{scores_b.registry_id}={labels_b[i].shape[0]}) — unmatched observations"
+            )
+    n_guides = len(guides_a)
+    threshold_a = scores_a.threshold
+    threshold_b = scores_b.threshold
+
+    full_a = _split_metrics(np.concatenate(labels_a), np.concatenate(values_a), threshold_a)
+    full_b = _split_metrics(np.concatenate(labels_b), np.concatenate(values_b), threshold_b)
+    point_delta = {metric: full_a[metric] - full_b[metric] for metric in metrics}
+
+    rng = np.random.default_rng(seed)
+    boot: dict[str, list[float]] = {metric: [] for metric in metrics}
+    positive_counts: dict[str, int] = {metric: 0 for metric in metrics}
+    for _ in range(n_boot):
+        pick = rng.integers(0, n_guides, size=n_guides)
+        a = _split_metrics(
+            np.concatenate([labels_a[i] for i in pick]), np.concatenate([values_a[i] for i in pick]), threshold_a
+        )
+        b = _split_metrics(
+            np.concatenate([labels_b[i] for i in pick]), np.concatenate([values_b[i] for i in pick]), threshold_b
+        )
+        for metric in metrics:
+            delta = a[metric] - b[metric]
+            if not np.isnan(delta):
+                boot[metric].append(delta)
+                if delta > 0:
+                    positive_counts[metric] += 1
+
+    # Leave-one-guide jackknife of the delta (BCa acceleration).
+    jackknife: dict[str, list[float]] = {metric: [] for metric in metrics}
+    for i in range(n_guides):
+        keep = [j for j in range(n_guides) if j != i]
+        a = _split_metrics(
+            np.concatenate([labels_a[j] for j in keep]), np.concatenate([values_a[j] for j in keep]), threshold_a
+        )
+        b = _split_metrics(
+            np.concatenate([labels_b[j] for j in keep]), np.concatenate([values_b[j] for j in keep]), threshold_b
+        )
+        for metric in metrics:
+            jackknife[metric].append(a[metric] - b[metric])
+
+    lo_q = (1.0 - ci) / 2.0
+    hi_q = 1.0 - lo_q
+    percentile: dict[str, tuple[float, float]] = {}
+    bca: dict[str, tuple[float, float]] = {}
+    bca_trusted: dict[str, bool] = {}
+    bca_note: dict[str, str] = {}
+    excludes_zero: dict[str, bool] = {}
+    prob_positive: dict[str, float] = {}
+    undefined_rate: dict[str, float] = {}
+    samples_out: dict[str, np.ndarray] = {}
+    for metric in metrics:
+        samples = np.asarray(boot[metric], dtype=float)
+        samples_out[metric] = samples
+        undefined_rate[metric] = float((n_boot - samples.size) / n_boot)
+        prob_positive[metric] = float(positive_counts[metric] / samples.size) if samples.size else float("nan")
+        if samples.size:
+            lo = float(np.quantile(samples, lo_q))
+            hi = float(np.quantile(samples, hi_q))
+        else:
+            lo = hi = float("nan")
+        percentile[metric] = (lo, hi)
+        excludes_zero[metric] = bool(samples.size and (lo > 0.0 or hi < 0.0))
+        b_lo, b_hi, trusted, note = _bca_interval(
+            point_delta[metric], samples, np.asarray(jackknife[metric], dtype=float), ci
+        )
+        bca[metric] = (b_lo, b_hi)
+        bca_trusted[metric] = trusted
+        bca_note[metric] = note
+
+    return PairedBootstrapResult(
+        comparison_id=comparison_id,
+        a_id=scores_a.registry_id,
+        b_id=scores_b.registry_id,
+        n_test_guides=n_guides,
+        n_boot=n_boot,
+        ci=ci,
+        seed=seed,
+        point_a={metric: full_a[metric] for metric in metrics},
+        point_b={metric: full_b[metric] for metric in metrics},
+        point_delta=point_delta,
+        percentile=percentile,
+        bca=bca,
+        bca_trusted=bca_trusted,
+        bca_note=bca_note,
+        interval_excludes_zero=excludes_zero,
+        prob_positive=prob_positive,
+        undefined_delta_rate=undefined_rate,
+        samples=samples_out,
+    )
+
+
+# --------------------------------------------------------------------------------
+# Slice 5 - predeclared multi-seed consolidation
+# --------------------------------------------------------------------------------
+
+
+def load_multiseed_manifest(path: str | Path) -> dict[str, Any]:
+    """Load the Sprint 9 multiseed manifest and validate the no-best-seed contract."""
+    manifest_path = Path(path)
+    with manifest_path.open("r", encoding="utf-8") as handle:
+        manifest = yaml.safe_load(handle)
+    if not isinstance(manifest, Mapping):
+        raise ValueError(f"{manifest_path}: expected a mapping")
+    if manifest.get("sprint") != "sprint9" or manifest.get("task") != "sprint9_multiseed_fixed_split":
+        raise ValueError(f"{manifest_path}: not a Sprint 9 multiseed manifest")
+    seeds = manifest.get("seeds")
+    if not isinstance(seeds, list) or not seeds:
+        raise ValueError(f"{manifest_path}: seeds must be a non-empty list")
+    if len(set(int(seed) for seed in seeds)) != len(seeds):
+        raise ValueError(f"{manifest_path}: seeds must be unique")
+    runs = manifest.get("runs")
+    if not isinstance(runs, list) or not runs:
+        raise ValueError(f"{manifest_path}: runs must be a non-empty list")
+    return dict(manifest)
+
+
+def collect_multiseed_results(manifest_path: str | Path, *, output_root: str | Path | None = None) -> pd.DataFrame:
+    """Collect every predeclared seed from ``outputs/sprint9/multiseed``.
+
+    Missing per-seed directories are represented as ``record_type='missing_seed'``
+    rows and do not fail consolidation. Summary rows aggregate only observed seed
+    metrics, report the observed seed list, and never select or rank a best seed.
+    """
+    manifest = load_multiseed_manifest(manifest_path)
+    seeds = [int(seed) for seed in manifest["seeds"]]
+    base = _manifest_output_root(manifest, output_root)
+    records: list[dict[str, object]] = []
+    for run_spec in manifest["runs"]:
+        run = dict(run_spec)
+        run["seeds"] = seeds
+        missing: list[int] = []
+        for seed in seeds:
+            seed_dir = _multiseed_seed_dir(base, run, seed)
+            try:
+                metrics = _load_multiseed_seed_metrics(run, seed_dir)
+            except FileNotFoundError:
+                missing.append(seed)
+                records.append(_missing_seed_record(run, seed, seed_dir))
+                continue
+            record = _seed_metric_record(run, seed, seed_dir, metrics)
+            records.append(record)
+        records.extend(_summary_records(run, seeds, records, missing))
+    return pd.DataFrame(records)
+
+
+def _manifest_output_root(manifest: Mapping[str, Any], output_root: str | Path | None) -> Path:
+    configured = output_root or manifest.get("output_root", "outputs/sprint9/multiseed")
+    path = Path(configured)
+    return path if path.is_absolute() else ROOT / path
+
+
+def _multiseed_seed_dir(base: Path, run: Mapping[str, Any], seed: int) -> Path:
+    output_prefix = str(run["output_prefix"])
+    return base / output_prefix / f"seed_{seed}"
+
+
+def _load_multiseed_seed_metrics(run: Mapping[str, Any], seed_dir: Path) -> dict[str, object]:
+    runner_type = str(run["runner_type"])
+    if runner_type == "xgb_f4":
+        return _load_multiseed_f4_metrics(seed_dir)
+    comparison_path = seed_dir / str(run["comparison_file"])
+    if not comparison_path.exists():
+        raise FileNotFoundError(comparison_path)
+    table = pd.read_csv(comparison_path)
+    predeclared_run_id = str(run["predeclared_run_id"])
+    rows = table.loc[table["predeclared_run_id"] == predeclared_run_id]
+    if len(rows) != 1:
+        raise ValueError(f"{comparison_path}: expected one row for {predeclared_run_id}, found {len(rows)}")
+    return rows.iloc[0].to_dict()
+
+
+def _load_multiseed_f4_metrics(seed_dir: Path) -> dict[str, object]:
+    predictions_path = seed_dir / "diagnostics/f4_predictions.csv"
+    if not predictions_path.exists():
+        raise FileNotFoundError(predictions_path)
+    scores = load_f4_model_scores(predictions_path)
+    val = replay_split_metrics(scores, "val")
+    test = replay_split_metrics(scores, "test")
+    return {
+        "run_id": scores.run_id,
+        "predeclared_run_id": F4_REGISTRY_ID,
+        "threshold": scores.threshold,
+        "threshold_selection_split": scores.threshold_selection_split,
+        **val,
+        **test,
+    }
+
+
+def _seed_metric_record(
+    run: Mapping[str, Any],
+    seed: int,
+    seed_dir: Path,
+    metrics: Mapping[str, object],
+) -> dict[str, object]:
+    record: dict[str, object] = {
+        "record_type": "seed",
+        "registry_id": str(run["registry_id"]),
+        "predeclared_run_id": str(run["predeclared_run_id"]),
+        "runner_type": str(run["runner_type"]),
+        "seed": seed,
+        "status": "observed",
+        "output_dir": _relative_path(seed_dir),
+        "run_id": metrics.get("run_id"),
+        "threshold_selection_split": metrics.get("threshold_selection_split"),
+        "expected_seeds": ",".join(str(item) for item in run.get("seeds", [])),
+        "observed_seeds": str(seed),
+        "missing_seeds": "",
+        "n_observed_seeds": 1,
+    }
+    for metric in MULTISEED_METRICS:
+        record[metric] = metrics.get(metric)
+    return record
+
+
+def _missing_seed_record(run: Mapping[str, Any], seed: int, seed_dir: Path) -> dict[str, object]:
+    record: dict[str, object] = {
+        "record_type": "missing_seed",
+        "registry_id": str(run["registry_id"]),
+        "predeclared_run_id": str(run["predeclared_run_id"]),
+        "runner_type": str(run["runner_type"]),
+        "seed": seed,
+        "status": "missing_output",
+        "output_dir": _relative_path(seed_dir),
+        "run_id": np.nan,
+        "threshold_selection_split": np.nan,
+        "expected_seeds": ",".join(str(item) for item in run.get("seeds", [])),
+        "observed_seeds": "",
+        "missing_seeds": str(seed),
+        "n_observed_seeds": 0,
+    }
+    for metric in MULTISEED_METRICS:
+        record[metric] = np.nan
+    return record
+
+
+def _summary_records(
+    run: Mapping[str, Any],
+    seeds: list[int],
+    all_records: list[dict[str, object]],
+    missing: list[int],
+) -> list[dict[str, object]]:
+    registry_id = str(run["registry_id"])
+    observed = [
+        record
+        for record in all_records
+        if record.get("record_type") == "seed" and record.get("registry_id") == registry_id
+    ]
+    observed_seeds = [int(record["seed"]) for record in observed]
+    rows: list[dict[str, object]] = []
+    for metric in MULTISEED_METRICS:
+        values = np.asarray(
+            [float(record[metric]) for record in observed if record.get(metric) is not None and not pd.isna(record.get(metric))],
+            dtype=float,
+        )
+        rows.append(
+            {
+                "record_type": "summary",
+                "registry_id": registry_id,
+                "predeclared_run_id": str(run["predeclared_run_id"]),
+                "runner_type": str(run["runner_type"]),
+                "seed": np.nan,
+                "status": "complete" if len(observed_seeds) == len(seeds) else "partial",
+                "output_dir": "",
+                "run_id": "",
+                "threshold_selection_split": "validation" if metric == "threshold" and values.size else "",
+                "expected_seeds": ",".join(str(seed) for seed in seeds),
+                "observed_seeds": ",".join(str(seed) for seed in observed_seeds),
+                "missing_seeds": ",".join(str(seed) for seed in missing),
+                "n_observed_seeds": int(values.size),
+                "metric": metric,
+                "mean": float(np.mean(values)) if values.size else np.nan,
+                "std": float(np.std(values, ddof=1)) if values.size > 1 else 0.0 if values.size == 1 else np.nan,
+                "min": float(np.min(values)) if values.size else np.nan,
+                "max": float(np.max(values)) if values.size else np.nan,
+                "all_values": ",".join(f"{value:.12g}" for value in values),
+                **{name: np.nan for name in MULTISEED_METRICS},
+            }
+        )
+    return rows
+
+
+def _relative_path(path: Path) -> str:
+    try:
+        return path.resolve().relative_to(ROOT).as_posix()
+    except ValueError:
+        return path.as_posix()

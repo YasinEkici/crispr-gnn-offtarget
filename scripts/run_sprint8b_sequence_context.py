@@ -53,6 +53,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--max-epochs", type=int, default=None, help="Override max epochs for smoke/debug runs.")
     parser.add_argument("--run", action="append", default=None, help="Run only this predeclared run ID. May repeat.")
     parser.add_argument("--run-id", default=None, help="Batch ID recorded in manifest and per-run IDs.")
+    parser.add_argument("--seed", type=int, default=None, help="Override the top-level training seed.")
+    parser.add_argument("--output-dir", default=None, help="Override outputs.output_dir for isolated reruns.")
     return parser.parse_args()
 
 
@@ -63,6 +65,8 @@ def main() -> int:
         batch_id=args.run_id,
         max_epochs=args.max_epochs,
         selected_run_ids=args.run,
+        seed_override=args.seed,
+        output_dir_override=args.output_dir,
     )
     return 0
 
@@ -73,8 +77,13 @@ def run_sprint8b_sequence_context(
     batch_id: str | None = None,
     max_epochs: int | None = None,
     selected_run_ids: list[str] | None = None,
+    seed_override: int | None = None,
+    output_dir_override: str | Path | None = None,
 ) -> Path:
     config = load_yaml(config_path)
+    if seed_override is not None:
+        config = dict(config)
+        config["seed"] = int(seed_override)
     _validate_base_config(config)
     batch = batch_id or _batch_id(config)
     run_specs = _selected_run_specs(config, selected_run_ids)
@@ -84,7 +93,7 @@ def run_sprint8b_sequence_context(
     materialized = Sprint3HeteroDataLoader(graph_c_dir).load(GRAPH_C)
     _validate_graph_c_artifacts(materialized.manifest)
 
-    output_dir = ROOT / str(config.get("outputs", {}).get("output_dir", "outputs/sprint8b"))
+    output_dir = _resolve_output_dir(output_dir_override, config, default="outputs/sprint8b")
     diagnostics_dir = output_dir / "diagnostics"
     figures_dir = output_dir / "figures"
     runs_dir = output_dir / "runs"
@@ -1032,6 +1041,17 @@ def _relative(path: Path | None) -> str | None:
         return path.resolve().relative_to(ROOT).as_posix()
     except ValueError:
         return path.as_posix()
+
+
+def _resolve_output_dir(
+    output_dir_override: str | Path | None,
+    config: Mapping[str, Any],
+    *,
+    default: str,
+) -> Path:
+    configured = output_dir_override or config.get("outputs", {}).get("output_dir", default)
+    path = Path(configured)
+    return path if path.is_absolute() else ROOT / path
 
 
 if __name__ == "__main__":

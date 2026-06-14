@@ -473,6 +473,33 @@ Implement §5 paired bootstrap on common guide resamples for the §5.1 matrix
 Exit: `robustness_paired_differences.csv`,
 `paired_difference_distributions.png` written for all predeclared pairs.
 
+Done (2026-06-14): added `PAIRED_COMPARISONS` (P1–P8) + `paired_guide_bootstrap` to
+`robustness.py` (one shared guide draw applied to **both** models per replicate;
+each model uses its own frozen threshold; asserts identical guide sets + per-guide
+row counts; reports percentile-Δ CI, `interval_excludes_zero`, `prob_positive`,
+BCa-Δ sensitivity, undefined-Δ rate), `write_sprint9_paired_plots` to `plots.py`,
+and a `paired` runner stage. Ran B=5000, seed 12345.
+
+**Headline finding (Slice 6 will consolidate).** On **AUPRC (primary), NO comparison
+excludes zero** — every model difference is within guide-composition uncertainty:
+P1 `S8B_R2−S8A_R2` Δ=+0.003263 `[−0.0148, +0.0371]` (the headline Sprint 8B gain is
+**not robust**; P(Δ>0)=0.615); P2 +0.0011 `[−0.021, +0.027]`; P3 −0.0022
+`[−0.019, +0.001]`; even F4's AUPRC lead is not robustly distinguishable
+(P4 `S8B_R2−F4` `[−0.031, +0.001]`, P5 `[−0.058, +0.005]`, P6 `[−0.043, +0.008]`).
+On the **operating point**, P5 & P6 vs F4 **exclude zero** for MCC/specificity/
+macro-F1 (e.g. P5 MCC +0.213 `[+0.031, +0.493]`; P4 specificity +0.627
+`[+0.141, +0.827]`) — the GNNs robustly recover more rare negatives than F4 at their
+thresholds, but this is threshold-dependent + negative-class-fragile (guide `9251`)
+and per §11 **does not override the AUPRC ranking**. Licensed wording: AUPRC Δ-CIs
+include 0 → "compatible with no difference," never "equivalent."
+
+Validation: `uv run pytest tests/test_sprint9_robustness.py -q` (18 passed: A-vs-A ⇒
+all Δ=0 proves common resample; point Δ == replay difference incl. MCC → per-model
+thresholds read; guide-mismatch raises; undefined-Δ counted; output contract);
+ruff + `git diff --check` clean. Console prints are ASCII (cp1254 terminal). No
+DECISIONS/tech-debt change (method predeclared §5; the robust/inconclusive verdict
+is synthesised in Slice 6). Interpretation-only; no frozen artifact modified.
+
 ### Slice 5 — Multi-seed fixed-split retraining
 
 Add the `--seed` override + `configs/sweeps/sprint9_multiseed.yaml` + runner-only
@@ -481,6 +508,39 @@ Add the `--seed` override + `configs/sweeps/sprint9_multiseed.yaml` + runner-onl
 
 Exit: `robustness_model_seed_summary.csv` + `per_seed_metric_variance.png` report
 every seed (mean/std/min/max/all values); no best-seed selection.
+
+Done (2026-06-14): added `--seed` + `--output-dir` overrides to the three GNN
+runners (`run_sprint7f/8a/8b`) and `regenerate_f4_predictions.py`. The seed override
+threads to actual training (`config["seed"]` → `gcn_run_config_from_mapping` →
+`torch.manual_seed`/`np.random.seed`; sequence path identical); `--output-dir`
+isolates every run under `outputs/sprint9/multiseed/<prefix>/seed_<N>/` so frozen
+Sprint 7F/8A/8B outputs are never overwritten. Added `configs/sweeps/sprint9_multiseed.yaml`
+(predeclares S8A_R2/S8B_R2/S7F_R3/S7F_R2 on Colab GPU + XGB_F4 on CPU, seeds
+`{42,7,13,123,2024}`, no-best-seed `claim_boundary`), runner-only
+`colab/sprint9_multiseed_runner.ipynb` (mirrors the Sprint 8A/8B/7F bootstrap:
+checkout branch, `pip install uv`+`uv sync`+GPU check, stage `data/raw`+`data/processed`
+from Drive, build the Graph C S5F2 artifact, then loop manifest×seeds via the existing
+CLIs — resumable, skips seeds already present — validate the per-seed contract, rsync
+to Drive excluding `model.pt`),
+`collect_multiseed_results`/`load_multiseed_manifest` in `robustness.py`,
+`write_sprint9_multiseed_plot` in `plots.py`, and a `multiseed` consolidation stage
+in `run_sprint9_robustness.py`.
+
+**F4 multi-seed gate fix.** The F4 reproduction gate's vs-historical AUPRC check is
+now blocking **only for the canonical seed (42/unset)** — for fresh seeds there is no
+historical bar to reproduce and the AUPRC *is* the variance signal; geometry checks
+(1702 rows / 29 guides / 169 negatives) stay blocking for every seed. Without this,
+seeds 7 (Δ0.0033) and 2024 (Δ0.0044) exceeded the 2e-3 tolerance and were silently
+dropped. F4 CPU seeds run + consolidated: `test_auprc` mean 0.990649, std 0.001944,
+range [0.988110, 0.992557] (5/5 `complete`); the four GNN configs remain
+`missing_output` until the Colab GPU runs return (consolidation is partial-safe and
+selects no best seed).
+
+Validation: `uv run pytest tests/test_sprint9_robustness.py -q` (22 passed),
+`ruff check` clean, F4 gate verified both ways (seed 42 blocking-canonical passes;
+seed 7 non-blocking writes), consolidation end-to-end produces the F4 summary rows.
+GNN per-seed rows finalize after the Colab outputs return. Interpretation-only;
+no frozen artifact modified.
 
 ### Slice 6 — Consolidated robustness report & docs
 

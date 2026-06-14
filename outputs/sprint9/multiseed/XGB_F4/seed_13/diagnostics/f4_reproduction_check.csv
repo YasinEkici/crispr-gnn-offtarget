@@ -1,0 +1,11 @@
+check,expected,observed,abs_diff,atol,pass,blocking,xgboost_version,regenerated_threshold,note
+test_rows,1702.0,1702.0,0.0,0.0,True,True,3.2.0,0.48674657940864563,option_c_version_drift_accepted
+test_guides,29.0,29.0,0.0,0.0,True,True,3.2.0,0.48674657940864563,option_c_version_drift_accepted
+test_negatives,169.0,169.0,0.0,0.0,True,True,3.2.0,0.48674657940864563,option_c_version_drift_accepted
+test_auprc_sanity_vs_historical,0.992522,0.9910197140995478,0.001502285900452205,0.002,True,False,3.2.0,0.48674657940864563,option_c_version_drift_accepted
+test_auprc_strict_vs_historical,0.992522,0.9910197140995478,0.001502285900452205,0.0001,False,False,3.2.0,0.48674657940864563,option_c_version_drift_accepted
+regen_threshold_vs_historical,0.605734,0.48674657940864563,0.11898742059135436,1e-06,False,False,3.2.0,0.48674657940864563,option_c_version_drift_accepted
+test_tn_vs_historical,38.0,33.0,5.0,0.0,False,False,3.2.0,0.48674657940864563,option_c_version_drift_accepted
+test_fp_vs_historical,131.0,136.0,5.0,0.0,False,False,3.2.0,0.48674657940864563,option_c_version_drift_accepted
+test_fn_vs_historical,21.0,15.0,6.0,0.0,False,False,3.2.0,0.48674657940864563,option_c_version_drift_accepted
+test_tp_vs_historical,1512.0,1518.0,6.0,0.0,False,False,3.2.0,0.48674657940864563,option_c_version_drift_accepted

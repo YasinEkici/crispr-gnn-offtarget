@@ -1,0 +1,62 @@
+sprint: sprint9
+task: sprint9_multiseed_fixed_split
+description: >-
+  Predeclared Sprint 9 multi-seed fixed-split retraining matrix. This is a
+  robustness/sensitivity layer only: no architecture, split, label, threshold
+  protocol, feature, or hyperparameter is selected from test metrics.
+seeds: [42, 7, 13, 123, 2024]
+output_root: outputs/sprint9/multiseed
+claim_boundary: >-
+  Report every seed and descriptive spread only. Do not select a best seed and
+  do not treat seed spread as a generalization confidence interval.
+runs:
+  - registry_id: S8A_R2
+    predeclared_run_id: S8A_R2_context_edge_film
+    runner_type: sprint8a
+    device: colab_gpu
+    runner: scripts/run_sprint8a_target_context_interaction.py
+    config: configs/sweeps/sprint8a_target_context_interaction.yaml
+    run_arg: S8A_R2_context_edge_film
+    output_prefix: S8A_R2_context_edge_film
+    comparison_file: target_context_interaction_comparison.csv
+    rationale: Sprint 8A validation-selected FiLM candidate.
+  - registry_id: S8B_R2
+    predeclared_run_id: S8B_R2_sequence_plus_context
+    runner_type: sprint8b
+    device: colab_gpu
+    runner: scripts/run_sprint8b_sequence_context.py
+    config: configs/sweeps/sprint8b_sequence_context.yaml
+    run_arg: S8B_R2_sequence_plus_context
+    output_prefix: S8B_R2_sequence_plus_context
+    comparison_file: sequence_context_comparison.csv
+    rationale: Sprint 8B validation-selected sequence-plus-context candidate.
+  - registry_id: S7F_R3
+    predeclared_run_id: S7F_R3_family_aware_experimental_emphasis
+    runner_type: sprint7f
+    device: colab_gpu
+    runner: scripts/run_sprint7f_target_context_encoder.py
+    config: configs/sweeps/sprint7f_target_context_encoder.yaml
+    run_arg: S7F_R3_family_aware_experimental_emphasis
+    output_prefix: S7F_R3_family_aware_experimental_emphasis
+    comparison_file: target_context_encoder_comparison.csv
+    rationale: Strongest Sprint 7F carry-forward GNN reference.
+  - registry_id: S7F_R2
+    predeclared_run_id: S7F_R2_family_aware_context_encoder
+    runner_type: sprint7f
+    device: colab_gpu
+    runner: scripts/run_sprint7f_target_context_encoder.py
+    config: configs/sweeps/sprint7f_target_context_encoder.yaml
+    run_arg: S7F_R2_family_aware_context_encoder
+    output_prefix: S7F_R2_family_aware_context_encoder
+    comparison_file: target_context_encoder_comparison.csv
+    rationale: Rare-negative operating-point Sprint 7F reference.
+  - registry_id: XGB_F4
+    predeclared_run_id: XGB_F4
+    runner_type: xgb_f4
+    device: local_cpu
+    runner: scripts/regenerate_f4_predictions.py
+    config: configs/experiments/baseline_xgboost.yaml
+    run_arg: null
+    output_prefix: XGB_F4
+    comparison_file: diagnostics/f4_predictions.csv
+    rationale: Authoritative non-GNN F4 bar regenerated under the Sprint 2 contract.

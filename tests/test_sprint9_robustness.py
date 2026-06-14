@@ -11,6 +11,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import numpy as np
 import pandas as pd
 import pytest
 from sklearn.metrics import average_precision_score, confusion_matrix
@@ -20,16 +21,21 @@ from crispr_gnn.evaluation.robustness import (
     BOOTSTRAP_METRICS,
     GNN_REGISTRY,
     GUIDE_KEY,
+    MULTISEED_METRICS,
     _PRED_F4,
     F4_REGISTRY_ID,
+    PAIRED_COMPARISONS,
     ModelScores,
+    collect_multiseed_results,
     _guide_groups,
     guide_cluster_bootstrap,
     leave_one_guide_influence,
     load_f4_model_scores,
     load_full_registry,
+    load_multiseed_manifest,
     load_model_scores,
     load_registry,
+    paired_guide_bootstrap,
     replay_check_records,
     replay_split_metrics,
 )
@@ -217,3 +223,190 @@ def test_bootstrap_output_contract(tmp_path):
     ci = pd.read_csv(tmp_path / "robustness_bootstrap_cis.csv")
     assert ci["registry_id"].nunique() == 11
     assert set(ci["metric"]) == set(BOOTSTRAP_METRICS)
+
+
+# --- Slice 4: paired-difference bootstrap --------------------------------------
+
+
+def test_paired_uses_common_resample_identical_models_zero_delta():
+    # A model paired with itself: a single shared guide draw means both sides see the
+    # SAME guides every replicate, so every defined Δ is exactly 0. (Independent draws
+    # would produce non-zero Δ.) This is the common-resample guarantee.
+    result = paired_guide_bootstrap(_synthetic_scores(), _synthetic_scores(), n_boot=500, seed=12345)
+    for metric in BOOTSTRAP_METRICS:
+        assert result.point_delta[metric] == 0.0
+        samples = result.samples[metric]
+        if samples.size:
+            assert float(np.max(np.abs(samples))) == 0.0
+            assert result.percentile[metric] == (0.0, 0.0)
+            assert result.interval_excludes_zero[metric] is False
+
+
+def test_paired_point_delta_matches_replay_difference():
+    a = load_model_scores(_entry("S8B_R2"))
+    b = load_model_scores(_entry("S8A_R2"))
+    result = paired_guide_bootstrap(a, b, comparison_id="P1", n_boot=100, seed=12345)
+    ra = replay_split_metrics(a, "test")
+    rb = replay_split_metrics(b, "test")
+    # Threshold-free and thresholded point deltas both match the replay difference
+    # (MCC matching proves each model's own frozen threshold is used).
+    assert result.point_delta["auprc"] == pytest.approx(ra["test_auprc"] - rb["test_auprc"], abs=1e-9)
+    assert result.point_delta["mcc"] == pytest.approx(ra["test_mcc"] - rb["test_mcc"], abs=1e-9)
+    assert result.n_test_guides == 29
+
+
+def test_paired_guide_set_mismatch_raises():
+    a = _synthetic_scores()  # guides {1, 2}
+    rows = [{"split": "test", GUIDE_KEY: 1, "label": 1, "score": 0.9} for _ in range(10)]
+    rows += [{"split": "test", GUIDE_KEY: 3, "label": 0, "score": 0.2} for _ in range(10)]
+    b = ModelScores("SYN3", "SYN3", "run", "synthetic", 0.5, "validation", pd.DataFrame(rows))
+    with pytest.raises(ValueError, match="identical guide sets"):
+        paired_guide_bootstrap(a, b, n_boot=10, seed=1)
+
+
+def test_paired_undefined_delta_counted_not_crashed():
+    # Synthetic vs synthetic: specificity is undefined when the negative-bearing guide
+    # (2) is absent (~25% of replicates); counted, not crashed.
+    result = paired_guide_bootstrap(_synthetic_scores(), _synthetic_scores(), n_boot=4000, seed=12345)
+    assert result.undefined_delta_rate["auprc"] == 0.0
+    assert 0.18 < result.undefined_delta_rate["specificity"] < 0.32
+
+
+@f4_available
+def test_paired_output_contract(tmp_path):
+    import sys
+
+    sys.path.insert(0, str(ROOT / "scripts"))
+    import run_sprint9_robustness as runner
+
+    status = runner.run_paired_stage(tmp_path, n_boot=50, seed=12345, ci=0.95)
+    assert status == 0
+    assert (tmp_path / "robustness_paired_differences.csv").exists()
+    assert (tmp_path / "figures/paired_difference_distributions.png").exists()
+    paired = pd.read_csv(tmp_path / "robustness_paired_differences.csv")
+    assert set(paired["comparison_id"]) == {c[0] for c in PAIRED_COMPARISONS}
+    assert set(paired["metric"]) == set(BOOTSTRAP_METRICS)
+
+
+# --- Slice 5: multiseed fixed-split consolidation ------------------------------
+
+
+def test_multiseed_manifest_contract():
+    manifest = load_multiseed_manifest(ROOT / "configs/sweeps/sprint9_multiseed.yaml")
+    assert manifest["seeds"] == [42, 7, 13, 123, 2024]
+    assert manifest["output_root"] == "outputs/sprint9/multiseed"
+    assert {run["registry_id"] for run in manifest["runs"]} == {
+        "S8A_R2",
+        "S8B_R2",
+        "S7F_R3",
+        "S7F_R2",
+        "XGB_F4",
+    }
+    assert all(run["output_prefix"] for run in manifest["runs"])
+
+
+def _write_synthetic_multiseed_manifest(tmp_path: Path) -> Path:
+    manifest = tmp_path / "multiseed.yaml"
+    manifest.write_text(
+        "\n".join(
+            [
+                "sprint: sprint9",
+                "task: sprint9_multiseed_fixed_split",
+                "seeds: [1, 2]",
+                f"output_root: {str(tmp_path / 'multiseed').replace(chr(92), '/')}",
+                "runs:",
+                "  - registry_id: SYN",
+                "    predeclared_run_id: SYN_R1",
+                "    runner_type: sprint8a",
+                "    output_prefix: SYN_R1",
+                "    comparison_file: comparison.csv",
+            ]
+        ),
+        encoding="utf-8",
+    )
+    seed_dir = tmp_path / "multiseed/SYN_R1/seed_1"
+    seed_dir.mkdir(parents=True)
+    pd.DataFrame(
+        [
+            {
+                "run_id": "synthetic_seed_1",
+                "predeclared_run_id": "SYN_R1",
+                "val_auprc": 0.91,
+                "test_auprc": 0.92,
+                "test_auroc": 0.81,
+                "test_mcc": 0.4,
+                "test_specificity": 0.5,
+                "test_macro_f1": 0.6,
+                "test_tn": 5,
+                "test_fp": 5,
+                "test_fn": 2,
+                "test_tp": 88,
+                "threshold": 0.47,
+                "threshold_selection_split": "validation",
+            }
+        ]
+    ).to_csv(seed_dir / "comparison.csv", index=False)
+    return manifest
+
+
+def test_multiseed_consolidation_reports_observed_and_missing_seed(tmp_path):
+    manifest = _write_synthetic_multiseed_manifest(tmp_path)
+    table = collect_multiseed_results(manifest)
+    seed_rows = table[table["record_type"] == "seed"]
+    missing_rows = table[table["record_type"] == "missing_seed"]
+    summary = table[(table["record_type"] == "summary") & (table["metric"] == "test_auprc")].iloc[0]
+    assert len(seed_rows) == 1
+    assert len(missing_rows) == 1
+    assert int(seed_rows.iloc[0]["seed"]) == 1
+    assert int(missing_rows.iloc[0]["seed"]) == 2
+    assert summary["status"] == "partial"
+    assert summary["observed_seeds"] == "1"
+    assert summary["missing_seeds"] == "2"
+    assert float(summary["mean"]) == pytest.approx(0.92)
+    assert set(MULTISEED_METRICS).issubset(set(table.columns))
+
+
+def test_multiseed_output_contract_from_synthetic_inputs(tmp_path):
+    import sys
+
+    sys.path.insert(0, str(ROOT / "scripts"))
+    import run_sprint9_robustness as runner
+
+    manifest = _write_synthetic_multiseed_manifest(tmp_path)
+    status = runner.run_multiseed_stage(tmp_path / "out", manifest_path=manifest)
+    assert status == 0
+    assert (tmp_path / "out/robustness_model_seed_summary.csv").exists()
+    assert (tmp_path / "out/figures/per_seed_metric_variance.png").exists()
+
+
+def test_multiseed_runner_cli_overrides_are_available(monkeypatch):
+    import sys
+
+    sys.path.insert(0, str(ROOT / "scripts"))
+    import regenerate_f4_predictions
+    import run_sprint7f_target_context_encoder
+    import run_sprint8a_target_context_interaction
+    import run_sprint8b_sequence_context
+
+    for module in [
+        run_sprint7f_target_context_encoder,
+        run_sprint8a_target_context_interaction,
+        run_sprint8b_sequence_context,
+    ]:
+        monkeypatch.setattr(
+            sys,
+            "argv",
+            ["runner", "--run", "dummy", "--seed", "7", "--output-dir", "outputs/sprint9/multiseed/dummy/seed_7"],
+        )
+        args = module.parse_args()
+        assert args.seed == 7
+        assert args.output_dir == "outputs/sprint9/multiseed/dummy/seed_7"
+
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        ["runner", "--seed", "7", "--output-dir", "outputs/sprint9/multiseed/XGB_F4/seed_7"],
+    )
+    args = regenerate_f4_predictions.parse_args()
+    assert args.seed == 7
+    assert args.output_dir == "outputs/sprint9/multiseed/XGB_F4/seed_7"
