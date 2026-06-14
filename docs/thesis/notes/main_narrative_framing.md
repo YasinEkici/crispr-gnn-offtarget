@@ -61,3 +61,19 @@ The conclusion should embrace the two-axis result:
 
 - Ranking: competitive context-aware GNNs, but XGBoost F4 remains the robust primary-AUPRC bar.
 - Operating point: context-aware GNNs offer stronger rare-negative recognition under validation-locked thresholds.
+
+## Experiment Reporting Boundaries
+
+Each experimental result should be reported together with the contract that produced it: Scheme A labels, guide-disjoint split, measured-only headline universe, train-only preprocessing, validation-only checkpoint/threshold selection, and no test-driven tuning.
+
+Model comparisons should state the controlled variable explicitly. For example, Sprint 7 isolates architecture under the fixed Graph A + S5F2_energy + weighted-BCE setting, while Sprint 7D/7E/7F investigate Graph C context mechanisms and target-context encoding.
+
+Point estimates should not be phrased as stable superiority when Sprint 9 guide-level bootstrap or paired-delta intervals are wide or cross zero. This is especially important for AUPRC deltas.
+
+## Literature And Terminology Boundaries
+
+The literature review should synthesize papers around this thesis question rather than list paper summaries. The strongest axes are sequence/energy models, epigenetic or chromatin context models, imbalance-aware learning, and evaluation robustness.
+
+Methods inspired by prior papers should not be described as reproductions unless dataset, split, target, metric, and architecture match the original setup.
+
+Terminology should stay stable across the thesis: `sgRNA`, `candidate pair`, `target site`, `off-target`, `cleavage frequency`, `Graph A`, `Graph B`, `Graph C`, `S5F2_energy`, and `target-observation context`.
