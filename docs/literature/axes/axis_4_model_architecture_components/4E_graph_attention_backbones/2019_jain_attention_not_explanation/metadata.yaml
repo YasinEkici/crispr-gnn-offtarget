@@ -1,0 +1,15 @@
+title: "Attention is not Explanation"
+authors:
+- Sarthak Jain
+- Byron C. Wallace
+abstract: "This paper evaluates whether learned attention weights provide faithful explanations for neural model predictions. It argues that standard attention distributions can be weakly related to other feature-importance measures and should not automatically be treated as explanations."
+keywords:
+- attention
+- interpretability
+- explanation
+- model explanation
+- neural networks
+venue: "Proceedings of the 2019 Conference of the North American Chapter of the Association for Computational Linguistics: Human Language Technologies"
+year: 2019
+doi: "10.18653/v1/N19-1357"
+url: "https://aclanthology.org/N19-1357/"

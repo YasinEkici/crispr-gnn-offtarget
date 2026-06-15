@@ -1,0 +1,15 @@
+title: "XGBoost: A Scalable Tree Boosting System"
+authors:
+- Tianqi Chen
+- Carlos Guestrin
+abstract: "This paper introduces XGBoost as a scalable implementation of gradient tree boosting, with regularized objectives, sparsity-aware split finding, weighted quantile sketching, cache-aware computation, and distributed/out-of-core execution. In this project it supports the methodological citation for using XGBoost as the tabular boosted-tree baseline."
+keywords:
+- XGBoost
+- gradient boosting
+- tree boosting
+- tabular baseline
+- machine learning systems
+venue: "Proceedings of the 22nd ACM SIGKDD International Conference on Knowledge Discovery and Data Mining"
+year: 2016
+doi: "10.1145/2939672.2939785"
+url: "https://doi.org/10.1145/2939672.2939785"

@@ -1,5 +1,48 @@
 \documentclass{btu-thesis}
 \input{metadata.tex}
+\usetikzlibrary{arrows.meta,positioning,calc,fit,backgrounds,shapes.geometric,decorations.pathreplacing}
+
+\definecolor{BTUInk}{HTML}{1F2933}
+\definecolor{BTUBlue}{HTML}{1F4E79}
+\definecolor{BTUTeal}{HTML}{1B7F79}
+\definecolor{BTUOrange}{HTML}{B7651B}
+\definecolor{BTUGreen}{HTML}{4B7F2A}
+\definecolor{BTUGray}{HTML}{6B7280}
+
+\tikzset{
+  thesisBox/.style={
+    draw=BTUInk!55,
+    line width=0.45pt,
+    rounded corners=1.5pt,
+    fill=BTUBlue!7,
+    align=center,
+    font=\scriptsize\sffamily,
+    inner xsep=4pt,
+    inner ysep=3pt,
+    minimum height=8mm
+  },
+  thesisData/.style={thesisBox, fill=BTUTeal!9, draw=BTUTeal!70},
+  thesisFeature/.style={thesisBox, fill=BTUOrange!10, draw=BTUOrange!70},
+  thesisModel/.style={thesisBox, fill=BTUBlue!9, draw=BTUBlue!70},
+  thesisEval/.style={thesisBox, fill=BTUGreen!10, draw=BTUGreen!70},
+  thesisNote/.style={
+    draw=BTUGray!45,
+    line width=0.35pt,
+    rounded corners=1.5pt,
+    fill=BTUGray!6,
+    align=center,
+    font=\tiny\sffamily,
+    inner xsep=3pt,
+    inner ysep=2pt
+  },
+  thesisArrow/.style={-{Latex[length=2.2mm,width=1.5mm]}, line width=0.55pt, draw=BTUInk!75},
+  thesisSoftArrow/.style={-{Latex[length=2mm,width=1.3mm]}, line width=0.45pt, draw=BTUGray!75},
+  thesisDashedArrow/.style={thesisSoftArrow, dashed},
+  graphNode/.style={circle, draw=BTUBlue!75, fill=BTUBlue!9, line width=0.5pt, minimum size=8mm, align=center, font=\tiny\sffamily},
+  targetNode/.style={circle, draw=BTUGray!75, fill=BTUGray!10, line width=0.5pt, minimum size=8mm, align=center, font=\tiny\sffamily},
+  obsNode/.style={draw=BTUTeal!75, fill=BTUTeal!9, line width=0.5pt, rounded corners=1.5pt, minimum width=17mm, minimum height=8mm, align=center, font=\tiny\sffamily},
+  evidenceStep/.style={thesisBox, minimum width=28mm, minimum height=12mm}
+}
 
 \begin{document}
 
@@ -39,7 +82,7 @@ w & Açısal hız\\
 \BTUaddfigurelist
 
 \begin{BTUabstractTR}
-Türkçe özet 300 ile 500 kelime arasında olmalıdır. Özetlerde tezde ele alınan konu kısaca tanıtılır, kullanılan yöntemler ve ulaşılan sonuçlar belirtilir. Özetlerde kaynak, şekil ve çizelge verilmez. Bu paragraf yalnızca şablonun derlenebilmesi için bırakılmıştır; gerçek tez metni yazılırken bu alan kendi özetinle değiştirilmelidir.
+Türkçe özet 300 ile 500 kelime arasında olmalıdır. Özetlerde tezde ele alınan konu kısaca tanıtılır, kullanılan yöntemler ve ulaşılan sonuçlar belirtilir. Özetlerde kaynak, şekil ve çizelge verilmez. Bu paragraf şablonun derlenebilmesi için geçici olarak bırakılmıştır; gerçek tez metni yazılırken bu alan kendi özetinle değiştirilmelidir.
 \end{BTUabstractTR}
 
 \begin{BTUabstractEN}
@@ -52,9 +95,47 @@ The English summary must be between 300 and 500 words. It should briefly introdu
 \include{chapters/03_deneysel_calismalar}
 \include{chapters/04_sonuc_oneriler}
 
-\begin{BTUreferences}
-\item Ertas, M. \& Bayhan, B. (2016). Makale Başlığı, \textit{Dergi Adı}, 15(1), 110--126.
-\item Bayhan, B. (2010). Tez Başlığı. (Doktora tezi). Bursa Teknik Üniversitesi, Fen Bilimleri Enstitüsü, Bursa.
+\begin{BTUreferences}\sloppy
+\item Bengio, Y. \& Grandvalet, Y. (2004). No unbiased estimator of the variance of k-fold cross-validation. \textit{Journal of Machine Learning Research, 5}, 1089--1105.
+\item Bethard, S. (2022). We need to talk about random seeds. \textit{arXiv}. \url{https://arxiv.org/abs/2210.13393}
+\item Boyd, K., Eng, K. H. \& Page, C. D. (2013). Area under the precision-recall curve: Point estimates and confidence intervals. In H. Blockeel, K. Kersting, S. Nijssen \& F. Zelezny (Eds.), \textit{Machine learning and knowledge discovery in databases} (Lecture Notes in Computer Science, Vol. 8190, pp. 451--466). Springer. \url{https://doi.org/10.1007/978-3-642-40994-3_29}
+\item Brody, S., Alon, U. \& Yahav, E. (2022). How attentive are graph attention networks? \textit{International Conference on Learning Representations}. \url{https://openreview.net/forum?id=F72ximsx7C1}
+\item Brockschmidt, M. (2020). GNN-FiLM: Graph neural networks with feature-wise linear modulation. In H. Daumé III \& A. Singh (Eds.), \textit{Proceedings of the 37th International Conference on Machine Learning} (Proceedings of Machine Learning Research, Vol. 119, pp. 1144--1152). PMLR. \url{https://proceedings.mlr.press/v119/brockschmidt20a.html}
+\item Chen, T. \& Guestrin, C. (2016). XGBoost: A scalable tree boosting system. In \textit{Proceedings of the 22nd ACM SIGKDD International Conference on Knowledge Discovery and Data Mining} (pp. 785--794). Association for Computing Machinery. \url{https://doi.org/10.1145/2939672.2939785}
+\item Chuai, G., Ma, H., Yan, J., Chen, M., Hong, N., Xue, D., Zhou, C., Zhu, C., Chen, K., Duan, B., Gu, F., Qu, S., Huang, D., Wei, J. \& Liu, Q. (2018). DeepCRISPR: Optimized CRISPR guide RNA design by deep learning. \textit{Genome Biology, 19}(1), 80. \url{https://doi.org/10.1186/s13059-018-1459-4}
+\item Cong, L., Ran, F. A., Cox, D., Lin, S., Barretto, R., Habib, N., Hsu, P. D., Wu, X., Jiang, W., Marraffini, L. A. \& Zhang, F. (2013). Multiplex genome engineering using CRISPR/Cas systems. \textit{Science, 339}(6121), 819--823. \url{https://doi.org/10.1126/science.1231143}
+\item Cui, Y., Jia, M., Lin, T.-Y., Song, Y. \& Belongie, S. (2019). Class-balanced loss based on effective number of samples. In \textit{Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition} (pp. 9260--9269). \url{https://doi.org/10.1109/CVPR.2019.00949}
+\item Davis, J. \& Goadrich, M. (2006). The relationship between precision-recall and ROC curves. In \textit{Proceedings of the 23rd International Conference on Machine Learning} (pp. 233--240). \url{https://doi.org/10.1145/1143844.1143874}
+\item Field, C. A. \& Welsh, A. H. (2007). Bootstrapping clustered data. \textit{Journal of the Royal Statistical Society: Series B (Statistical Methodology), 69}(3), 369--390. \url{https://doi.org/10.1111/j.1467-9868.2007.00593.x}
+\item Gao, Y., Chuai, G., Yu, W., Qu, S. \& Liu, Q. (2020). Data imbalance in CRISPR off-target prediction. \textit{Briefings in Bioinformatics, 21}(4), 1448--1454. \url{https://doi.org/10.1093/bib/bbz069}
+\item Guan, Z. \& Jiang, Z. (2024). A systematic method for solving data imbalance in CRISPR off-target prediction tasks. \textit{Computers in Biology and Medicine, 178}, 108781. \url{https://doi.org/10.1016/j.compbiomed.2024.108781}
+\item Horlbeck, M. A., Witkowsky, L. B., Guglielmi, B., Replogle, J. M., Gilbert, L. A., Villalta, J. E., Torigoe, S. E., Tjian, R. \& Weissman, J. S. (2016). Nucleosomes impede Cas9 access to DNA in vivo and in vitro. \textit{eLife, 5}, e12677. \url{https://doi.org/10.7554/eLife.12677}
+\item Hsu, P. D., Scott, D. A., Weinstein, J. A., Ran, F. A., Konermann, S., Agarwala, V., Li, Y., Fine, E. J., Wu, X., Shalem, O. \& Zhang, F. (2013). DNA targeting specificity of RNA-guided Cas9 nucleases. \textit{Nature Biotechnology, 31}(9), 827--832. \url{https://doi.org/10.1038/nbt.2647}
+\item Hu, J., Shen, L., Albanie, S., Sun, G. \& Wu, E. (2018). Squeeze-and-excitation networks. In \textit{Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition} (pp. 7132--7141). \url{https://doi.org/10.1109/CVPR.2018.00745}
+\item Isaac, R. S., Jiang, F., Doudna, J. A., Lim, W. A., Narlikar, G. J. \& Almeida, R. (2016). Nucleosome breathing and remodeling constrain CRISPR-Cas9 function. \textit{eLife, 5}, e13450. \url{https://doi.org/10.7554/eLife.13450}
+\item Jain, S. \& Wallace, B. C. (2019). Attention is not explanation. In \textit{Proceedings of the 2019 Conference of the North American Chapter of the Association for Computational Linguistics: Human Language Technologies, Volume 1} (pp. 3543--3556). Association for Computational Linguistics. \url{https://doi.org/10.18653/v1/N19-1357}
+\item Jinek, M., Chylinski, K., Fonfara, I., Hauer, M., Doudna, J. A. \& Charpentier, E. (2012). A programmable dual-RNA-guided DNA endonuclease in adaptive bacterial immunity. \textit{Science, 337}(6096), 816--821. \url{https://doi.org/10.1126/science.1225829}
+\item Kapoor, S. \& Narayanan, A. (2023). Leakage and the reproducibility crisis in machine-learning-based science. \textit{Patterns, 4}(9), 100804. \url{https://doi.org/10.1016/j.patter.2023.100804}
+\item Kipf, T. N. \& Welling, M. (2017). Semi-supervised classification with graph convolutional networks. \textit{International Conference on Learning Representations}. \url{https://openreview.net/forum?id=SJU4ayYgl}
+\item Lin, T.-Y., Goyal, P., Girshick, R., He, K. \& Dollár, P. (2017). Focal loss for dense object detection. In \textit{Proceedings of the IEEE International Conference on Computer Vision} (pp. 2999--3007). \url{https://doi.org/10.1109/ICCV.2017.324}
+\item Lin, J., Zhang, Z., Zhang, S., Chen, J. \& Wong, K.-C. (2020). CRISPR-Net: A recurrent convolutional network quantifies CRISPR off-target activities with mismatches and indels. \textit{Advanced Science, 7}(13), 1903562. \url{https://doi.org/10.1002/advs.201903562}
+\item Liu, Q., Cheng, X., Liu, G., Li, B. \& Liu, X. (2020). Deep learning improves the ability of sgRNA off-target propensity prediction. \textit{BMC Bioinformatics, 21}, 51. \url{https://doi.org/10.1186/s12859-020-3395-z}
+\item Luo, Y., Chen, Y., Xie, H., Zhu, W. \& Zhang, G. (2024). Interpretable CRISPR/Cas9 off-target activities with mismatches and indels prediction using BERT. \textit{Computers in Biology and Medicine, 169}, 107932. \url{https://doi.org/10.1016/j.compbiomed.2024.107932}
+\item Mak, J. K., Störtz, F. \& Minary, P. (2022). Comprehensive computational analysis of epigenetic descriptors affecting CRISPR-Cas9 off-target activity. \textit{BMC Genomics, 23}, 805. \url{https://doi.org/10.1186/s12864-022-09012-7}
+\item Perez, E., Strub, F., de Vries, H., Dumoulin, V. \& Courville, A. (2018). FiLM: Visual reasoning with a general conditioning layer. \textit{Proceedings of the AAAI Conference on Artificial Intelligence, 32}(1). \url{https://doi.org/10.1609/aaai.v32i1.11671}
+\item Saito, T. \& Rehmsmeier, M. (2015). The precision-recall plot is more informative than the ROC plot when evaluating binary classifiers on imbalanced datasets. \textit{PLOS ONE, 10}(3), e0118432. \url{https://doi.org/10.1371/journal.pone.0118432}
+\item Schenker, N. \& Gentleman, J. F. (2001). On judging the significance of differences by examining the overlap between confidence intervals. \textit{The American Statistician, 55}(3), 182--186. \url{https://doi.org/10.1198/000313001317097960}
+\item Serrano, S. \& Smith, N. A. (2019). Is attention interpretable? In \textit{Proceedings of the 57th Annual Meeting of the Association for Computational Linguistics} (pp. 2931--2951). Association for Computational Linguistics. \url{https://doi.org/10.18653/v1/P19-1282}
+\item Störtz, F., Mak, J. K. \& Minary, P. (2023). piCRISPR: Physically informed deep learning models for CRISPR/Cas9 off-target cleavage prediction. \textit{Artificial Intelligence in the Life Sciences, 3}, 100075. \url{https://doi.org/10.1016/j.ailsci.2023.100075}
+\item Störtz, F. \& Minary, P. (2021). crisprSQL: A novel database platform for CRISPR/Cas off-target cleavage assays. \textit{Nucleic Acids Research, 49}(D1), D855--D861. \url{https://doi.org/10.1093/nar/gkaa885}
+\item Sudre, C. H., Li, W., Vercauteren, T., Ourselin, S. \& Cardoso, M. J. (2017). Generalised Dice overlap as a deep learning loss function for highly unbalanced segmentations. In \textit{Deep learning in medical image analysis and multimodal learning for clinical decision support} (Lecture Notes in Computer Science, Vol. 10553, pp. 240--248). Springer. \url{https://doi.org/10.1007/978-3-319-67558-9_28}
+\item Sun, J., Guo, J. \& Liu, J. (2024). CRISPR-M: Predicting sgRNA off-target effect using a multi-view deep learning network. \textit{PLOS Computational Biology, 20}(3), e1011972. \url{https://doi.org/10.1371/journal.pcbi.1011972}
+\item Verkuijl, S. A. N. \& Rots, M. G. (2019). The influence of eukaryotic chromatin state on CRISPR-Cas9 editing efficiencies. \textit{Current Opinion in Biotechnology, 55}, 68--73. \url{https://doi.org/10.1016/j.copbio.2018.07.005}
+\item Veličković, P., Cucurull, G., Casanova, A., Romero, A., Liò, P. \& Bengio, Y. (2018). Graph attention networks. \textit{International Conference on Learning Representations}. \url{https://openreview.net/forum?id=rJXMpikCZ}
+\item Vinodkumar, P. K., Ozcinar, C. \& Anbarjafari, G. (2021). Prediction of sgRNA off-target activity in CRISPR/Cas9 gene editing using graph convolution network. \textit{Entropy, 23}(5), 608. \url{https://doi.org/10.3390/e23050608}
+\item Williams, C. K. I. (2021). The effect of class imbalance on precision-recall curves. \textit{Neural Computation, 33}(4), 853--857. \url{https://doi.org/10.1162/neco_a_01362}
+\item Wu, X., Scott, D. A., Kriz, A. J., Chiu, A. C., Hsu, P. D., Dadon, D. B., Cheng, A. W., Trevino, A. E., Konermann, S., Tsai, S. Q., Delebecque, N. J., Niemi, D. M., Long, C., Jaenisch, R., Zhang, F. \& Sharp, P. A. (2014). Genome-wide binding of the CRISPR endonuclease Cas9 in mammalian cells. \textit{Nature Biotechnology, 32}(7), 670--676. \url{https://doi.org/10.1038/nbt.2889}
+\item Yarrington, R. M., Verma, S., Schwartz, S., Trautman, J. K. \& Carroll, D. (2018). Nucleosomes inhibit target cleavage by CRISPR-Cas9 in vivo. \textit{Proceedings of the National Academy of Sciences, 115}(38), 9351--9358. \url{https://doi.org/10.1073/pnas.1810062115}
 \end{BTUreferences}
 
 \BTUappendices

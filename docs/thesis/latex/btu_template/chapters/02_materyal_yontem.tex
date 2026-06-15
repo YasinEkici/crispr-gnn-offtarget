@@ -1,35 +1,369 @@
 \chapter{MATERYAL VE YÖNTEM}
+\label{chap:materyal-yontem}
 
-Şekil ve çizelgeler metinde ilk kez anıldıktan sonra uygun en yakın yere yerleştirilmelidir. Örnek olarak Şekil~\ref{fig:ornek-sekil} ve Çizelge~\ref{tab:ornek-cizelge} verilmiştir.
+Bu bölümde veri kaynağı, etiketleme politikası, özellik temsilleri, çizge şemaları, model aileleri ve değerlendirme protokolü tanımlanmıştır. Bölümün amacı model sonuçlarını yorumlamak değil, Bölüm~3'te verilecek deneysel sonuçların hangi kontrollü koşullar altında üretildiğini açık hale getirmektir. Bu nedenle performans değerleri burada sonuç iddiası olarak sunulmamış; veri evreni, özellik kapsamı ve değerlendirme sözleşmesi gibi yöntemsel unsurlarla sınırlı tutulmuştur. Şekil~\ref{fig:method-pipeline}, bu yöntemsel sözleşmenin veri kaynağından sağlamlık analizine kadar izlediği uçtan uca hattı göstermektedir.
 
 \begin{figure}[htbp]
 \centering
-\fbox{\rule{0pt}{3cm}\rule{6cm}{0pt}}
-\caption{Tek satır olması durumunda ortalı olacak.}
-\label{fig:ornek-sekil}
+\resizebox{\textwidth}{!}{%
+\begin{tikzpicture}[x=1cm,y=1cm,
+  protocol/.style={draw=BTUGray!55, dashed, rounded corners=3pt, line width=0.45pt},
+  bandTitle/.style={font=\scriptsize\bfseries\sffamily, align=center, text=BTUInk},
+  dataBox/.style={draw=BTUTeal!75, fill=BTUTeal!7, rounded corners=2pt, line width=0.55pt, minimum width=21mm, minimum height=10mm, font=\scriptsize\sffamily, align=center},
+  tensorBox/.style={draw=BTUOrange!75, fill=BTUOrange!7, rounded corners=1.5pt, line width=0.5pt, minimum width=22mm, minimum height=8mm, font=\scriptsize\sffamily, align=center},
+  modelBox/.style={draw=BTUBlue!75, fill=BTUBlue!7, rounded corners=2pt, line width=0.55pt, minimum width=24mm, minimum height=8mm, font=\scriptsize\sffamily, align=center},
+  metricBox/.style={draw=BTUGreen!75, fill=BTUGreen!8, rounded corners=2pt, line width=0.55pt, minimum width=22mm, minimum height=8mm, font=\scriptsize\sffamily, align=center},
+  smallNote/.style={font=\tiny\sffamily, text=BTUGray!90, align=center}
+]
+\node[dataBox, minimum width=22mm] (D0) at (0,0) {\(\mathcal{D}_0\)\\\(310142\times45\)};
+\node[dataBox, minimum width=22mm] (Dm) at (2.45,0) {\(\mathcal{D}_m\)\\\(\texttt{measured}=1\)};
+\node[tensorBox, minimum width=29mm] (y) at (5.10,0) {\(y=\mathbf{1}[f_c>10^{-5}]\)};
+\node[tensorBox, minimum width=29mm] (split) at (7.95,0) {\(\mathcal{G}_{tr}\cap\mathcal{G}_{te}=\varnothing\)};
+
+\node[tensorBox] (XF) at (2.35,-2.0) {\(X^{F1:F4}\)\\tabular ladder};
+\node[tensorBox] (XS) at (5.15,-2.0) {\(S_{g,t}\)\\sequence pair};
+\node[tensorBox] (XG) at (7.95,-2.0) {\(\mathcal{G}_{A/B/C}\)\\node/edge tensors};
+
+\node[modelBox] (mxgb) at (2.35,-3.95) {\(f_{\mathrm{xgb}}\)};
+\node[modelBox] (mseq) at (5.15,-3.95) {\(f_{\mathrm{cnn/blstm}}\)};
+\node[modelBox] (mgnn) at (7.95,-3.95) {\(f_{\mathrm{gcn/gat/gatv2}}\)};
+\node[modelBox, minimum width=20mm] (score) at (10.55,-3.95) {\(\hat{p}_{ij}\)};
+
+\node[metricBox] (auprc) at (12.85,-2.8) {AUPRC\\primary};
+\node[metricBox] (op) at (12.85,-4.0) {MCC/spec.\\threshold};
+\node[metricBox] (boot) at (12.85,-5.2) {guide\\bootstrap};
+
+\draw[thesisArrow] (D0) -- (Dm);
+\draw[thesisArrow] (Dm) -- (y);
+\draw[thesisArrow] (y) -- (split);
+\draw[thesisArrow] (split.south) -- ++(0,-0.65) -| (XF.north);
+\draw[thesisArrow] (split.south) -- ++(0,-0.65) -| (XS.north);
+\draw[thesisArrow] (split.south) -- ++(0,-0.65) -| (XG.north);
+\draw[thesisArrow] (XF) -- (mxgb);
+\draw[thesisArrow] (XS) -- (mseq);
+\draw[thesisArrow] (XG) -- (mgnn);
+\draw[thesisArrow] (mxgb) -- (mseq);
+\draw[thesisArrow] (mseq) -- (mgnn);
+\draw[thesisArrow] (mgnn) -- (score);
+\draw[thesisArrow] (score.east) -- ++(0.55,0) |- (auprc.west);
+\draw[thesisArrow] (score.east) -- ++(0.55,0) -- (op.west);
+\draw[thesisArrow] (score.east) -- ++(0.55,0) |- (boot.west);
+
+\node[smallNote] at (3.95,0.95) {training-fit preprocessing; held-out labels unavailable to model selection};
+\node[smallNote] at (5.15,-2.75) {three aligned representation views under one split contract};
+\node[smallNote] at (7.95,-4.75) {Graph C variants add target-observation context encoders};
+
+\begin{scope}[on background layer]
+\draw[protocol, fill=BTUGray!3] (-0.65,-0.75) rectangle (9.05,1.2);
+\draw[protocol, fill=BTUOrange!3] (1.25,-2.85) rectangle (8.95,-1.25);
+\draw[protocol, fill=BTUBlue!3] (1.25,-5.05) rectangle (11.35,-3.25);
+\draw[protocol, fill=BTUGreen!3] (11.75,-5.75) rectangle (13.95,-2.25);
+\node[bandTitle] at (4.20,1.42) {Data and leakage contract};
+\node[bandTitle] at (5.15,-1.02) {Representation views};
+\node[bandTitle] at (6.55,-3.02) {Model families};
+\node[bandTitle] at (12.85,-2.02) {Evaluation};
+\end{scope}
+\end{tikzpicture}%
+}
+\caption{Tezde kullanılan veri, temsil, model ve değerlendirme hattı}
+\label{fig:method-pipeline}
+\end{figure}
+
+\section{Veri Seti ve Çalışma Evreni}
+
+Çalışmada Mak ve diğ. (2022) tarafından crisprSQL veri çizgisi üzerinden derlenen epigenetik ve nükleozom açıklamalı CRISPR-Cas9 hedef dışı veri seti kullanılmıştır. crisprSQL, farklı CRISPR/Cas hedef dışı kesim deneylerini yapılandırılmış bir veritabanı çatısı altında toplamaktadır (Störtz ve Minary, 2021). Bu tezde kullanılan yerel veri dosyası, özgün dağıtım bağlantısının erişilememesi nedeniyle aynı kaynağın arşivlenmiş kopyasından elde edilen \texttt{260520\_putative\_nucleosomal.parquet} dosyasıdır. Veri kaynağı yeniden etiketlenmemiş, ana çalışma evreni veri denetiminde doğrulanan kolonlar ve ölçüm bayrakları üzerinden kurulmuştur.
+
+Veri setinde 310142 satır ve 45 kolon bulunmaktadır. Bunların 25632 satırı deneysel olarak ölçülmüş \texttt{measured=1} gözlemlerden, 284510 satırı ise putative \texttt{measured=0} adaylardan oluşmaktadır. Toplam 154 farklı sgRNA ve 138747 farklı hedef lokasyonu doğrulanmıştır. Veri beş genom adlandırması içerir: \texttt{hg19}, \texttt{hg38}, \texttt{mm10}, \texttt{mm9} ve \texttt{rn5}. Ana değerlendirme, deneysel doğruluğu korunmuş bir yorum yapılabilmesi için measured-only validation ve test evreniyle sınırlandırılmıştır. \texttt{measured=0} satırları doğrulanmış negatif ground-truth olarak ele alınmamıştır.
+
+Çizelge~\ref{tab:veri-evreni} veri kaynağının tezde kullanılan temel bileşimini özetlemektedir.
+
+\begin{table}[htbp]
+\caption{Veri kaynağının yöntemsel bileşimi.}
+\label{tab:veri-evreni}
+\centering
+\small
+\begin{tabularx}{\textwidth}{l r X}
+\toprule\toprule
+Bileşen & Değer & Yöntemsel karşılığı\\
+\midrule
+Toplam satır & 310142 & Denetlenmiş ham aday evreni.\\
+Toplam kolon & 45 & Ham veri şeması.\\
+\texttt{measured=1} satır & 25632 & Ana supervised değerlendirme için deneysel ölçülmüş evren.\\
+\texttt{measured=0} satır & 284510 & Putative aday satırlar; validation/test ground-truth olarak kullanılmamıştır.\\
+Benzersiz sgRNA & 154 & Guide-disjoint ayrımın grup birimi.\\
+Benzersiz hedef lokasyonu & 138747 & Fiziksel hedef düğümü tanımı için genom-koordinat evreni.\\
+Eksik \texttt{cell\_line} & 14108 & \texttt{experiment\_id=18} altında yoğunlaştığı için ana değerlendirme dışında bırakılmıştır.\\
+Ana test evreni & 1702 & 29 rehber, 1533 pozitif ve 169 negatif ölçülmüş satır; pozitif prevalans 0.900705.\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+Veri seti üç ana biyolojik ve hesaplamalı özellik ailesi taşımaktadır. İlk aile CTCF, DNase, RRBS, H3K4me3, DRIP ve MNase kolonlarından oluşan altı deneysel epigenetik skaler özelliktir. İkinci aile, 23 pozisyonlu diziler biçiminde saklanan 13 hesaplanmış nükleozom özelliğidir. Üçüncü aile, beş bağlanma enerjisi özelliğinden oluşur. Hesaplanmış nükleozom kolonlarında eksiklik görülen satırlar doğrudan atılmamış; özellik setine göre eğitim verisine dayalı imputasyon ve missingness göstergeleri kullanılmıştır.
+
+\section{Etiketleme Politikası}
+
+Ana tahmin hedefi ikili hedef dışı aktivite sınıflandırmasıdır. Denetlenmiş etiket, ham kesim frekansı kolonundan Denklem~\ref{eq:scheme-a} ile üretilmiştir. Bu eşik, Mak ve diğ. (2022) çalışmasındaki assay accuracy sınırıyla uyumlu bir negatif-aktivite ayrımı sağladığı için ana ikili şema olarak seçilmiştir.
+
+\begin{equation}
+y =
+\begin{cases}
+1, & \texttt{cleavage\_freq} > 10^{-5},\\
+0, & \texttt{cleavage\_freq} \leq 10^{-5}.
+\end{cases}
+\label{eq:scheme-a}
+\end{equation}
+
+\texttt{cleavage\_freq} değeri NaN olan 78 satır supervised etiket üretiminden çıkarılmıştır. Negatif \texttt{cleavage\_freq} değerleri ikili eşik açısından negatif sınıfta bırakılmış, ancak ham veri kalitesi açısından not edilmiştir. \texttt{cleavage\_freq > 1} değerleri ikili sınıflandırmada pozitif olarak korunmuş ve kırpılmamıştır. Bu kararlar, ham ölçümlerin keyfi biçimde yeniden ölçeklenmesini engellemek ve Mak ve diğ. (2022) çizgisindeki eşik yorumunu korumak için uygulanmıştır.
+
+Bu tez Mak ve diğ. (2022) çalışmasının birebir reprodüksiyonu olarak tasarlanmamıştır. Mak çalışmasında continuous activity dönüşümü, korelasyon analizi ve SHAP tabanlı özellik yorumu öne çıkarken, bu tezde \texttt{cleavage\_freq > 1e-5} temelli ikili sınıflandırma, guide-disjoint değerlendirme ve AUPRC birincil metriği kullanılmıştır. Bu nedenle sonuçlar Mak çalışmasının metrikleriyle doğrudan karşılaştırılmamıştır.
+
+\section{Veri Ayrımı ve Leakage Kontrolleri}
+
+Ana veri ayrımı rehber RNA düzeyinde ayrık olacak şekilde kurulmuştur. Aynı rehbere ait satırların eğitim, validation ve test kümeleri arasında bölünmemesi sağlanmıştır. Satır düzeyinde rastgele ayrımın rehber kimliği üzerinden bilgi sızıntısı oluşturabilmesi nedeniyle bu tercih zorunlu görülmüştür. Makine öğrenmesi tabanlı bilimsel çalışmalarda veri sızıntısının model başarısını olduğundan yüksek gösterebildiği bilindiğinden, model seçimi ve ön işleme adımlarında test bilgisinin kullanılmaması temel protokol kuralı olarak uygulanmıştır (Kapoor ve Narayanan, 2023).
+
+Ana test evreni 1702 measured-only satırdan oluşmaktadır. Bu evrende 29 rehber, 1533 pozitif ve 169 negatif örnek bulunmaktadır; pozitif prevalans 0.900705'tir. Bu değer, precision--recall eğrisi için no-skill baseline olarak yorumlanmıştır. Test evreninin pozitif ağırlıklı olması nedeniyle nadir sınıf bu tezde negatiftir. Bu durum, specificity, MCC, macro-F1 ve karışıklık matrisi yorumlarını özellikle önemli hale getirmiştir.
+
+Tüm preprocessing istatistikleri eğitim verisinden öğrenilmiştir. Ölçekleme, imputasyon, missingness göstergeleri ve feature encoder adımları validation veya test verisine bakılarak uyarlanmamıştır. Model checkpoint seçimi validation AUPRC ile, karar eşiği seçimi ise validation üzerinde belirlenen eşik politikasıyla yapılmıştır. Test seti üzerinde threshold, hyperparameter veya model seçimi yapılmamıştır.
+
+Çizge modellerinde strict-inductive görünürlük kuralı uygulanmıştır. Eğitim grafiğinde eğitim aday bağlantıları ve eğitim gözlemlerinden türetilen yardımcı bağlantılar kullanılmıştır. Validation ve test düğümleri için benzerlik bağlantıları kurulurken held-out etiketleri veya held-out-hedef gözlem istatistikleri topoloji üretiminde kullanılmamıştır. Graph C şemasında validation/test target-observation düğümlerinin context bağlantıları, eğitim gözlemlerinden öğrenilmiş ön işleme uzayı üzerinden kurulmuştur.
+
+\section{Özellik Temsilleri}
+
+Özellik mühendisliği iki ana hatta ayrılmıştır: tabular baseline özellikleri ve çizge modellerinde düğüm/kenar özellikleri. Tabular hatta F1--F4 feature ladder kullanılmıştır. Bu ladder, sequence/mismatch temsili üzerine enerji, deneysel epigenetik ve hesaplanmış nükleozom özelliklerinin kademeli olarak eklenmesini sağlar. Böylece bağlam özelliklerinin tabular modellerdeki katkısı, aynı satır evreni ve aynı split altında ayrıştırılabilir.
+
+Çizge hattında aday sgRNA--hedef bağlantısı için sequence/mismatch ve enerji temelli kenar özellikleri kullanılmıştır. Graph C şemasında ayrıca target-observation düğümü üzerinde hedef dizisi one-hot temsili, deneysel epigenetik skalerler, hesaplanmış nükleozom özetleri ve missingness göstergeleri taşınmıştır. Bu ayrım önemlidir: Graph A'da context bilgisi ağırlıklı olarak candidate edge üzerinde yer alırken, Graph C'de hedef gözleminin kendisi context taşıyan ayrı bir düğüm olarak temsil edilmiştir.
+
+Çizelge~\ref{tab:feature-sets} ana özellik setlerini ve yöntemsel rollerini göstermektedir.
+
+\begin{table}[htbp]
+\caption{Özellik setleri ve yöntemsel rolleri.}
+\label{tab:feature-sets}
+\centering
+\small
+\begin{tabularx}{\textwidth}{l r X}
+\toprule\toprule
+Set & Boyut & İçerik ve rol\\
+\midrule
+F1 & 33 & Sequence ve mismatch tabanlı engineered numeric özellikler; tabular başlangıç noktası.\\
+F2 & 38 & F1'e beş bağlanma enerjisi özelliğinin eklenmiş hali.\\
+F3 & 44 & F2'ye altı deneysel epigenetik skaler özelliğin eklenmiş hali.\\
+F4 & 135 & F3'e hesaplanmış nükleozom özetleri ve missingness göstergelerinin eklenmiş hali; ana non-GNN karşılaştırma referansı olarak kullanılmıştır.\\
+S1 & -- & Guide ve target dizilerinden üretilen 23 pozisyonlu one-hot/mismatch sequence temsili; sequence-only neural baseline için kullanılmıştır.\\
+S5F2 & 268 & Çizge candidate edge üzerinde sequence/mismatch ve enerji bilgisini taşıyan kenar feature seti.\\
+Graph C target-observation & 212 & 115 hedef dizisi one-hot, 6 deneysel epigenetik, 78 hesaplanmış nükleozom özeti ve 13 missingness göstergesi.\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+Tabular feature setlerinde guide ID, experiment ID, hedef koordinatı, genom etiketi ve cell-line etiketi doğrudan predictive feature olarak kullanılmamıştır. Bu tercih, modelin satır kimliği veya veri kaynağı işaretleri üzerinden kolay kestirim yapmasını sınırlamak için uygulanmıştır. Buna karşılık epigenetik ve nükleozom ölçümleri biyolojik bağlamı temsil eden doğrudan feature aileleri olarak korunmuştur.
+
+\section{Çizge Şemaları}
+
+Çizge temsili üç şema üzerinden kurulmuştur. Graph A, sgRNA düğümleri ile fiziksel hedef lokasyonu düğümlerini candidate-pair kenarlarıyla bağlayan minimal şemadır. Bu şemada hedef düğümü, genom ve koordinat düzeyinde fiziksel lokasyonu temsil eder; satıra özgü context bilgisi temel olarak aday kenar özelliklerinde taşınır.
+
+Graph B, Graph A üzerine rehber dizisi benzerliği kenarlarının eklendiği sınırlı bir kontrol şemasıdır. Bu şema, rehberler arası label-free sequence similarity bilgisinin modele eklenmesinin sonuçları ne ölçüde değiştirdiğini incelemek için kullanılmıştır. Graph B, epigenetik bağlamı hedef gözlem düzeyinde temsil eden ana şema değildir.
+
+Graph C, her veri satırını ayrı bir target-observation düğümü olarak temsil eder. Bu tasarım, aynı fiziksel hedef lokasyonunun farklı deneysel veya epigenetik bağlamlarda farklı gözlemler taşıyabilmesini model içine yansıtır. Graph C'de context-similarity kenarları target-observation düğümleri arasında kurulabilir; ancak bu şemanın asıl farkı, context bilgisinin shared physical target düğümüne sıkıştırılmaması ve doğrudan gözlem düzeyinde taşınmasıdır.
+
+Şekil~\ref{fig:graph-schema-semantics}, Graph A/B/C arasındaki farkı düğüm semantiği ve context yerleşimi üzerinden göstermektedir. Çizelge~\ref{tab:graph-schemas} ise aynı farkları yöntemsel yorum sınırıyla birlikte özetlemektedir.
+
+\begin{figure}[htbp]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tikzpicture}[x=1cm,y=1cm,
+  panelFrame/.style={draw=BTUGray!45, dashed, rounded corners=3pt, line width=0.45pt},
+  panelHead/.style={font=\scriptsize\bfseries\sffamily, align=center, text=BTUInk},
+  miniGuide/.style={circle, draw=BTUBlue!75, fill=BTUBlue!6, line width=0.55pt, minimum size=10mm, font=\scriptsize\sffamily},
+  miniTarget/.style={circle, draw=BTUGray!75, fill=BTUGray!8, line width=0.55pt, minimum size=10mm, font=\scriptsize\sffamily},
+  miniObs/.style={draw=BTUTeal!75, fill=BTUTeal!7, rounded corners=2pt, line width=0.55pt, minimum width=17mm, minimum height=10mm, font=\scriptsize\sffamily, align=center},
+  vectorBox/.style={draw=BTUOrange!70, fill=BTUOrange!7, rounded corners=1.5pt, line width=0.45pt, minimum width=24mm, minimum height=7mm, font=\tiny\sffamily, align=center},
+  tinyLabel/.style={font=\tiny\sffamily, align=center, text=BTUGray!90}
+]
+\begin{scope}
+\draw[panelFrame] (0,0) rectangle (4.05,4.95);
+\node[panelHead] at (2.025,4.55) {Graph A: physical target};
+\node[miniGuide] (a_g) at (1.0,2.85) {\(g_i\)};
+\node[miniTarget] (a_t) at (3.05,2.85) {\(t_j\)};
+\draw[thesisArrow] (a_g) -- node[above, tinyLabel] {\(e_{ij}\)} (a_t);
+\node[vectorBox] (a_xe) at (2.025,1.25) {edge vector\\\(x_{ij}^{edge}\)};
+\draw[thesisDashedArrow] (a_xe.north) -- ($(a_g)!0.5!(a_t)$);
+\node[tinyLabel] at (2.025,0.42) {context is attached to the candidate edge};
+\end{scope}
+
+\begin{scope}[xshift=4.35cm]
+\draw[panelFrame] (0,0) rectangle (4.05,4.95);
+\node[panelHead] at (2.025,4.55) {Graph B: guide control};
+\node[miniGuide] (b_g1) at (0.95,3.25) {\(g_i\)};
+\node[miniGuide] (b_g2) at (0.95,1.90) {\(g_k\)};
+\node[miniTarget] (b_t1) at (3.10,3.25) {\(t_j\)};
+\node[miniTarget] (b_t2) at (3.10,1.90) {\(t_\ell\)};
+\draw[thesisArrow] (b_g1) -- (b_t1);
+\draw[thesisArrow] (b_g2) -- (b_t2);
+\draw[thesisDashedArrow] (b_g1) -- node[left, tinyLabel] {\(s(g_i,g_k)\)} (b_g2);
+\node[vectorBox] at (2.025,0.65) {label-free\\guide similarity};
+\end{scope}
+
+\begin{scope}[xshift=8.70cm]
+\draw[panelFrame] (0,0) rectangle (4.05,4.95);
+\node[panelHead] at (2.025,4.55) {Graph C: observation node};
+\node[miniGuide] (c_g) at (0.95,2.85) {\(g_i\)};
+\node[miniObs] (c_o) at (3.02,2.85) {\(o_{ij}\)};
+\draw[thesisArrow] (c_g) -- node[above, tinyLabel] {\(e_{ij}\)} (c_o);
+\node[vectorBox] (c_xo) at (2.025,1.25) {node context\\\(x_{ij}^{obs}\)};
+\draw[thesisDashedArrow] (c_xo.north east) -- (c_o.south);
+\node[tinyLabel] at (2.025,0.42) {chromatin context lives on \(o_{ij}\)};
+\end{scope}
+\end{tikzpicture}%
+}
+\caption{Graph A, Graph B ve Graph C şemalarında düğüm semantiği ve context yerleşimi}
+\label{fig:graph-schema-semantics}
 \end{figure}
 
 \begin{table}[htbp]
-\caption{Tek satırlı ve kolonlar ortalanmış çizelge.}
-\label{tab:ornek-cizelge}
+\caption{Çizge şemalarının semantik karşılaştırması.}
+\label{tab:graph-schemas}
 \centering
-\begin{tabular}{c c c c}
+\small
+\begin{tabularx}{\textwidth}{l >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X}
 \toprule\toprule
-Kolon A & Kolon B & Kolon C & Kolon D\\
+Şema & Düğüm ve kenar yapısı & Yorum sınırı\\
 \midrule
-Satır A & Satır A & Satır A & Satır A\\
-Satır B & Satır B & Satır B & Satır B\\
-Satır C & Satır C & Satır C & Satır C\\
+Graph A & sgRNA düğümü, fiziksel hedef düğümü ve candidate-pair kenarı. & Minimal sgRNA--target çizgesi; context bilgisi düğüm semantiğine doğrudan yerleşmez.\\
+Graph B & Graph A üzerine rehber benzerliği kenarları eklenir. & Guide-similarity topolojisinin sınırlı kontrolüdür; context-aware ana temsil değildir.\\
+Graph C & sgRNA düğümü, target-observation düğümü, candidate-pair kenarı ve isteğe bağlı context-similarity kenarları. & Hedef gözlemine ait epigenetik/kromatin context'i düğüm düzeyinde taşır; katkı ek topolojiyle sınırlı yorumlanmaz.\\
 \bottomrule
-\end{tabular}
+\end{tabularx}
 \end{table}
 
-\section{Denklemler}
-Denklemler 12 punto yazılır ve denklem numaraları sağa dayalı olur. Örneğin Denklem~\ref{eq:ornek} aşağıda verilmiştir.
+Bu üç şema, graph schema seçiminin model davranışı üzerindeki etkisini ayrıştırmak için kullanılmıştır. Graph C ile Graph A arasındaki fark daha fazla kenar eklenmesiyle sınırlı değildir; hedef düğümünün anlamı değişmektedir. Bu nedenle Graph C sonuçları yorumlanırken target-observation semantiği ayrıca korunmuştur.
+
+\section{Model Aileleri}
+
+Tabular referans model olarak XGBoost kullanılmıştır (Chen ve Guestrin, 2016). XGBoost F1--F4 feature ladder üzerinde eğitilmiş, F4 ana non-GNN karşılaştırma referansı olarak korunmuştur. Bu model ailesi, güçlü engineered feature kullanımını temsil ettiği için çizge modellerinin değerlendirilmesinde gerekli bir referans noktası sağlamıştır.
+
+Sequence baseline hattında CNN/BiLSTM türü bir model kullanılmıştır. Bu model guide ve target dizilerinden üretilen pozisyonel sequence temsillerini işler; enerji, epigenetik context veya graph topolojisi kullanmaz. Sekans tabanlı derin öğrenme yaklaşımları CRISPR hedef dışı literatüründe yaygın olduğundan, bu hat bağlam bilgisinin yokluğunda sequence sinyalinin sınırını görmek için dahil edilmiştir (Chuai ve diğ., 2018; Lin ve diğ., 2020; Liu ve diğ., 2020; Sun ve diğ., 2024).
+
+Çizge modellerinde GCN, GAT ve GATv2 aileleri kullanılmıştır. GCN, komşuluk üzerinden düğüm temsili öğrenen temel çizge sinir ağı yaklaşımını temsil eder (Kipf ve Welling, 2017). GAT, komşu mesajlarını attention katsayılarıyla ağırlıklandırır (Veličković ve diğ., 2018). GATv2 ise attention sıralamasının daha dinamik biçimde öğrenilebilmesini hedefleyen bir mimari düzeltme sunar (Brody ve diğ., 2022). Bu tezde GAT/GATv2 kullanımı, attention ağırlıklarının biyolojik nedensellik göstergesi olduğu varsayımına dayandırılmamıştır; attention ve benzeri çıktıların model davranışı yorumu için kullanılabileceği kabul edilmiştir.
+
+Graph C hattında target-context encoder varyantları ayrıca incelenmiştir. Family-aware encoder, target-observation feature vektörünü hedef dizisi, deneysel epigenetik özellikler, hesaplanmış nükleozom özetleri ve missingness göstergeleri olarak ayrı aileler halinde işler. Bu tasarım, feature-family katkılarını daha kontrollü biçimde maskeleyebilmek ve doğrudan epigenetik bağlamın etkisini izole edebilmek için kullanılmıştır. Gating ve feature-wise modulation fikirleri, SE ve FiLM literatüründeki feature recalibration ve koşullama yaklaşımlarından esinlenmiş, ancak bu tezde yerel Graph C sözleşmesine uyarlanmış model bileşenleri olarak ele alınmıştır (Hu ve diğ., 2018; Perez ve diğ., 2018; Brockschmidt, 2020). Şekil~\ref{fig:family-aware-encoder}, bu mimari hattın target-observation feature aileleri, candidate-edge özellikleri ve GATv2 mesajlaşması arasındaki bilgi akışını göstermektedir.
+
+\begin{figure}[htbp]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tikzpicture}[x=1cm,y=1cm,
+  groupBox/.style={draw=BTUGray!55, dashed, rounded corners=3pt, line width=0.45pt},
+  groupTitle/.style={font=\scriptsize\bfseries\sffamily, align=center, text=BTUInk},
+  inputNode/.style={draw=BTUTeal!75, fill=BTUTeal!7, rounded corners=2pt, line width=0.55pt, minimum width=20mm, minimum height=10mm, font=\scriptsize\sffamily, align=center},
+  feat/.style={draw=BTUOrange!75, fill=BTUOrange!8, rounded corners=1.5pt, line width=0.5pt, minimum width=20mm, minimum height=8mm, font=\scriptsize\sffamily, align=center},
+  module/.style={draw=BTUBlue!70, fill=BTUBlue!7, rounded corners=2pt, line width=0.55pt, minimum width=22mm, minimum height=9mm, font=\scriptsize\sffamily, align=center},
+  op/.style={circle, draw=BTUInk!65, fill=white, line width=0.5pt, minimum size=7mm, font=\scriptsize\sffamily},
+  graphMini/.style={circle, draw=BTUBlue!75, fill=BTUBlue!6, line width=0.55pt, minimum size=9mm, font=\scriptsize\sffamily},
+  obsMini/.style={draw=BTUTeal!75, fill=BTUTeal!7, rounded corners=2pt, line width=0.55pt, minimum width=15mm, minimum height=9mm, font=\scriptsize\sffamily, align=center},
+  smallText/.style={font=\tiny\sffamily, text=BTUGray!90, align=center},
+  stateLink/.style={-{Stealth[length=2mm]}, draw=BTUTeal!80, line width=0.55pt, dashed}
+]
+\node[inputNode] (obsvec) at (0,0.4) {\(x_{ij}^{obs}\)};
+
+\node[feat] (xseq) at (2.4,2.25) {\(x^{seq}\)};
+\node[feat] (xepi) at (2.4,1.05) {\(x^{epi}\)};
+\node[feat] (xnuc) at (2.4,-0.15) {\(x^{nuc}\)};
+\node[feat] (xmis) at (2.4,-1.35) {\(x^{miss}\)};
+\node[module] (pseq) at (4.9,2.25) {\(\phi_{seq}\)};
+\node[module] (pepi) at (4.9,1.05) {\(\phi_{epi}\)};
+\node[module] (pnuc) at (4.9,-0.15) {\(\phi_{nuc}\)};
+\node[module] (pmis) at (4.9,-1.35) {\(\phi_{miss}\)};
+\node[op] (concat) at (7.0,0.45) {\(\oplus\)};
+\node[module, minimum width=25mm] (gate) at (9.0,0.45) {\(\Gamma=\sigma(Wz)\)};
+\node[module, minimum width=23mm] (hobs) at (11.2,0.45) {\(h_o=\Gamma\odot z\)};
+\node[smallText] at (7.0,-2.05) {family masking acts before \(\oplus\)};
+
+\draw[thesisArrow] (obsvec) -- (xseq.west);
+\draw[thesisArrow] (obsvec) -- (xepi.west);
+\draw[thesisArrow] (obsvec) -- (xnuc.west);
+\draw[thesisArrow] (obsvec) -- (xmis.west);
+\draw[thesisArrow] (xseq) -- (pseq);
+\draw[thesisArrow] (xepi) -- (pepi);
+\draw[thesisArrow] (xnuc) -- (pnuc);
+\draw[thesisArrow] (xmis) -- (pmis);
+\draw[thesisArrow] (pseq.east) -- (concat);
+\draw[thesisArrow] (pepi.east) -- (concat);
+\draw[thesisArrow] (pnuc.east) -- (concat);
+\draw[thesisArrow] (pmis.east) -- (concat);
+\draw[thesisArrow] (concat) -- (gate);
+\draw[thesisArrow] (gate) -- (hobs);
+
+\node[graphMini] (hg) at (2.8,-5.05) {\(h_g\)};
+\node[obsMini] (ho) at (5.1,-5.05) {\(h_o\)};
+\node[feat, minimum width=19mm] (edge) at (5.1,-6.35) {\(e_{ij}\)};
+\node[module, minimum width=22mm] (attn) at (7.6,-5.05) {\(\alpha_{ij}^{(\ell)}\)};
+\node[module, minimum width=24mm] (mp) at (10.0,-5.05) {GATv2\\update};
+\node[module, minimum width=22mm] (clf) at (12.4,-5.05) {\(\hat{p}_{ij}\)};
+\coordinate (stateDrop) at (11.2,-3.05);
+\coordinate (statebus) at (5.1,-3.05);
+
+\draw[thesisArrow] (hg) -- (ho);
+\draw[thesisArrow] (ho) -- (attn);
+\draw[thesisArrow] (attn) -- (mp);
+\draw[thesisArrow] (mp) -- (clf);
+\draw[thesisDashedArrow] (edge) -- (attn);
+\draw[thesisDashedArrow] (edge.east) -| (clf.south);
+\draw[stateLink] (hobs.south) -- (stateDrop) -- node[above, smallText, pos=0.56] {encoded observation state} (statebus) -- (ho.north);
+
+\begin{scope}[on background layer]
+\draw[groupBox, fill=BTUOrange!3] (-0.65,-2.45) rectangle (12.05,3.05);
+\draw[groupBox, fill=BTUBlue!3] (1.85,-7.05) rectangle (13.15,-4.05);
+\node[groupTitle] at (5.7,3.28) {Family-wise target-context encoder};
+\node[groupTitle] at (8.15,-3.75) {Edge-aware Graph C message passing};
+\end{scope}
+\end{tikzpicture}%
+}
+\caption{Graph C family-aware target-context encoder ve edge-aware GATv2 bilgi akışı}
+\label{fig:family-aware-encoder}
+\end{figure}
+
+\section{Deney Tasarımı}
+
+Deney tasarımı, tek bir modelin en yüksek skorunu aramaktan çok, temsil ve bileşen kararlarının etkisini kontrollü biçimde ayrıştıracak şekilde kurulmuştur. Bu nedenle deney grupları aynı etiket, veri ayrımı, preprocessing ve test protokolü altında yürütülmüş; her yeni aşama önceki bulguların yorum sınırını netleştirecek biçimde tasarlanmıştır.
+
+İlk deney grubu tabular ve sequence baseline karşılaştırmalarından oluşur. Bu grup, XGBoost F4'ün engineered/context feature içeren ana referans olarak konumunu ve sequence-only neural yaklaşımın bu veri evrenindeki sınırını belirler.
+
+İkinci grup, Graph A/B/C artifact üretimi ve strict-inductive görünürlük kontrollerini içerir. Üçüncü grup, GCN tabanlı ilk çizge karşılaştırmasıdır ve graph schema seçiminin AUPRC ile threshold-dependent metrikleri farklı etkileyebileceğini gösteren yöntemsel zemin sağlar.
+
+Dördüncü grup, Graph A üzerinde feature-family ekleme ve Graph C üzerinde enerji duyarlılığı kontrollerinden oluşur. Beşinci grup, sabit Graph A ve sabit enerji feature seti altında weighted BCE, focal loss, generalized Dice, Tversky ve balanced sampling türü sınıf dengesizliği müdahalelerini karşılaştırır. Focal loss, Dice ve class-balanced loss gibi yaklaşımlar dengesiz veri literatüründe yaygın biçimde kullanıldığından, bu müdahaleler önceden tanımlanmış bir karşılaştırma olarak ele alınmıştır (Lin ve diğ., 2017; Sudre ve diğ., 2017; Cui ve diğ., 2019). CRISPR hedef dışı tahmininde dengesizliğin değerlendirmeyi etkileyebileceği ayrıca raporlandığından, bu karşılaştırma alan literatürüyle de uyumludur (Gao ve diğ., 2020; Guan ve Jiang, 2024).
+
+Altıncı grup, GAT/GATv2 mimarilerinin Graph A, Graph B ve Graph C üzerinde denenmesini içerir. Bu grup, attention tabanlı katmana geçmenin kendi başına yeterli olup olmadığını ve Graph C target-observation semantiğinin attention temelli mesajlaşma altında nasıl davrandığını sınar. Yedinci grup, Graph C mekanizma ablationlarıdır. Bu grupta context-similarity kenarlarının kaldırılması, edge-aware attention'ın kapatılması ve target-observation context feature'larının maskelenmesi gibi kontrollü değişiklikler yapılmıştır. Sekizinci grup, target-context alt ailelerinin maskeleme analizidir; deneysel epigenetik, hesaplanmış nükleozom, missingness ve hedef dizisi bileşenleri ayrı ayrı sınanmıştır.
+
+Dokuzuncu grup, family-aware target-context encoder, context-edge interaction ve sequence/context fusion varyantlarını içerir. Bu modeller, Graph C target-observation bilgisinin topolojiyle sınırlı kalmadan context ailesi ve aday kenar bilgisiyle birlikte işlenip işlenemeyeceğini araştırmıştır. Son deney grubu ise sonuç iddialarını sınırlamak için guide-cluster bootstrap, paired-difference bootstrap ve çoklu eğitim tohumu analizlerinden oluşan sağlamlık değerlendirmesidir. Bu yapı, tekil eğitim koşulunda görülen küçük AUPRC farklarının guide kompozisyonu ve eğitim stokastisitesi altında sağlam olup olmadığını sınamak için kullanılmıştır.
+
+\section{Değerlendirme Metrikleri}
+
+Birincil metrik AUPRC olarak belirlenmiştir. Precision--recall eğrileri, sınıf prevalansının model yorumunu güçlü biçimde etkilediği durumlarda ROC eğrilerinden farklı ve çoğu durumda daha doğrudan bir değerlendirme sunar (Davis ve Goadrich, 2006; Saito ve Rehmsmeier, 2015). Precision--recall eğrisinin prevalansa duyarlı yapısı nedeniyle AUPRC değerleri test evrenindeki pozitif oranla birlikte yorumlanmalıdır (Williams, 2021). AUPRC, karar eşiğinden bağımsız sıralama kalitesini ölçtüğü için model karşılaştırmalarında ana metrik olarak korunmuştur. Bu tezde AUPRC değeri, test evrenindeki pozitif prevalansla birlikte yorumlanmıştır; 0.900705 değeri performans tabanı değil, no-skill PR baseline'dır.
+
+İkincil ve yorumlayıcı metrikler AUROC, F1, macro-F1, MCC, sensitivity, specificity ve TN/FP/FN/TP karışıklık matrisi değerleridir. Bu metrikler, validation üzerinde seçilmiş karar eşiğindeki operating-point davranışını gösterir. Test evreninde negatif sınıf nadir olduğu için specificity ve MCC özellikle değerlidir. Buna karşılık threshold-dependent metriklerde görülen iyileşmeler AUPRC üstünlüğü olarak yorumlanmamıştır.
+
+MCC, Denklem~\ref{eq:mcc} ile hesaplanmıştır.
 
 \begin{equation}
-E = mc^2
-\label{eq:ornek}
+\mathrm{MCC} =
+\frac{TP \times TN - FP \times FN}
+{\sqrt{(TP+FP)(TP+FN)(TN+FP)(TN+FN)}}.
+\label{eq:mcc}
 \end{equation}
 
-Parametreler denklemin altında açıklanmalıdır.
+Denklemde \(TP\) doğru pozitif, \(TN\) doğru negatif, \(FP\) yanlış pozitif ve \(FN\) yanlış negatif sayısını ifade eder. Paydadaki terimlerden herhangi biri sıfır olduğunda MCC hesaplaması uygulama düzeyinde tanımlı güvenli kuralla ele alınmıştır. Bu durum özellikle tüm örneklerin pozitif sınıfa atandığı threshold collapse senaryolarında önemlidir.
+
+\section{Sağlamlık ve Belirsizlik Analizi}
+
+Sağlamlık analizi üç tamamlayıcı bileşenden oluşmuştur. İlk bileşen guide-cluster bootstrap analizidir. Burada satırlar bağımsız örnekler gibi yeniden örneklenmemiş; aynı rehbere ait tüm satırlar birlikte tutulacak şekilde rehber kümeleri bootstrap örneklemesine alınmıştır. Bu tercih, aynı sgRNA altında satırların korelasyonlu olabileceği varsayımına dayanır ve clustered bootstrap yaklaşımıyla uyumludur (Field ve Welsh, 2007). AUPRC gibi precision--recall tabanlı metriklerde belirsizlik aralığı yorumunun ayrıca dikkat gerektirdiği bilinmektedir (Boyd ve diğ., 2013).
+
+İkinci bileşen paired-difference bootstrap analizidir. İki model karşılaştırılırken aynı bootstrap rehber örneği her iki modele de uygulanmış ve metrik farkının aralığı raporlanmıştır. Bu yaklaşım, iki ayrı marjinal güven aralığının örtüşmesine bakarak fark yorumu yapma hatasını önlemek için kullanılmıştır (Schenker ve Gentleman, 2001).
+
+Üçüncü bileşen çoklu eğitim tohumu analizidir. Aynı sabit split altında farklı rastgele tohumlarla yeniden eğitim yapılarak modelin eğitim stokastisitesine duyarlılığı betimlenmiştir. Bu analiz, genel genelleme belirsizliği için tek başına yansız bir varyans tahmini olarak yorumlanmamıştır; k-fold cross-validation varyansının yansız tahmin edilememesi gibi temel sınırlamalar ve rastgele tohum raporlamasına ilişkin metodolojik uyarılar bu tür yorumlarda dikkatli olunmasını gerektirir (Bengio ve Grandvalet, 2004; Bethard, 2022). Bu nedenle çoklu tohum sonuçları, model seçimi için değil, iddia sınırını belirlemek için kullanılmıştır.
+
+Sağlamlık analizinin ana yorumu şudur: AUPRC farklarının paired aralıkları sıfırı dışlamadığında, XGBoost F4'e veya başka bir GNN varyantına karşı sağlam AUPRC üstünlüğü iddia edilmemiştir. Buna karşılık aynı modellerin validation-kilitli karar eşiğinde daha fazla nadir ölçülmüş negatifi tanıması, threshold-dependent ve guide/seed-fragile bir katkı olarak raporlanmıştır. Bu ayrım, tezin ana iddia sınırını oluşturmaktadır.
+
+\section{Tekrarlanabilirlik ve Uygulama Kapsamı}
+
+Tüm yöntemsel kararlar proje içinde belgelenmiş değerlendirme protokolü, etiket şeması, veri denetimi ve karar kayıtlarıyla uyumlu tutulmuştur. Deneylerde eğitim, validation ve test ayrımları sabitlenmiş; raporlanan karşılaştırmalarda aynı satır evreni, aynı label kuralı ve aynı preprocessing politikası korunmuştur. Büyük veri dosyaları, checkpoint'ler ve run artifact'leri tez kaynak dosyasına gömülmemiştir; tezde gerekli yöntemsel özetler, seçilmiş çizelgeler ve sonuç yorumları kullanılacaktır.
+
+Bu yöntem kapsamı, çalışmanın iddiasını bilinçli olarak sınırlar. Çalışma, CRISPR-Cas9 hedef dışı tahmin literatüründeki tüm modellerden üstün bir model önerdiğini iddia etmez. Bunun yerine, measured-only, guide-disjoint ve leakage-aware bir protokol altında context-aware Graph C / GATv2 çizgisinin hangi koşullarda yararlı, hangi koşullarda sınırlı olduğunu gösteren kontrollü bir temsil analizi olarak konumlandırılır.

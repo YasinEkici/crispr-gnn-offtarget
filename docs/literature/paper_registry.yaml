@@ -779,6 +779,23 @@ papers:
     assets_dir: docs/literature/axes/axis_4_model_architecture_components/4D_model_selection_practice/2025_schneider_overtuning/assets
     tags: [hyperparameter_optimization, overtuning, model_selection]
 
+  - id: 2016_chen_xgboost
+    title: "XGBoost: A Scalable Tree Boosting System"
+    year: 2016
+    authors:
+      - Tianqi Chen
+      - Carlos Guestrin
+    axis: axis_4_model_architecture_components
+    section: 4D_model_selection_practice
+    project_role: tabular_boosted_tree_baseline_reference
+    priority: useful
+    local_dir: docs/literature/axes/axis_4_model_architecture_components/4D_model_selection_practice/2016_chen_xgboost
+    local_md: docs/literature/axes/axis_4_model_architecture_components/4D_model_selection_practice/2016_chen_xgboost/paper.md
+    local_pdf: docs/literature/axes/axis_4_model_architecture_components/4D_model_selection_practice/2016_chen_xgboost/original.pdf
+    metadata: docs/literature/axes/axis_4_model_architecture_components/4D_model_selection_practice/2016_chen_xgboost/metadata.yaml
+    assets_dir: docs/literature/axes/axis_4_model_architecture_components/4D_model_selection_practice/2016_chen_xgboost/assets
+    tags: [xgboost, gradient_boosting, tabular_baseline, machine_learning_systems]
+
   - id: 2023_kapoor_leakage
     title: "Leakage and the Reproducibility Crisis in Machine-Learning-Based Science"
     year: 2023
@@ -946,6 +963,40 @@ papers:
     metadata: docs/literature/axes/axis_4_model_architecture_components/4E_graph_attention_backbones/2022_brody_gats/metadata.yaml
     assets_dir: docs/literature/axes/axis_4_model_architecture_components/4E_graph_attention_backbones/2022_brody_gats/assets
     tags: [gat, gatv2, attention, backbone]
+
+  - id: 2019_jain_attention_not_explanation
+    title: "Attention is not Explanation"
+    year: 2019
+    authors:
+      - Sarthak Jain
+      - Byron C. Wallace
+    axis: axis_4_model_architecture_components
+    section: 4E_graph_attention_backbones
+    project_role: attention_interpretability_caution
+    priority: useful
+    local_dir: docs/literature/axes/axis_4_model_architecture_components/4E_graph_attention_backbones/2019_jain_attention_not_explanation
+    local_md: docs/literature/axes/axis_4_model_architecture_components/4E_graph_attention_backbones/2019_jain_attention_not_explanation/paper.md
+    local_pdf: docs/literature/axes/axis_4_model_architecture_components/4E_graph_attention_backbones/2019_jain_attention_not_explanation/original.pdf
+    metadata: docs/literature/axes/axis_4_model_architecture_components/4E_graph_attention_backbones/2019_jain_attention_not_explanation/metadata.yaml
+    assets_dir: docs/literature/axes/axis_4_model_architecture_components/4E_graph_attention_backbones/2019_jain_attention_not_explanation/assets
+    tags: [attention, interpretability, explanation, claim_boundary]
+
+  - id: 2019_serrano_attention_interpretable
+    title: "Is Attention Interpretable?"
+    year: 2019
+    authors:
+      - Sofia Serrano
+      - Noah A. Smith
+    axis: axis_4_model_architecture_components
+    section: 4E_graph_attention_backbones
+    project_role: attention_interpretability_caution
+    priority: useful
+    local_dir: docs/literature/axes/axis_4_model_architecture_components/4E_graph_attention_backbones/2019_serrano_attention_interpretable
+    local_md: docs/literature/axes/axis_4_model_architecture_components/4E_graph_attention_backbones/2019_serrano_attention_interpretable/paper.md
+    local_pdf: docs/literature/axes/axis_4_model_architecture_components/4E_graph_attention_backbones/2019_serrano_attention_interpretable/original.pdf
+    metadata: docs/literature/axes/axis_4_model_architecture_components/4E_graph_attention_backbones/2019_serrano_attention_interpretable/metadata.yaml
+    assets_dir: docs/literature/axes/axis_4_model_architecture_components/4E_graph_attention_backbones/2019_serrano_attention_interpretable/assets
+    tags: [attention, interpretability, explanation, claim_boundary]
 
   - id: 2022_dwivedi_gnn_benchmark
     title: "Benchmarking Graph Neural Networks"

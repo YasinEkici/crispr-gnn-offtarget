@@ -1,0 +1,15 @@
+title: "Is Attention Interpretable?"
+authors:
+- Sofia Serrano
+- Noah A. Smith
+abstract: "This paper tests whether attention weights reliably indicate the importance of input components by manipulating attention weights in trained text classifiers. It finds that attention can be a noisy signal of importance but is not a fail-safe explanation mechanism."
+keywords:
+- attention
+- interpretability
+- explanation
+- feature importance
+- neural networks
+venue: "Proceedings of the 57th Annual Meeting of the Association for Computational Linguistics"
+year: 2019
+doi: "10.18653/v1/P19-1282"
+url: "https://aclanthology.org/P19-1282/"
