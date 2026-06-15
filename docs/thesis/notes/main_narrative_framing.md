@@ -18,14 +18,23 @@ Bu başlık iki ana ekseni birlikte taşır: literatürle uyumlu sıralama metri
 
 Bu çalışmanın en savunulabilir ana tezi şudur:
 
-> CRISPR-Cas9 off-target tahmininde sequence/energy bilgisi tek başına yeterli değildir; hedef bölgenin epigenetik ve kromatin bağlamı Graph C benzeri target-observation temsili ve aile-duyarlı GATv2 mimarisi içinde doğru temsil edildiğinde nadir ölçülmüş negatifleri ayırma davranışı belirgin biçimde güçlenir, ancak bu kazanım XGBoost F4'e karşı robust bir AUPRC üstünlüğü olarak sunulmamalıdır.
+> CRISPR-Cas9 off-target tahmininde sequence/energy bilgisi tek başına yeterli değildir; hedef bölgenin epigenetik ve kromatin bağlamı Graph C benzeri target-observation temsili ve aile-duyarlı GATv2 mimarisi içinde doğru temsil edildiğinde validation-kilitli operating point altında nadir ölçülmüş negatifleri ayırma davranışı güçlenir. Bu kazanım eşik-bağımlı, seed/guide-fragile bir etki olarak raporlanmalı ve XGBoost F4'e karşı robust bir AUPRC üstünlüğü olarak sunulmamalıdır.
 
 Bu nedenle tez "GNN bütün baseline'ları geçti" hikayesi değildir. Daha güçlü hikaye, context-aware GNN çizgisinin nerede işe yaradığını, nerede yaramadığını ve neden AUPRC ile operating-point metriklerinin ayrı okunması gerektiğini göstermesidir.
+
+## Hipotezler
+
+Tezde hipotezler açık ve test edilebilir yazılmalıdır:
+
+- H1: Graph C target-observation context temsili ve aile-duyarlı GATv2 encoder, fixed measured-only guide-disjoint kontrat altında validation-kilitli threshold metrics üzerinde nadir negatif sınıf tanımayı Graph A GCN ve düz Graph C GCN referanslarına göre iyileştirir.
+- H2: Bu context-aware GNN kazanımı primary metric olan AUPRC'de XGBoost F4'e karşı robust superiority oluşturmaz; ranking katkısı rekabetçi fakat uncertainty ve seed sensitivity içinde kalır.
+- H3: Graph C kazanımı explicit context-similarity edge'lerinden çok direct target-observation context feature'larına, özellikle experimental epigenetic feature ailesine bağlıdır.
 
 ## Çalışmanın Ne Olmadığı
 
 - Bu çalışma Mak et al. 2022'nin birebir reprodüksiyonu değildir. Mak çalışması CA dönüşümü, korelasyon/SHAP analizi ve sürekli aktivite hedefi etrafında durur; bu proje Scheme A ikili sınıflandırma, guide-disjoint split ve measured-only test evreni kullanır.
 - Bu çalışma "state-of-the-art off-target predictor" iddiası kurmamalıdır. XGBoost F4 primary AUPRC bar olarak kalır.
+- Putative `measured=0` satırları ground-truth test/validation örneği gibi değerlendirilmedi. Bu satırlar deneysel olarak ölçülmemiş adaylardır; headline değerlendirme measured-only evrene bağlı kaldı.
 - Attention, gate, FiLM veya feature importance çıktıları biyolojik nedensellik kanıtı değildir. Bunlar model-interpretation ve hipotez üretme sinyalidir.
 - Sprint 9'da paired AUPRC aralıkları sıfırı kestiği için GNN modellerin XGBoost F4'e veya birbirlerine karşı robust AUPRC üstünlüğü iddia edilmemelidir.
 
@@ -48,12 +57,18 @@ Tez boyunca her ana sonuç bu kontratla birlikte raporlanmalıdır:
 
 AUPRC için 0.900705 değeri "floor" değil, measured-only test evrenindeki no-skill PR baseline'dır.
 
+Bu sözleşme iki koruma katmanı içerir. Etiket geçerliliği ve değerlendirme bütünlüğü katmanı; measured-only validation/test, Scheme A, NaN label dışlama, `experiment_id = 18` dışlama ve putative `measured=0` satırlarının ground-truth gibi kullanılmaması kararlarından oluşur. Leakage kontrolü katmanı; guide-disjoint split, strict-inductive graph visibility, train-only preprocessing, validation-only checkpoint/threshold ve test-üzerinde-ayar-yok politikasından oluşur. Bu iki katman birlikte, doğrulanmamış etiketlerden sahte başarı üretilmesini ve test bilgisinin model seçimine sızmasını engeller.
+
+Türetilmiş gözlem ile hesaplanmış özellik ayrımı özellikle korunmalıdır. `measured=0` satırları deneysel ground-truth değildir ve headline test/validation evrenine girmez. Buna karşılık 13 computed nucleosome feature model input'u olarak kullanılabilir; Sprint 7E bu özellik ailelerinin katkısını masking ile ayrıca test etmiştir.
+
+F4 değerleri için not: Sprint 2 historical F4 barı test AUPRC 0.992522 ve TN/FP/FN/TP 38/131/21/1512 değerlerini kullanır. Sprint 9 robustness analizinde per-row prediction olmadığı için F4 XGBoost `>=3.2.0` ile yeniden üretilmiştir; regenerated değer test AUPRC 0.992338 ve TN/FP/FN/TP 40/129/23/1510 olmuştur. Bu küçük fark version drift olarak kabul edilmiştir ve Sprint 9 sonuçlarını değiştirmez.
+
 ## Ana Bulguların Kısa Özeti
 
 Ranking ekseni:
 
 - XGBoost F4 en güçlü ve en stabil primary-AUPRC bar olarak kaldı.
-- En iyi single-seed GNN AUPRC sonucu Sprint 8B `S8B_R2_sequence_plus_context` ile 0.986020 oldu; bu güçlü ve rekabetçi bir sonuçtur, fakat F4'ün 0.992522 historical AUPRC değerini geçmedi.
+- En iyi single-seed GNN AUPRC sonucu Sprint 8B `S8B_R2_sequence_plus_context` ile 0.986020 oldu; bu güçlü ve rekabetçi bir sonuçtur, fakat F4'ün Sprint 2 historical AUPRC değeri olan 0.992522'yi geçmedi.
 - Sprint 9'da paired AUPRC farklarının hiçbiri sıfırı dışlamadı; bu yüzden AUPRC üstünlüğü iddiası kurulamaz.
 
 Operating-point / rare-negative ekseni:
@@ -70,13 +85,13 @@ Operating-point / rare-negative ekseni:
 
 Sprint 1 veri kaynağını, label politikasını ve leakage risklerini sabitledi. Kullanılan Parquet dosyasında 310142 satır, 45 kolon, 25632 measured=1 satırı, 284510 measured=0 satırı, 154 sgRNA ve 138747 target location doğrulandı. Veri 6 experimental epigenetic scalar, 13 computed nucleosome array feature ve 5 binding-energy feature içeriyor.
 
-En önemli karar Scheme A'nın ana ikili etiket olmasıdır: `cleavage_freq > 1e-5`. Bu eşik Mak et al. 2022'deki assay-accuracy boundary ile uyumludur. CA dönüşümü veri içinde hazır olmadığı için Mak-style regression/paper-comparison track ertelendi. Measured=0 satırları validation/test ground truth olamaz; yalnızca ayrıca caveat verilmiş training-only noisy negative senaryolarında kullanılabilir.
+En önemli karar Scheme A'nın ana ikili etiket olmasıdır: `cleavage_freq > 1e-5`. Bu eşik Mak et al. 2022'deki assay-accuracy boundary ile uyumludur. CA dönüşümü veri içinde hazır olmadığı için Mak-style regression/paper-comparison track ertelendi. `measured=0` satırları validation/test ground truth olamaz; yalnızca açık caveat verilmiş training-only noisy negative senaryolarında kullanılabilir.
 
 ### Sprint 2: Tabular ve Sequence Baselines
 
 Sprint 2 guide-disjoint `sprint2_main_seed42` split'ini ve baseline evrenini kilitledi. Test seti measured-only ve pozitif ağırlıklıdır: 1533 pozitif, 169 negatif, prevalans 0.900705. Bu yapı AUPRC'nin yüksek görünmesini kolaylaştırır fakat negatif sınıfı ayırmayı zorlaştırır.
 
-XGBoost F4 authoritative non-GNN bar oldu: test AUPRC 0.992522, AUROC 0.938416, MCC 0.345198, TN/FP/FN/TP = 38/131/21/1512. F4 feature seti sequence/mismatch, binding energy, 6 experimental epigenetic scalar ve aggregated computed nucleosome + missingness feature'larını içerir. Pure sequence CNN/BiLSTM baselineları daha zayıf kaldı; bu durum güçlü engineered/context tabular feature'ların önemini gösterdi.
+XGBoost F4 authoritative non-GNN bar oldu: test AUPRC 0.992522, AUROC 0.938416, MCC 0.345198, TN/FP/FN/TP = 38/131/21/1512. Bu değer Sprint 2 historical barıdır; Sprint 9'da kullanılan regenerated F4 değeri version-drift dipnotuyla ayrıca raporlanmalıdır. F4 feature seti sequence/mismatch, binding energy, 6 experimental epigenetic scalar ve aggregated computed nucleosome + missingness feature'larını içerir. Pure sequence CNN/BiLSTM baselineları daha zayıf kaldı; bu durum güçlü engineered/context tabular feature'ların önemini gösterdi.
 
 ### Sprint 3: Graph Artifact ve Leakage Kontrolü
 
@@ -102,7 +117,7 @@ Sprint 5B, Graph C + S5F2_energy duyarlılığını kontrol etti: AUPRC 0.972481
 
 Sprint 6, fixed Graph A + S5F2_energy üzerinde loss/sampling karşılaştırmasını tamamladı. En iyi headline run weighted BCE oldu: AUPRC 0.976935, AUROC 0.819972, macro-F1 0.698939, MCC 0.483719, specificity 0.289941, TN/FP/FN/TP = 49/120/6/1527.
 
-Unweighted BCE, focal varyantları, generalized Dice, Tversky ve measured-only balanced sampling weighted BCE'yi primary AUPRC'de geçmedi. Generalized Dice no-skill baseline'ın altına indi ve TN=0 threshold collapse gösterdi. Bu yüzden kalan sorun yalnızca loss seçimi değildir. Graph A GCN'de S5F2 edge feature'ları message passing içinde değil, edge-classifier head içinde concatenate edilmektedir; bu da Sprint 7'nin edge-aware attention/message passing motivasyonunu doğurdu.
+Unweighted BCE, focal varyantları, generalized Dice, Tversky ve measured-only balanced sampling weighted BCE'yi primary AUPRC'de geçmedi. Generalized Dice no-skill baseline'ın altına indi ve TN=0 threshold collapse gösterdi. Sonuç, kalan sınırlamanın loss seçiminden çok Graph A mimarisindeki feature kullanım yeriyle ilişkili olduğunu gösterdi. Graph A GCN'de S5F2 edge feature'ları message passing içinde değil, edge-classifier head içinde concatenate edilmektedir; bu da Sprint 7'nin edge-aware attention/message passing motivasyonunu doğurdu.
 
 ### Sprint 7: Graph A GAT/GATv2
 
@@ -198,9 +213,9 @@ Bu literatür tezde üç amaçla kullanılmalıdır:
 
 1. Off-target prediction'da guide-target sequence representation'ın merkezi önemini göstermek.
 2. AUPRC/PR-AUC/AUROC metriklerinin neden literatür standardı olduğunu açıklamak.
-3. Bizim çalışmanın doğrudan sequence-only benchmark olmadığını, context-aware graph/model-design sorusuna odaklandığını belirtmek.
+3. Bu çalışmanın doğrudan sequence-only benchmark olmadığını, context-aware graph/model-design sorusuna odaklandığını belirtmek.
 
-Raw skorlar doğrudan karşılaştırılmamalıdır. Bu paperların çoğu genome-wide candidate pool, farklı negative sampling, farklı guide split, farklı label ve farklı prevalence kullanır. Bizim measured-only test setimiz pozitif ağırlıklıdır; bu yüzden PR-AUC sayıları literatürdeki negative-heavy retrieval evrenleriyle birebir kıyaslanamaz.
+Raw skorlar doğrudan karşılaştırılmamalıdır. Bu paperların çoğu genome-wide candidate pool, farklı negative sampling, farklı guide split, farklı label ve farklı prevalence kullanır. Bu çalışmanın measured-only test seti pozitif ağırlıklıdır; bu yüzden PR-AUC sayıları literatürdeki negative-heavy retrieval evrenleriyle birebir kıyaslanamaz.
 
 Sprint 8B bu literatüre kontrollü bir cevap verir: local sequence-only path zayıf kaldı, fakat sequence + context late fusion en iyi single-seed GNN AUPRC'yi verdi. Tezde bu, "sequence'i bırakmadık; context ile birlikte test ettik" şeklinde anlatılmalıdır.
 
@@ -208,7 +223,7 @@ Sprint 8B bu literatüre kontrollü bir cevap verir: local sequence-only path za
 
 Kipf & Welling GCN, Vinodkumar et al. GCN-CRISPR ve GraphCRISPR gibi çalışmalar GNN yaklaşımının graph-structured biyolojik prediction problemlerine uygulanabilirliğini destekler. Vinodkumar et al. CRISPR off-target için sgRNA-target link prediction fikrini literatürde konumlandırır.
 
-Bizim farkımız:
+Çalışmanın farkı:
 
 - Guide-disjoint, measured-only, no-test-tuning kontratı açıkça korunur.
 - Graph A/B/C schema ablation yapıldı.
@@ -232,7 +247,7 @@ Tezin doğru yorumu:
 
 crisprSQL ve Mak et al. 2022 bu projenin veri ve feature-lineage merkezidir. Mak et al. 19 epigenetic descriptor'ı inceler: 6 experimental epigenetic ve 13 computed nucleosome feature. Mak çalışması computed nucleosome/BDM/NuPoP family'lerinin korelasyon/SHAP tarafında güçlü olduğunu, experimental epigenetic feature'ların ise kendi kurduğu continuous-target analysis içinde daha sınırlı katkı verdiğini raporlar.
 
-Bizim bulgumuz Mak ile birebir aynı değildir ve bu iyi açıklanmalıdır. Bizim Scheme A, measured-only, guide-disjoint Graph C GATv2 setting'imizde direct target-observation experimental epigenetic feature'ların maskelenmesi modeli çökertti. Bu, Mak'in continuous CA ve SHAP analizinden farklı bir problemde, farklı bir model architecture'ında, experimental epigenetic context'in rare-negative recognition için çok kritik olduğunu gösterir. Bu çelişki gibi değil, problem-formulation farkı olarak yazılmalıdır.
+Bu bulgu Mak ile birebir aynı değildir ve bu iyi açıklanmalıdır. Bu çalışmanın Scheme A, measured-only, guide-disjoint Graph C GATv2 setting'inde direct target-observation experimental epigenetic feature'ların maskelenmesi modeli çökertti. Bu, Mak'in continuous CA ve SHAP analizinden farklı bir problemde, farklı bir model architecture'ında, experimental epigenetic context'in rare-negative recognition için çok kritik olduğunu gösterir. Bu çelişki gibi değil, problem-formulation farkı olarak yazılmalıdır.
 
 Wu dCas9 ChIP-seq, Horlbeck, Isaac, Daer, Yarrington, DIG-seq, CHANGE-seq ve Verkuijl & Rots review gibi biyoloji çalışmaları chromatin accessibility, nucleosome positioning/occupancy ve epigenetic state'in Cas9 binding/cleavage davranışını etkileyebileceğini destekler. Bu literatür Sprint 7E/7F bulgusunun biyolojik olarak plausible olduğunu gösterir; ancak local model feature'larının causal effect olduğunu kanıtlamaz.
 
@@ -240,7 +255,7 @@ Wu dCas9 ChIP-seq, Horlbeck, Isaac, Daer, Yarrington, DIG-seq, CHANGE-seq ve Ver
 
 Gao et al. ve Guan et al. CRISPR off-target prediction'da class imbalance'ın değerlendirmeyi nasıl yanıltabileceğini vurgular. Focal loss, Dice/Tversky, class-balanced loss, LDAM, SMOTE ve genel imbalance survey literatürü Sprint 6'nın neden predeclared loss/sampling comparison yaptığını açıklar.
 
-Bu projede önemli terslik şudur: genome-wide off-target retrieval literatüründe çoğu kez pozitif off-target rare class'tır; bizim measured-only headline test evrenimizde pozitifler %90.07, negatifler rare class'tır. Bu yüzden imbalance yöntemleri körlemesine aktarılmadı. Sprint 6'da weighted BCE en iyi çıktı; SMOTE gibi synthetic data yöntemleri biyolojik graph/sequence geçerliliği belirsiz olduğu için ana workflow'a alınmadı.
+Bu projede önemli terslik şudur: genome-wide off-target retrieval literatüründe çoğu kez pozitif off-target rare class'tır; bu çalışmanın measured-only headline test evreninde pozitifler %90.07, negatifler rare class'tır. Bu yüzden imbalance yöntemleri körlemesine aktarılmadı. Sprint 6'da weighted BCE en iyi çıktı; SMOTE gibi synthetic data yöntemleri biyolojik graph/sequence geçerliliği belirsiz olduğu için ana workflow'a alınmadı.
 
 Davis & Goadrich, Saito & Rehmsmeier, Williams ve Boyd et al. AUPRC/PR eğrisi ve imbalance altında metric interpretation için kullanılmalıdır. Sprint 9'da Field & Welsh, Efron, Schenker & Gentleman, Bengio & Grandvalet ve Bethard gibi kaynaklar guide-cluster bootstrap, paired-difference ve seed sensitivity sınırlarını destekler.
 
@@ -253,13 +268,14 @@ Sprint 7F'nin en önemli mimari mesajı şudur: raw capacity değil, feature-fam
 ## Tezin Ana Katkıları
 
 1. Guide-disjoint, measured-only, no-test-tuning bir CRISPR off-target GNN evaluation workflow'u kuruldu.
-2. Graph A/B/C ile graph schema ve target-context representation ayrıştırıldı.
-3. Binding-energy feature'larının Graph A GCN için en güçlü edge sinyali olduğu gösterildi.
-4. Loss/sampling değişikliklerinin tek başına remaining limitation'ı çözmediği gösterildi.
-5. GAT/GATv2 attention'ın ancak edge-aware ve doğru target-observation context temsiliyle anlamlı hale geldiği gösterildi.
-6. Graph C GATv2 kazanımı Sprint 7D/7E ile target-observation context, özellikle experimental epigenetic feature'lara lokalize edildi.
-7. Family-aware target-context encoder rare-negative recognition ve macro-F1/MCC tarafında güçlü iyileştirme sağladı.
-8. Sprint 9 ile AUPRC superiority sınırı dürüstçe çizildi; operating-point rare-negative katkı ayrı bir eksen olarak raporlandı.
+2. Putative `measured=0` satırların ground-truth validation/test örneği yapılmadığı; measured-only, label-integrity kontrollü ve leakage-aware bir değerlendirme protokolü kuruldu.
+3. Graph A/B/C ile graph schema ve target-context representation ayrıştırıldı.
+4. Binding-energy feature'larının Graph A GCN için en güçlü edge sinyali olduğu gösterildi.
+5. Loss/sampling değişikliklerinin remaining limitation'ı çözmediği; sınırlamanın feature tüketim yeri ve graph/context representation ile ilişkili olduğu gösterildi.
+6. GAT/GATv2 attention'ın ancak edge-aware ve doğru target-observation context temsiliyle anlamlı hale geldiği gösterildi.
+7. Graph C GATv2 kazanımı Sprint 7D/7E ile target-observation context, özellikle experimental epigenetic feature'lara lokalize edildi.
+8. Family-aware target-context encoder validation-kilitli threshold metrics üzerinde rare-negative recognition ve macro-F1/MCC tarafında belirgin fakat seed/guide-fragile iyileştirme sağladı.
+9. Sprint 9 ile AUPRC superiority sınırı dürüstçe çizildi; operating-point rare-negative katkı ayrı bir eksen olarak raporlandı.
 
 ## Önerilen Tez Bölüm Kurgusu
 
@@ -269,7 +285,9 @@ Girişte problem ikiye ayrılmalı: CRISPR-Cas9 off-target prediction için hem 
 
 Ana problem cümlesi:
 
-> Bu çalışmada CRISPR-Cas9 off-target tahmininde epigenetik/kromatin bağlamının graph-based modeller içinde nasıl temsil edilmesi gerektiğini ve bu temsilin sıralama başarımı ile nadir negatif sınıf tanıma davranışına etkisini inceliyoruz.
+> Bu çalışmada CRISPR-Cas9 off-target tahmininde epigenetik/kromatin bağlamının graph-based modeller içinde nasıl temsil edilmesi gerektiği ve bu temsilin sıralama başarımı ile nadir negatif sınıf tanıma davranışına etkisi incelenmektedir.
+
+Giriş alt başlıkları tez şablonuyla uyumlu biçimde `Tezin Amacı`, `Literatür Araştırması` ve `Hipotez` başlıklarını içermelidir. Hipotez bölümü bu dosyadaki H1-H3 çerçevesini kısaltarak vermeli; özellikle AUPRC superiority değil, context-aware rare-negative recognition hipotezi test edildiğini açık yazmalıdır.
 
 ### Literatür
 
@@ -346,11 +364,22 @@ Kaçınılacak:
 - Threshold metrics validation-selected threshold ile hesaplanır; test threshold tuning yapılmadığı açıkça söylenmelidir.
 - Sprint 9 sonuçlarıyla uyumlu olarak AUPRC farkları için "compatible with no difference" dili kullanılmalı; "equivalent" denmemelidir.
 
+## Kısıtlar ve Geçerlilik Tehditleri
+
+- Ana benchmark measured-only ve pozitif ağırlıklıdır; pozitif prevalans 0.900705 olduğu için genome-wide negative-heavy retrieval evrenleriyle doğrudan performans kıyası yapılmamalıdır.
+- Test setinde 29 guide vardır ve negatifler yalnızca 9 guide içinde gözlenir; özellikle guide 9251 negatiflerin büyük bölümünü taşır. Bu nedenle rare-negative sonuçları guide-composition-fragile olarak raporlanmalıdır.
+- Sprint 9 guide-cluster bootstrap ve paired-difference analizleri finite-sample compatibility aralıkları sağlar; bunlar bağımsız external population garantisi değildir.
+- GNN sonuçları tek fixed split etrafında geliştirilmiştir. Multi-seed analiz AUPRC farklarının seed sensitivity içinde kaldığını gösterdiği için AUPRC superiority iddiası kurulamaz.
+- Threshold metrics validation-selected threshold ile hesaplanır. Bu metrikler pratik operating-point davranışını gösterir, fakat primary ranking metriği olan AUPRC'nin yerine geçmez.
+- Sprint 2 F4 barı historical artifact'tır; Sprint 9 regenerated F4 küçük XGBoost version drift'i taşır. Tezde hangi F4 değerinin kullanıldığı tablo dipnotlarında açık belirtilmelidir.
+- Mak et al. 2022 continuous CA pipeline'ı yeniden üretilmedi. Bu çalışma Mak ile aynı veri/feature lineage'ını kullanır, fakat problem formulation, label, split ve model ailesi farklıdır.
+- Attention weights, context gates, FiLM weights ve feature masking sonuçları model-interpretation evidence'dır; causal biological mechanism kanıtı değildir.
+
 ## Tezde Öne Çıkarılacak Sayısal Anchor'lar
 
 | Karşılaştırma | AUPRC | MCC | Macro-F1 | Specificity | TN/FP/FN/TP | Not |
 | --- | ---: | ---: | ---: | ---: | --- | --- |
-| XGBoost F4 | 0.992522 | 0.345198 | - | - | 38/131/21/1512 | Primary AUPRC bar |
+| XGBoost F4 | 0.992522 | 0.345198 | - | - | 38/131/21/1512 | Primary AUPRC bar; Sprint 2 historical |
 | Graph A GCN WBCE | 0.976935 | 0.483719 | 0.698939 | 0.289941 | 49/120/6/1527 | Sprint 6 best loss |
 | Graph C GATv2 | 0.969078 | 0.531774 | 0.739526 | 0.372781 | 63/106/12/1521 | Sprint 7B context signal |
 | S7F R2 family-aware | 0.982062 | 0.603489 | 0.801716 | 0.650888 | 110/59/63/1470 | Best MCC/macro-F1 family |
@@ -359,6 +388,8 @@ Kaçınılacak:
 | S8B R2 seq+context | 0.986020 | 0.567309 | 0.760058 | 0.863905 | 146/23/180/1353 | Highest single-seed GNN AUPRC and TN recovery |
 
 Bu tablo tezde "final leaderboard" olarak değil, anlatı anchor'ı olarak kullanılmalıdır. Sprint 9 robustness tablosu ile birlikte verildiğinde iddia dengesi korunur.
+
+F4 satırı Sprint 2 historical artifact'ına aittir. Sprint 9 robustness bölümünde regenerated F4 değeri ayrıca verilmelidir: AUPRC 0.992338, MCC 0.3511, TN/FP/FN/TP 40/129/23/1510. Bu iki değer karıştırılmamalı; fark XGBoost version drift olarak açıklanmalıdır.
 
 ## Sonuç Anlatısı
 
