@@ -217,7 +217,7 @@ Bu literatür tezde üç amaçla kullanılmalıdır:
 
 Raw skorlar doğrudan karşılaştırılmamalıdır. Bu paperların çoğu genome-wide candidate pool, farklı negative sampling, farklı guide split, farklı label ve farklı prevalence kullanır. Bu çalışmanın measured-only test seti pozitif ağırlıklıdır; bu yüzden PR-AUC sayıları literatürdeki negative-heavy retrieval evrenleriyle birebir kıyaslanamaz.
 
-Sprint 8B bu literatüre kontrollü bir cevap verir: local sequence-only path zayıf kaldı, fakat sequence + context late fusion en iyi single-seed GNN AUPRC'yi verdi. Tezde bu, "sequence'i bırakmadık; context ile birlikte test ettik" şeklinde anlatılmalıdır.
+Sprint 8B bu literatüre kontrollü bir cevap verir: local sequence-only path zayıf kaldı, fakat sequence + context late fusion en iyi single-seed GNN AUPRC'yi verdi. Tezde bu, "sequence bırakılmamış; context ile birlikte test edilmiştir." şeklinde anlatılmalıdır.
 
 ### Graph-Based CRISPR ve GNN Literatürü
 
@@ -231,7 +231,7 @@ Kipf & Welling GCN, Vinodkumar et al. GCN-CRISPR ve GraphCRISPR gibi çalışmal
 - Edge-aware GATv2'de S5F2_energy message passing/attention hattına sokuldu.
 - Robustness Sprint 9 ile AUPRC superiority sınırı açıkça çizildi.
 
-Bu nedenle "GCN-CRISPR'i reproduce ettik" denmemelidir. Daha doğru ifade: Graph link-prediction fikrini CRISPR off-target için guide-disjoint epigenetic-context-aware bir workflow'a uyarladık.
+Bu nedenle "GCN-CRISPR'i reproduce edildi" denmemelidir. Daha doğru ifade: Graph link-prediction fikrini CRISPR off-target için guide-disjoint epigenetic-context-aware bir workflow'a uyarlandı.
 
 ### GAT/GATv2 ve Attention
 
