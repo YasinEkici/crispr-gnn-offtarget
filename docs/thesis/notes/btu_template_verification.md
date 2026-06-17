@@ -1,6 +1,6 @@
 # BTU Thesis Template Verification
 
-This note records the local verification performed after importing the Bursa Technical University Computer Engineering thesis DOCX template into the repository as a XeLaTeX/Tectonic template.
+This note records the local verification performed after importing the Bursa Technical University Computer Engineering thesis DOCX template into the repository as a XeLaTeX/Tectonic template. It documents the original 2019 mapping; for the 2026 transition decisions, see `template_2026_migration_audit.md`.
 
 ## Source Files
 
@@ -66,7 +66,7 @@ This confirms that the local build used real Times New Roman rather than the fal
 Representative PDF pages were rendered through macOS Quick Look thumbnails and visually inspected:
 
 - Page 1: outer cover.
-- Page 3: approval page after spacing fix.
+- Legacy 2019 mapping page 3: approval page after spacing fix. In the current 2026 DOCX-aligned default flow this page is not printed; page 3 is a blank page after the inner cover.
 - Page 6: table of contents.
 - Page 13: main text and heading hierarchy.
 - Page 14: figure caption, table caption, and equation layout.
@@ -77,4 +77,3 @@ No clipping, overlapping text, missing glyphs, or obvious page-boundary issues w
 ## Limitations
 
 LibreOffice / `soffice` was not available in this local environment, so the original DOCX was not rendered to page PNGs through the DOCX rendering workflow. The verification used direct OOXML inspection for the DOCX and compiled-PDF visual QA for the LaTeX output.
-

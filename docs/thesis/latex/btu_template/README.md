@@ -1,6 +1,6 @@
 # BTÜ Bilgisayar Mühendisliği Lisans Bitirme Çalışması LaTeX Şablonu
 
-Bu klasör, `BTU_BM_Tez_Yazım_Sablonu_2019.docx` dosyasındaki kapak, ön sayfalar ve temel yazım kurallarına göre hazırlanmış XeLaTeX/Tectonic uyumlu LaTeX şablonudur.
+Bu klasör, BTÜ Bilgisayar Mühendisliği lisans bitirme çalışması için hazırlanmış XeLaTeX/Tectonic uyumlu LaTeX şablonudur. İlk sürüm `BTU_BM_Tez_Yazım_Sablonu_2019.docx` esas alınarak hazırlanmış; biçim kuralları `BTU_BM_Tez_Yazım_Sablonu_2026_updated.docx` içindeki güncel notlar ve paylaşılan lisansüstü LaTeX şablonu referans alınarak güncellenmektedir.
 
 ## Derleme
 
@@ -24,7 +24,7 @@ xelatex main.tex
 
 - Türkçe ve İngilizce tez başlığı
 - öğrenci adı soyadı ve öğrenci numarası
-- danışman, jüri ve bölüm başkanı bilgileri
+- danışman bilgisi ve idari tarih alanları
 - savunma tarihi, ay/yıl bilgisi
 - anahtar kelimeler
 
@@ -37,14 +37,15 @@ Sonra `chapters/` ve `appendices/` klasörlerindeki dosyaları kendi tez içeri�
 - Ana metin 12 punto; DOCX varsayılanına uygun olarak Times New Roman kullanılır. Times New Roman sistemde yoksa Tinos/TeX Gyre Termes fallback kullanılır. Dış kapak Arial-benzeri sans fontla, iç kapak ve tez gövdesi Times-benzeri serif fontla ayarlanmıştır.
 - Ana metin 1.5 satır aralığı ve iki yana yaslı.
 - Önsöz, içindekiler, kısaltmalar, semboller, şekil/çizelge listeleri, özetler ve kaynaklar tek satır aralığına yakın düzenlenmiştir.
-- İlk dört ön sayfa sayılır ama sayfa numarası gösterilmez; ÖNSÖZ sayfası roman `v` ile görünür.
+- 2026 DOCX akışıyla uyumlu olarak dış kapak, iç kapak, boş sayfa ve İNTİHAL BEYANI sayılır ama sayfa numarası gösterilmez; ÖNSÖZ sayfası roman `v` ile görünür.
 - Ana metin `1` numarasından başlar.
 - 1., 2., 3. ve 4. derece başlıklar numaralandırılır; 5. derece başlık numarasızdır ve içindekiler listesinde verilmez.
-- Şekil başlıkları altta, çizelge başlıkları üstte; başlıklar DOCX `ResimYazs` stiline uygun olarak 10 punto basılır ve etiketler `Şekil 2.1 :` / `Çizelge 2.1 :` formundadır.
+- Şekil başlıkları altta, çizelge başlıkları üstte; başlıklar DOCX `ResimYazs` stiline uygun olarak 10 punto basılır ve etiketler `Şekil 2.1 :` / `Çizelge 2.1 :` formundadır. Güncel 2026 şablon notlarına göre şekil ve çizelge açıklamaları nokta ile bitirilir.
+- Kaynakça tek satır aralıklı, iki yana yaslı ve 2.5 cm asılı girintili basılır.
 
 ## Not
 
-DOCX şablonunda “dış kapaktan sonra boş sayfa” yorumu yer aldığı için bölümün fiziksel teslimde bunu istemesi mümkün. `main.tex` içinde ilgili satır yorum olarak bırakıldı. Bölüm özellikle isterse o satırı aç.
+Varsayılan ön sayfa akışı 2026 DOCX render akışıyla eşleştirilmiştir: dış kapak, iç kapak, boş sayfa, İNTİHAL BEYANI, ÖNSÖZ. Onay/jüri sayfası makrosu class içinde korunur, ancak varsayılan `main.tex` akışında basılmaz.
 
 
 ## Font notu

@@ -1,0 +1,677 @@
+%%
+%% This is file fbe_tez.sty
+%% It provides you macros necessary to typeset a thesis
+%% in the format required by the Institute of Graduate
+%% Studies in Science and Engineering, Bogazici University.
+%%
+%% Prepared by Feza Kerestecioglu
+%%
+%% Modified by Mehmet Can Güven
+%% Last modified on 20/06/2018
+%%
+%% COPYRIGHT 2024 
+%% You are NOT ALLOWED to take money for the distribution or
+%% use of these and associated files or modified versions or
+%% fragments thereof.
+%%
+%%
+\typeout{Lisansustu Egitim Enstitusu Tez Sablonu, Bursa Teknik Universitesi Version 0.0}
+\typeout{Gurkan Aydemir Tarafindan Hazirlandi}
+
+%
+%Default packages
+%
+
+\usepackage[utf8x]{inputenc} % To use Unicode (e.g. Turkish) characters
+\usepackage{amsmath, amsthm} % Some extra symbols
+\usepackage[bottom]{footmisc}
+\usepackage{cite}
+\usepackage{graphicx}
+\usepackage{longtable}
+\usepackage{float}
+\usepackage{multirow}
+\usepackage{subfigure}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage{array}
+\usepackage{amssymb,bm,cite,graphicx, fixmath, texdraw}
+\usepackage{epsfig}
+\usepackage{epstopdf}
+\usepackage{subfigure} % 
+\usepackage{amsmath}
+\usepackage{notoccite}
+\usepackage{setspace}
+\usepackage{lipsum}
+\usepackage{geometry}
+\usepackage{enumitem} % Required to customize indentation
+\usepackage{rotating} % Include this in the preamble
+\usepackage{lscape}
+
+
+
+\newcommand{\setIngilizceBaslik}[1]{\gdef\theIngilizceBaslik{#1}}
+\newcommand{\getIngilizceBaslik}{\theIngilizceBaslik}
+
+%
+% Other definitions
+%
+\xdef\@singlespaced{1}
+\xdef\@onehalfspaced{1.5}
+%
+\newlength{\spv}
+\newlength{\ei}
+\newlength{\csi}
+\newlength{\csii}
+\newlength{\eii}
+\newlength{\eiii}
+\newlength{\eiv}
+\newlength{\ev}
+\let\@app\empty
+\newcounter{thsfootcnt}
+
+%
+% Abstract, Acknowledgements, Ozet, etc.
+%
+
+
+
+\renewenvironment{abstract}{
+	\clearpage  % Ensure it starts on a new page
+
+    \addcontentsline{toc}{chapter}{SUMMARY}  % Properly add to TOC without empty line
+	\begin{center}
+		\vspace*{70pt}
+		\textbf{ \getIngilizceBaslik}  % Thesis title before heading
+	\end{center}
+	\begin{center}
+		\textbf{SUMMARY}  % Centered & Uppercase heading
+	\end{center}
+
+} {\par\vfil\null}  
+%
+\newenvironment{acknowledgements}{
+	\chapter*{\ackname}
+	\singlespacing  % Set the spacing to single for this environment
+}
+{\par\vfil\null}
+%
+\newenvironment{preface}{\chapter*{\prefacename}}
+   {\par\vfil\null}
+%
+\newenvironment{foreword}{\chapter*{\forewordname}}
+   {\par\vfil\null}
+%
+\newenvironment{ozet}{
+	\clearpage  % Ensure it starts on a new page
+	
+	\addcontentsline{toc}{chapter}{\"OZET}  % Properly add to TOC without empty line
+	\begin{center}
+		\vspace*{70pt}
+		\textbf{ \@title}  % Thesis title before heading
+	\end{center}
+	\begin{center}
+		\textbf{\"OZET}  % Centered & Uppercase heading
+	\end{center}
+}
+{\par\vfil\null}     
+%
+\newenvironment{symbols}{%
+   \clearpage
+   \chapter*{\listsymbolname}
+   \beginsymlist}
+  {\closesymlist}
+%
+\newenvironment{abbreviations}{%
+   \clearpage
+   \chapter*{\listabbname}
+   \beginsymlist}
+  {\closesymlist}
+  
+%
+\newenvironment{symabbreviations}{%
+   \clearpage
+   \chapter*{\listsymabbname}
+   \beginsymlist}
+  {\closesymlist}
+%
+\newcommand{\beginsymlist}{%
+   \begin{tabbing}
+   \hspace*{\symtabi}\=\hspace*{\symtabii}\=\kill}
+%
+\newcommand{\closesymlist}{\end{tabbing}}
+%
+\newcommand{\sym}[2]{\>\textbf{#1} \> \textbf{:} \parbox[t]{11cm}{#2} \\}
+\newlength{\symtabi}
+\newlength{\symtabii}
+\setlength{\symtabi}{0em}
+\setlength{\symtabii}{10em}
+%
+\newcommand\prefacename{PREFACE}
+\newcommand\forewordname{FOREWORD}
+\newcommand\ackname{ÖNSÖZ}
+\newcommand\ozetname{\"OZET}
+\newcommand{\listsymbolname}{SEMBOLLER}
+\newcommand{\listsymabbname}{LIST OF SYMBOLS/ABBREVIATIONS}
+\newcommand{\listabbname}{KISALTMALAR}
+
+\renewcommand\indexname{INDEX}
+\renewcommand\partname{PART}
+\renewcommand\appendixname{EK}
+
+
+
+
+%
+% Sectional Units
+%
+\renewcommand\chapter{\clearpage
+                    \global\@topnum\z@
+                    \@afterindenttrue
+                    \secdef\@chapter\@schapter}
+%
+\renewcommand\@makechapterhead[1]{
+	\vspace*{72pt}
+  {\normalfont
+    \ifnum \c@secnumdepth >\m@ne
+    \ifx\@app\empty
+        \bfseries \thechapter.\hspace{1ex}
+    \else
+        \bfseries \appendixname \thechapter:\hspace{1ex}
+    \fi
+    \fi
+    \interlinepenalty\@M
+    \bfseries #1\par\nobreak
+    \vskip18pt  %\vskip29pt
+  }}
+%
+\renewcommand\@makeschapterhead[1]{
+	\vspace*{72pt}
+	
+  { \normalfont
+    \interlinepenalty\@M
+     \bfseries  #1\par\nobreak
+    \vskip18pt  %\vskip29pt
+  }}
+%
+\def\@chapter[#1]#2{\ifnum \c@secnumdepth >\m@ne
+                      \refstepcounter{chapter}%
+                      \typeout{\@chapapp\space\thechapter.}%
+                      \ifx\@app\empty
+                        \addcontentsline{toc}{chapter}%
+                            {\protect\numberline{\chaptocapp}#1}%
+                      \else
+                        \addtocontents{toc}{%
+                        \noindent
+                        \bfseries \appendixname\ \thechapter:\hspace{1.6ex}#1
+                        \nobreak\leaders
+                        \hbox{$\m@th \mkern \@dotsep mu.\mkern
+                              \@dotsep mu$}
+                        \hfill \nobreak
+                        \hb@xt@\@pnumwidth{\hss \thepage}\par}
+                      \fi
+                    \else
+                      \addcontentsline{toc}{chapter}{#1}%
+                    \fi
+                    \chaptermark{#1}%
+                      \@makechapterhead{#2}%
+                      \@afterheading
+                   }
+%
+\renewcommand\@schapter[1]{\addcontentsline{toc}{chapter}{#1}%
+     \@makeschapterhead{#1} \@afterheading}
+%
+\def\chaptocapp{\thechapter.}
+%
+\renewcommand\section{%
+  \@startsection{section}{1}{\z@}
+   {18pt}{12pt}{\bfseries\normalsize}
+  }
+\renewcommand\subsection{%
+  \@startsection{subsection}{2}{\z@}
+   {12pt}{6pt}{\bfseries\normalsize}
+  }
+\renewcommand\subsubsection{%
+  \@startsection{subsubsection}{3}{\z@}
+   {12pt}{6pt}{\bfseries\normalsize}
+  }
+\renewcommand\paragraph{%
+  \@startsection{paragraph}{4}{\z@}
+   {6pt \@plus1ex \@minus.2ex}{1pt}
+   {\bfseries\normalsize\hskip\parindent}
+  }
+%
+% There should be a period after the section number.
+% Also the space between the section number and title are set to 0.5em
+\def\@sect#1#2#3#4#5#6[#7]#8{\ifnum #2>\c@secnumdepth
+   \let\@svsec\@empty\else
+   \refstepcounter{#1}
+   \ifnum#2=3
+     \def\@svsec{\csname the#1\endcsname \hskip 0.5em}
+     \else
+     \edef\@svsec{\csname the#1\endcsname \hskip 0.5em}\fi
+   \fi
+   \@tempskipa #5\relax
+   \ifdim \@tempskipa>\z@
+      \begingroup #6\relax
+         \@hangfrom{\hskip #3\relax\@svsec}{\interlinepenalty \@M #8\par}%
+      \endgroup
+      \csname #1mark\endcsname{#7}
+      \addcontentsline{toc}{#1}
+         {\ifnum #2>\c@secnumdepth
+          \else \protect\numberline{\csname the#1\endcsname }
+          \fi
+          #7}
+   \else
+      \def\@svsechd{#6\hskip #3\relax  %% \relax added 2 May 90
+         \@svsec #8\ifnum #2>\c@secnumdepth.\fi
+         \csname #1mark\endcsname{#7}
+         \addcontentsline{toc}{#1}
+           {\ifnum #2>\c@secnumdepth
+            \else \protect\numberline{\csname the#1\endcsname }
+            \fi
+         #7}}
+   \fi
+   \@xsect{#5}}
+%
+% First paragraf of a section should be indented
+\def\@startsection#1#2#3#4#5#6{\if@noskipsec \leavevmode \fi
+   \par \@tempskipa #4\relax
+   \@afterindenttrue
+   \ifdim \@tempskipa <\z@ \@tempskipa -\@tempskipa \fi
+   \if@nobreak \everypar{}\else
+     \addpenalty{\@secpenalty}\addvspace{\@tempskipa}\fi \@ifstar
+     {\@ssect{#3}{#4}{#5}{#6}}{\@dblarg{\@sect{#1}{#2}{#3}{#4}{#5}{#6}}}}
+%
+\addtocounter{secnumdepth}{1}
+\addtocounter{tocdepth}{1}
+%
+% Figures and Tables
+%
+\renewcommand\listfigurename{ŞEKİL LİSTESİ}
+\renewcommand\listtablename{ÇİZELGE LİSTESİ}
+\renewcommand\figurename{Şekil}
+\renewcommand\tablename{Çizelge}
+%
+% The spacing after the title of L.O.F. and L.O.T. is increased by
+% one extra \baselineskip.
+\renewcommand\l@figure{\@dottedtocline{1}{0em}{5.4em}}
+
+\renewcommand\l@table{\@dottedtocline{1}{0em}{6.4em}}
+\renewcommand\listoffigures{%
+    \begingroup
+    \setstretch{1}
+    \setlength{\parskip}{-15pt} 
+    \chapter*{\listfigurename
+      \@mkboth{\MakeUppercase\listfigurename}%
+              {\MakeUppercase\listfigurename}}%
+    \vskip\baselineskip
+    \noindent\hfill\textbf{\underline{Sayfa}}  % Add "Sayfa" label right-aligned
+    \vskip 24 pt
+    \@starttoc{lof}             % Generate the list of figures
+    \endgroup
+}
+%
+\renewcommand\listoftables{%
+    \begingroup
+    \setstretch{1}
+    \setlength{\parskip}{-15pt}   % Remove paragraph spacing
+    \chapter*{\listtablename
+      \@mkboth{\MakeUppercase\listtablename}%
+              {\MakeUppercase\listtablename}}%
+    \vskip\baselineskip
+    \noindent\hfill\textbf{\underline{Sayfa}}  % Add "Sayfa" label right-aligned
+    \vskip 24 pt
+    \@starttoc{lot}             % Generate the list of tables
+    \endgroup
+}
+%
+% The expressions 'FIGURE' and 'TABLE' also appear in the LOF and LOT.
+% Also there is a period after the figure or table number.
+\long\def\@caption#1[#2]#3{\par\addcontentsline{\csname
+  ext@#1\endcsname}{#1}
+% The \csname command should follow immediately after {
+  {\protect\numberline{\textbf{\csname #1name\endcsname \space
+  \csname the#1\endcsname :}}{\ignorespaces #2}\vspace\baselineskip}\begingroup
+    \@parboxrestore
+    \normalsize
+    \@makecaption{\csname fnum@#1\endcsname}{\ignorespaces #3}\par
+  \endgroup}
+%
+% The space between the figure and caption is reduced from 10\p@ to 0\p@
+% The value of \belowcaptionskip (0\p@) has not been changed.
+\setlength\abovecaptionskip{0\p@}
+%
+% A period should appear after the caption number.
+\long\def\@makecaption#1#2{%
+  \vskip\abovecaptionskip
+  \centering
+  \sbox\@tempboxa{\textbf{#1 :} #2}%
+  \ifdim \wd\@tempboxa >\hsize
+  \noindent
+     \begin{tabular}{@{}c p{0.8\textwidth}@{}} % Centered label
+     	\textbf{#1 :} & #2
+     \end{tabular}
+  \else  
+    \global \@minipagefalse
+    \hb@xt@\hsize{\hfil\box\@tempboxa\hfil}%
+  \fi
+   % closes centering
+  \vskip6pt}
+%
+% The spaces between the figure or table number and the caption are
+% redefined.
+\newcommand{\longcaption}[2]{%
+	\vskip\abovecaptionskip
+	\centering
+	\sbox\@tempboxa{\textbf{#1 :} #2}%
+	\ifdim \wd0 >\hsize
+	\noindent
+	\begin{tabular}{@{}c p{0.8\textwidth}@{}} % Align label and text
+		\textbf{#1:} & #2
+	\end{tabular}
+	\else  
+	\global \@minipagefalse
+	\hb@xt@\hsize{\hfil\box0\hfil}%
+	\fi
+	\vskip6pt
+}
+
+%
+% Table of Contents
+%
+\renewcommand\contentsname{İÇİNDEKİLER}
+\renewcommand\tableofcontents{% \ev is used for temporary storage of \parskip
+\setlength{\ev}{\parskip}
+\parskip0pt
+% A line as 'TABLE OF CONTENTS' must not appear in the
+% Table of Contents. Hence we reproduce the \chapter* here except that
+% no entry is put into the toc file.
+     \clearpage  
+     \singlespacing
+     \global\@topnum\z@
+     \@afterindenttrue
+     \addcontentsline{toc}{chapter}{\contentsname}
+     \vspace*{72pt}
+      { \normalfont
+       \interlinepenalty\@M
+       \bfseries  \contentsname\par\nobreak
+       \vskip18pt 
+      }
+     \@afterheading
+     \noindent\hfill\textbf{\underline{Sayfa}}  % Add "Sayfa" label right-aligned
+     \vskip 6pt
+     \@starttoc{toc}%
+\parskip\ev}
+
+%
+% FBE style TOC does not have bold lines.
+
+
+\renewcommand\l@chapter[2]{%
+  \ifnum \c@tocdepth >\m@ne
+    \addpenalty{-\@highpenalty}%
+    \setlength\@tempdima{1.5em}%
+    \begingroup
+      \parindent \z@ \rightskip \@pnumwidth
+      \parfillskip -\@pnumwidth
+      \leavevmode
+      \advance\leftskip\@tempdima
+      \hskip -\leftskip
+      \bfseries #1\nobreak\leaders\hbox{$\m@th \mkern \@dotsep mu.\mkern \@dotsep
+       mu$}\hfil \nobreak\hb@xt@\@pnumwidth{\hss #2}\par
+      \penalty\@highpenalty
+    \endgroup
+  \fi}
+%
+% The spacing of the TOC lines has been redefined.
+\renewcommand*\l@section{\@dottedtocline{1}{1em}{1.4em}}
+\renewcommand*\l@subsection{\@dottedtocline{2}{2em}{2em}}
+\renewcommand*\l@subsubsection{\@dottedtocline{3}{3em}{2.6em}}
+\renewcommand*\l@paragraph{\@dottedtocline{4}{11.1em}{4.7em}}
+\renewcommand*\l@subparagraph{\@dottedtocline{5}{16.1em}{5.7em}}
+
+%
+% Appendix
+%
+\renewcommand\appendix{\par
+  \setcounter{chapter}{0}%
+  \setcounter{section}{0}%
+  \renewcommand\@chapapp{\appendixname}
+  \renewcommand\thechapter{\@Alph\c@chapter}%
+  \let\@app1
+}
+%
+% References
+%
+\def\@biblabel#1{[#1]}
+%
+\renewenvironment{thebibliography}[1]
+     {\chapter*{\bibname}  \vskip0.5\baselineskip
+      \list{\@biblabel{\@arabic\c@enumiv}}%
+           {\settowidth\labelwidth{\@biblabel{#1}}%
+            \leftmargin\labelwidth
+            \advance\leftmargin\labelsep
+            \itemsep17pt
+            \@openbib@code
+            \usecounter{enumiv}%
+            \let\p@enumiv\@empty
+            \renewcommand\theenumiv{\@arabic\c@enumiv}}%
+      \sloppy
+      \clubpenalty4000
+      \@clubpenalty \clubpenalty
+      \widowpenalty4000%
+      \sfcode`\.\@m}
+     {\def\@noitemerr
+       {\@latex@warning{Empty `thebibliography' environment}}%
+      \endlist}
+%
+\newenvironment{harvardbibliography}{%
+     \chapter*{\bibname} \vskip0.5\baselineskip
+     \begin{list}{}{\topsep0pt \leftmargin2em \rightmargin0pt
+     \itemindent-2em \itemsep17pt \parsep0pt}}
+     {\def\@noitemerr
+       {\@latex@warning{Empty `harvardbibliography' environment}}
+      \end{list}}
+%
+\newenvironment{bibnotcited}[1]{%
+      \chapter*{\bibncname} \vskip0.5\baselineskip
+      \list{\@biblabel{\@arabic\c@enumiv}}%
+           {\settowidth\labelwidth{\@biblabel{#1}}%
+            \leftmargin\labelwidth
+            \advance\leftmargin\labelsep
+            \itemsep17pt
+            \@openbib@code
+            \usecounter{enumiv}%
+            \let\p@enumiv\@empty
+            \renewcommand\theenumiv{\@arabic\c@enumiv}}%
+      \sloppy
+      \clubpenalty4000
+      \@clubpenalty \clubpenalty
+      \widowpenalty4000%
+      \sfcode`\.\@m}
+     {\def\@noitemerr
+       {\@latex@warning{Empty `bibnotcited' environment}}%
+      \endlist}
+%
+\newenvironment{harvardbibnotcited}{%
+     \chapter*{\bibncname} \vskip0.5\baselineskip
+     \begin{list}{}{\topsep0pt \leftmargin2em \rightmargin0pt
+     \itemindent-2em \itemsep17pt \parsep0pt}}
+     {\def\@noitemerr
+       {\@latex@warning{Empty `harvardbibnotcited' environment}}%
+     \end{list}}
+\renewcommand{\bibname}{KAYNAKLAR}
+\newcommand{\bibncname}{REFERENCES NOT CITED}
+%
+% Footnotes are numbered consecutively throughout the
+% whole thesis and single line-spacing is invoked.
+%
+\def\footnote#1{%
+   \@ifnextchar[{\@xfootnote}{%
+\setcounter{footnote}{\value{thsfootcnt}}%
+\addtocounter{thsfootcnt}{1}%
+   \stepcounter{\@mpfn}%
+     \begingroup\let\protect\noexpand
+       \xdef\@thefnmark{\thempfn}\endgroup
+\let\baselinestretch\@singlespaced 
+     \@footnotemark\@footnotetext{#1}
+\let\baselinestretch\@onehalfspaced}
+}
+%
+% Single line spacing is required in in quotations.
+%
+\renewenvironment{quotation}{%
+     \par
+     \list{}{%
+\let\baselinestretch\@singlespaced
+      \listparindent 1.5em%
+      \itemindent    \listparindent
+      \rightmargin   0pt
+      \parsep        \z@ \@plus\p@}%
+      \small
+      \item\relax}
+     {\par
+\let\baselinestretch\@onehalfspaced
+      \endlist}
+\renewenvironment{quote}{%
+      \par
+\let\baselinestretch\@singlespaced
+      \list{}{%
+       \baselineskip0.67\baselineskip
+       \listparindent 1.5em%
+       \itemindent\listparindent
+       \rightmargin0pt}%
+       \small
+       \item\relax}
+     {\par
+\let\baselinestretch\@onehalfspaced
+      \endlist}
+%
+% Spacing for displayed formulas and listings; within the text or
+% footnotes
+%
+\renewcommand{\normalsize}{%
+   \@setsize\normalsize{14.5pt}\xiipt\@xiipt
+   \abovedisplayskip 22pt
+   \belowdisplayskip \abovedisplayskip
+   \abovedisplayshortskip  \abovedisplayskip
+   \belowdisplayshortskip  \abovedisplayskip
+   \let\@listi\@listI
+}
+\renewcommand\footnotesize{%
+   \@setfontsize\footnotesize\@xpt\@xiipt
+   \abovedisplayskip 12pt
+   \belowdisplayskip \abovedisplayskip
+   \abovedisplayshortskip  \abovedisplayskip
+   \belowdisplayshortskip  \abovedisplayskip
+   \def\@listi{\leftmargin\leftmargini
+            \parsep 0pt
+            \topsep 0pt
+            \itemsep 0pt}
+}
+\setlength\leftmargini{1cm}
+\def\@listI{\leftmargin\leftmargini
+            \parsep 0pt
+            \topsep 0pt
+            \itemsep 0pt}
+\def\@listii {\leftmargin\leftmarginii
+              \labelwidth\leftmarginii
+              \advance\labelwidth-\labelsep
+              \parsep 0pt
+              \topsep 0pt
+              \itemsep 0pt}
+\def\@listiii{\leftmargin\leftmarginiii
+              \labelwidth\leftmarginiii
+              \advance\labelwidth-\labelsep
+              \parsep 0pt
+              \topsep 0pt
+              \partopsep 0pt
+              \itemsep 0pt}
+%
+% Page style
+%
+\hoffset=0mm
+\oddsidemargin=14.6mm
+\evensidemargin=14.6mm
+\voffset=-1in
+\topmargin=0mm
+\headsep =15mm
+%\headheight=20pt
+\footskip=13mm
+\paperheight=296mm
+\textwidth=145mm
+\textheight=247mm
+%\parindent=1cm
+\usepackage{ragged2e} % Provides the \justifying command
+\justifying
+\setlength{\parindent}{0pt} % Removes paragraph indentation
+
+
+\pagestyle{plain}
+\renewcommand{\thepage}{\fontsize{11pt}{}\selectfont\arabic{page}}
+
+
+%
+% Invoke 1.5 spacing
+
+
+\setlength{\parskip}{12pt}
+%% Invoke roman enumeration
+\renewcommand{\labelenumi}{(\roman{enumi})}
+%
+
+%
+%Extra definitions
+%
+\interdisplaylinepenalty=2500
+\hyphenation{lists} \makeatletter
+%
+%Several environment definitions
+%
+\newcommand{\field}[1]{\mathbb{#1} }
+\newcommand{\beq}{\begin{equation} \setlength\abovedisplayskip{5pt} 
+\setlength\belowdisplayskip{5pt}}
+\newcommand{\eeq}{\end{equation}}
+\newcommand{\bea}{\begin{eqnarray}}
+\newcommand{\eea}{\end{eqnarray}}
+\newcommand{\defn}{\stackrel{\triangle}{=}}
+\newcommand{\nn}{\nonumber}
+\newcommand{\nnl}{\nonumber \\}
+\renewcommand{\theequation}{\arabic{equation}}
+\renewcommand{\labelenumi}{(\roman{enumi})}
+
+\DeclareMathOperator*{\argmin}{arg\,min}
+\DeclareMathOperator*{\argmax}{arg\,max}
+\def\@dotsep{1.2} % Adjust this value for tighter dot spacing
+
+\def\ifundefined{\@ifundefined}
+\def\bfat{\left[ \begin{array}}
+\def\emat{\end{array} \right]}
+\def\bfatt{\left\{ \begin{array}}
+\def\ematt{\end{array} \right.}
+\def\bset{\left\{ \begin{array}}
+\def\eset{\end{array} \right\}}
+\def\bpar{\left( \begin{array}}
+\def\epar{\end{array} \right)}
+%
+%Several equation environments adjustments
+%
+
+\newtheorem{thm}{Theorem}[chapter]
+\newtheorem{prop}[thm]{Proposition}
+\newtheorem{lem}[thm]{Lemma}
+\newtheorem{cor}[thm]{Corollary}
+\setlist[itemize]{leftmargin=1.3cm,labelsep=4mm}   % Adjust indentation for itemize
+\setlist[enumerate]{leftmargin=1.3cm,labelsep=4mm} 
+\numberwithin{equation}{chapter}
+%
+%Graphics path 
+%
+\setlength{\floatsep}{6pt}  % Default is ~12pt
+\setlength{\textfloatsep}{6pt}  % Default is ~20pt
+\setlength{\intextsep}{12pt}  % Default is ~12pt
+\graphicspath{{figures/}} % Graphics will be here
+% This is end of btu_tez.sty.
+\renewcommand{\baselinestretch}{1.5}
+\normalsize
+\sloppy

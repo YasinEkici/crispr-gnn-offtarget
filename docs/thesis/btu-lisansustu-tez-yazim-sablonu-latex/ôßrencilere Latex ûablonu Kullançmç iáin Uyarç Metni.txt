@@ -1,0 +1,4 @@
+* Lateks, yüksek baskı kalitesi sunan; bilimsel metinlerde, matematiksel eşitliklerin bulunduğu dokümanların yazımında kullanılan bir belge düzenleme biçimidir. 
+Lateks tez şablonu, tezini bu formatta yazmak isteyen öğrencilerimiz için Enstitümüz tarafından geliştirilmiş ve örnek tez şablonu olarak kullanıma sunulmuştur.
+Öğrencilerimizin, tez baskısını almadan önce, tezlerini Pdf formatına dönüştürerek kontrol etmeleri çok önemlidir. 
+Tezin son halinin Tez Yazım Kılavuzuna uygun olarak teslim edilmesi sorumluluğu tez yazarına aittir.

@@ -2,7 +2,7 @@
 
 > Bu bir "şunu yaz" promptu değil. Bölüm bölüm çalışırken, AI ile **yazdığın ya da düzelttiğin her parçaya** uygulanan kural setidir. Kuralları parçanın başına yapıştır veya kalıcı talimat olarak tut.
 >
-> Esas: **BTÜ Bilgisayar Mühendisliği Bitirme Çalışması Şablonu.**
+> Esas: **BTÜ Bilgisayar Mühendisliği Bitirme Çalışması Şablonu 2026 güncel DOCX notları** ve güncel LaTeX şablonu.
 
 ---
 
@@ -77,7 +77,7 @@ Literatür ve Hipotez, Giriş'in alt başlıkları. Gövde bölümleri konuya g�
 | **Gövde bölümleri** (esnek) | Yöntem, tasarım, uygulama, deney/değerlendirme konuya göre adlandırılır. Bir başkası tekrar edebilecek açıklıkta yazılır. |
 | **Sonuç ve Öneriler** | Veri tekrarı değil; çıkarımlar ve sonraki çalışmalara öneri. |
 
-- **Özet/Summary:** Türkçe ve İngilizce özet **her biri 300–500 kelime**. Özette kaynak, şekil, çizelge **verilmez**. En fazla 6 anahtar kelime, virgülle. Türkçe tezde Türkçe özet (ÖZET) önce, İngilizce özet (SUMMARY) sonra önerilir.
+- **Özet/Summary:** Türkçe ve İngilizce özet **her biri 250–750 kelime**. Özette kaynak, şekil, çizelge **verilmez**. En fazla 6 anahtar kelime, virgülle. Türkçe tezde Türkçe özet (ÖZET) önce, İngilizce özet (SUMMARY) sonra önerilir.
 - Tez sonu: KAYNAKLAR → (gerekiyorsa) EKLER → ÖZGEÇMİŞ.
 
 ---
@@ -86,20 +86,23 @@ Literatür ve Hipotez, Giriş'in alt başlıkları. Gövde bölümleri konuya g�
 
 - Metin içinde **mutlaka önce atıf**: "...Çizelge 2.1'de görüldüğü üzere...", "...(Şekil 2.1)". Atıf, şekil/çizelgeden önce gelir.
 - Numaralama bölüm bazlı, **koyu**: `Çizelge 1.2`, `Şekil 3.5`. Eklerde harfle: `Çizelge A.1`, `Şekil B.5`.
-- **Şekil** açıklaması **altta**, **çizelge** açıklaması **üstte**, ortalı.
-- **Çizelge açıklaması nokta ile biter.** Şekil açıklamasında nokta yok.
+- **Şekil** açıklaması **altta**, **çizelge** açıklaması **üstte** verilir. Tek satırlı açıklamalar ortalı; çok satırlı açıklamalar iki yana yaslı/asılı düzende olmalıdır.
+- Şekil ve çizelge etiketleri koyu, açıklama metni normal olmalıdır: `Şekil 2.1 : Açıklama.` / `Çizelge 2.1 : Açıklama.`
+- **Şekil ve çizelge açıklamaları nokta ile biter.**
 - 4 sayfadan uzun şekil/çizelge eklere taşınır. Gerekirse 8 puntoya kadar küçültülebilir. Devamı için `(devam)`.
 
 ---
 
 ## 7. Biçim ve ön sayfalar
 
-**Ön sayfa sırası:** Dış kapak → İç kapak → Onay/Jüri sayfası → İNTİHAL BEYANI → ÖNSÖZ → İÇİNDEKİLER → KISALTMALAR → SEMBOLLER → ÇİZELGE LİSTESİ → ŞEKİL LİSTESİ → ÖZET → SUMMARY → GİRİŞ.
+**Ön sayfa sırası:** Dış kapak → İç kapak → Boş sayfa → İNTİHAL BEYANI → ÖNSÖZ → İÇİNDEKİLER → KISALTMALAR → SEMBOLLER → ÇİZELGE LİSTESİ → ŞEKİL LİSTESİ → ÖZET → SUMMARY → GİRİŞ.
 - Teşekkür ayrı değil, **Önsöz** içinde (en fazla 2 sayfa, 1 satır aralığı; altta sağda ad-soyad, solda ay-yıl).
 
 **Başlık hiyerarşisi:** `1. ANA BÖLÜM` (tümü büyük, koyu, sağ/tek sayfadan başlar) / `1.1 İkinci Derece` (koyu, kelime baş harfleri büyük) / `1.1.1 Üçüncü derece` ve `1.1.1.1 Dördüncü derece` (koyu, yalnız ilk harf büyük). **Beşinci derece numaralandırılmaz.**
 
 **Sayfa:** Times New Roman 12 punto, denklemler de TNR 12. Alt boşluk 2.5 cm; sayfa sonunda gereksiz boşluk bırakma. Denklemler numaralı `(3.1)`, parametreler altında açıklanır. İçerik dipnotu metinden 2 punto küçük, üst-simge numara, numaradan sonra noktalama yok.
+
+**Kaynakça biçimi:** KAYNAKLAR tek satır aralıklı, iki yana yaslı ve her kaynak 2,5 cm asılı girintili olmalıdır.
 
 ---
 
@@ -110,10 +113,10 @@ Literatür ve Hipotez, Giriş'in alt başlıkları. Gövde bölümleri konuya g�
 - [ ] Her iddia veriye veya atfa bağlı
 - [ ] Atıflar APA (yazar-tarih); hepsi kaynakçada, alfabetik
 - [ ] Kaynaktan 5+ kelime birebir kopya yok; parafrazlar baştan yazılmış ve atıflı
-- [ ] Şekil/çizelgeye metinde önce atıf var; çizelge başlığı nokta ile bitiyor
-- [ ] Özet 300–500 kelime, kaynak/şekil/çizelge içermiyor
+- [ ] Şekil/çizelgeye metinde önce atıf var; şekil ve çizelge başlığı nokta ile bitiyor
+- [ ] Özet 250–750 kelime, kaynak/şekil/çizelge içermiyor
 - [ ] Süs tire, sahte üçleme, şişirme kelime temiz
 
 ---
 
-*Esas: BTÜ Bilgisayar Mühendisliği Bitirme Çalışması Şablonu. Son sürüm için danışmandan teyit al.*
+*Esas: BTÜ Bilgisayar Mühendisliği Bitirme Çalışması Şablonu 2026 güncel DOCX notları. Son sürüm için danışmandan/bölümden teyit al.*

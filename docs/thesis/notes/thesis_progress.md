@@ -8,22 +8,27 @@ This file is the durable handoff for thesis-writing progress, final scientific c
 
 The main thesis chapters `01_giris.tex`, `02_materyal_yontem.tex`, `03_deneysel_calismalar.tex`, and `04_sonuc_oneriler.tex` are structured first drafts. They contain the main narrative, citations, tables, figure references, and Sprint 9 robustness framing, but they are not final thesis text.
 
-The front matter has been mostly cleaned. `metadata.tex` now contains the real thesis titles, thesis keywords, submission month/year, and advisor name (`Doç. Dr. Mustafa Özgür CİNGİZ`). Student name/number, jury, chair, and defense date remain explicit placeholders until the real administrative information is available. `main.tex` now contains a real ÖNSÖZ, a thesis-specific KISALTMALAR list, a thesis-specific SEMBOLLER list, and completed Turkish ÖZET and English SUMMARY drafts. The CV/ÖZGEÇMİŞ area is intentionally left as a placeholder for now. `appendices/ek-a.tex` still needs to be replaced or removed if no real appendix is needed.
+The front matter has been mostly cleaned. `metadata.tex` now contains the real thesis titles, thesis keywords, submission month/year, advisor name (`Doç. Dr. Mustafa Özgür CİNGİZ`), and student information for Kasım DELİACI (`21360859021`) and Yasin EKİCİ (`21360859029`). The final defense date remains an explicit placeholder until the real administrative information is available. Jury/chair placeholders remain in metadata only for the optional approval-page macro, but that page is not printed in the default 2026 DOCX-aligned flow. `main.tex` now contains a real ÖNSÖZ, a thesis-specific KISALTMALAR list, a thesis-specific SEMBOLLER list, and completed Turkish ÖZET and English SUMMARY drafts. The CV/ÖZGEÇMİŞ area is intentionally left as a placeholder for now. `appendices/ek-a.tex` still needs to be replaced or removed if no real appendix is needed.
+
+The first two cover pages have been visually aligned to `BTU_BM_Tez_Yazım_Sablonu_2026_updated.docx`. The outer cover now uses the DOCX background artwork and page-centered blue title blocks, while the inner cover follows the DOCX's plain, logosuz, text-area-centered layout. The DOCX instructional note boxes were intentionally not reproduced in LaTeX output because they are template comments, not final thesis cover content.
 
 Recent completed front-matter work:
 
-- `metadata.tex`: real Turkish/English thesis titles, approval title, advisor name, keywords, and June 2026 month-year fields were added. Student, jury, chair, and defense-date placeholders were intentionally kept.
+- `metadata.tex`: real Turkish/English thesis titles, approval title, advisor name, student names/numbers, keywords, and June 2026 month-year fields were added. Defense-date placeholder was intentionally kept; jury/chair placeholders remain only for the optional approval-page macro.
 - `main.tex` ÖNSÖZ: placeholder instructions were replaced with a one-page Turkish acknowledgements text thanking the advisor, department faculty, family, and friends.
 - `main.tex` KISALTMALAR: the sparse template list was replaced with thesis-specific abbreviations such as AUPRC, AUROC, BCE, GATv2, GCN, GNN, MCC, sgRNA, SHAP, and XGBoost.
 - `main.tex` SEMBOLLER: irrelevant template symbols were replaced with thesis notation such as `\mathcal{D}_0`, `y`, `f_c`, `g_i`, `o_{ij}`, `x_{ij}^{obs}`, `h_o`, `\hat{p}_{ij}`, and confusion-matrix counts.
-- `main.tex` ÖZET/SUMMARY: placeholder abstract text was replaced with 300-500 word thesis-specific Turkish and English abstracts. Both avoid citations, figures, and tables, and keep the Sprint 9-bounded claim boundary.
+- `main.tex` ÖZET/SUMMARY: placeholder abstract text was replaced with 2026 DOCX-compliant 250-750 word thesis-specific Turkish and English abstracts. Both avoid citations, figures, and tables, and keep the Sprint 9-bounded claim boundary.
 - PDF spot checks were performed for metadata/title pages, KISALTMALAR, SEMBOLLER, ÖNSÖZ, ÖZET, and SUMMARY. These pages fit visually after the updates.
+- Cover-page visual QA was performed by rendering the DOCX and LaTeX PDFs side by side. The outer-cover text centers now follow the page center; the inner-cover text centers follow the 4 cm / 2.5 cm text-area center.
+- Two-student front-matter QA was performed by rendering the outer cover, inner cover, and plagiarism declaration. The cover pages show both students, the inner cover pairs each name with its student number, and the plagiarism declaration uses plural wording with two signature rows.
+- Final front-heading QA compared the 2019 DOCX, 2026 DOCX, and current LaTeX render. The 2019 and 2026 DOCX files both place `ÖNSÖZ` at approximately `y=126.2`, while the current LaTeX render places it at `y=126.3`; therefore the separate foreword heading position is intentional rather than a 2026-only drift. The 2026 DOCX and current LaTeX list headings also match closely: `İÇİNDEKİLER`, `KISALTMALAR`, `SEMBOLLER`, `ÇİZELGE LİSTESİ`, and `ŞEKİL LİSTESİ` render at approximately `y=144.2`.
 
 ## 3. Binding Thesis Notes
 
 - `btu_template_verification.md` controls BTU template and formatting expectations: A4 page, left 4 cm margin, other margins 2.5 cm, Times New Roman-style body, Arial-style outer cover, 12 pt body, 18 pt leading, justified text, heading spacing, caption sizing, and front-matter page-number behavior. A rendered PDF must be checked before final formatting judgment.
 - `main_narrative_framing.md` controls the scientific story and claim boundaries. The thesis must not become a "GNN beats all" narrative. The correct story is context-aware Graph C/GATv2 variants improving rare-negative operating behavior in some validation-locked settings, while Sprint 9 does not support robust AUPRC superiority over XGBoost F4.
-- `tez_yazim_meta_kurallari.md` controls thesis-writing style: academic Turkish, passive voice, no first person, APA author-date citations, no numbered citations, 300-500 word ÖZET/SUMMARY, figure/table references before placement, figure captions below, table captions above, and final references sorted alphabetically by author surname.
+- `tez_yazim_meta_kurallari.md` controls thesis-writing style: academic Turkish, passive voice, no first person, APA author-date citations, no numbered citations, 250-750 word ÖZET/SUMMARY, figure/table references before placement, figure captions below, table captions above, and final references sorted alphabetically by author surname.
 
 ## 4. Final Scientific Claim Boundary
 
@@ -70,7 +75,7 @@ The project developed a controlled context-aware GNN workflow for CRISPR-Cas9 of
 ## 8. Chapter-Level Next Work
 
 - `main.tex` / front matter: ÖNSÖZ, KISALTMALAR, SEMBOLLER, Turkish ÖZET, and English SUMMARY have been updated. CV/ÖZGEÇMİŞ should remain placeholder until real personal CV details are provided.
-- `metadata.tex`: title, English title, approval title, advisor, keywords, and submission/foreword month-year have been updated. Student name/number, jury, chair, and defense date still need real administrative values.
+- `metadata.tex`: title, English title, approval title, advisor, student names/numbers, keywords, and submission/foreword month-year have been updated. The defense date still needs the real administrative value. Jury/chair fields are currently relevant only if the optional approval-page macro is re-enabled.
 - `01_giris.tex`: split dense paragraphs, standardize Turkish/English terminology, and keep the introduction centered on context-aware representation plus bounded AUPRC claims.
 - `02_materyal_yontem.tex`: keep methods separate from interpretation, verify robustness wording as finite-sample guide-cluster compatibility, and ensure no method implies test-driven tuning.
 - `03_deneysel_calismalar.tex`: tighten Sprint 9 as the controlling claim-boundary section; separate AUPRC ranking from threshold operating behavior; revise any wording that sounds like unqualified significance or causal mechanism.
@@ -81,7 +86,7 @@ The project developed a controlled context-aware GNN workflow for CRISPR-Cas9 of
 
 All thesis-referenced result figures appear present under `docs/thesis/latex/btu_template/figures/results/`. A local `main.pdf` has been rendered during front-matter work for visual QA, but the PDF is treated as a generated artifact and is not part of the durable source handoff unless explicitly committed later.
 
-Recent PDF checks verified that the updated title/metadata pages fit, the KISALTMALAR page fits on one page, the SEMBOLLER page fits on one page, the ÖNSÖZ page fits on one page with date/name alignment intact, and the ÖZET/SUMMARY pages each fit on one page with keywords visible. The remaining PDF QA pass must still check captions, table width, figure placement, cross-references, table/figure lists, page breaks, front-matter numbering, and whether result figures look thesis-ready rather than diagnostic-only. Sprint 9 figures and tables must remain visible enough to support the final claim boundary.
+Recent PDF checks verified that the updated title/metadata pages fit, the KISALTMALAR page fits on one page, the SEMBOLLER page fits on one page, the ÖNSÖZ page fits on one page with date/name alignment intact, and the ÖZET/SUMMARY pages each fit on one page with keywords visible. The 2026 template transition pass also verified the front-matter sequence, table/figure list rendering, bold list labels, caption punctuation, and the KAYNAKLAR hanging-indent layout. The remaining PDF QA pass must still check all figure placements, table width, page breaks, and whether result figures look thesis-ready rather than diagnostic-only. Sprint 9 figures and tables must remain visible enough to support the final claim boundary.
 
 ## 10. Literature/References Work
 
@@ -91,7 +96,7 @@ Do not invent references. Any literature claim should be verified against `docs/
 
 ## 11. ÖZET/SUMMARY Status
 
-ÖZET and SUMMARY have been drafted in `main.tex`. The current word counts are approximately 322 words for the Turkish ÖZET and 394 words for the English SUMMARY. Both are within the 300-500 word requirement and contain no citations, figures, tables, or raw reference markers.
+ÖZET and SUMMARY have been drafted in `main.tex`. The current word counts are approximately 322 words for the Turkish ÖZET and 394 words for the English SUMMARY. Both are within the updated 2026 DOCX 250-750 word requirement and contain no citations, figures, tables, or raw reference markers.
 
 Core abstract ingredients:
 
@@ -102,7 +107,7 @@ Core abstract ingredients:
 
 ## 12. Prioritized Next Editing Plan
 
-1. Replace remaining administrative placeholders when real student, jury, chair, and defense-date information is available.
+1. Replace the remaining defense-date and optional jury/chair placeholders when the real administrative information is available.
 2. Leave CV/ÖZGEÇMİŞ placeholder until real CV details are provided.
 3. Tighten Sprint 9 claim wording throughout chapters 03 and 04.
 4. Split dense chapter paragraphs and improve subsection structure where needed.
@@ -110,3 +115,18 @@ Core abstract ingredients:
 6. Clean citation and reference formatting against APA-style author-date rules.
 7. Render the thesis PDF and perform full figure/table/layout QA.
 8. Run final render and validation checks, then fix any cross-reference, overflow, caption, or bibliography issues.
+
+## 13. 2026 Template Transition Status
+
+`BTU_BM_Tez_Yazım_Sablonu_2026_updated.docx` was rendered with the Documents workflow and its embedded comments were inspected. The current LaTeX template was not replaced wholesale with the shared graduate LaTeX template because that template is graduate-oriented and uses an older LaTeX stack. Instead, transferable rules were applied to the current XeLaTeX/Tectonic-compatible undergraduate template.
+
+Completed in this pass:
+
+- `btu-thesis.cls`: KAYNAKLAR now renders with 2.5 cm hanging indent, single spacing, justification, and bold figure/table list labels.
+- `btu-thesis.cls`: the 2026 DOCX outer-cover background artwork is used on the LaTeX outer cover; cover text placement, font sizes, and color were adjusted against rendered DOCX page measurements.
+- `btu-thesis.cls`: the inner cover was changed to the 2026 DOCX plain text layout, with an optional second-advisor line controlled by `\BTUSecondAdvisor`.
+- `main.tex`: front matter now follows the 2026 DOCX render sequence: outer cover, inner cover, blank page, plagiarism statement, foreword.
+- `02_materyal_yontem.tex` and `03_deneysel_calismalar.tex`: figure captions now end with periods.
+- `tez_yazim_meta_kurallari.md`: updated abstract range, caption punctuation, and reference-list formatting to match 2026 DOCX notes.
+- `template_2026_migration_audit.md`: added as a durable migration note with remaining front-matter decisions.
+- `template_2026_migration_audit.md`: records the final 2019/2026/LaTeX `ÖNSÖZ` and list-heading coordinate check.
