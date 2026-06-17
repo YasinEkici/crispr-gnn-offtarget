@@ -8,7 +8,15 @@ This file is the durable handoff for thesis-writing progress, final scientific c
 
 The main thesis chapters `01_giris.tex`, `02_materyal_yontem.tex`, `03_deneysel_calismalar.tex`, and `04_sonuc_oneriler.tex` are structured first drafts. They contain the main narrative, citations, tables, figure references, and Sprint 9 robustness framing, but they are not final thesis text.
 
-The front matter still needs substantial work. `main.tex` still contains placeholder Turkish ÖZET and English SUMMARY text, a placeholder-style ÖNSÖZ, sparse abbreviations, irrelevant symbol examples, and incomplete CV entries. `metadata.tex` still contains placeholder title, student, advisor, jury, date, and keyword fields. `appendices/ek-a.tex` still needs to be replaced or removed if no real appendix is needed.
+The front matter has been partially cleaned. `metadata.tex` now contains the real thesis titles, thesis keywords, submission month/year, and advisor name (`Doç. Dr. Mustafa Özgür CİNGİZ`). Student name/number, jury, chair, and defense date remain explicit placeholders until the real administrative information is available. `main.tex` now contains a real ÖNSÖZ, a thesis-specific KISALTMALAR list, and a thesis-specific SEMBOLLER list. The Turkish ÖZET and English SUMMARY are still placeholders and must be written next. The CV/ÖZGEÇMİŞ area is intentionally left as a placeholder for now. `appendices/ek-a.tex` still needs to be replaced or removed if no real appendix is needed.
+
+Recent completed front-matter work:
+
+- `metadata.tex`: real Turkish/English thesis titles, approval title, advisor name, keywords, and June 2026 month-year fields were added. Student, jury, chair, and defense-date placeholders were intentionally kept.
+- `main.tex` ÖNSÖZ: placeholder instructions were replaced with a one-page Turkish acknowledgements text thanking the advisor, department faculty, family, and friends.
+- `main.tex` KISALTMALAR: the sparse template list was replaced with thesis-specific abbreviations such as AUPRC, AUROC, BCE, GATv2, GCN, GNN, MCC, sgRNA, SHAP, and XGBoost.
+- `main.tex` SEMBOLLER: irrelevant template symbols were replaced with thesis notation such as `\mathcal{D}_0`, `y`, `f_c`, `g_i`, `o_{ij}`, `x_{ij}^{obs}`, `h_o`, `\hat{p}_{ij}`, and confusion-matrix counts.
+- PDF spot checks were performed for metadata/title pages, KISALTMALAR, SEMBOLLER, and ÖNSÖZ. These pages fit visually after the updates.
 
 ## 3. Binding Thesis Notes
 
@@ -60,8 +68,8 @@ The project developed a controlled context-aware GNN workflow for CRISPR-Cas9 of
 
 ## 8. Chapter-Level Next Work
 
-- `main.tex` / front matter: replace ÖNSÖZ, Turkish ÖZET, English SUMMARY, abbreviations, symbols, and CV placeholders. Ensure ÖZET/SUMMARY are 300-500 words each and contain no citations, figures, or tables.
-- `metadata.tex`: replace placeholder title, English title, student, advisor, jury, date, and keyword fields.
+- `main.tex` / front matter: ÖNSÖZ, KISALTMALAR, and SEMBOLLER have been updated. Next front-matter writing task is Turkish ÖZET and English SUMMARY. Ensure each is 300-500 words and contains no citations, figures, or tables. CV/ÖZGEÇMİŞ should remain placeholder until real personal CV details are provided.
+- `metadata.tex`: title, English title, approval title, advisor, keywords, and submission/foreword month-year have been updated. Student name/number, jury, chair, and defense date still need real administrative values.
 - `01_giris.tex`: split dense paragraphs, standardize Turkish/English terminology, and keep the introduction centered on context-aware representation plus bounded AUPRC claims.
 - `02_materyal_yontem.tex`: keep methods separate from interpretation, verify robustness wording as finite-sample guide-cluster compatibility, and ensure no method implies test-driven tuning.
 - `03_deneysel_calismalar.tex`: tighten Sprint 9 as the controlling claim-boundary section; separate AUPRC ranking from threshold operating behavior; revise any wording that sounds like unqualified significance or causal mechanism.
@@ -70,9 +78,9 @@ The project developed a controlled context-aware GNN workflow for CRISPR-Cas9 of
 
 ## 9. Figure/Table/PDF Work
 
-All thesis-referenced result figures appear present under `docs/thesis/latex/btu_template/figures/results/`. No rendered thesis PDF was found during the audit. A PDF render is required before final formatting judgment.
+All thesis-referenced result figures appear present under `docs/thesis/latex/btu_template/figures/results/`. A local `main.pdf` has been rendered during front-matter work for visual QA, but the PDF is treated as a generated artifact and is not part of the durable source handoff unless explicitly committed later.
 
-The next PDF QA pass must check captions, table width, figure placement, cross-references, table/figure lists, page breaks, front-matter numbering, and whether result figures look thesis-ready rather than diagnostic-only. Sprint 9 figures and tables must remain visible enough to support the final claim boundary.
+Recent PDF checks verified that the updated title/metadata pages fit, the KISALTMALAR page fits on one page, the SEMBOLLER page fits on one page, and the ÖNSÖZ page fits on one page with date/name alignment intact. The remaining PDF QA pass must still check captions, table width, figure placement, cross-references, table/figure lists, page breaks, front-matter numbering, and whether result figures look thesis-ready rather than diagnostic-only. Sprint 9 figures and tables must remain visible enough to support the final claim boundary.
 
 ## 10. Literature/References Work
 
@@ -82,7 +90,7 @@ Do not invent references. Any literature claim should be verified against `docs/
 
 ## 11. ÖZET/SUMMARY Readiness
 
-ÖZET and SUMMARY can now be drafted safely because Sprint 9 is complete and final claim boundaries are stable.
+ÖZET and SUMMARY are now the highest-priority front-matter writing task. They can be drafted safely because Sprint 9 is complete, front-matter metadata is mostly cleaned, and final claim boundaries are stable. Do not include citations, figures, tables, or raw reference markers in either abstract.
 
 Core abstract ingredients:
 
@@ -93,12 +101,12 @@ Core abstract ingredients:
 
 ## 12. Prioritized Next Editing Plan
 
-1. Replace front matter and metadata placeholders.
-2. Tighten Sprint 9 claim wording throughout chapters 03 and 04.
-3. Split dense chapter paragraphs and improve subsection structure where needed.
-4. Standardize Turkish/English terminology and abbreviation definitions.
-5. Clean citation and reference formatting against APA-style author-date rules.
-6. Render the thesis PDF and perform figure/table/layout QA.
-7. Draft Turkish ÖZET and English SUMMARY from the stable Sprint 9-bounded narrative.
-8. Run final render and validation checks, then fix any cross-reference, overflow, caption, or bibliography issues.
-
+1. Draft Turkish ÖZET and English SUMMARY from the stable Sprint 9-bounded narrative.
+2. Replace remaining administrative placeholders when real student, jury, chair, and defense-date information is available.
+3. Leave CV/ÖZGEÇMİŞ placeholder until real CV details are provided.
+4. Tighten Sprint 9 claim wording throughout chapters 03 and 04.
+5. Split dense chapter paragraphs and improve subsection structure where needed.
+6. Standardize Turkish/English terminology beyond the already-updated KISALTMALAR and SEMBOLLER pages.
+7. Clean citation and reference formatting against APA-style author-date rules.
+8. Render the thesis PDF and perform full figure/table/layout QA.
+9. Run final render and validation checks, then fix any cross-reference, overflow, caption, or bibliography issues.
