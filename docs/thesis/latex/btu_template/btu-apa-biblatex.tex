@@ -1,0 +1,121 @@
+% APA-style author-date bibliography layer for the BTU thesis template.
+% Uses BibLaTeX with BibTeX backend because the local Tectonic runtime has no biber.
+\usepackage[
+  backend=bibtex,
+  style=authoryear,
+  sorting=nyt,
+  sortcites=true,
+  giveninits=true,
+  uniquename=init,
+  maxbibnames=20,
+  maxcitenames=2,
+  mincitenames=1,
+  dashed=false,
+  doi=true,
+  url=true,
+  isbn=false
+]{biblatex}
+
+\addbibresource{references.bib}
+\urlstyle{same}
+
+\DeclareNameAlias{sortname}{family-given}
+\DeclareNameAlias{author}{family-given}
+\DeclareNameAlias{editor}{family-given}
+
+\DeclareDelimFormat{finalnamedelim}{\addcomma\space\&\space}
+\DeclareDelimFormat[citeauthor]{finalnamedelim}{\space ve\space}
+\DeclareDelimFormat[parencite]{finalnamedelim}{\space ve\space}
+\DeclareDelimFormat{nameyeardelim}{\addcomma\space}
+
+\DefineBibliographyStrings{english}{andothers={ve\addabbrvspace diğ\adddot}}
+\DefineBibliographyStrings{turkish}{andothers={ve\addabbrvspace diğ\adddot}}
+
+\newcommand{\btutextcite}[1]{\citeauthor{#1}~(\citeyear{#1})}
+\newcommand{\btucitep}[1]{\parencite{#1}}
+
+\DeclareFieldFormat[article,inproceedings,online,misc]{title}{#1}
+\DeclareFieldFormat{btujournaltitle}{\mkbibemph{#1}}
+\DeclareFieldFormat{btuvolume}{\mkbibemph{#1}}
+\DeclareFieldFormat{btuproceedingsvolume}{#1}
+\DeclareFieldFormat{number}{#1}
+\DeclareFieldFormat{pages}{#1}
+\DeclareFieldFormat{eid}{#1}
+\DeclareFieldFormat{doi}{\url{https://doi.org/#1}}
+\DeclareFieldFormat{url}{\url{#1}}
+
+\newbibmacro*{btu:date}{\printtext[parens]{\printfield{year}}}
+
+\newbibmacro*{btu:doiurl}{%
+  \iffieldundef{doi}
+    {\iffieldundef{url}{}{\printtext{.}\space\printfield{url}\nopunct}}
+    {\printtext{.}\space\printfield{doi}\nopunct}}
+
+\DeclareBibliographyDriver{article}{%
+  \usebibmacro{bibindex}\usebibmacro{begentry}%
+  \printnames{author}%
+  \printtext{\space}\usebibmacro{btu:date}%
+  \setunit{\addperiod\space}\printfield{title}%
+  \newunit\newblock
+  \printfield[btujournaltitle]{journaltitle}%
+  \printtext{, }\printfield[btuvolume]{volume}%
+  \iffieldundef{number}{}{\printtext{(}\printfield{number}\printtext{)}}%
+  \iffieldundef{pages}
+    {\iffieldundef{eid}{}{\printtext{, Article }\printfield{eid}}}
+    {\printtext{, }\printfield{pages}}%
+  \usebibmacro{btu:doiurl}%
+  \finentry}
+
+\DeclareBibliographyDriver{inproceedings}{%
+  \usebibmacro{bibindex}\usebibmacro{begentry}%
+  \printnames{author}%
+  \printtext{\space}\usebibmacro{btu:date}%
+  \setunit{\addperiod\space}\printfield{title}%
+  \newunit\newblock
+  \printtext{In }%
+  \ifnameundef{editor}
+    {}
+    {\printnames[given-family]{editor}\space\printtext{(Eds.),}\space}%
+  \printfield[emph]{booktitle}%
+  \iffieldundef{pages}
+    {}
+    {\printtext{\space}\printtext[parens]{%
+      \iffieldundef{series}{}{\printfield{series}\addcomma\space}%
+      \iffieldundef{volume}{}{Vol.\space\printfield[btuproceedingsvolume]{volume}\addcomma\space}%
+      pp.\space\printfield{pages}}}%
+  \iflistundef{publisher}{}{\printtext{. }\printlist{publisher}}%
+  \usebibmacro{btu:doiurl}%
+  \finentry}
+
+\DeclareBibliographyAlias{incollection}{inproceedings}
+
+\DeclareBibliographyDriver{online}{%
+  \usebibmacro{bibindex}\usebibmacro{begentry}%
+  \printnames{author}%
+  \printtext{\space}\usebibmacro{btu:date}%
+  \setunit{\addperiod\space}\printfield{title}%
+  \iflistundef{organization}{}{\newunit\newblock\printlist{organization}}%
+  \usebibmacro{btu:doiurl}%
+  \finentry}
+
+\DeclareBibliographyAlias{misc}{online}
+
+\defbibheading{btureferences}{%
+  \BTUfrontheading{KAYNAKLAR}\addcontentsline{toc}{chapter}{KAYNAKLAR}%
+}
+
+\defbibenvironment{bibliography}
+  {%
+    \singlespacing\setlength{\parskip}{0pt}\justifying\sloppy
+    \begin{list}{}{%
+      \setlength{\leftmargin}{\BTUrefhang}%
+      \setlength{\itemindent}{-\BTUrefhang}%
+      \setlength{\labelwidth}{0pt}%
+      \setlength{\labelsep}{0pt}%
+      \setlength{\itemsep}{6pt}%
+      \setlength{\parsep}{0pt}%
+      \setlength{\topsep}{0pt}%
+    }%
+  }
+  {\end{list}\onehalfspacing}
+  {\item}

@@ -30,6 +30,10 @@ xelatex main.tex
 
 Sonra `chapters/` ve `appendices/` klasörlerindeki dosyaları kendi tez içeriğinle değiştir.
 
+Kaynakça girdileri `references.bib` dosyasında tutulur. Metin içi atıflar için
+`\btucitep{anahtar}` ve `\btutextcite{anahtar}` komutları kullanılır; kaynakça
+`main.tex` içinde `\printbibliography[heading=btureferences]` ile üretilir.
+
 ## Şablonun uyguladığı ana kurallar
 
 - A4 sayfa.

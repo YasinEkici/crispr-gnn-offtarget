@@ -90,7 +90,9 @@ Recent PDF checks verified that the updated title/metadata pages fit, the KISALT
 
 ## 10. Literature/References Work
 
-References are currently manual in `main.tex`; no `.bib` file was found. Final APA consistency, author-date formatting, and alphabetical ordering must be checked manually unless a bibliography workflow is introduced later.
+References now use an active `.bib` workflow. The thesis bibliography metadata lives in `docs/thesis/latex/btu_template/references.bib`; `main.tex` prints it through `btu-apa-biblatex.tex` with BibLaTeX `backend=bibtex`, which works under the bundled Tectonic runtime. In-text citations were converted from free-form author-year text to `\btucitep{...}` and `\btutextcite{...}` commands so citation keys can be checked statically against the `.bib` file. The custom bibliography layer preserves the BTU `KAYNAKLAR` heading, single spacing, 2.5 cm hanging indent, Turkish in-text `ve` / `ve diğ.` behavior, APA-style author ordering, italic source titles and volumes, `Article ...` numbers, DOI URL form, and consistent `In ...` proceedings entries.
+
+The post-migration validation state is: 40 `.bib` entries, 40 unique cited keys, 85 citation-key uses, no missing citation keys, no uncited bibliography entries, and no remaining free-form author-year citation candidates in the chapter sources. DOI/URL validation checked 35 DOI fields and 4 URL fields: 34 DOI values resolved through Crossref, the arXiv DOI resolved through `doi.org`, and the OpenReview/PMLR URLs resolved directly. A Tectonic PDF render and raster check of the rendered `KAYNAKLAR` pages verified that the bibliography is generated from `main.bbl`, remains visually readable, and keeps the expected hanging-indent layout.
 
 Do not invent references. Any literature claim should be verified against `docs/literature/literature_index.md`, `docs/literature/paper_registry.yaml`, and the relevant local literature notes. CRISPR-Net, CRISPR-IP, DeepCRISPR, GCN/GATv2, FiLM/SENet-style modules, leakage/overtuning, AUPRC, and bootstrap/uncertainty references must be framed as local adaptations or methodological anchors, not reproductions unless the full setup matches.
 
@@ -112,9 +114,8 @@ Core abstract ingredients:
 3. Tighten Sprint 9 claim wording throughout chapters 03 and 04.
 4. Split dense chapter paragraphs and improve subsection structure where needed.
 5. Standardize Turkish/English terminology beyond the already-updated KISALTMALAR and SEMBOLLER pages.
-6. Clean citation and reference formatting against APA-style author-date rules.
-7. Render the thesis PDF and perform full figure/table/layout QA.
-8. Run final render and validation checks, then fix any cross-reference, overflow, caption, or bibliography issues.
+6. Render the thesis PDF and perform full figure/table/layout QA.
+7. Run final render and validation checks, then fix any cross-reference, overflow, caption, or bibliography issues.
 
 ## 13. 2026 Template Transition Status
 
