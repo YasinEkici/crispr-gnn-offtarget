@@ -8,7 +8,7 @@ This file is the durable handoff for thesis-writing progress, final scientific c
 
 The main thesis chapters `01_giris.tex`, `02_materyal_yontem.tex`, `03_deneysel_calismalar.tex`, and `04_sonuc_oneriler.tex` are structured first drafts. They contain the main narrative, citations, tables, figure references, and Sprint 9 robustness framing, but they are not final thesis text.
 
-The front matter has been partially cleaned. `metadata.tex` now contains the real thesis titles, thesis keywords, submission month/year, and advisor name (`Doç. Dr. Mustafa Özgür CİNGİZ`). Student name/number, jury, chair, and defense date remain explicit placeholders until the real administrative information is available. `main.tex` now contains a real ÖNSÖZ, a thesis-specific KISALTMALAR list, and a thesis-specific SEMBOLLER list. The Turkish ÖZET and English SUMMARY are still placeholders and must be written next. The CV/ÖZGEÇMİŞ area is intentionally left as a placeholder for now. `appendices/ek-a.tex` still needs to be replaced or removed if no real appendix is needed.
+The front matter has been mostly cleaned. `metadata.tex` now contains the real thesis titles, thesis keywords, submission month/year, and advisor name (`Doç. Dr. Mustafa Özgür CİNGİZ`). Student name/number, jury, chair, and defense date remain explicit placeholders until the real administrative information is available. `main.tex` now contains a real ÖNSÖZ, a thesis-specific KISALTMALAR list, a thesis-specific SEMBOLLER list, and completed Turkish ÖZET and English SUMMARY drafts. The CV/ÖZGEÇMİŞ area is intentionally left as a placeholder for now. `appendices/ek-a.tex` still needs to be replaced or removed if no real appendix is needed.
 
 Recent completed front-matter work:
 
@@ -16,7 +16,8 @@ Recent completed front-matter work:
 - `main.tex` ÖNSÖZ: placeholder instructions were replaced with a one-page Turkish acknowledgements text thanking the advisor, department faculty, family, and friends.
 - `main.tex` KISALTMALAR: the sparse template list was replaced with thesis-specific abbreviations such as AUPRC, AUROC, BCE, GATv2, GCN, GNN, MCC, sgRNA, SHAP, and XGBoost.
 - `main.tex` SEMBOLLER: irrelevant template symbols were replaced with thesis notation such as `\mathcal{D}_0`, `y`, `f_c`, `g_i`, `o_{ij}`, `x_{ij}^{obs}`, `h_o`, `\hat{p}_{ij}`, and confusion-matrix counts.
-- PDF spot checks were performed for metadata/title pages, KISALTMALAR, SEMBOLLER, and ÖNSÖZ. These pages fit visually after the updates.
+- `main.tex` ÖZET/SUMMARY: placeholder abstract text was replaced with 300-500 word thesis-specific Turkish and English abstracts. Both avoid citations, figures, and tables, and keep the Sprint 9-bounded claim boundary.
+- PDF spot checks were performed for metadata/title pages, KISALTMALAR, SEMBOLLER, ÖNSÖZ, ÖZET, and SUMMARY. These pages fit visually after the updates.
 
 ## 3. Binding Thesis Notes
 
@@ -68,7 +69,7 @@ The project developed a controlled context-aware GNN workflow for CRISPR-Cas9 of
 
 ## 8. Chapter-Level Next Work
 
-- `main.tex` / front matter: ÖNSÖZ, KISALTMALAR, and SEMBOLLER have been updated. Next front-matter writing task is Turkish ÖZET and English SUMMARY. Ensure each is 300-500 words and contains no citations, figures, or tables. CV/ÖZGEÇMİŞ should remain placeholder until real personal CV details are provided.
+- `main.tex` / front matter: ÖNSÖZ, KISALTMALAR, SEMBOLLER, Turkish ÖZET, and English SUMMARY have been updated. CV/ÖZGEÇMİŞ should remain placeholder until real personal CV details are provided.
 - `metadata.tex`: title, English title, approval title, advisor, keywords, and submission/foreword month-year have been updated. Student name/number, jury, chair, and defense date still need real administrative values.
 - `01_giris.tex`: split dense paragraphs, standardize Turkish/English terminology, and keep the introduction centered on context-aware representation plus bounded AUPRC claims.
 - `02_materyal_yontem.tex`: keep methods separate from interpretation, verify robustness wording as finite-sample guide-cluster compatibility, and ensure no method implies test-driven tuning.
@@ -80,7 +81,7 @@ The project developed a controlled context-aware GNN workflow for CRISPR-Cas9 of
 
 All thesis-referenced result figures appear present under `docs/thesis/latex/btu_template/figures/results/`. A local `main.pdf` has been rendered during front-matter work for visual QA, but the PDF is treated as a generated artifact and is not part of the durable source handoff unless explicitly committed later.
 
-Recent PDF checks verified that the updated title/metadata pages fit, the KISALTMALAR page fits on one page, the SEMBOLLER page fits on one page, and the ÖNSÖZ page fits on one page with date/name alignment intact. The remaining PDF QA pass must still check captions, table width, figure placement, cross-references, table/figure lists, page breaks, front-matter numbering, and whether result figures look thesis-ready rather than diagnostic-only. Sprint 9 figures and tables must remain visible enough to support the final claim boundary.
+Recent PDF checks verified that the updated title/metadata pages fit, the KISALTMALAR page fits on one page, the SEMBOLLER page fits on one page, the ÖNSÖZ page fits on one page with date/name alignment intact, and the ÖZET/SUMMARY pages each fit on one page with keywords visible. The remaining PDF QA pass must still check captions, table width, figure placement, cross-references, table/figure lists, page breaks, front-matter numbering, and whether result figures look thesis-ready rather than diagnostic-only. Sprint 9 figures and tables must remain visible enough to support the final claim boundary.
 
 ## 10. Literature/References Work
 
@@ -88,9 +89,9 @@ References are currently manual in `main.tex`; no `.bib` file was found. Final A
 
 Do not invent references. Any literature claim should be verified against `docs/literature/literature_index.md`, `docs/literature/paper_registry.yaml`, and the relevant local literature notes. CRISPR-Net, CRISPR-IP, DeepCRISPR, GCN/GATv2, FiLM/SENet-style modules, leakage/overtuning, AUPRC, and bootstrap/uncertainty references must be framed as local adaptations or methodological anchors, not reproductions unless the full setup matches.
 
-## 11. ÖZET/SUMMARY Readiness
+## 11. ÖZET/SUMMARY Status
 
-ÖZET and SUMMARY are now the highest-priority front-matter writing task. They can be drafted safely because Sprint 9 is complete, front-matter metadata is mostly cleaned, and final claim boundaries are stable. Do not include citations, figures, tables, or raw reference markers in either abstract.
+ÖZET and SUMMARY have been drafted in `main.tex`. The current word counts are approximately 322 words for the Turkish ÖZET and 394 words for the English SUMMARY. Both are within the 300-500 word requirement and contain no citations, figures, tables, or raw reference markers.
 
 Core abstract ingredients:
 
@@ -101,12 +102,11 @@ Core abstract ingredients:
 
 ## 12. Prioritized Next Editing Plan
 
-1. Draft Turkish ÖZET and English SUMMARY from the stable Sprint 9-bounded narrative.
-2. Replace remaining administrative placeholders when real student, jury, chair, and defense-date information is available.
-3. Leave CV/ÖZGEÇMİŞ placeholder until real CV details are provided.
-4. Tighten Sprint 9 claim wording throughout chapters 03 and 04.
-5. Split dense chapter paragraphs and improve subsection structure where needed.
-6. Standardize Turkish/English terminology beyond the already-updated KISALTMALAR and SEMBOLLER pages.
-7. Clean citation and reference formatting against APA-style author-date rules.
-8. Render the thesis PDF and perform full figure/table/layout QA.
-9. Run final render and validation checks, then fix any cross-reference, overflow, caption, or bibliography issues.
+1. Replace remaining administrative placeholders when real student, jury, chair, and defense-date information is available.
+2. Leave CV/ÖZGEÇMİŞ placeholder until real CV details are provided.
+3. Tighten Sprint 9 claim wording throughout chapters 03 and 04.
+4. Split dense chapter paragraphs and improve subsection structure where needed.
+5. Standardize Turkish/English terminology beyond the already-updated KISALTMALAR and SEMBOLLER pages.
+6. Clean citation and reference formatting against APA-style author-date rules.
+7. Render the thesis PDF and perform full figure/table/layout QA.
+8. Run final render and validation checks, then fix any cross-reference, overflow, caption, or bibliography issues.
