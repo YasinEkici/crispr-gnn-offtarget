@@ -90,9 +90,9 @@ XGBoost feature ladder içindeki AUPRC değişimi Şekil~\ref{fig:non-graph-xgbo
 \toprule\toprule
 Şema ve model & AUPRC & AUROC & MCC & Spec. & TN/FP/FN/TP\\
 \midrule
-Graph A GCN & 0.966287 & 0.745076 & 0.300781 & -- & --\\
-Graph B GCN & 0.966570 & 0.743586 & 0.126559 & -- & --\\
-Graph C GCN & 0.961586 & 0.759886 & 0.453738 & -- & --\\
+Graph A GCN & 0.966287 & 0.745076 & 0.300781 & 0.153846 & 26/143/11/1522\\
+Graph B GCN & 0.966570 & 0.743586 & 0.126559 & 0.017751 & 3/166/0/1533\\
+Graph C GCN & 0.961586 & 0.759886 & 0.453738 & 0.254438 & 43/126/5/1528\\
 Graph C GCN, enerji kenar özellikleri & 0.972481 & 0.836219 & 0.274287 & 0.082840 & 14/155/0/1533\\
 \bottomrule
 \end{tabularx}
@@ -148,11 +148,11 @@ Dördüncü deney grubu, aynı Graph A enerji temsili altında sınıf dengesizl
 Kayıp/örnekleme politikası & AUPRC & AUROC & MCC & Spec. & TN/FP/FN/TP\\
 \midrule
 Weighted BCE & 0.976935 & 0.819972 & 0.483719 & 0.289941 & 49/120/6/1527\\
-Unweighted BCE & 0.949280 & -- & 0.234557 & 0.082840 & 14/155/--/--\\
-Focal loss, $\gamma=2$, $\alpha=0.25$ & 0.963497 & -- & 0.205834 & 0.053254 & 9/160/--/--\\
-Generalized Dice & 0.871174 & -- & 0.000000 & 0.000000 & 0/169/--/--\\
-Tversky, $\alpha=0.70$, $\beta=0.30$ & 0.955804 & -- & 0.262978 & 0.082840 & 14/155/--/--\\
-Balanced measured-only sampling & 0.976205 & -- & 0.447602 & 0.248521 & 42/127/--/--\\
+Unweighted BCE & 0.949280 & 0.685090 & 0.234557 & 0.082840 & 14/155/4/1529\\
+Focal loss, $\gamma=2$, $\alpha=0.25$ & 0.963497 & 0.805436 & 0.205834 & 0.053254 & 9/160/1/1532\\
+Generalized Dice & 0.871174 & 0.382662 & 0.000000 & 0.000000 & 0/169/0/1533\\
+Tversky, $\alpha=0.70$, $\beta=0.30$ & 0.955804 & 0.710071 & 0.262978 & 0.082840 & 14/155/1/1532\\
+Balanced measured-only sampling & 0.976205 & 0.815167 & 0.447602 & 0.248521 & 42/127/5/1528\\
 \bottomrule
 \end{tabularx}
 \end{table}
@@ -187,6 +187,10 @@ Graph B GATv2, AUPRC değerini 0.979139'a yükseltmiş, ancak specificity 0.0946
 
 \section{Graph C Mekanizma Analizleri}
 
+Graph C GATv2 davranışının kaynakları iki tamamlayıcı analizle incelenmektedir.
+
+\subsection{Mekanizma çıkarma ablationları}
+
 Altıncı deney grubu, Graph C GATv2 davranışının hangi bileşenlerden kaynaklandığını incelemiştir. İlk analiz, Graph C GATv2 ile Graph C GCN arasındaki hata geçişlerini karşılaştırmıştır. Bu karşılaştırmada GATv2 modeli, GCN'nin yanlış pozitif sınıfladığı 53 negatif satırı doğru negatife çevirmiş; buna karşılık 4 negatif satır doğru negatiften yanlış pozitife dönmüştür. Net doğru negatif kazanımı 49 satırdır. Bu geçiş, modelin karar eşiğine bağlı negatif tanıma davranışında gerçek bir değişim olduğunu göstermektedir. Ancak bu gözlem, biyolojik nedensellik iddiası olarak yorumlanmamıştır.
 
 \begin{table}[htbp]
@@ -199,8 +203,8 @@ Altıncı deney grubu, Graph C GATv2 davranışının hangi bileşenlerden kayna
 Model varyantı & AUPRC & AUROC & MCC & Spec. & TN/FP/FN/TP\\
 \midrule
 Tam Graph C GATv2 & 0.969078 & 0.849705 & 0.531774 & 0.372781 & 63/106/12/1521\\
-Context-similarity kenarları kaldırılmış & 0.965598 & -- & 0.517970 & 0.366864 & 62/107/14/1519\\
-Edge-blind attention & 0.945691 & -- & 0.182915 & 0.248521 & 42/127/112/1421\\
+Context-similarity kenarları kaldırılmış & 0.965598 & 0.850137 & 0.517970 & 0.366864 & 62/107/14/1519\\
+Edge-blind attention & 0.945691 & 0.686298 & 0.182915 & 0.248521 & 42/127/112/1421\\
 Target context feature'ları maskelenmiş & 0.893657 & 0.407817 & -0.013952 & 0.000000 & 0/169/3/1530\\
 \bottomrule
 \end{tabularx}
@@ -216,6 +220,8 @@ Bu mekanizma çıkarma analizlerinin karar-eşiği metriklerine etkisi Şekil~\r
 \caption{Graph C GATv2 mekanizma çıkarma analizlerinin karar-eşiği metriklerine etkisi.}
 \label{fig:graphc-mechanism-threshold}
 \end{figure}
+
+\subsection{Hedef-bağlam alt aile maskelemesi}
 
 Yedinci deney grubu, target context vektörünün alt ailelerini ayrı ayrı maskelemiştir. Bu analiz, Graph C'nin hangi context bileşenlerine duyarlı olduğunu daha ayrıntılı biçimde ortaya koymuştur.
 
@@ -274,7 +280,16 @@ Sequence + context fusion & 0.986020 & 0.903480 & 0.567309 & 0.863905 & 146/23/1
 
 Family-aware encoder, birleşik derin context encoder'a göre hem AUPRC hem de operating-point metriklerinde daha güçlü sonuç üretmiştir (Çizelge~\ref{tab:family-aware-context}). Özellikle 110 doğru negatif ve 0.650888 specificity değeri, target context'in aile yapısına göre işlenmesinin nadir negatif tanıma davranışıyla ilişkili olduğunu göstermektedir. Family-aware deneysel vurgu varyantı AUPRC ve AUROC değerlerini yükseltmiş, ancak doğru negatif sayısı ve specificity bakımından family-aware encoder'ın gerisinde kalmıştır. Bu durum, sıralama kalitesi ile karar eşiğine bağlı negatif tanıma davranışının farklı optimizasyon yönleri taşıyabileceğini göstermektedir.
 
-Context-edge FiLM modeli, candidate-edge bilgisi ile target context temsilini daha doğrudan etkileştirmiş ve 0.982757 AUPRC ile 0.563656 MCC üretmiştir. Sequence + context fusion modeli ise tekil ve validation-seçili eğitim koşulunda GNN ailesindeki en yüksek AUPRC değerlerinden birini üretmiştir. Bununla birlikte bu modelde specificity 0.863905'e yükselirken false negative sayısı 180'e çıkmıştır. Çizelge~\ref{tab:family-aware-context} ile Şekil~\ref{fig:sequence-context-threshold} birlikte değerlendirildiğinde, nadir negatif tanıma davranışının yüksek sensitivity ile gerilim taşıyabileceği ve operating-point seçiminin uygulama bağlamına göre ayrıca değerlendirilmesi gerektiği görülmektedir.
+Context-edge FiLM modeli, candidate-edge bilgisi ile target context temsilini daha doğrudan etkileştirmiş ve 0.982757 AUPRC ile 0.563656 MCC üretmiştir. Sequence + context fusion modeli ise tekil ve validation-seçili eğitim koşulunda GNN ailesindeki en yüksek AUPRC değerlerinden birini üretmiştir. Bununla birlikte bu modelde specificity 0.863905'e yükselirken false negative sayısı 180'e çıkmıştır. Çizelge~\ref{tab:family-aware-context} değerlendirildiğinde, nadir negatif tanıma davranışının yüksek sensitivity ile gerilim taşıyabileceği ve operating-point seçiminin uygulama bağlamına göre ayrıca değerlendirilmesi gerektiği görülmektedir.
+
+Aynı karşılaştırmanın sıralama eksenindeki davranışı Şekil~\ref{fig:sequence-context-pr}'deki precision--recall eğrilerinde görülmektedir. Sequence-only yol, precision değerini no-skill taban çizgisine yakın seviyelere düşürürken, sequence + context fusion modeli geniş bir recall aralığında yüksek precision korumuştur. Bu görsel, sıralama başarımı ile karar-eşiği davranışının ayrı eksenler olarak okunması gerektiğini desteklemektedir.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.90\textwidth]{figures/results/03_sequence_context_pr_curves.png}
+\caption{Dizi-only ve dizi + bağlam modellerinin precision--recall eğrileri.}
+\label{fig:sequence-context-pr}
+\end{figure}
 
 Dizi ve bağlam bilgisinin birlikte kullanımında ortaya çıkan karar-eşiği profili Şekil~\ref{fig:sequence-context-threshold}'de gösterilmiştir. Bu şekil, sequence-only yolun zayıflığını ve sequence + context fusion modelinin daha agresif negatif ayırma davranışını birlikte göstermektedir.
 
@@ -288,6 +303,10 @@ Dizi ve bağlam bilgisinin birlikte kullanımında ortaya çıkan karar-eşiği 
 \section{Sağlamlık Analizi}
 
 Dokuzuncu deney grubu, tekil eğitim koşulunda görülen farkların guide kompozisyonu ve eğitim tohumu değişkenliği altında ne kadar sağlam olduğunu incelemiştir. Bu analizde guide-cluster bootstrap, paired-difference bootstrap ve çoklu eğitim tohumu değerlendirmesi birlikte kullanılmıştır. Bootstrap aralıkları, 29 guide içeren sabit test evreni için finite-sample guide-cluster uyumluluk aralıkları olarak yorumlanmıştır; klasik anlamda kesin kapsama garantisi taşıdığı varsayılmamıştır. Model farkı yorumunda aynı guide örneklemesini paylaşan paired-difference aralıkları esas alınmış, ayrı model aralıklarının örtüşmesine bakarak fark yorumu yapılmamıştır \btucitep{schenker2001ci}. Ayrıca çoklu tohum sonuçları genel genelleme belirsizliği için tek başına yansız bir tahmin olarak yorumlanmamıştır \btucitep{bengio2004unbiased}.
+
+\subsection{AUPRC sağlamlığı}
+
+Seçilmiş modellerin tekil ve çoklu tohum AUPRC sonuçları Çizelge~\ref{tab:auprc-saglamlik}'te özetlenmiştir.
 
 \begin{table}[htbp]
 \caption{Seçilmiş modeller için AUPRC sağlamlık sonuçları.}
@@ -306,23 +325,6 @@ Family-aware encoder & 0.982062 & [0.914690, 0.999242] & 0.974810 $\pm$ 0.003802
 \bottomrule
 \end{tabularx}
 \end{table}
-
-\begin{table}[htbp]
-\caption{Seçilmiş modeller için çoklu tohum operating-point sonuçları.}
-\label{tab:operating-point-tohum}
-\centering
-\scriptsize
-\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}X r r}
-\toprule\toprule
-Model & MCC ort. $\pm$ std. & Specificity ort. $\pm$ std.\\
-\midrule
-XGBoost F4, yeniden üretim & 0.360 $\pm$ 0.033 & 0.234 $\pm$ 0.050\\
-Sequence + context fusion & 0.464 $\pm$ 0.165 & 0.466 $\pm$ 0.224\\
-Family-aware encoder & 0.463 $\pm$ 0.134 & 0.402 $\pm$ 0.153\\
-\bottomrule
-\end{tabularx}
-\end{table}
-
 Sağlamlık analizinde kullanılan XGBoost F4 sonucu, tarihsel rapordaki XGBoost F4 sonucuyla aynı değer değildir. Tarihsel raporda XGBoost F4 AUPRC değeri 0.992522 ve karışıklık matrisi 38/131/21/1512 olarak raporlanmıştır. Sağlamlık analizinde aynı deney sözleşmesi altında yeniden üretilen XGBoost F4 değeri 0.992338 ve karışıklık matrisi 40/129/23/1510'dur. Bu küçük fark, XGBoost sürüm ve yeniden üretim ayrıntılarıyla ilişkilendirilen bir version-drift uyarısı olarak ele alınmıştır. Bu iki değer tez içinde aynı sonuç gibi kullanılmamıştır.
 
 AUPRC aralıkları Şekil~\ref{fig:saglamlik-auprc-araliklari}'de verilmiştir. Geniş ve örtüşen aralıklar, AUPRC farklarının rehber kompozisyonuna duyarlı olduğunu göstermektedir. Fark yorumu, Şekil~\ref{fig:paired-difference-distributions}'deki paired-difference dağılımlarıyla birlikte yapılmıştır.
@@ -343,9 +345,33 @@ AUPRC aralıkları Şekil~\ref{fig:saglamlik-auprc-araliklari}'de verilmiştir. 
 
 Şekil~\ref{fig:paired-difference-distributions}'deki paired AUPRC farkları, GNN varyantlarının XGBoost F4'e karşı sağlam bir AUPRC üstünlüğü kurmadığını göstermiştir. Sequence + context fusion ile context-edge FiLM arasındaki paired fark +0.003263 olup aralık [-0.01484, +0.03706] biçimindedir. Sequence + context fusion ile yeniden üretilen XGBoost F4 arasındaki paired fark -0.00632 olup aralık [-0.03124, +0.00117] biçimindedir. Context-edge FiLM ile XGBoost F4 arasındaki fark -0.00958 olup aralık [-0.05788, +0.00541] biçimindedir. Family-aware deneysel vurgu ile XGBoost F4 arasındaki fark -0.00739 olup aralık [-0.04285, +0.00799] biçimindedir. Bu aralıkların tamamı sıfırı içerdiği için AUPRC bakımından Sprint 8 GNN adaylarının XGBoost F4'e veya birbirlerine karşı sağlam üstünlüğü iddia edilmemiştir.
 
-Buna karşılık operating-point metrikleri farklı bir davranış göstermiştir. Bazı Graph C varyantlarında MCC, macro-F1 ve specificity farkları paired bootstrap altında sıfırı dışlamıştır. Örneğin context-edge FiLM ile XGBoost F4 arasındaki MCC farkı +0.2125 ve aralık [+0.0306, +0.4925] biçimindedir. Family-aware deneysel vurgu ile XGBoost F4 arasındaki MCC farkı +0.2170 ve aralık [+0.0488, +0.5219] biçimindedir. Sequence + context fusion ile XGBoost F4 arasındaki specificity farkı +0.6272 ve aralık [+0.1412, +0.8271] biçimindedir. Bu bulgular yalnızca ilgili eğitilmiş modellerin validation-kilitli eşikleri altında yorumlanmıştır. Çizelge~\ref{tab:family-aware-context} ve Şekil~\ref{fig:sequence-context-threshold} ile birlikte okunduğunda sonuçlar, rare measured negative recognition katkısının AUPRC üstünlüğü olarak değil, threshold-dependent bir operating-point davranışı olarak yazılması gerektiğini göstermektedir.
+\subsection{Operating-point farkları}
 
-Çizelge~\ref{tab:operating-point-tohum}'da verilen çoklu tohum analizi, bu operating-point katkısının eğitim stokastisitesine duyarlı olduğunu da göstermiştir. XGBoost F4 için MCC 0.360 $\pm$ 0.033 ve specificity 0.234 $\pm$ 0.050 düzeyindeyken, Sequence + context fusion modeli için MCC 0.464 $\pm$ 0.165 ve specificity 0.466 $\pm$ 0.224 olarak bulunmuştur. Family-aware encoder için MCC 0.463 $\pm$ 0.134 ve specificity 0.402 $\pm$ 0.153 düzeyindedir. Standart sapmalar, GNN modellerinde operating-point davranışının tohum ve guide kompozisyonuna daha duyarlı olabileceğini göstermektedir. Aynı analizde AUPRC için XGBoost F4 ortalaması 0.990649 $\pm$ 0.001944, Sequence + context fusion ortalaması 0.978963 $\pm$ 0.011322 ve context-edge FiLM ortalaması 0.975538 $\pm$ 0.012187 olarak bulunmuştur. Bu yayılım, Sprint 8 adayları arasındaki tekil AUPRC farklarından daha büyüktür. Rastgele tohum değişkenliğinin model iddialarında nasıl raporlanacağı ayrıca dikkat gerektirdiğinden, bu sonuçlar model seçimi için değil iddia sınırını belirlemek için kullanılmıştır \btucitep{bethard2022randomseeds}. Bu nedenle rare-negative katkısı savunulabilir olmakla birlikte, seed/guide-fragile bir sınırla birlikte raporlanmıştır.
+Buna karşılık operating-point metrikleri farklı bir davranış göstermiştir. Bazı Graph C varyantlarında MCC, macro-F1 ve specificity farkları paired bootstrap altında sıfırı dışlamıştır. Örneğin context-edge FiLM ile XGBoost F4 arasındaki MCC farkı +0.2125 ve aralık [+0.0306, +0.4925] biçimindedir. Family-aware deneysel vurgu ile XGBoost F4 arasındaki MCC farkı +0.2170 ve aralık [+0.0488, +0.5219] biçimindedir. Sequence + context fusion ile XGBoost F4 arasındaki specificity farkı +0.6272 ve aralık [+0.1412, +0.8271] biçimindedir.
+
+Bu bulgular yalnızca ilgili eğitilmiş modellerin validation-kilitli eşikleri altında yorumlanmıştır. Çizelge~\ref{tab:family-aware-context} ve Şekil~\ref{fig:sequence-context-threshold} ile birlikte okunduğunda sonuçlar, rare measured negative recognition katkısının AUPRC üstünlüğü olarak değil, threshold-dependent bir operating-point davranışı olarak yazılması gerektiğini göstermektedir.
+
+\subsection{Çoklu tohum duyarlılığı}
+
+Çizelge~\ref{tab:operating-point-tohum}'da verilen çoklu tohum analizi, bu operating-point katkısının eğitim stokastisitesine duyarlı olduğunu da göstermiştir. XGBoost F4 için MCC 0.360 $\pm$ 0.033 ve specificity 0.234 $\pm$ 0.050 düzeyindeyken, Sequence + context fusion modeli için MCC 0.464 $\pm$ 0.165 ve specificity 0.466 $\pm$ 0.224 olarak bulunmuştur. Family-aware encoder için MCC 0.463 $\pm$ 0.134 ve specificity 0.402 $\pm$ 0.153 düzeyindedir. Standart sapmalar, GNN modellerinde operating-point davranışının tohum ve guide kompozisyonuna daha duyarlı olabileceğini göstermektedir.
+
+Aynı analizde AUPRC için XGBoost F4 ortalaması 0.990649 $\pm$ 0.001944, Sequence + context fusion ortalaması 0.978963 $\pm$ 0.011322 ve context-edge FiLM ortalaması 0.975538 $\pm$ 0.012187 olarak bulunmuştur. Bu yayılım, Sprint 8 adayları arasındaki tekil AUPRC farklarından daha büyüktür. Rastgele tohum değişkenliğinin model iddialarında nasıl raporlanacağı ayrıca dikkat gerektirdiğinden, bu sonuçlar model seçimi için değil iddia sınırını belirlemek için kullanılmıştır \btucitep{bethard2022randomseeds}. Bu nedenle rare-negative katkısı savunulabilir olmakla birlikte, seed/guide-fragile bir sınırla birlikte raporlanmıştır.
+
+\begin{table}[htbp]
+\caption{Seçilmiş modeller için çoklu tohum operating-point sonuçları.}
+\label{tab:operating-point-tohum}
+\centering
+\scriptsize
+\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}X r r}
+\toprule\toprule
+Model & MCC ort. $\pm$ std. & Specificity ort. $\pm$ std.\\
+\midrule
+XGBoost F4, yeniden üretim & 0.360 $\pm$ 0.033 & 0.234 $\pm$ 0.050\\
+Sequence + context fusion & 0.464 $\pm$ 0.165 & 0.466 $\pm$ 0.224\\
+Family-aware encoder & 0.463 $\pm$ 0.134 & 0.402 $\pm$ 0.153\\
+\bottomrule
+\end{tabularx}
+\end{table}
 
 \section{Deneysel Bulguların Sentezi}
 

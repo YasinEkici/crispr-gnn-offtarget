@@ -102,8 +102,11 @@ XGBoost & Extreme gradient boosting\\
 
 \begin{BTUabbr}{SEMBOLLER}
 \(\alpha_{ij}^{(\ell)}\) & \(\ell\). katmanda \(i,j\) çifti için attention katsayısı\\
+\(B\) & Bootstrap tekrar sayısı\\
+\(c_{ij}^{(\ell)}\) & \(\ell\). katmanda \(i,j\) çifti için softmax öncesi attention skoru\\
 \(\mathcal{D}_0\) & Ham aday veri evreni\\
 \(\mathcal{D}_m\) & Deneysel olarak ölçülmüş veri evreni\\
+\(\Delta\) & İki modelin eşleştirilmiş metrik farkı\\
 \(e_{ij}\) & \(g_i\) ve hedef/gözlem düğümü arasındaki aday kenar\\
 \(f_c\) & Ham kesim frekansı\\
 \(\mathrm{FN}, \mathrm{FP}\) & Yanlış negatif ve yanlış pozitif sayımları\\
@@ -112,14 +115,22 @@ XGBoost & Extreme gradient boosting\\
 \(g_i\) & \(i\). rehber RNA düğümü\\
 \(\Gamma\) & Gating veya feature recalibration vektörü\\
 \(h_g, h_o\) & Rehber ve hedef-gözlem gizil durumları\\
+\(M\) & Bir değerlendirme metriği fonksiyoneli\\
+\(\mathcal{N}(i)\) & \(i\) düğümünün komşuluk kümesi\\
 \(o_{ij}\) & \(g_i\) rehberiyle ilişkili hedef-gözlem düğümü\\
 \(\odot\) & Eleman bazlı çarpım\\
 \(\oplus\) & Vektör birleştirme işlemi\\
 \(\hat{p}_{ij}\) & \(i,j\) adayı için tahmin edilen pozitif sınıf olasılığı\\
+\(\pi\) & Pozitif sınıf prevalansı; no-skill PR taban çizgisi\\
+\(\mathrm{Pre}, \mathrm{Rec}\) & Kesinlik ve duyarlılık (precision, recall)\\
 \(\phi_{\cdot}\) & Özellik alt-ailesi encoder fonksiyonu\\
+\(\sigma\) & Sigmoid aktivasyon fonksiyonu\\
+\(S\) & Çoklu tohum analizindeki eğitim tohumu sayısı\\
+\(\mathcal{S}^{(b)}\) & \(b\). bootstrap rehber örneklemiyle oluşan satır kümesi\\
 \(S_{g,t}\) & Rehber-hedef dizi çifti temsili\\
 \(t_j\) & \(j\). fiziksel hedef düğümü\\
 \(\mathrm{TN}, \mathrm{TP}\) & Doğru negatif ve doğru pozitif sayımları\\
+\(W, \mathbf{a}\) & Öğrenilebilir ağırlık matrisi ve attention parametre vektörü\\
 \(X^{F1:F4}\) & Tabular feature ladder temsili\\
 \(x^{miss}, x^{nuc}\) & Eksiklik ve nükleozom alt-aile vektörleri\\
 \(x^{seq}, x^{epi}\) & Dizi ve epigenetik alt-aile vektörleri\\

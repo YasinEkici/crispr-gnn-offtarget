@@ -44,6 +44,11 @@ docs/thesis/**/*.lot
 docs/thesis/**/*.fls
 docs/thesis/**/*.fdb_latexmk
 docs/thesis/**/*.synctex.gz
+docs/thesis/**/*.bbl
+docs/thesis/**/*.blg
+docs/thesis/**/*.bcf
+docs/thesis/**/*.run.xml
+docs/thesis/**/*-blx.bib
 docs/thesis/**/*.pdf
 
 # Jupyter

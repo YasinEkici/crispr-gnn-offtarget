@@ -1,0 +1,100 @@
+{
+  "git_commit": "a878679987d75f4213a60376c7935c44b7f9bec1",
+  "matplotlib": "3.10.9",
+  "figures": {
+    "03_non_graph_xgboost_feature_auprc.png": {
+      "sources": [
+        "sprint2/baseline_results.csv"
+      ],
+      "labels": [
+        "F1",
+        "F2",
+        "F3",
+        "F4"
+      ]
+    },
+    "03_gcn_graph_schema_auprc.png": {
+      "sources": [
+        "sprint4/gcn_sprint4_comparison_results.csv",
+        "sprint5b/graph_c_context_observation/gcn_graph_c_results.csv"
+      ],
+      "labels": [
+        "Graph A GCN",
+        "Graph B GCN",
+        "Graph C GCN",
+        "Graph C GCN, enerji"
+      ]
+    },
+    "03_graphc_mechanism_threshold_metrics.png": {
+      "sources": [
+        "sprint7d/graphc_gatv2_mechanism_ablation.csv"
+      ],
+      "labels": [
+        "Tam Graph C GATv2",
+        "Context-similarity kenarları kaldırılmış",
+        "Edge-blind attention",
+        "Target context feature'ları maskelenmiş"
+      ]
+    },
+    "03_target_context_subgroup_threshold_metrics.png": {
+      "sources": [
+        "sprint7e/target_context_subgroup_ablation.csv"
+      ],
+      "labels": [
+        "Context-edge kaldırılmış referans",
+        "Hedef dizisi maskelenmiş",
+        "Deneysel epigenetik özellikler maskelenmiş",
+        "Hesaplanmış nükleozom özetleri maskelenmiş",
+        "Missingness göstergeleri maskelenmiş",
+        "Tüm non-sequence context maskelenmiş"
+      ]
+    },
+    "03_sequence_context_pr_curves.png": {
+      "sources": [
+        "sprint8b/diagnostics/sequence_context_predictions.csv",
+        "sprint8b/sequence_context_comparison.csv"
+      ],
+      "labels": [
+        "Dizi-only",
+        "Dizi + bağlam birleşimi"
+      ]
+    },
+    "03_sequence_context_threshold_metrics.png": {
+      "sources": [
+        "sprint8b/sequence_context_comparison.csv"
+      ],
+      "labels": [
+        "Context-edge FiLM (referans)",
+        "Dizi-only",
+        "Dizi + bağlam birleşimi"
+      ]
+    },
+    "03_saglamlik_auprc_araliklari.png": {
+      "sources": [
+        "sprint9/robustness_bootstrap_cis.csv"
+      ],
+      "labels": [
+        "XGBoost F4 (yeniden üretim)",
+        "Dizi + bağlam birleşimi",
+        "Family-aware deneysel vurgu",
+        "Context-edge FiLM",
+        "Family-aware encoder"
+      ]
+    },
+    "03_paired_difference_distributions.png": {
+      "sources": [
+        "sprint9/robustness_paired_differences.csv"
+      ],
+      "labels": [
+        "Dizi+bağlam − Context FiLM",
+        "Dizi+bağlam − Family deneysel",
+        "Context FiLM − Family deneysel",
+        "Dizi+bağlam − XGBoost F4",
+        "Context FiLM − XGBoost F4",
+        "Family deneysel − XGBoost F4",
+        "Dizi+bağlam − Family encoder",
+        "Context FiLM − Family encoder"
+      ]
+    }
+  }
+}
