@@ -8,6 +8,8 @@ This file is the durable handoff for thesis-writing progress, final scientific c
 
 The main thesis chapters `01_giris.tex`, `02_materyal_yontem.tex`, `03_deneysel_calismalar.tex`, and `04_sonuc_oneriler.tex` are structured first drafts. They contain the main narrative, citations, tables, figure references, and Sprint 9 robustness framing, but they are not final thesis text.
 
+The latest chapter-text pass strengthened the literature-to-results bridge without changing the bounded scientific claim. `01_giris.tex` now contains a broader literature synthesis across sequence models, epigenetic/chromatin context, graph representations, attention/family-aware/FiLM-style modules, and evaluation robustness. `02_materyal_yontem.tex` now includes a compact model-family settings table. `03_deneysel_calismalar.tex` now explains why the experiments are ordered as a controlled evidence chain. `04_sonuc_oneriler.tex` now includes a literature-linked conclusion section that ties the final results back to sequence, context, graph, and evaluation literature while preserving the no-robust-AUPRC-superiority claim.
+
 The front matter has been mostly cleaned. `metadata.tex` now contains the real thesis titles, thesis keywords, submission month/year, advisor name (`Doç. Dr. Mustafa Özgür CİNGİZ`), and student information for Kasım DELİACI (`21360859021`) and Yasin EKİCİ (`21360859029`). The final defense date remains an explicit placeholder until the real administrative information is available. Jury/chair placeholders remain in metadata only for the optional approval-page macro, but that page is not printed in the default 2026 DOCX-aligned flow. `main.tex` now contains a real ÖNSÖZ, a thesis-specific KISALTMALAR list, a thesis-specific SEMBOLLER list, and completed Turkish ÖZET and English SUMMARY drafts. The CV/ÖZGEÇMİŞ area is intentionally left as a placeholder for now. `appendices/ek-a.tex` still needs to be replaced or removed if no real appendix is needed.
 
 The first two cover pages have been visually aligned to `BTU_BM_Tez_Yazım_Sablonu_2026_updated.docx`. The outer cover now uses the DOCX background artwork and page-centered blue title blocks, while the inner cover follows the DOCX's plain, logosuz, text-area-centered layout. The DOCX instructional note boxes were intentionally not reproduced in LaTeX output because they are template comments, not final thesis cover content.
@@ -23,6 +25,15 @@ Recent completed front-matter work:
 - Cover-page visual QA was performed by rendering the DOCX and LaTeX PDFs side by side. The outer-cover text centers now follow the page center; the inner-cover text centers follow the 4 cm / 2.5 cm text-area center.
 - Two-student front-matter QA was performed by rendering the outer cover, inner cover, and plagiarism declaration. The cover pages show both students, the inner cover pairs each name with its student number, and the plagiarism declaration uses plural wording with two signature rows.
 - Final front-heading QA compared the 2019 DOCX, 2026 DOCX, and current LaTeX render. The 2019 and 2026 DOCX files both place `ÖNSÖZ` at approximately `y=126.2`, while the current LaTeX render places it at `y=126.3`; therefore the separate foreword heading position is intentional rather than a 2026-only drift. The 2026 DOCX and current LaTeX list headings also match closely: `İÇİNDEKİLER`, `KISALTMALAR`, `SEMBOLLER`, `ÇİZELGE LİSTESİ`, and `ŞEKİL LİSTESİ` render at approximately `y=144.2`.
+
+Recent completed chapter-text work:
+
+- `01_giris.tex`: the literature review was expanded into five explicit axes: sequence/language-model predictors, epigenetic and chromatin context, graph representation and the Graph C gap, attention/family-aware/FiLM-style mechanisms, and evaluation robustness.
+- `references.bib`: four additional literature entries were added and all citations were kept under the active BibLaTeX workflow.
+- `02_materyal_yontem.tex`: a model-family architecture and training-settings table was added so XGBoost, sequence baselines, GCN/GAT/GATv2, family-aware encoders, FiLM, and fusion variants are easier to compare.
+- `03_deneysel_calismalar.tex`: a `Deney Akışının Gerekçesi` section was added to explain why experiments move from non-graph baselines to graph schemas, feature/loss ablations, attention/mechanism analyses, family-aware/context interaction models, and robustness checks.
+- `04_sonuc_oneriler.tex`: a `Literatürle İlişkilendirilen Sonuç` section was added to connect the final claims back to sequence, context, graph, and evaluation literature without turning the thesis into an unbounded model-superiority claim.
+- After this pass, the Tectonic render produced a 65-page `main.pdf`. Static citation validation showed 44 `.bib` entries, 44 unique cited keys, 163 citation-key uses, no missing keys, and no uncited bibliography entries. The only remaining compile warning is the known `main.lof` overfull from the long paired-difference figure-list caption.
 
 ## 3. Binding Thesis Notes
 
@@ -76,10 +87,10 @@ The project developed a controlled context-aware GNN workflow for CRISPR-Cas9 of
 
 - `main.tex` / front matter: ÖNSÖZ, KISALTMALAR, SEMBOLLER, Turkish ÖZET, and English SUMMARY have been updated. CV/ÖZGEÇMİŞ should remain placeholder until real personal CV details are provided.
 - `metadata.tex`: title, English title, approval title, advisor, student names/numbers, keywords, and submission/foreword month-year have been updated. The defense date still needs the real administrative value. Jury/chair fields are currently relevant only if the optional approval-page macro is re-enabled.
-- `01_giris.tex`: split dense paragraphs, standardize Turkish/English terminology, and keep the introduction centered on context-aware representation plus bounded AUPRC claims.
-- `02_materyal_yontem.tex`: keep methods separate from interpretation, verify robustness wording as finite-sample guide-cluster compatibility, and ensure no method implies test-driven tuning.
-- `03_deneysel_calismalar.tex`: tighten Sprint 9 as the controlling claim-boundary section; separate AUPRC ranking from threshold operating behavior; revise any wording that sounds like unqualified significance or causal mechanism.
-- `04_sonuc_oneriler.tex`: sharpen the final conclusion around no robust AUPRC superiority, rare-negative operating-point contribution, guide/seed fragility, and need for external guide-diverse validation.
+- `01_giris.tex`: perform a final copyedit for paragraph density and Turkish/English terminology consistency; keep the introduction centered on context-aware representation plus bounded AUPRC claims.
+- `02_materyal_yontem.tex`: perform final consistency checks on method/table numbering, keep methods separate from interpretation, and ensure no method implies test-driven tuning.
+- `03_deneysel_calismalar.tex`: perform final copyedit after the new experiment-flow rationale; keep AUPRC ranking separate from threshold operating behavior.
+- `04_sonuc_oneriler.tex`: perform final copyedit after the new literature-linked conclusion; keep the no-robust-AUPRC-superiority claim, rare-negative operating-point contribution, guide/seed fragility, and external-validation need explicit.
 - `appendices/ek-a.tex`: replace template content with a real appendix or remove appendix inclusion if no appendix is needed.
 
 ## 9. Figure/Table/PDF Work
@@ -92,7 +103,7 @@ Recent PDF checks verified that the updated title/metadata pages fit, the KISALT
 
 References now use an active `.bib` workflow. The thesis bibliography metadata lives in `docs/thesis/latex/btu_template/references.bib`; `main.tex` prints it through `btu-apa-biblatex.tex` with BibLaTeX `backend=bibtex`, which works under the bundled Tectonic runtime. In-text citations were converted from free-form author-year text to `\btucitep{...}` and `\btutextcite{...}` commands so citation keys can be checked statically against the `.bib` file. The custom bibliography layer preserves the BTU `KAYNAKLAR` heading, single spacing, 2.5 cm hanging indent, Turkish in-text `ve` / `ve diğ.` behavior, APA-style author ordering, italic source titles and volumes, `Article ...` numbers, DOI URL form, and consistent `In ...` proceedings entries.
 
-The post-migration validation state is: 40 `.bib` entries, 40 unique cited keys, 85 citation-key uses, no missing citation keys, no uncited bibliography entries, and no remaining free-form author-year citation candidates in the chapter sources. DOI/URL validation checked 35 DOI fields and 4 URL fields: 34 DOI values resolved through Crossref, the arXiv DOI resolved through `doi.org`, and the OpenReview/PMLR URLs resolved directly. A Tectonic PDF render and raster check of the rendered `KAYNAKLAR` pages verified that the bibliography is generated from `main.bbl`, remains visually readable, and keeps the expected hanging-indent layout.
+The current static validation state after the latest literature pass is: 44 `.bib` entries, 44 unique cited keys, 163 citation-key uses, no missing citation keys, no uncited bibliography entries, and no remaining free-form author-year citation candidates in the chapter sources. The bibliography currently contains 39 DOI fields and 4 URL fields. Earlier DOI/URL validation checked 35 DOI fields and 4 URL fields before the latest four literature additions; a final DOI/URL validation should be repeated before thesis submission. A Tectonic PDF render and raster check of the rendered `KAYNAKLAR` pages verified that the bibliography is generated from `main.bbl`, remains visually readable, and keeps the expected hanging-indent layout.
 
 Do not invent references. Any literature claim should be verified against `docs/literature/literature_index.md`, `docs/literature/paper_registry.yaml`, and the relevant local literature notes. CRISPR-Net, CRISPR-IP, DeepCRISPR, GCN/GATv2, FiLM/SENet-style modules, leakage/overtuning, AUPRC, and bootstrap/uncertainty references must be framed as local adaptations or methodological anchors, not reproductions unless the full setup matches.
 
@@ -111,11 +122,10 @@ Core abstract ingredients:
 
 1. Replace the remaining defense-date and optional jury/chair placeholders when the real administrative information is available.
 2. Leave CV/ÖZGEÇMİŞ placeholder until real CV details are provided.
-3. Tighten Sprint 9 claim wording throughout chapters 03 and 04.
-4. Split dense chapter paragraphs and improve subsection structure where needed.
-5. Standardize Turkish/English terminology beyond the already-updated KISALTMALAR and SEMBOLLER pages.
-6. Render the thesis PDF and perform full figure/table/layout QA.
-7. Run final render and validation checks, then fix any cross-reference, overflow, caption, or bibliography issues.
+3. Perform a full chapter-level copyedit for paragraph density, terminology consistency, and repeated claim wording.
+4. Render the thesis PDF and perform full figure/table/layout QA.
+5. Repeat final citation, DOI/URL, cross-reference, overflow, caption, and bibliography validation checks.
+6. Fix the known long figure-list caption warning if the final formatting pass requires a warning-clean build.
 
 ## 13. 2026 Template Transition Status
 
