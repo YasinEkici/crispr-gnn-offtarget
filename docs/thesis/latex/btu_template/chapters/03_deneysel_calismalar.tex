@@ -40,6 +40,18 @@ Bu bölümde, Bölüm~2'de tanımlanan measured-only, guide-disjoint ve leakage-
 \label{fig:evidence-ladder}
 \end{figure}
 
+\section{Deney Akışının Gerekçesi}
+
+Deney sırası, Bölüm~1'de özetlenen literatür eksenlerini bu bölümdeki kanıt zincirine bağlayacak biçimde kurulmuştur. İlk adımda non-graph referansların verilmesi, CRISPR hedef dışı tahmininde dizi tabanlı derin modellerin yaygın kullanımına ve farklı veri, split ve negatif örnek sözleşmelerinin ham skorları doğrudan karşılaştırmayı güçleştirmesine dayanır \btucitep{chuai2018deepcrispr,lin2020crisprnet,luo2024bert,sun2024crisprm,cao2025deeplearningreview}. Bu nedenle XGBoost F4 ve sequence-only modeller önce aynı measured-only, guide-disjoint ve validation-kilitli eşik sözleşmesi altında konumlandırılmıştır \btucitep{chen2016xgboost}.
+
+İkinci adımda Graph A, Graph B ve Graph C şemaları GCN ile sınanmıştır. GCN, çizge mesajlaşması için temel referans olarak kullanıldığı için attention katmanlarından önce değerlendirilmiştir \btucitep{kipf2017gcn}. Bu sıra, Graph C'nin target-observation semantiğinden kaynaklanan etkisini GAT/GATv2'nin attention davranışıyla karıştırmadan okumayı amaçlamıştır \btucitep{vinodkumar2021gcn,velickovic2018gat,brody2022attentive}. Graph B'nin ara kontrol olarak kullanılması, guide-similarity topolojisinin Graph C'deki satır düzeyli target-observation temsilinden ayrılmasını sağlamıştır.
+
+Üçüncü adımda feature-family ve loss/sampling analizleri yapılmıştır. Epigenetik, kromatin ve nükleozom bağlamının Cas9 erişimi ve hedef dışı davranışla ilişkisi literatürde gösterildiği için context ailelerinin temsil düzeyi ayrıca sınanmıştır \btucitep{horlbeck2016nucleosomes,mak2022epigenetic,stortz2023picrispr}. Sınıf dengesizliği de CRISPR hedef dışı değerlendirmesini etkilediğinden, Graph C'nin daha ayrıntılı mimari varyantlarından önce kayıp fonksiyonu ve örnekleme seçenekleri aynı Graph A enerji temsili üzerinde karşılaştırılmıştır \btucitep{gao2020imbalance,guan2024imbalance,lin2017focal,sudre2017dice,cui2019classbalanced}.
+
+Dördüncü adımda attention, Graph C mekanizma çıkarma, target-context maskeleme, family-aware encoder, context-edge FiLM ve sequence/context fusion deneyleri yürütülmüştür. Bu sıra, önce modelin hangi girdiye duyarlı olduğunu belirleyip daha sonra bu girdiyi aile-duyarlı ve koşullamalı mimarilerle işlemeyi amaçlamıştır. SE, FiLM ve GNN-FiLM kaynakları feature recalibration ve koşullama için mimari dayanak sağlasa da, attention, gate, FiLM ve masking çıktıları biyolojik nedensellik kanıtı olarak yorumlanmamıştır \btucitep{hu2018squeeze,perez2018film,brockschmidt2020gnnfilm,jain2019attention,serrano2019attention}.
+
+Son adımda sağlamlık analizi yapılmıştır. Bu tercih, validation-seçili adaylar arasındaki küçük AUPRC farklarının guide kompozisyonu, bootstrap örneklemesi ve eğitim tohumu değişkenliği altında korunup korunmadığını değerlendirmek için gereklidir \btucitep{field2007bootstrapping,boyd2013auprc,bengio2004unbiased,bethard2022randomseeds}. Bu nedenle Sprint 9 sonuçları, Bölüm~3'teki önceki deneyleri yeniden seçmek için değil, iddia sınırını belirlemek için kullanılmıştır.
+
 Test evreni 1702 measured-only satırdan oluşmaktadır. Bu evrende 1533 pozitif ve 169 negatif örnek bulunmaktadır; pozitif prevalans 0.900705'tir. Bu değer precision--recall eğrisi için no-skill referans düzeyidir; matematiksel bir alt sınır olarak yorumlanmamıştır. Satır sayısına rağmen test evreni yalnızca 29 guide içermekte, negatifler 9 guide üzerinde yoğunlaşmakta ve guide 9251 tek başına 169 negatifin 80'ini taşımaktadır. Dolayısıyla AUPRC değerleri yorumlanırken hem prevalans hem de negatif sınıfın guide düzeyindeki yoğunlaşması dikkate alınmıştır. Precision--recall eğrilerinin dengesiz sınıf dağılımlarındaki yorumu, ROC eğrilerinden farklı bilgi taşıması ve sınıf prevalansına duyarlı olması literatürde ayrıca vurgulanmıştır \btucitep{davis2006precisionrecall,saito2015pr,williams2021classimbalance}.
 
 \section{Non-Graph Referans Modeller}
@@ -349,7 +361,7 @@ AUPRC aralıkları Şekil~\ref{fig:saglamlik-auprc-araliklari}'de verilmiştir. 
 
 Buna karşılık operating-point metrikleri farklı bir davranış göstermiştir. Bazı Graph C varyantlarında MCC, macro-F1 ve specificity farkları paired bootstrap altında sıfırı dışlamıştır. Örneğin context-edge FiLM ile XGBoost F4 arasındaki MCC farkı +0.2125 ve aralık [+0.0306, +0.4925] biçimindedir. Family-aware deneysel vurgu ile XGBoost F4 arasındaki MCC farkı +0.2170 ve aralık [+0.0488, +0.5219] biçimindedir. Sequence + context fusion ile XGBoost F4 arasındaki specificity farkı +0.6272 ve aralık [+0.1412, +0.8271] biçimindedir.
 
-Bu bulgular yalnızca ilgili eğitilmiş modellerin validation-kilitli eşikleri altında yorumlanmıştır. Çizelge~\ref{tab:family-aware-context} ve Şekil~\ref{fig:sequence-context-threshold} ile birlikte okunduğunda sonuçlar, rare measured negative recognition katkısının AUPRC üstünlüğü olarak değil, threshold-dependent bir operating-point davranışı olarak yazılması gerektiğini göstermektedir.
+Bu bulgular, ilgili eğitilmiş modellerin validation-kilitli eşikleri altında yorumlanmıştır. Çizelge~\ref{tab:family-aware-context} ve Şekil~\ref{fig:sequence-context-threshold} ile birlikte okunduğunda sonuçlar, rare measured negative recognition katkısının AUPRC üstünlüğünden çok threshold-dependent bir operating-point davranışı olarak yazılması gerektiğini göstermektedir.
 
 \subsection{Çoklu tohum duyarlılığı}
 
