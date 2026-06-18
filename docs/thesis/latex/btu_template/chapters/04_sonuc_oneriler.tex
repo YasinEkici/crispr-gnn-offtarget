@@ -1,15 +1,25 @@
 \chapter{SONUÇ VE ÖNERİLER}
 \label{chap:sonuc}
 
+\section{Genel Değerlendirme}
+
 Bu tezde CRISPR-Cas9 hedef dışı tahmini için ölçüm bütünlüğü korunmuş, rehber ayrık ve test üzerinde ayar yapılmayan bir context-aware GNN iş akışı geliştirilmiştir. Çalışma, \btutextcite{mak2022epigenetic} veri çizgisinden türetilen epigenetik ve nükleozom açıklamalı veri üzerinde yürütülmüş; ana değerlendirme Scheme A etiketi, measured-only validation/test evreni, \texttt{experiment\_id = 18} dışlama kuralı ve AUPRC birincil metriği altında sınırlandırılmıştır. Putative \texttt{measured=0} satırları doğrulanmış validation veya test etiketi olarak kullanılmamıştır.
 
 Tezin nihai sonucu iki ayrı eksen üzerinden değerlendirilmiştir. Birinci eksen ranking başarımıdır. Bu eksende XGBoost F4 en güçlü ve en sağlam AUPRC referansı olarak kalmıştır. Sprint 9 sonuçları, Sprint 8A ve Sprint 8B adaylarının XGBoost F4'e karşı sağlam AUPRC üstünlüğü gösterdiğini desteklememiştir. İkinci eksen validation-kilitli karar eşiğindeki operating-point davranışıdır. Bu eksende context-aware Graph C/GATv2 varyantları, bazı koşullarda nadir ölçülmüş negatifleri tanıma davranışını güçlendirmiştir. Bu katkı AUPRC üstünlüğünün yerine geçmez; threshold-dependent, seed/guide duyarlı ve sabit test evreniyle sınırlı bir model davranışı olarak değerlendirilmelidir.
 
 \section{Hipotezlere Göre Sonuçlar}
 
+Bu bölümde tezde kurulan hipotezler, deneysel bulgular ve Sprint 9 sağlamlık analizi birlikte değerlendirilmiştir. Değerlendirme, Graph C'nin nadir negatif tanıma davranışı, XGBoost F4 karşısındaki AUPRC sağlamlık sınırı ve target-observation bağlamının model davranışındaki rolü olmak üzere üç eksende yapılmıştır.
+
+\subsection{Graph C ve nadir negatif tanıma}
+
 Birinci hipotez, Graph C hedef-gözlem temsili ve aile-duyarlı GATv2 hattının ölçülmüş veri protokolü altında nadir negatif tanıma davranışını iyileştireceğini öngörmüştür. Bulgular bu hipotezi validation üzerinde seçilmiş karar eşikleri altında desteklemiştir. Graph C GATv2 hattında doğru negatif sayısı, specificity ve MCC değerleri düz Graph C GCN referansına göre iyileşmiş; aile-duyarlı context encoder ve sequence/context fusion varyantları daha güçlü nadir-negatif operating point profilleri üretmiştir (Çizelge~\ref{tab:attention-sonuclari}; Çizelge~\ref{tab:family-aware-context}). Bu sonuç, Graph C hedef-gözlem semantiğinin ve özellik ailesine duyarlı encoder tasarımının model davranışı açısından değer taşıdığını göstermektedir.
 
+\subsection{AUPRC sağlamlığı ve XGBoost F4 sınırı}
+
 İkinci hipotez, bu kazanımın XGBoost F4'e karşı sağlam AUPRC üstünlüğü oluşturmayacağını öngörmüştür. Sprint 9 sağlamlık analizi bu hipotezi desteklemiştir. Yeniden üretilen XGBoost F4 sonucu 0.992338 AUPRC, [0.950179, 0.999336] guide-cluster aralığı ve 0.990649 $\pm$ 0.001944 çoklu tohum ortalaması üretmiştir. En yüksek tekil Sprint 8 GNN adayı olan S8B\_R2 0.986020 AUPRC, [0.929981, 0.998966] aralığı ve 0.978963 $\pm$ 0.011322 çoklu tohum ortalamasıyla kalmıştır. S8B\_R2 ile XGBoost F4 arasındaki paired AUPRC farkı yaklaşık -0.00632 olup [-0.03124, +0.00117] aralığı sıfırı içermektedir. Bu nedenle sonuç, üstünlük veya eşdeğerlik olarak değil, AUPRC farklarının guide-kompozisyonu ve tohum belirsizliğiyle uyumlu kalması olarak yorumlanmıştır.
+
+\subsection{Target-observation bağlamının rolü}
 
 Üçüncü hipotez, Graph C davranışının explicit context-similarity topolojisinden çok doğrudan target-observation context feature'larına, özellikle deneysel epigenetik feature ailesine duyarlı olacağını öngörmüştür. Mekanizma ve alt aile maskeleme analizleri bu model-davranışı hipotezini desteklemiştir. Context-similarity kenarlarının kaldırılması tam Graph C GATv2 sonucuna yakın kalırken, target context feature'larının ve deneysel epigenetik alt ailenin maskelenmesi ranking ve threshold metriklerinde belirgin bozulma üretmiştir (Çizelge~\ref{tab:graphc-mekanizma}; Çizelge~\ref{tab:target-context-mask}). Bu sonuç biyolojik nedensellik kanıtı değildir. Deneysel epigenetik değişkenlerin model içinde ayırt edici bilgi taşıdığını gösterir; bu bilginin biyolojik bağlam, veri kaynağı, hücre hattı, ölçüm kapsamı veya bunların birleşimiyle ilişkisi ayrıca doğrulanmalıdır.
 
@@ -25,27 +35,47 @@ Dördüncü katkı, family-aware target context encoder, context-edge FiLM etkil
 
 \section{Sınırlılıklar}
 
+Bu çalışmanın sınırlılıkları, sonuçların hangi koşullar altında geçerli olduğunu göstermek için ayrı başlıklar altında ele alınmıştır. Sınırlılıklar test evreninin guide düzeyindeki kompozisyonu, tek sabit split kullanımı, AUPRC ile operating-point metriklerinin farklı kanıt türleri üretmesi ve model içi yorumların biyolojik anlamı etrafında toplanmaktadır.
+
+\subsection{Test evreni ve guide kompozisyonu}
+
 Çalışmanın en önemli sınırlılığı test evreninin guide düzeyindeki yapısıdır. Test seti 1702 satır içermesine rağmen yalnızca 29 guide kapsamaktadır. Negatif örnek sayısı 169'dur; negatifler yalnızca 9 guide üzerinde yoğunlaşmıştır ve guide 9251 tek başına 80 negatif taşımaktadır. Bu nedenle belirsizlik satır sayısından çok guide kompozisyonu ve az sayıdaki negatif-bearing guide tarafından belirlenmektedir.
+
+\subsection{Tek split ve dış doğrulama eksikliği}
 
 İkinci sınırlılık, tek veri ailesi ve tek ana sabit split üzerinde çalışılmasıdır. Mak ve crisprSQL çizgisi epigenetik ve kromatin bağlamını incelemek için uygun bir kaynak sağlamıştır; ancak farklı deney platformları, hücre bağlamları, guide popülasyonları ve negatif örnekleme yapıları üzerinde dış doğrulama yapılmadan genelleme iddiası sınırlı kalır.
 
+\subsection{Metrik yorumu ve operating-point kırılganlığı}
+
 Üçüncü sınırlılık, AUPRC ve operating-point metriklerinin farklı kanıt türleri üretmesidir. AUPRC ranking kalitesini ölçen birincil metrik olarak tutulmuştur. MCC, specificity, macro-F1 ve karışıklık matrisi ise validation-selected threshold altındaki karar davranışını göstermektedir. Sprint 9'da bazı operating-point farkları XGBoost F4'e göre daha iyi görünse de bu farklar seed-fragile ve guide-fragile olarak raporlanmalıdır. Bu metrikler AUPRC sıralamasının yerine geçmez.
+
+\subsection{Model içi yorumların biyolojik sınırı}
 
 Dördüncü sınırlılık, model içi yorumların biyolojik anlamıdır. Attention ağırlıkları, family gate değerleri, FiLM etkileşimleri, embedding özetleri ve feature masking sonuçları model davranışını anlamak için kullanılabilir. Bu çıktılar biyolojik nedensellik kanıtı değildir ve attention tabanlı açıklamaların dikkatli yorumlanması gerektiğini gösteren literatürle birlikte değerlendirilmelidir \btucitep{jain2019attention,serrano2019attention}. Deneysel epigenetik feature ailesinin maskelenmesiyle model davranışının bozulması, bu feature ailesinin ayırt edici bilgi taşıdığını gösterir; Cas9 aktivitesini doğrudan nedensel olarak belirlediğini kanıtlamaz.
 
 \section{Gelecek Çalışmalar İçin Öneriler}
 
+Gelecek çalışmalar için öneriler, bu tezde gözlenen katkının belirsizlik kaynaklarını azaltmaya ve daha güçlü genelleme koşullarında sınanmasına yöneliktir. Bu nedenle öneriler veri kapsamı, sağlamlık protokolü, karar eşiği analizi, split tasarımı ve biyolojik doğrulama başlıkları altında düzenlenmiştir.
+
+\subsection{Veri ve dış doğrulama}
+
 İlk öneri, daha geniş ve guide çeşitliliği yüksek dış doğrulama setlerinin oluşturulmasıdır. AUPRC farklarının guide-cluster belirsizliğinden ayrılabilmesi için daha fazla held-out guide, daha fazla negatif-bearing guide ve farklı deney kaynakları gereklidir. Aynı measured-only ve guide-disjoint değerlendirme protokolü farklı veri setlerinde tekrarlanmalıdır.
+
+\subsection{Sağlamlık ve değerlendirme protokolü}
 
 İkinci öneri, robustness protokolünün yeni deneylerden önce kayıt altına alınmasıdır. Guide-cluster bootstrap, paired-difference aralıkları, çoklu tohum yeniden eğitimleri ve validation-only threshold politikası baştan tanımlanmalıdır. Bu yaklaşım, küçük tekil kazanımların test sonrası model seçimine dönüşmesini engeller.
 
+\subsection{Kalibrasyon ve karar eşiği analizi}
+
 Üçüncü öneri, kalibrasyon ve threshold analizlerinin ayrı bir araştırma hattı olarak ele alınmasıdır. Rare-negative operating point davranışı uygulama bağlamına göre değerli olabilir; ancak threshold seçimi test verisi üzerinden yapılmamalıdır. Calibration error, karar eğrisi benzeri kullanım noktası analizleri ve önceden tanımlı specificity/MCC kısıtları validation veya dış validation evrenlerinde incelenmelidir.
+
+\subsection{Split tasarımı ve biyolojik doğrulama}
 
 Dördüncü öneri, Graph C target-observation temsilinin daha güçlü split tasarımlarıyla sınanmasıdır. Veri izin verirse guide-disjoint split'e ek olarak hücre hattı, deney kaynağı, genom veya hedef bölge ailelerini dikkate alan daha zor ayrımlar denenmelidir. Bu ayrımlar, epigenetik/context sinyalinin gerçek genelleme gücünü veri kaynağına özgü örüntülerden ayırmaya yardımcı olabilir.
 
 Beşinci öneri, deneysel epigenetik feature ailesinin biyolojik yorumu için model dışı doğrulama yapılmasıdır. Model maskeleme sonuçları hipotez üretmek için değerlidir; ancak biyolojik doğrulama için ek deneysel analiz, metadata denetimi, hücre hattı/source kontrolleri ve mümkünse bağımsız ölçüm setleri gerekir. Bu adımlar tamamlanmadan epigenetik feature etkisi nedensel mekanizma olarak sunulmamalıdır.
 
-\section{Genel Sonuç}
+\section{Kapanış Değerlendirmesi}
 
 Bu tez, CRISPR-Cas9 hedef dışı tahmininde bağlam duyarlı çizge sinir ağlarının değerini sınırları açık bir bilimsel iddia içinde göstermiştir. Geliştirilen iş akışı, guide-disjoint ve measured-only değerlendirme altında Graph C hedef-gözlem temsili, edge-aware GATv2, family-aware context encoding ve sequence/context fusion bileşenlerini sistematik olarak incelemiştir. XGBoost F4, AUPRC bakımından en güçlü sağlam referans olarak kalmıştır. Sprint 9, hiçbir Sprint 8 GNN adayının XGBoost F4'e karşı sağlam AUPRC üstünlüğü gösterdiğini desteklememiştir.
 

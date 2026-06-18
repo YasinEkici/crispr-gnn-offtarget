@@ -29,9 +29,9 @@ Bu bölümde veri kaynağı, etiketleme politikası, özellik temsilleri, çizge
 \node[modelBox] (mgnn) at (7.95,-3.95) {\(f_{\mathrm{gcn/gat/gatv2}}\)};
 \node[modelBox, minimum width=20mm] (score) at (10.55,-3.95) {\(\hat{p}_{ij}\)};
 
-\node[metricBox] (auprc) at (12.85,-2.8) {AUPRC\\primary};
-\node[metricBox] (op) at (12.85,-4.0) {MCC/spec.\\threshold};
-\node[metricBox] (boot) at (12.85,-5.2) {guide\\bootstrap};
+\node[metricBox] (auprc) at (13.4,-2.8) {AUPRC\\primary};
+\node[metricBox] (op) at (13.4,-4.0) {MCC/spec.\\threshold};
+\node[metricBox] (boot) at (13.4,-5.2) {guide\\bootstrap};
 
 \draw[thesisArrow] (D0) -- (Dm);
 \draw[thesisArrow] (Dm) -- (y);
@@ -57,11 +57,11 @@ Bu bölümde veri kaynağı, etiketleme politikası, özellik temsilleri, çizge
 \draw[protocol, fill=BTUGray!3] (-0.65,-0.75) rectangle (9.05,1.2);
 \draw[protocol, fill=BTUOrange!3] (1.25,-2.85) rectangle (8.95,-1.25);
 \draw[protocol, fill=BTUBlue!3] (1.25,-5.05) rectangle (11.35,-3.25);
-\draw[protocol, fill=BTUGreen!3] (11.75,-5.75) rectangle (13.95,-2.25);
+\draw[protocol, fill=BTUGreen!3] (12.25,-5.75) rectangle (14.55,-2.25);
 \node[bandTitle] at (4.20,1.42) {Data and leakage contract};
-\node[bandTitle] at (5.15,-1.02) {Representation views};
-\node[bandTitle] at (6.55,-3.02) {Model families};
-\node[bandTitle] at (12.85,-2.02) {Evaluation};
+\node[bandTitle, anchor=east] at (1.05,-2.0) {Representation views};
+\node[bandTitle, anchor=east] at (1.05,-3.95) {Model families};
+\node[bandTitle] at (13.4,-2.02) {Evaluation};
 \end{scope}
 \end{tikzpicture}%
 }
@@ -148,7 +148,7 @@ F1 & 33 & Sequence ve mismatch tabanlı engineered numeric özellikler; tabular 
 F2 & 38 & F1'e beş bağlanma enerjisi özelliğinin eklenmiş hali.\\
 F3 & 44 & F2'ye altı deneysel epigenetik skaler özelliğin eklenmiş hali.\\
 F4 & 135 & F3'e hesaplanmış nükleozom özetleri ve missingness göstergelerinin eklenmiş hali; ana non-GNN karşılaştırma referansı olarak kullanılmıştır.\\
-S1 & -- & Guide ve target dizilerinden üretilen 23 pozisyonlu one-hot/mismatch sequence temsili; sequence-only neural baseline için kullanılmıştır.\\
+S1 & 253 & Guide ve target dizilerinden üretilen 23 pozisyonlu one-hot/mismatch sequence temsili; sequence-only neural baseline için kullanılmıştır.\\
 S5F2 & 268 & Çizge candidate edge üzerinde sequence/mismatch ve enerji bilgisini taşıyan kenar feature seti.\\
 Graph C target-observation & 212 & 115 hedef dizisi one-hot, 6 deneysel epigenetik, 78 hesaplanmış nükleozom özeti ve 13 missingness göstergesi.\\
 \bottomrule
@@ -371,6 +371,8 @@ Deney tasarımı, tek bir modelin en yüksek skorunu aramaktan çok, temsil ve b
 
 Dördüncü grup, Graph A üzerinde feature-family ekleme ve Graph C üzerinde enerji duyarlılığı kontrollerinden oluşur. Beşinci grup, sabit Graph A ve sabit enerji feature seti altında weighted BCE, focal loss, generalized Dice, Tversky ve balanced sampling türü sınıf dengesizliği müdahalelerini karşılaştırır. Focal loss, Dice ve class-balanced loss gibi yaklaşımlar dengesiz veri literatüründe yaygın biçimde kullanıldığından, bu müdahaleler önceden tanımlanmış bir karşılaştırma olarak ele alınmıştır \btucitep{lin2017focal,sudre2017dice,cui2019classbalanced}. CRISPR hedef dışı tahmininde dengesizliğin değerlendirmeyi etkileyebileceği ayrıca raporlandığından, bu karşılaştırma alan literatürüyle de uyumludur \btucitep{gao2020imbalance,guan2024imbalance}.
 
+Bu karşılaştırmada weighted BCE, ikili çapraz entropi hedefinde sınıf katkılarını eğitim verisindeki dengesizliği dikkate alacak biçimde yeniden ağırlıklandırmıştır. Focal loss, kolay örneklerin kayıp katkısını azaltan odaklama terimiyle sınanmıştır. Generalized Dice ve Tversky kayıpları, dengesiz sınıflarda örtüşme odaklı kayıp ailesi olarak değerlendirilmiştir. Balanced measured-only sampling ise kayıp fonksiyonunu değiştirmek yerine mini-batch bileşimini ölçülmüş sınıflar arasında dengelemeyi amaçlamıştır. Bu seçeneklerin tamamı aynı Graph A enerji temsili altında ve test seti üzerinde ayar yapılmadan raporlanmıştır.
+
 Altıncı grup, GAT/GATv2 mimarilerinin Graph A, Graph B ve Graph C üzerinde denenmesini içerir. Bu grup, attention tabanlı katmana geçmenin kendi başına yeterli olup olmadığını ve Graph C target-observation semantiğinin attention temelli mesajlaşma altında nasıl davrandığını sınar. Yedinci grup, Graph C mekanizma ablationlarıdır. Bu grupta context-similarity kenarlarının kaldırılması, edge-aware attention'ın kapatılması ve target-observation context feature'larının maskelenmesi gibi kontrollü değişiklikler yapılmıştır. Sekizinci grup, target-context alt ailelerinin maskeleme analizidir; deneysel epigenetik, hesaplanmış nükleozom, missingness ve hedef dizisi bileşenleri ayrı ayrı sınanmıştır.
 
 Dokuzuncu grup, family-aware target-context encoder, context-edge interaction ve sequence/context fusion varyantlarını içerir. Sprint 8A ve Sprint 8B modelleri bu grupta validation AUPRC'ye göre aday olarak seçilmiş, test metrikleri ise aday seçimi için kullanılmamıştır. Bu modeller final kazanan olarak değil, Sprint 9 sağlamlık analizine taşınan validation-selected adaylar olarak ele alınmıştır. Son deney grubu ise sonuç iddialarını sınırlamak için guide-cluster bootstrap, paired-difference bootstrap ve çoklu eğitim tohumu analizlerinden oluşan sağlamlık değerlendirmesidir. Bu yapı, tekil eğitim koşulunda görülen küçük AUPRC farklarının guide kompozisyonu ve eğitim stokastisitesi altında ayrışıp ayrışmadığını incelemek için kullanılmıştır.
@@ -398,6 +400,14 @@ AUPRC, karar eşiği taranarak elde edilen precision--recall eğrisinin altında
 
 İkincil ve yorumlayıcı metrikler AUROC, F1, macro-F1, MCC, sensitivity, specificity ve TN/FP/FN/TP karışıklık matrisi değerleridir. Bu metrikler, validation üzerinde seçilmiş karar eşiğindeki operating-point davranışını gösterir. Test evreninde negatif sınıf nadir olduğu için specificity ve MCC özellikle değerlidir. Buna karşılık threshold-dependent metriklerde görülen iyileşmeler AUPRC üstünlüğü olarak yorumlanmamıştır.
 
+Sensitivity, pozitif sınıf geri çağırımıdır; specificity ise negatif sınıf geri çağırımı veya doğru negatif oranı olarak kullanılmıştır. Bu tezde measured-only test evreni pozitif ağırlıklı olduğu ve nadir sınıf negatif olduğu için specificity, nadir negatif tanıma davranışını yorumlamak açısından özellikle önemlidir. Bu iki metrik Denklem~\ref{eq:sensitivity-specificity} ile tanımlanmıştır.
+
+\begin{equation}
+\mathrm{Sensitivity} = \frac{TP}{TP+FN}, \qquad
+\mathrm{Specificity} = \frac{TN}{TN+FP}.
+\label{eq:sensitivity-specificity}
+\end{equation}
+
 MCC, Denklem~\ref{eq:mcc} ile hesaplanmıştır.
 
 \begin{equation}
@@ -410,6 +420,8 @@ MCC, Denklem~\ref{eq:mcc} ile hesaplanmıştır.
 Denklemde \(TP\) doğru pozitif, \(TN\) doğru negatif, \(FP\) yanlış pozitif ve \(FN\) yanlış negatif sayısını ifade eder. Paydadaki terimlerden herhangi biri sıfır olduğunda MCC hesaplaması uygulama düzeyinde tanımlı güvenli kuralla ele alınmıştır. Bu durum özellikle tüm örneklerin pozitif sınıfa atandığı threshold collapse senaryolarında önemlidir.
 
 \section{Sağlamlık ve Belirsizlik Analizi}
+
+Sağlamlık ve belirsizlik analizi, tekil test skorlarının guide kompozisyonu ve eğitim stokastisitesi altında ne kadar dayanıklı olduğunu değerlendirmek için tasarlanmıştır. Test satırları aynı rehber altında bağımsız kabul edilmediğinden, belirsizlik yorumu satır düzeyinden çok guide düzeyinde yapılmıştır. Bu bölümde tanımlanan analizler sonuç üretmek için değil, Bölüm~3'te raporlanan farkların hangi iddia sınırı içinde yorumlanacağını belirlemek için kullanılmıştır.
 
 Sağlamlık analizi üç tamamlayıcı bileşenden oluşmuştur.
 

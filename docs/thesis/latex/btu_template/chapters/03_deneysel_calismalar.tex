@@ -187,7 +187,7 @@ Graph B GATv2, AUPRC değerini 0.979139'a yükseltmiş, ancak specificity 0.0946
 
 \section{Graph C Mekanizma Analizleri}
 
-Graph C GATv2 davranışının kaynakları iki tamamlayıcı analizle incelenmektedir.
+Graph C mekanizma analizleri, Graph C GATv2 hattında gözlenen nadir negatif tanıma davranışının hangi temsil bileşenlerine duyarlı olduğunu sınamak için yapılmıştır. Bu analizler biyolojik nedensellik testi olarak değil, aynı eğitim ve değerlendirme sözleşmesi altında model davranışının hangi girdiler ve mesajlaşma bileşenleri değiştiğinde bozulduğunu gösteren ablation çalışmaları olarak yorumlanmıştır. Bu nedenle bölüm iki parçaya ayrılmıştır: önce Graph C bileşenleri çıkarılmış, ardından target-observation bağlamının alt aileleri maskelenmiştir.
 
 \subsection{Mekanizma çıkarma ablationları}
 
@@ -234,7 +234,7 @@ Yedinci deney grubu, target context vektörünün alt ailelerini ayrı ayrı mas
 \toprule\toprule
 Maskeleme koşulu & AUPRC & AUROC & MCC & Spec. & TN/FP/FN/TP\\
 \midrule
-Context-edge kaldırılmış referans & 0.965598 & -- & 0.517970 & 0.366864 & 62/107/14/1519\\
+Context-edge kaldırılmış referans & 0.965598 & 0.850137 & 0.517970 & 0.366864 & 62/107/14/1519\\
 Hedef dizisi maskelenmiş & 0.970151 & 0.900134 & 0.489597 & 0.331361 & 56/113/13/1520\\
 Deneysel epigenetik özellikler maskelenmiş & 0.885321 & 0.350896 & -0.011388 & 0.000000 & 0/169/2/1531\\
 Hesaplanmış nükleozom özetleri maskelenmiş & 0.955915 & 0.728243 & 0.511808 & 0.319527 & 54/115/6/1527\\
@@ -268,7 +268,7 @@ Sekizinci deney grubu, target context vektörünü tek bir yoğun katmanda işle
 \toprule\toprule
 Model & AUPRC & AUROC & MCC & Spec. & TN/FP/FN/TP\\
 \midrule
-Graph C GATv2, context-edge kaldırılmış referans & 0.965598 & -- & 0.517970 & 0.366864 & 62/107/14/1519\\
+Graph C GATv2, context-edge kaldırılmış referans & 0.965598 & 0.850137 & 0.517970 & 0.366864 & 62/107/14/1519\\
 Birleşik derin context encoder & 0.969201 & 0.848765 & 0.500460 & 0.301775 & 51/118/5/1528\\
 Family-aware encoder & 0.982062 & 0.906557 & 0.603489 & 0.650888 & 110/59/63/1470\\
 Family-aware deneysel vurgu & 0.984945 & 0.926551 & 0.568108 & 0.497041 & 84/85/31/1502\\
@@ -332,14 +332,14 @@ AUPRC aralıkları Şekil~\ref{fig:saglamlik-auprc-araliklari}'de verilmiştir. 
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=0.78\textwidth]{figures/results/03_saglamlik_auprc_araliklari.png}
-\caption{Seçilmiş modeller için guide-cluster AUPRC aralıkları.}
+\caption{Seçilmiş modeller için guide-cluster bootstrap ile hesaplanan finite-sample AUPRC uyumluluk aralıkları.}
 \label{fig:saglamlik-auprc-araliklari}
 \end{figure}
 
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=0.78\textwidth]{figures/results/03_paired_difference_distributions.png}
-\caption{Paired-difference bootstrap dağılımları.}
+\caption{Aynı rehber bootstrap örnekleriyle hesaplanan paired-difference AUPRC dağılımları; sıfırı kesen aralıklar üstünlük, eşdeğerlik veya non-inferiority iddiası olarak yorumlanmamıştır.}
 \label{fig:paired-difference-distributions}
 \end{figure}
 
