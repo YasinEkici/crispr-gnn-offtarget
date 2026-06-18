@@ -241,6 +241,27 @@ Bu üç şema, graph schema seçiminin model davranışı üzerindeki etkisini a
 
 Bu çalışmada karşılaştırılan model aileleri tabular referans, dizi tabanlı baseline, çizge sinir ağları ve aile-duyarlı hedef-bağlam encoder olmak üzere dört grupta ele alınmıştır.
 
+Model ailelerinin tekrarlanabilir biçimde okunabilmesi için temel mimari ve eğitim ayarları Çizelge~\ref{tab:model-architecture-summary}'de özetlenmiştir. Çizelge, performans yorumu yapmak için değil, Bölüm~3'te raporlanan karşılaştırmaların hangi model ve seçim politikaları altında üretildiğini açık göstermek için verilmiştir. Tüm satırlarda Scheme A etiketi, Sprint 2 ana guide-disjoint split'i, measured-only validation/test evreni ve test seti üzerinde ayar yapmama kuralı korunmuştur.
+
+\begin{table}[htbp]
+\caption{Model ailelerinin temel mimari ve eğitim ayarları.}
+\label{tab:model-architecture-summary}
+\centering
+\scriptsize
+\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{0.19\textwidth} >{\raggedright\arraybackslash}p{0.20\textwidth} >{\raggedright\arraybackslash}p{0.34\textwidth} >{\raggedright\arraybackslash}X}
+\toprule\toprule
+Model hattı & Temsil & Katman ve hiperparametre özeti & Eğitim ve seçim politikası\\
+\midrule
+XGBoost tabular referans & F1--F4 tabular ladder; ana referans F4. & 400 ağaç, \texttt{max\_depth}=3, öğrenme oranı 0.05, \texttt{subsample}=0.9, \texttt{colsample\_bytree}=0.9, \texttt{min\_child\_weight}=5, \texttt{eval\_metric=aucpr}. & Validation üzerinde erken durdurma turu 30; karar eşiği validation max-F1 ile seçilmiştir. Unweighted F4 ana non-GNN referans olarak tutulmuştur.\\
+Dizi tabanlı Sprint 2 baseline & S1 sequence pair; 23 pozisyon ve 11 kanal. & CNN: iki 1B konvolüsyon (\(k=3\), \(k=5\)), 32 kanal, adaptive max pooling. BiLSTM: 1 katman, gizli boyut 32, çift yönlü çıktı. Dropout 0.2. & Batch 1024, öğrenme oranı 0.001, weight decay \(10^{-4}\), en çok 50 epoch, patience 8. Karar eşiği validation max-F1 ile seçilmiştir.\\
+GCN çizge modelleri & Graph A/B/C; candidate edge üzerinde seçilen feature setleri. & 2 GCN katmanı, gizli boyut 128, LayerNorm ve dropout 0.2. Edge classifier girdisi kaynak, hedef, çarpım, mutlak fark ve candidate-edge özelliklerinin birleşimidir. & Weighted BCE, AdamW, öğrenme oranı 0.001, weight decay \(10^{-4}\), gradient clipping 1.0, ReduceLROnPlateau, en çok 300 epoch, patience 15. Checkpoint validation AUPRC ile seçilmiştir.\\
+GAT/GATv2 çizge modelleri & Graph A/B/C; S5F2 enerji kenar özellikleri ve Graph C target-observation düğümleri. & 2 attention katmanı, gizli boyut 128, 4 attention head, concat açık, dropout 0.2. Edge-aware attention kullanıldığında candidate-edge özellikleri \texttt{edge\_attr} olarak attention katmanına da verilmiştir; self-loop edge değeri 0.0'dır. & GCN hattıyla aynı weighted BCE ve AdamW politikası kullanılmıştır. Test metrikleri model veya eşik seçimi için kullanılmamıştır.\\
+Graph C family-aware context encoder & 212 boyutlu target-observation bağlamı; hedef dizisi, deneysel epigenetik, hesaplanmış nükleozom ve missingness aileleri. & Family-aware encoder'da dal boyutları 32/32/48/16; experimental-emphasis varyantında 24/48/40/16'dır. Birleşik temsil LayerNorm, ReLU, dropout ve lineer katmanla 128 boyuta taşınmıştır. & Sprint 7F ve 8A'da encoder türü, aile kapısı, deneysel dal düzenlemesi ve context-edge FiLM, validation sözleşmesiyle seçilen adaylar olarak ele alınmıştır.\\
+Context-edge ve sequence/context fusion adayları & Graph C GATv2 üzerine S1 sequence encoder veya context-edge etkileşimi. & Context-edge FiLM etkileşim boyutu 64'tür. Sprint 8B sequence encoder, \(k=3\) konvolüsyon, 32 kanal, BiLSTM gizli boyut 32 ve 64 boyutlu sequence embedding kullanmıştır; dış ön-eğitim ağırlığı kullanılmamıştır. & Aynı split ve training politikası korunmuştur. Sprint 8A/8B adayları validation AUPRC ile seçilmiş, Sprint 9'da çoklu tohum ve bootstrap sağlamlık analizine taşınmıştır.\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
 \subsection{Tabular referans modeli}
 
 Tabular referans model olarak XGBoost kullanılmıştır \btucitep{chen2016xgboost}. XGBoost F1--F4 feature ladder üzerinde eğitilmiş, F4 ana ve en güçlü non-GNN karşılaştırma referansı olarak korunmuştur. Bu model ailesi, güçlü engineered feature kullanımını temsil ettiği için çizge modellerinin değerlendirilmesinde gerekli bir referans noktası sağlamıştır. F4 referansı, aynı Scheme A etiketi, guide-disjoint split, measured-only değerlendirme evreni, train-only preprocessing ve validation-only eşik politikası altında değerlendirilmiştir.
