@@ -211,6 +211,8 @@
 \newcommand{\BTUStudentNumber}{Öğrenci No}
 \newcommand{\BTUStudentCoverBlock}{\BTUStudentName}
 \newcommand{\BTUStudentInnerCoverBlock}{\BTUStudentName\\(\BTUStudentNumber)}
+\newcommand{\BTUApprovalStudentName}{\BTUStudentName}
+\newcommand{\BTUApprovalStudentNumber}{\BTUStudentNumber}
 \newcommand{\BTUPlagiarismSignatureBlock}{%
   \begin{minipage}{9.5cm}
   \centering
@@ -297,7 +299,7 @@
   \clearpage\thispagestyle{btunofooter}%
   {\singlespacing\setlength{\parskip}{0pt}\fontsize{12pt}{14pt}\selectfont
   \begin{tikzpicture}[remember picture, overlay]
-    \node[anchor=north west, text width=14.5cm, align=justify] at ([xshift=4.0cm,yshift=-5.00cm]current page.north west) {BTÜ, Mühendislik ve Doğa Bilimleri Fakültesi Bilgisayar Mühendisliği Bölümü'nün \BTUStudentNumber{} numaralı öğrencileri \BTUStudentName, ilgili yönetmeliklerin belirlediği gerekli tüm şartları yerine getirdikten sonra hazırladıkları “\BTUThesisTitleApproval” başlıklı bitirme çalışmasını aşağıda imzaları olan jüri önünde başarı ile sunmuşlardır.};
+    \node[anchor=north west, text width=14.5cm, align=justify] at ([xshift=4.0cm,yshift=-5.00cm]current page.north west) {BTÜ, Mühendislik ve Doğa Bilimleri Fakültesi Bilgisayar Mühendisliği Bölümü'nün \BTUApprovalStudentNumber{} numaralı öğrencileri \BTUApprovalStudentName, ilgili yönetmeliklerin belirlediği gerekli tüm şartları yerine getirdikten sonra hazırladıkları “\BTUThesisTitleApproval” başlıklı bitirme çalışmasını aşağıda imzaları olan jüri önünde başarı ile sunmuşlardır.};
 
     \node[anchor=north west] at ([xshift=4.0cm,yshift=-8.60cm]current page.north west) {\textbf{Danışmanı :}};
     \node[anchor=north west] at ([xshift=7.85cm,yshift=-8.60cm]current page.north west) {\textbf{\BTUAdvisorFull}};
@@ -317,7 +319,7 @@
     \node[anchor=north west] at ([xshift=7.85cm,yshift=-22.35cm]current page.north west) {\BTUDefenseDate};
 
     \node[anchor=north west] at ([xshift=4.0cm,yshift=-23.95cm]current page.north west) {\textbf{BM Bölüm Başkanı : \BTUChair}};
-    \node[anchor=north west] at ([xshift=6.55cm,yshift=-24.65cm]current page.north west) {..............................};
+    \node[anchor=north west] at ([xshift=15.55cm,yshift=-24.20cm]current page.north west) {..............................};
     \node[anchor=north west] at ([xshift=7.85cm,yshift=-25.00cm]current page.north west) {Bursa Teknik Üniversitesi};
     \node[anchor=north west] at ([xshift=15.55cm,yshift=-25.00cm]current page.north west) {....../......../.......};
   \end{tikzpicture}%
