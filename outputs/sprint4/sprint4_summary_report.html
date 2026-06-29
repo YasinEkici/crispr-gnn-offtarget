@@ -1,0 +1,871 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sprint 4 Raporu - GCN Baseline ve Graph Karşılaştırması</title>
+  <style>
+    :root {
+      --bg: #f6f8fb;
+      --paper: #ffffff;
+      --ink: #182230;
+      --muted: #667085;
+      --line: #d9e0ea;
+      --accent: #0f766e;
+      --accent-soft: #e5f5f2;
+      --blue: #1d4ed8;
+      --blue-soft: #e8f0ff;
+      --amber: #a15c07;
+      --amber-soft: #fff5df;
+      --red: #b42318;
+      --red-soft: #fff0ed;
+      --green: #147d4f;
+      --green-soft: #e7f7ef;
+      --slate: #26384f;
+      --slate-soft: #edf2f7;
+      --code-bg: #eef2f7;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.58;
+    }
+
+    a {
+      color: var(--blue);
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    .page {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 32px 24px 58px;
+    }
+
+    .hero {
+      border-radius: 8px;
+      padding: 38px;
+      color: #ffffff;
+      background:
+        linear-gradient(135deg, rgba(16, 42, 67, 0.98), rgba(15, 118, 110, 0.94)),
+        linear-gradient(45deg, #102a43, #0f766e);
+      box-shadow: 0 20px 44px rgba(16, 42, 67, 0.18);
+      margin-bottom: 24px;
+    }
+
+    .eyebrow {
+      margin: 0 0 12px;
+      font-size: 0.86rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.78);
+    }
+
+    h1 {
+      margin: 0;
+      max-width: 940px;
+      font-size: clamp(2rem, 4.2vw, 3.55rem);
+      line-height: 1.04;
+      letter-spacing: 0;
+    }
+
+    .hero p {
+      max-width: 940px;
+      margin: 18px 0 0;
+      color: rgba(255, 255, 255, 0.88);
+      font-size: 1.08rem;
+    }
+
+    .hero-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 24px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 32px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      color: #ffffff;
+      background: rgba(255, 255, 255, 0.14);
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      font-size: 0.88rem;
+      white-space: nowrap;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 278px minmax(0, 1fr);
+      gap: 24px;
+      align-items: start;
+    }
+
+    nav {
+      position: sticky;
+      top: 18px;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 18px;
+    }
+
+    nav h2 {
+      margin: 0 0 12px;
+      font-size: 1rem;
+    }
+
+    nav ol {
+      margin: 0;
+      padding-left: 18px;
+      color: var(--muted);
+    }
+
+    nav li {
+      margin: 8px 0;
+    }
+
+    section {
+      margin-bottom: 18px;
+      padding: 28px;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+    }
+
+    h2 {
+      margin: 0 0 16px;
+      font-size: 1.55rem;
+      line-height: 1.25;
+      letter-spacing: 0;
+    }
+
+    h3 {
+      margin: 24px 0 10px;
+      font-size: 1.08rem;
+      line-height: 1.3;
+      letter-spacing: 0;
+    }
+
+    p {
+      margin: 0 0 14px;
+    }
+
+    .lead {
+      color: #344054;
+      font-size: 1.06rem;
+    }
+
+    .callout {
+      margin: 18px 0;
+      padding: 16px 18px;
+      border-radius: 6px;
+      border-left: 5px solid var(--accent);
+      background: var(--accent-soft);
+    }
+
+    .callout.info {
+      border-left-color: var(--blue);
+      background: var(--blue-soft);
+    }
+
+    .callout.warning {
+      border-left-color: var(--amber);
+      background: var(--amber-soft);
+    }
+
+    .callout.risk {
+      border-left-color: var(--red);
+      background: var(--red-soft);
+    }
+
+    .callout.neutral {
+      border-left-color: var(--slate);
+      background: var(--slate-soft);
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+      margin: 20px 0 8px;
+    }
+
+    .stat {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 16px;
+      background: #fbfcfe;
+    }
+
+    .stat strong {
+      display: block;
+      font-size: 1.45rem;
+      line-height: 1.15;
+      color: var(--ink);
+    }
+
+    .stat span {
+      display: block;
+      margin-top: 6px;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      margin: 18px 0;
+    }
+
+    .card {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 18px;
+      background: #fbfcfe;
+    }
+
+    .card h3 {
+      margin-top: 0;
+    }
+
+    ul {
+      margin: 10px 0 16px;
+      padding-left: 20px;
+    }
+
+    li {
+      margin: 7px 0;
+    }
+
+    code,
+    pre {
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+    }
+
+    code {
+      padding: 2px 5px;
+      border-radius: 4px;
+      background: var(--code-bg);
+      color: #111827;
+      font-size: 0.92em;
+    }
+
+    pre {
+      overflow-x: auto;
+      margin: 16px 0;
+      padding: 16px;
+      border-radius: 8px;
+      background: #111827;
+      color: #e5e7eb;
+      font-size: 0.92rem;
+      line-height: 1.5;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0 8px;
+      font-size: 0.94rem;
+    }
+
+    th,
+    td {
+      padding: 11px 12px;
+      border: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background: #f1f5f9;
+      color: #233044;
+      font-weight: 700;
+    }
+
+    tr:nth-child(even) td {
+      background: #fbfcfe;
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      min-height: 26px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      font-size: 0.82rem;
+      font-weight: 650;
+      background: var(--slate-soft);
+      color: var(--slate);
+      white-space: nowrap;
+    }
+
+    .tag.primary {
+      background: var(--accent-soft);
+      color: var(--accent);
+    }
+
+    .tag.control {
+      background: var(--blue-soft);
+      color: var(--blue);
+    }
+
+    .tag.warning {
+      background: var(--amber-soft);
+      color: var(--amber);
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+      margin: 16px 0;
+    }
+
+    .definition {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 15px;
+      background: #fbfcfe;
+    }
+
+    .definition strong {
+      display: block;
+      margin-bottom: 6px;
+      color: #111827;
+    }
+
+    .summary-box {
+      border: 1px solid #b7dfd8;
+      border-radius: 8px;
+      padding: 20px;
+      background: #f0fbf8;
+      font-size: 1.02rem;
+    }
+
+    .small {
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    @media (max-width: 920px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+
+      nav {
+        position: static;
+      }
+
+      .stats,
+      .cards,
+      .two-col {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .page {
+        padding: 20px 14px 40px;
+      }
+
+      .hero,
+      section {
+        padding: 22px;
+      }
+
+      table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header class="hero">
+      <p class="eyebrow">CRISPR-GNN Tez Raporu - Sprint 4</p>
+      <h1>İlk GCN Baseline ve Graph A/B/C Karşılaştırması</h1>
+      <p>
+        Sprint 4'te ilk kez gerçek graph model eğitimi yaptık. Sprint 3'te kurulan Graph A/B/C artifact'larını
+        PyTorch Geometric üzerinden GCN edge-classification modeline dönüştürdük ve graph yaklaşımının güçlü
+        XGBoost F4 baseline karşısında ne kadar işe yaradığını ölçtük.
+      </p>
+      <div class="hero-meta">
+        <span class="pill">Model: GCN edge classifier</span>
+        <span class="pill">Primary metric: AUPRC</span>
+        <span class="pill">Split: sprint2_main_seed42</span>
+        <span class="pill">Baseline: xgboost_unweighted / F4</span>
+      </div>
+    </header>
+
+    <div class="layout">
+      <nav aria-label="İçindekiler">
+        <h2>İçindekiler</h2>
+        <ol>
+          <li><a href="#big-picture">Sprint 4 Nedir?</a></li>
+          <li><a href="#gcn">GCN Ne Yapar?</a></li>
+          <li><a href="#contract">Deney Kontratı</a></li>
+          <li><a href="#implementation">Ne İnşa Ettik?</a></li>
+          <li><a href="#experiments">Alt Deneyler</a></li>
+          <li><a href="#results">Sonuçlar</a></li>
+          <li><a href="#literature">Literatürle İlişki</a></li>
+          <li><a href="#boundaries">Yorum Sınırları</a></li>
+          <li><a href="#summary">Final Özet</a></li>
+        </ol>
+      </nav>
+
+      <main>
+        <section id="big-picture">
+          <h2>1. Sprint 4 Nedir?</h2>
+          <p class="lead">
+            Sprint 4, projenin ilk gerçek graph-model eğitim sprintidir. Önceki sprintte graph'ları sadece kurmuştuk;
+            bu sprintte ise bu graph'lar üzerinde GCN modeli eğitip test setinde performans raporladık.
+          </p>
+
+          <div class="callout">
+            <strong>En basit anlatım:</strong> Sprint 3'te "veriyi graph olarak nasıl temsil ederiz?" sorusunu çözmüştük.
+            Sprint 4'te ise "bu graph üzerinde GCN eğitirsek off-target tahmininde güçlü baseline'ı geçebilir miyiz?"
+            sorusunu sorduk.
+          </div>
+
+          <h3>Bu sprintte ne aradık?</h3>
+          <ul>
+            <li>GCN pipeline gerçek graph artifact'larıyla çalışıyor mu?</li>
+            <li>Minimal physical-target graph olan Graph A, geçerli bir GCN baseline üretiyor mu?</li>
+            <li>Guide similarity ekleyen Graph B, sadece topology katkısı sağlıyor mu?</li>
+            <li>Context-observation graph olan Graph C, epigenetik/context bilgisini daha iyi kullandırıyor mu?</li>
+            <li>Graph modeller, Sprint 2'nin güçlü <code>xgboost_unweighted / F4</code> baseline'ını AUPRC'de geçiyor mu?</li>
+          </ul>
+
+          <div class="stats">
+            <div class="stat">
+              <strong>3</strong>
+              <span>GCN graph şeması: Graph A, Graph B, Graph C</span>
+            </div>
+            <div class="stat">
+              <strong>0.992522</strong>
+              <span>XGBoost F4 test AUPRC referansı</span>
+            </div>
+            <div class="stat">
+              <strong>0.966570</strong>
+              <span>Sprint 4'te en yüksek GCN test AUPRC</span>
+            </div>
+            <div class="stat">
+              <strong>0.900705</strong>
+              <span>Test positive prevalence</span>
+            </div>
+          </div>
+        </section>
+
+        <section id="gcn">
+          <h2>2. GCN Ne Yapar?</h2>
+          <p>
+            GCN, graph üzerindeki node'ların komşularından bilgi toplayarak temsil öğrenmesini sağlayan bir neural network'tür.
+            Bizim problemimizde modelin amacı, bir <code>sgRNA</code> ile bir <code>target</code> arasındaki candidate edge için
+            pozitif off-target aktivitesi olup olmadığını tahmin etmektir.
+          </p>
+
+          <pre>sgRNA node özellikleri
++ target node özellikleri
++ candidate edge feature'ları
+→ GCN message passing
+→ edge classifier
+→ bu sgRNA-target çifti pozitif mi negatif mi?</pre>
+
+          <div class="two-col">
+            <div class="definition">
+              <strong>Message passing</strong>
+              Node'ların graph komşularından bilgi almasıdır. Örneğin bir sgRNA, bağlı olduğu target'lar ve varsa similarity relation'ları üzerinden temsilini günceller.
+            </div>
+            <div class="definition">
+              <strong>Edge classifier</strong>
+              Öğrenilen sgRNA ve target temsillerini, candidate edge feature'larıyla birleştirip o edge için label tahmini yapan son katmandır.
+            </div>
+            <div class="definition">
+              <strong>Weighted BCE</strong>
+              Binary classification loss'udur. Sprint 4'te class imbalance'a karşı sabit başlangıç loss'u olarak kullanıldı; loss sweep yapılmadı.
+            </div>
+            <div class="definition">
+              <strong>Validation-selected threshold</strong>
+              Pozitif/negatif karar eşiği testten değil validation setinden seçildi. Test sadece final raporlama içindi.
+            </div>
+          </div>
+
+          <div class="callout info">
+            <strong>Teknik ama önemli detay:</strong> Sprint 4 GCN'inde candidate edge feature'ları GCNConv message passing içine
+            attention gibi girmez; final edge classifier tarafında kullanılır. Edge-aware attention daha sonraki GAT/GATv2 sprintlerinin konusudur.
+          </div>
+        </section>
+
+        <section id="contract">
+          <h2>3. Sabit Deney Kontratı</h2>
+          <p>
+            Sprint 4'te graph modeli eğitildiği için leakage riski daha da kritik hale geldi. Bu nedenle Sprint 2 ve Sprint 3'te kilitlenen
+            label, split, measured-only ve strict-inductive kuralları aynen korundu.
+          </p>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Kural</th>
+                <th>Sprint 4'te uygulama</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Label</td>
+                <td>Scheme A: <code>cleavage_freq &gt; 1e-5</code>.</td>
+              </tr>
+              <tr>
+                <td>Split</td>
+                <td><code>sprint2_main_seed42</code> guide-level split; aynı guide train ve testte birlikte yok.</td>
+              </tr>
+              <tr>
+                <td>Evaluation universe</td>
+                <td>Main train/validation/test measured-only; <code>experiment_id=18</code> dışarıda.</td>
+              </tr>
+              <tr>
+                <td>Graph visibility</td>
+                <td><code>strict_inductive_primary</code>; held-out auxiliary relation'lar training referanslarına bağlandı.</td>
+              </tr>
+              <tr>
+                <td>Checkpoint</td>
+                <td>Validation AUPRC ile seçildi; test performansı model seçimine girmedi.</td>
+              </tr>
+              <tr>
+                <td>Threshold</td>
+                <td>Validation max-F1 ile seçildi; test threshold tuning yapılmadı.</td>
+              </tr>
+              <tr>
+                <td>Primary metric</td>
+                <td>AUPRC. Test positive prevalence <code>0.900705</code> ile birlikte yorumlandı.</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="callout warning">
+            <strong>Neden AUPRC?</strong> Test setinde pozitif oranı çok yüksek olduğu için F1 veya accuracy tek başına yanıltıcı olabilir.
+            AUPRC, score ranking kalitesini ve pozitif sınıf ayırımını daha uygun şekilde gösterir.
+          </div>
+        </section>
+
+        <section id="implementation">
+          <h2>4. Ne İnşa Ettik?</h2>
+          <p>
+            Sprint 4 sadece model sonucu üretmedi; aynı zamanda Sprint 3 graph artifact'larını güvenli şekilde model-facing
+            PyTorch Geometric yapısına taşıyan altyapıyı da kurdu.
+          </p>
+
+          <h3>Model ve loader hattı</h3>
+          <ul>
+            <li>Sprint 3 typed graph tabloları PyTorch Geometric <code>HeteroData</code> view'larına materialize edildi.</li>
+            <li>Loader, graph manifest count, label scheme, split ID, visibility policy ve feature placement drift'lerini fail-fast kontrol etti.</li>
+            <li>Raw ID, coordinate ve reporting metadata predictive tensor olarak modele sokulmadı.</li>
+            <li>GCN modeli 2 katmanlı, hidden dimension 128, dropout 0.2 olacak şekilde konfigüre edildi.</li>
+            <li>Training için weighted BCE, AdamW, gradient clipping, ReduceLROnPlateau scheduler ve validation AUPRC early stopping kullanıldı.</li>
+            <li>Full eğitimler Colab GPU üzerinde repository komutlarıyla çalıştırıldı; Colab scientific logic'in kendisi olmadı, sadece runner oldu.</li>
+          </ul>
+
+          <h3>Raporlama çıktıları</h3>
+          <p>
+            Her graph için result CSV, Markdown report, diagnostic tablolar, training curve, PR/ROC curve, score distribution,
+            confusion matrix, decile lift, per-genome metric ve graph-view sanity figure üretildi.
+          </p>
+        </section>
+
+        <section id="experiments">
+          <h2>5. Alt Deneyler: Graph A, Graph B, Graph C</h2>
+          <p>
+            Sprint 4'te üç graph şeması aynı GCN ailesiyle değerlendirildi. Graph A ve Graph C ana karşılaştırmalardı;
+            Graph B ise yalnızca bounded secondary control olarak çalıştırıldı.
+          </p>
+
+          <div class="cards">
+            <article class="card">
+              <span class="tag primary">Graph A</span>
+              <h3>Minimal physical-target GCN</h3>
+              <p>
+                sgRNA node'ları fiziksel target site node'larına bağlandı. Target node featureless kaldı;
+                sequence/mismatch feature'ları candidate edge üzerinden verildi.
+              </p>
+            </article>
+            <article class="card">
+              <span class="tag control">Graph B</span>
+              <h3>Guide-similarity control</h3>
+              <p>
+                Graph A'nın aynısı korundu, ek olarak guide'lar arasına label-free <code>sequence_similar_to</code>
+                edge'leri eklendi. Amaç sadece topology katkısını test etmekti.
+              </p>
+            </article>
+            <article class="card">
+              <span class="tag primary">Graph C</span>
+              <h3>Context-observation GCN</h3>
+              <p>
+                Target node fiziksel koordinat yerine <code>target_observation</code> oldu. Context node feature olarak verildi,
+                benzer context observation'ları <code>context_similar_to</code> relation'larıyla bağlandı.
+              </p>
+            </article>
+          </div>
+
+          <h3>Graph A: minimal baseline</h3>
+          <pre>sgRNA_i  --candidate_pair-->  physical_target_site_j
+
+feature_set = S1_pair + F1
+target_node_representation = zero_type_feature</pre>
+          <p>
+            Graph A'nın görevi ilk güvenilir GCN baseline'ı olmaktı. Fiziksel target node'lar featureless tutuldu;
+            böylece model target coordinate veya row ID gibi gizli shortcut bilgileri kullanmadı.
+          </p>
+
+          <h3>Graph B: topology-only kontrol</h3>
+          <pre>sgRNA_i --sequence_similar_to--> sgRNA_j
+sgRNA_i --candidate_pair-------> physical_target_site_j</pre>
+          <p>
+            Graph B, Graph A'nın target temsilini ve candidate feature'larını değiştirmedi. Tek fark guide similarity edge'leriydi.
+            Bu yüzden Graph B, Graph C'deki daha büyük değişimi yorumlamak için temiz bir kontrol noktası sağladı.
+          </p>
+
+          <h3>Graph C: context-aware comparison</h3>
+          <pre>sgRNA_i --candidate_pair--> target_observation_k
+target_observation_k --context_similar_to--> target_observation_m
+
+target_node_representation = target_observation_context_encoder</pre>
+          <p>
+            Graph C'de context, target observation node'larına taşındı. Bu tasarım, aynı fiziksel target'ın farklı satırlarda
+            farklı context ile görülebilmesi problemine karşı geliştirilmişti. Ancak Graph C, topology-only değildir; hem relation
+            yapısı hem de target node anlamı değişir.
+          </p>
+        </section>
+
+        <section id="results">
+          <h2>6. Sonuçlar</h2>
+          <p>
+            Sprint 4'ün ana sonucu şudur: GCN pipeline çalıştı ve Graph A/B/C için geçerli sonuçlar üretildi; ancak hiçbir GCN şeması
+            primary metric olan test AUPRC'de <code>xgboost_unweighted / F4</code> baseline'ını geçemedi.
+          </p>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Model</th>
+                <th>Graph schema</th>
+                <th>Feature set</th>
+                <th>Test AUPRC</th>
+                <th>Test AUROC</th>
+                <th>Test F1</th>
+                <th>Test MCC</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>xgboost_unweighted</code></td>
+                <td>F4 tabular baseline</td>
+                <td>F4</td>
+                <td>0.992522</td>
+                <td>0.938416</td>
+                <td>n/a</td>
+                <td>0.345198</td>
+              </tr>
+              <tr>
+                <td><code>gcn_graph_a</code></td>
+                <td><code>graph_a_minimal_physical_target</code></td>
+                <td><code>S1_pair+F1</code></td>
+                <td>0.966287</td>
+                <td>0.745076</td>
+                <td>0.951845</td>
+                <td>0.300781</td>
+              </tr>
+              <tr>
+                <td><code>gcn_graph_b</code></td>
+                <td><code>graph_b_guide_similarity_control</code></td>
+                <td><code>S1_pair+F1</code></td>
+                <td>0.966570</td>
+                <td>0.743586</td>
+                <td>0.948639</td>
+                <td>0.126559</td>
+              </tr>
+              <tr>
+                <td><code>gcn_graph_c</code></td>
+                <td><code>graph_c_context_observation</code></td>
+                <td><code>CandidatePair+TargetObservationContext</code></td>
+                <td>0.961586</td>
+                <td>0.759886</td>
+                <td>0.958896</td>
+                <td>0.453738</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h3>Confusion matrix yorumu</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Model</th>
+                <th>TN</th>
+                <th>FP</th>
+                <th>FN</th>
+                <th>TP</th>
+                <th>Yorum</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Graph A GCN</td>
+                <td>26</td>
+                <td>143</td>
+                <td>11</td>
+                <td>1522</td>
+                <td>Geçerli minimal GCN baseline, ama negatifleri ayırmada sınırlı.</td>
+              </tr>
+              <tr>
+                <td>Graph B GCN</td>
+                <td>3</td>
+                <td>166</td>
+                <td>0</td>
+                <td>1533</td>
+                <td>Validation-selected threshold testte neredeyse her şeyi pozitif tahmin etti; MCC bu yüzden düşük.</td>
+              </tr>
+              <tr>
+                <td>Graph C GCN</td>
+                <td>43</td>
+                <td>126</td>
+                <td>5</td>
+                <td>1528</td>
+                <td>MCC Graph A'dan iyi, fakat AUPRC daha düşük; ana başarı iddiası yapılamaz.</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="callout warning">
+            <strong>Ana sonuç:</strong> Graph C test MCC'de Graph A'dan iyi görünür, ama primary metric AUPRC olduğu için
+            Sprint 4'te "Graph C daha iyi modeldir" denmez. Doğru ifade: Graph C threshold-selected operating point'te
+            daha iyi rare-negative davranışı gösterebilir, fakat AUPRC'de Graph A'yı ve XGBoost F4'ü geçmemiştir.
+          </div>
+
+          <h3>Alt deneylerden çıkan mesajlar</h3>
+          <ul>
+            <li>Graph A, ilk geçerli same-contract GCN baseline oldu.</li>
+            <li>Graph B, guide similarity topology'nin tek başına AUPRC'de anlamlı katkı sağlamadığını gösterdi.</li>
+            <li>Graph C, context-observation temsilinin uygulanabilir olduğunu gösterdi.</li>
+            <li>Hiçbir GCN şeması F4 XGBoost baseline'ını geçemedi.</li>
+            <li>GCN sonuçları sonraki sprintler için temel karşılaştırma zemini oluşturdu.</li>
+          </ul>
+        </section>
+
+        <section id="literature">
+          <h2>7. Literatürle Eşleşmesi</h2>
+          <p>
+            Sprint 4'ün literatürle ilişkisi doğrudan "aynı paper'ı reproduce ettik" şeklinde değil, "literatürdeki GCN/link-prediction
+            fikrini daha sıkı guide-level evaluation altında uyguladık" şeklinde kurulmalıdır.
+          </p>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Literatür</th>
+                <th>Sprint 4'e katkısı</th>
+                <th>Bizim farkımız</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Kipf &amp; Welling 2017</td>
+                <td>GCN'in temel message-passing fikrini sağlar: node'lar komşu bilgisinden temsil öğrenir.</td>
+                <td>Biz bunu edge classification/link prediction için sgRNA-target graph'ına uyguladık.</td>
+              </tr>
+              <tr>
+                <td>Vinodkumar et al. 2021</td>
+                <td>CRISPR off-target prediction için GCN/link-prediction yaklaşımını motive eder.</td>
+                <td>Random-edge evaluation yerine guide-level, measured-only, leakage-controlled split kullandık.</td>
+              </tr>
+              <tr>
+                <td>Mak et al. 2022</td>
+                <td>Epigenetik ve nucleosome context feature'larının off-target aktivitesiyle ilişkili olduğunu gösterir.</td>
+                <td>Mak'in CA regression setup'ını reproduce etmedik; Scheme A binary classification yaptık.</td>
+              </tr>
+              <tr>
+                <td>PR/imbalance literatürü</td>
+                <td>AUPRC'nin dengesiz sınıf dağılımında primary metric olarak raporlanmasını destekler.</td>
+                <td>F1/MCC gibi threshold-dependent metrikleri secondary yorum olarak tuttuk.</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="callout info">
+            <strong>Sunum cümlesi:</strong> Sprint 4, literatürdeki CRISPR-GCN fikrini doğrudan kopyalamak yerine,
+            Mak/crisprSQL dataset'i üzerinde guide-level, leakage-controlled ve güçlü tabular baseline'a karşı test eden
+            ilk graph-model basamağımızdır.
+          </div>
+        </section>
+
+        <section id="boundaries">
+          <h2>8. Yorum Sınırları ve Sonraki Sprintlere Devir</h2>
+          <p>
+            Sprint 4 sonuçları önemli ama sınırlıdır. Burada yapılan şey ilk GCN baseline'ı kurmaktır; attention,
+            kapsamlı feature ablation veya imbalance-method çalışması bu sprintin konusu değildir.
+          </p>
+
+          <h3>Bu sprintte yapmadıklarımız</h3>
+          <ul>
+            <li>GAT veya GATv2 denemedik; attention karşılaştırması daha sonraki sprintlere bırakıldı.</li>
+            <li>Epigenetik feature family ablation yapmadık; bu Sprint 5'in konusuydu.</li>
+            <li>Focal loss, sampling veya systematic imbalance loss sweep yapmadık; bu Sprint 6'nın konusuydu.</li>
+            <li>Graph C'nin context topology mi, direct node feature mı etkili sorusunu ayrıştırmadık; bu daha sonra Sprint 7D/7E'de test edildi.</li>
+            <li>Test sonucuna göre model veya feature seçmedik.</li>
+          </ul>
+
+          <h3>Sprint 4'ün sonraki sprintlere bıraktığı sorular</h3>
+          <ul>
+            <li>GCN edge feature'ları yeterince iyi kullanıyor mu, yoksa feature family ablation gerekiyor mu?</li>
+            <li>Binding energy veya epigenetik feature eklemek Graph A GCN'i güçlendirir mi?</li>
+            <li>Threshold collapse ve rare-negative tanıma problemi loss/sampling ile iyileşir mi?</li>
+            <li>GAT/GATv2 attention, candidate edge feature'larını message passing içine daha etkili sokabilir mi?</li>
+            <li>Graph C'de asıl katkı context edge'lerinden mi, direct target_observation feature'larından mı geliyor?</li>
+          </ul>
+
+          <div class="callout risk">
+            <strong>En kritik yorum sınırı:</strong> Sprint 4'te hiçbir GCN modeli primary AUPRC'de XGBoost F4'ü geçmedi.
+            Bu yüzden tez anlatısında GNN'i "daha iyi tahmin modeli" diye değil, "graph/context temsillerini sistematik olarak test eden
+            deney hattı" diye konumlandırmak gerekir.
+          </div>
+        </section>
+
+        <section id="summary">
+          <h2>9. Final Özet</h2>
+          <div class="summary-box">
+            Sprint 4, projenin ilk gerçek GCN modelleme sprintidir. Sprint 3'te hazırlanan leakage-controlled Graph A/B/C artifact'ları
+            PyTorch Geometric <code>HeteroData</code> yapısına materialize edilmiş, ardından GCN edge-classification modeli ile aynı
+            guide-level, measured-only ve strict-inductive kontrat altında eğitilmiştir. Graph A minimal physical-target baseline olarak,
+            Graph B guide-similarity topology control olarak, Graph C ise context-observation comparison olarak çalıştırılmıştır.
+            Sonuçta Graph A, Graph B ve Graph C geçerli GCN sonuçları üretmiş olsa da hiçbirisi primary metric olan test AUPRC'de
+            <code>xgboost_unweighted / F4</code> baseline'ını geçememiştir. Graph C, MCC bakımından Graph A'dan daha iyi görünmüş fakat
+            bu secondary ve threshold-dependent bir metrik olduğu için ana başarı iddiası yapılmamıştır. Bu sprintin esas katkısı,
+            GNN hattının çalıştığını, graph schema karşılaştırmasının adil biçimde yapılabildiğini ve sonraki feature ablation,
+            imbalance learning ve attention sprintleri için sağlam, sızıntısız bir deney zemini kurduğunu göstermesidir.
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+</body>
+</html>

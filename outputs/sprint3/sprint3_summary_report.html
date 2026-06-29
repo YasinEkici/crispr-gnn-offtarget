@@ -1,0 +1,934 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sprint 3 Raporu - Graph Construction ve Leakage Control</title>
+  <style>
+    :root {
+      --bg: #f6f8fb;
+      --paper: #ffffff;
+      --ink: #182230;
+      --muted: #667085;
+      --line: #d9e0ea;
+      --accent: #0f766e;
+      --accent-soft: #e5f5f2;
+      --blue: #1d4ed8;
+      --blue-soft: #e8f0ff;
+      --amber: #a15c07;
+      --amber-soft: #fff5df;
+      --red: #b42318;
+      --red-soft: #fff0ed;
+      --green: #147d4f;
+      --green-soft: #e7f7ef;
+      --slate: #26384f;
+      --slate-soft: #edf2f7;
+      --code-bg: #eef2f7;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.58;
+    }
+
+    a {
+      color: var(--blue);
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    .page {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 32px 24px 58px;
+    }
+
+    .hero {
+      border-radius: 8px;
+      padding: 38px;
+      color: #ffffff;
+      background:
+        linear-gradient(135deg, rgba(16, 42, 67, 0.98), rgba(15, 118, 110, 0.94)),
+        linear-gradient(45deg, #102a43, #0f766e);
+      box-shadow: 0 20px 44px rgba(16, 42, 67, 0.18);
+      margin-bottom: 24px;
+    }
+
+    .eyebrow {
+      margin: 0 0 12px;
+      font-size: 0.86rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.78);
+    }
+
+    h1 {
+      margin: 0;
+      max-width: 930px;
+      font-size: clamp(2rem, 4.2vw, 3.55rem);
+      line-height: 1.04;
+      letter-spacing: 0;
+    }
+
+    .hero p {
+      max-width: 930px;
+      margin: 18px 0 0;
+      color: rgba(255, 255, 255, 0.88);
+      font-size: 1.08rem;
+    }
+
+    .hero-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 24px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 32px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      color: #ffffff;
+      background: rgba(255, 255, 255, 0.14);
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      font-size: 0.88rem;
+      white-space: nowrap;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 278px minmax(0, 1fr);
+      gap: 24px;
+      align-items: start;
+    }
+
+    nav {
+      position: sticky;
+      top: 18px;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 18px;
+    }
+
+    nav h2 {
+      margin: 0 0 12px;
+      font-size: 1rem;
+    }
+
+    nav ol {
+      margin: 0;
+      padding-left: 18px;
+      color: var(--muted);
+    }
+
+    nav li {
+      margin: 8px 0;
+    }
+
+    section {
+      margin-bottom: 18px;
+      padding: 28px;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+    }
+
+    h2 {
+      margin: 0 0 16px;
+      font-size: 1.55rem;
+      line-height: 1.25;
+      letter-spacing: 0;
+    }
+
+    h3 {
+      margin: 24px 0 10px;
+      font-size: 1.08rem;
+      line-height: 1.3;
+      letter-spacing: 0;
+    }
+
+    p {
+      margin: 0 0 14px;
+    }
+
+    .lead {
+      color: #344054;
+      font-size: 1.06rem;
+    }
+
+    .callout {
+      margin: 18px 0;
+      padding: 16px 18px;
+      border-radius: 6px;
+      border-left: 5px solid var(--accent);
+      background: var(--accent-soft);
+    }
+
+    .callout.info {
+      border-left-color: var(--blue);
+      background: var(--blue-soft);
+    }
+
+    .callout.warning {
+      border-left-color: var(--amber);
+      background: var(--amber-soft);
+    }
+
+    .callout.risk {
+      border-left-color: var(--red);
+      background: var(--red-soft);
+    }
+
+    .callout.neutral {
+      border-left-color: var(--slate);
+      background: var(--slate-soft);
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+      margin: 20px 0 8px;
+    }
+
+    .stat {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 16px;
+      background: #fbfcfe;
+    }
+
+    .stat strong {
+      display: block;
+      font-size: 1.45rem;
+      line-height: 1.15;
+      color: var(--ink);
+    }
+
+    .stat span {
+      display: block;
+      margin-top: 6px;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      margin: 18px 0;
+    }
+
+    .card {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 18px;
+      background: #fbfcfe;
+    }
+
+    .card h3 {
+      margin-top: 0;
+    }
+
+    ul {
+      margin: 10px 0 16px;
+      padding-left: 20px;
+    }
+
+    li {
+      margin: 7px 0;
+    }
+
+    code,
+    pre {
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+    }
+
+    code {
+      padding: 2px 5px;
+      border-radius: 4px;
+      background: var(--code-bg);
+      color: #111827;
+      font-size: 0.92em;
+    }
+
+    pre {
+      overflow-x: auto;
+      margin: 16px 0;
+      padding: 16px;
+      border-radius: 8px;
+      background: #111827;
+      color: #e5e7eb;
+      font-size: 0.92rem;
+      line-height: 1.5;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0 8px;
+      font-size: 0.94rem;
+    }
+
+    th,
+    td {
+      padding: 11px 12px;
+      border: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background: #f1f5f9;
+      color: #233044;
+      font-weight: 700;
+    }
+
+    tr:nth-child(even) td {
+      background: #fbfcfe;
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      min-height: 26px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      font-size: 0.82rem;
+      font-weight: 650;
+      background: var(--slate-soft);
+      color: var(--slate);
+      white-space: nowrap;
+    }
+
+    .tag.primary {
+      background: var(--accent-soft);
+      color: var(--accent);
+    }
+
+    .tag.control {
+      background: var(--blue-soft);
+      color: var(--blue);
+    }
+
+    .tag.warning {
+      background: var(--amber-soft);
+      color: var(--amber);
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+      margin: 16px 0;
+    }
+
+    .definition {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 15px;
+      background: #fbfcfe;
+    }
+
+    .definition strong {
+      display: block;
+      margin-bottom: 6px;
+      color: #111827;
+    }
+
+    .summary-box {
+      border: 1px solid #b7dfd8;
+      border-radius: 8px;
+      padding: 20px;
+      background: #f0fbf8;
+      font-size: 1.02rem;
+    }
+
+    .small {
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    @media (max-width: 920px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+
+      nav {
+        position: static;
+      }
+
+      .stats,
+      .cards,
+      .two-col {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .page {
+        padding: 20px 14px 40px;
+      }
+
+      .hero,
+      section {
+        padding: 22px;
+      }
+
+      table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header class="hero">
+      <p class="eyebrow">CRISPR-GNN Tez Raporu - Sprint 3</p>
+      <h1>Graph Construction ve Leakage Control</h1>
+      <p>
+        Sprint 3'te model eğitmedik; CRISPR-Cas9 off-target tahmini için kullanılacak graph veri yapısını kurduk,
+        Graph A/B/C şemalarını karşılaştırılabilir hale getirdik ve validation/test bilgisinin eğitim graph'ına
+        sızmaması için katı kontroller ekledik.
+      </p>
+      <div class="hero-meta">
+        <span class="pill">Dataset: Mak et al. 2022 / crisprSQL-derived</span>
+        <span class="pill">Label: Scheme A, cleavage_freq &gt; 1e-5</span>
+        <span class="pill">Split: sprint2_main_seed42</span>
+        <span class="pill">Çıktı: Graph A/B/C typed artifacts</span>
+      </div>
+    </header>
+
+    <div class="layout">
+      <nav aria-label="İçindekiler">
+        <h2>İçindekiler</h2>
+        <ol>
+          <li><a href="#big-picture">Sprint 3 Nedir?</a></li>
+          <li><a href="#concepts">Temel Kavramlar</a></li>
+          <li><a href="#contract">Sabit Deney Kontratı</a></li>
+          <li><a href="#schemas">Graph A/B/C</a></li>
+          <li><a href="#context-similarity">context_similar_to</a></li>
+          <li><a href="#literature">Literatürle İlişki</a></li>
+          <li><a href="#findings">Ne Bulduk?</a></li>
+          <li><a href="#handoff">Sprint 4'e Devir</a></li>
+          <li><a href="#summary">Final Özet</a></li>
+        </ol>
+      </nav>
+
+      <main>
+        <section id="big-picture">
+          <h2>1. Sprint 3 Nedir?</h2>
+          <p class="lead">
+            Sprint 3'ün amacı, bir sonraki sprintte GNN eğitebilmek için ham tabular CRISPR satırlarını
+            graph formatına dönüştürmekti. Bu aşama bir model başarısı sprinti değil, veri temsilini ve
+            leakage güvenliğini kilitleme sprintiydi.
+          </p>
+
+          <div class="callout">
+            <strong>En basit anlatım:</strong> Sprint 1'de dataset'i ve label'ı anladık; Sprint 2'de aynı split üzerinde
+            non-graph baseline modeller kurduk; Sprint 3'te ise "bu problem graph olarak nasıl temsil edilmeli?"
+            sorusuna üç kontrollü cevap ürettik.
+          </div>
+
+          <h3>Bu sprintte ne aradık?</h3>
+          <ul>
+            <li>sgRNA ve target ilişkisini graph olarak nasıl temsil edeceğimizi aradık.</li>
+            <li>Target node'un fiziksel genom lokasyonu mu, yoksa satırdaki ölçüm/observation mı olması gerektiğini tarttık.</li>
+            <li>Epigenetik ve nükleozom context feature'larının graph içinde nerede durmasının daha doğru olduğunu belirledik.</li>
+            <li>Validation/test bilgisinin graph construction sırasında eğitime sızmasını engelleyecek kuralları kurduk.</li>
+            <li>Graph A, Graph B ve Graph C'yi aynı label, split ve measured-only kontratı altında ürettik.</li>
+          </ul>
+
+          <div class="stats">
+            <div class="stat">
+              <strong>11,446</strong>
+              <span>Toplam candidate pair / supervised graph edge</span>
+            </div>
+            <div class="stat">
+              <strong>150</strong>
+              <span>sgRNA node sayısı</span>
+            </div>
+            <div class="stat">
+              <strong>9,880</strong>
+              <span>Graph A/B physical target site node sayısı</span>
+            </div>
+            <div class="stat">
+              <strong>91,754</strong>
+              <span>Graph C context_similar_to edge sayısı</span>
+            </div>
+          </div>
+        </section>
+
+        <section id="concepts">
+          <h2>2. Temel Kavramlar</h2>
+          <p>
+            Sprint 3'ü anlamak için önce graph tarafındaki birkaç kavramı netleştirmek gerekir.
+            Burada graph, biyolojik ağı birebir çizmekten çok, modelin hangi örneklerin birbirine
+            bilgi aktarabileceğini görmesini sağlayan veri yapısıdır.
+          </p>
+
+          <div class="two-col">
+            <div class="definition">
+              <strong>Node</strong>
+              Graph içindeki varlık. Bizde bir node sgRNA olabilir, fiziksel target lokasyonu olabilir veya Graph C'deki gibi bir target observation olabilir.
+            </div>
+            <div class="definition">
+              <strong>Edge / Relation</strong>
+              İki node arasındaki ilişki. Örneğin sgRNA ile target arasındaki candidate pair ilişkisi veya iki observation arasındaki context benzerliği.
+            </div>
+            <div class="definition">
+              <strong>Candidate pair</strong>
+              Dataset'teki bir satıra karşılık gelir: belirli bir guide'ın belirli bir target için cleavage üretip üretmediğini tahmin ettiğimiz örnek.
+            </div>
+            <div class="definition">
+              <strong>Physical target site</strong>
+              Genom üzerinde koordinatla ifade edilen gerçek lokasyon: genome, chr, start, end ve strand ile tanımlanır.
+            </div>
+            <div class="definition">
+              <strong>Target observation</strong>
+              Graph C'deki özel fikir. Target'ı sadece fiziksel koordinat olarak değil, dataset satırındaki ölçüm bağlamı ile birlikte temsil eder.
+            </div>
+            <div class="definition">
+              <strong>Strict-inductive visibility</strong>
+              Validation/test örneklerinin graph kurulurken birbirleriyle serbestçe bağlanmaması; held-out örneklerin sadece training referanslarına bağlanması.
+            </div>
+          </div>
+
+          <div class="callout info">
+            <strong>Neden bu kadar dikkat ediyoruz?</strong> Graph modellerde sadece feature değil, bağlantılar da bilgi taşır.
+            Eğer test örnekleri graph kurulurken training'e fazla görünürse, model gerçek genelleme yapmak yerine split bilgisinden dolaylı avantaj kazanabilir.
+          </div>
+        </section>
+
+        <section id="contract">
+          <h2>3. Sabit Deney Kontratı</h2>
+          <p>
+            Sprint 3, Sprint 2'de kilitlenen değerlendirme düzenini değiştirmedi. Bu önemli çünkü graph modellerin
+            XGBoost F4 gibi güçlü non-graph baseline ile adil karşılaştırılabilmesi için aynı label, aynı split ve aynı
+            test kuralları korunmalıydı.
+          </p>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Kural</th>
+                <th>Sprint 3'te nasıl korundu?</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Label scheme</td>
+                <td>Scheme A kullanıldı: <code>cleavage_freq &gt; 1e-5</code> pozitif kabul edildi.</td>
+              </tr>
+              <tr>
+                <td>Split</td>
+                <td><code>sprint2_main_seed42</code> guide-level split aynen korundu; split yeniden üretilmedi.</td>
+              </tr>
+              <tr>
+                <td>Test set</td>
+                <td>Main graph evreni measured-only tutuldu ve <code>experiment_id=18</code> dışarıda bırakıldı.</td>
+              </tr>
+              <tr>
+                <td>Preprocessing</td>
+                <td>Imputer, scaler ve similarity dönüşümleri training observation'ları üzerinden fit edildi.</td>
+              </tr>
+              <tr>
+                <td>Model seçimi</td>
+                <td>Graph construction sırasında test metric, test label veya test diagnostikleri kullanılmadı.</td>
+              </tr>
+              <tr>
+                <td>Baseline referansı</td>
+                <td>Sonraki sprintlerde karşılaştırma için <code>xgboost_unweighted / F4</code> test AUPRC <code>0.992522</code> referansı korundu.</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h3>Candidate edge dağılımı</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Split</th>
+                <th>Rows</th>
+                <th>Positives</th>
+                <th>Negatives</th>
+                <th>Positive rate</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Train</td>
+                <td>8,010</td>
+                <td>7,109</td>
+                <td>901</td>
+                <td>0.887516</td>
+              </tr>
+              <tr>
+                <td>Validation</td>
+                <td>1,734</td>
+                <td>1,511</td>
+                <td>223</td>
+                <td>0.871396</td>
+              </tr>
+              <tr>
+                <td>Test</td>
+                <td>1,702</td>
+                <td>1,533</td>
+                <td>169</td>
+                <td>0.900705</td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+
+        <section id="schemas">
+          <h2>4. Alt Deneyler: Graph A, Graph B, Graph C</h2>
+          <p>
+            Sprint 3'te üç graph şeması oluşturduk. Bunlar model sonucu değil, modelin daha sonra üzerinde
+            çalışacağı alternatif veri temsilleridir. Her biri farklı bir bilimsel soruyu test etmek için tasarlandı.
+          </p>
+
+          <div class="cards">
+            <article class="card">
+              <span class="tag primary">Graph A</span>
+              <h3>Minimal physical-target graph</h3>
+              <p>
+                sgRNA node'ları fiziksel target lokasyonlarına bağlanır. Target node, genom koordinatıyla tanımlanır.
+                Row-varying sequence/context feature'ları target node'a değil, candidate edge'e konur.
+              </p>
+            </article>
+            <article class="card">
+              <span class="tag control">Graph B</span>
+              <h3>Guide similarity control</h3>
+              <p>
+                Graph A'nın üstüne sgRNA'lar arasında sequence similarity edge'leri eklenir. Bu, "sadece ucuz topology
+                zenginleştirmesi fayda sağlıyor mu?" sorusuna bounded control olarak tasarlandı.
+              </p>
+            </article>
+            <article class="card">
+              <span class="tag primary">Graph C</span>
+              <h3>Context-observation graph</h3>
+              <p>
+                Target node artık fiziksel lokasyon değil, source row id ile tanımlanan target observation'dır.
+                Bu node context feature taşır ve benzer context'e sahip observation'lar birbirine bağlanır.
+              </p>
+            </article>
+          </div>
+
+          <h3>Graph A: fiziksel target lokasyonu</h3>
+          <pre>sgRNA_i  --candidate_pair-->  physical_target_site_j
+
+physical_target_site_j = genome + chr + start + end + strand
+context feature'ları = candidate_pair edge üzerinde</pre>
+          <p>
+            Graph A, en sade ve en güvenli başlangıç temsilidir. Çünkü aynı fiziksel target koordinatı farklı satırlarda
+            farklı cell line, epigenetik context veya computed nucleosome bilgisiyle gelebilir. Bu nedenle Graph A'da
+            fiziksel target node'a değişken context koymadık; context'i satıra ait candidate edge üzerinde tuttuk.
+          </p>
+
+          <h3>Graph B: guide similarity kontrolü</h3>
+          <pre>sgRNA_i  --sequence_similar_to-->  sgRNA_j
+sgRNA_i  --candidate_pair------->  physical_target_site_j</pre>
+          <p>
+            Graph B, Graph A'nın üstüne guide sequence benzerliği ekler. Bu asıl tez katkısı değil, kontrol deneyidir.
+            Amaç, performans farkı olursa bunun sadece graph'a birkaç benzerlik edge'i eklemekten mi geldiğini anlamaktır.
+          </p>
+
+          <h3>Graph C: target observation ve context ilişkisi</h3>
+          <pre>sgRNA_i  --candidate_pair----->  target_observation_row_k
+target_observation_k --context_similar_to--> target_observation_m
+
+target_observation_row_k = bu dataset satırındaki target + context gözlemi</pre>
+          <p>
+            Graph C'nin temel fikri şudur: Aynı fiziksel target lokasyonu bile farklı satırlarda farklı context ile
+            görünebilir. Bu yüzden target'ı sadece koordinat olarak değil, "bu satırdaki ölçüm bağlamı" olarak temsil
+            ettik. Böylece context feature'ları node düzeyinde taşınabildi ve benzer context'e sahip observation'lar
+            birbirine bağlanabildi.
+          </p>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Graph</th>
+                <th>Node tabloları</th>
+                <th>Relation tabloları</th>
+                <th>Feature placement</th>
+                <th>Rol</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>graph_a_minimal_physical_target</code></td>
+                <td>sgRNA=150, physical_target_site=9,880</td>
+                <td>candidate_pair=11,446</td>
+                <td>candidate_pair_edge</td>
+                <td>Primary schema</td>
+              </tr>
+              <tr>
+                <td><code>graph_b_guide_similarity_control</code></td>
+                <td>sgRNA=150, physical_target_site=9,880</td>
+                <td>candidate_pair=11,446, sequence_similar_to=1,208</td>
+                <td>Graph A ile aynı</td>
+                <td>Bounded secondary control</td>
+              </tr>
+              <tr>
+                <td><code>graph_c_context_observation</code></td>
+                <td>sgRNA=150, target_observation=11,446</td>
+                <td>candidate_pair=11,446, context_similar_to=91,754</td>
+                <td>target_observation_node</td>
+                <td>Primary schema</td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+
+        <section id="context-similarity">
+          <h2>5. context_similar_to Kararı</h2>
+          <p>
+            <code>context_similar_to</code>, Graph C'de iki target observation'ın epigenetik/nükleozom context bakımından
+            birbirine benzer olduğunu söyleyen yardımcı relation'dır. Bu relation label'dan değil, context feature
+            uzayından üretilir.
+          </p>
+
+          <h3>Nasıl kuruldu?</h3>
+          <ul>
+            <li>Benzerlik için F3/F4 context feature'ları kullanıldı.</li>
+            <li>Eksik değer doldurma ve standardizasyon yalnızca training observation'larında fit edildi.</li>
+            <li>Distance metric olarak Euclidean distance seçildi.</li>
+            <li>Her observation için deterministik <code>top_k=5</code> yakın komşu mantığı kullanıldı.</li>
+            <li>Validation/test observation'ları birbirlerine değil, sadece training reference observation'larına bağlandı.</li>
+          </ul>
+
+          <div class="callout warning">
+            <strong>Önemli sınır:</strong> Sprint 3'te <code>context_similar_to</code> için "biyolojik olarak kaliteli komşular mı buluyor?"
+            veya "model performansına kesin katkı sağlıyor mu?" şeklinde ayrı bir kalite metriği ölçmedik. Sprint 3'te ölçülen kalite,
+            graph'ın leakage-free, label-free, deterministic ve split kontratına uygun olup olmadığıydı.
+          </div>
+
+          <h3>Bu karar literatürden birebir mi geldi?</h3>
+          <p>
+            Hayır, bu karar bir CRISPR makalesinden birebir alınmış bir mimari değildir. Daha doğru ifade şudur:
+            literatür graph/link-prediction yaklaşımını ve epigenetik context'in biyolojik önemini destekledi;
+            Graph C'nin observation-level tasarımı ise bizim dataset'in yapısından doğan bir adaptasyondur.
+          </p>
+
+          <div class="callout info">
+            <strong>Sunumda kullanılacak savunma cümlesi:</strong>
+            Graph C, literatürdeki CRISPR-GCN fikri ile Mak/crisprSQL epigenetik context motivasyonunu birleştirir.
+            Ancak <code>target_observation</code> node ve <code>context_similar_to</code> relation tasarımı, aynı physical target'ın
+            farklı satırlarda farklı context taşıyabilmesi problemine verdiğimiz proje-içi temsil cevabıdır.
+          </div>
+
+          <h3>Sonradan etkisini ölçtük mü?</h3>
+          <p>
+            Sprint 3'te değil. Sprint 3 sadece graph kurdu. Ancak daha sonraki Sprint 7D mekanizma ablation'ında
+            <code>context_similar_to</code> edge'leri kaldırılarak etkisi test edildi. Full Graph C GATv2 ile
+            <code>context_similar_to</code> edge'siz Graph C GATv2 arasındaki fark küçük kaldı:
+          </p>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Run</th>
+                <th>Ne test edildi?</th>
+                <th>Test AUPRC</th>
+                <th>Test MCC</th>
+                <th>TN/FP/FN/TP</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Full Graph C GATv2</td>
+                <td>Context edge + direct target observation feature + S5F2 energy</td>
+                <td>0.969078</td>
+                <td>0.531774</td>
+                <td>63 / 106 / 12 / 1521</td>
+              </tr>
+              <tr>
+                <td>No context edges</td>
+                <td><code>context_similar_to</code> edge'leri kaldırıldı, direct context feature kaldı</td>
+                <td>0.965598</td>
+                <td>0.517970</td>
+                <td>62 / 107 / 14 / 1519</td>
+              </tr>
+              <tr>
+                <td>Masked target context features</td>
+                <td>Direct target observation feature'ları maskelendi</td>
+                <td>0.893657</td>
+                <td>-0.013952</td>
+                <td>0 / 169 / 3 / 1530</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <p class="small">
+            Bu tablo Sprint 3 sonucu değildir; Sprint 3'te kurulan Graph C bileşenlerinin daha sonra nasıl test edildiğini anlatmak için eklenmiştir.
+          </p>
+        </section>
+
+        <section id="literature">
+          <h2>6. Literatürle Eşleşmesi</h2>
+          <p>
+            Sprint 3'ün literatürle ilişkisini doğru kurmak önemli. Burada "biz bir makaleyi aynen reproduce ettik" demiyoruz;
+            literatürdeki fikirleri kendi dataset ve evaluation kontratımıza uyarladık diyoruz.
+          </p>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Literatür kaynağı</th>
+                <th>Bize ne verdi?</th>
+                <th>Biz neyi farklı yaptık?</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Vinodkumar et al. 2021</td>
+                <td>CRISPR off-target tahminini sgRNA-target graph/link-prediction problemi olarak düşünme motivasyonu.</td>
+                <td>Aynı dataset, split, mimari veya metric'i reproduce etmedik; Graph A/B/C şema ablation'ı kurduk.</td>
+              </tr>
+              <tr>
+                <td>Kipf &amp; Welling 2017</td>
+                <td>GCN'in graph adjacency ve node feature üzerinden message passing yapma temel fikri.</td>
+                <td>Sprint 3'te GCN eğitmedik; sadece GCN/GAT gibi modellerin kullanacağı graph artifacts'ı hazırladık.</td>
+              </tr>
+              <tr>
+                <td>Störtz &amp; Minary 2021 / crisprSQL</td>
+                <td>Guide-target assay kayıtları ve epigenetic marker referansları için veri kaynağı zemini.</td>
+                <td>Bu kayıtların satır-level context taşımasını graph tasarımında açıkça modelledik.</td>
+              </tr>
+              <tr>
+                <td>Mak et al. 2022</td>
+                <td>Epigenetik ve nucleosome context feature'larının CRISPR-Cas9 off-target aktivitesiyle ilişkili olduğunu gösterdi.</td>
+                <td>Mak'in CA regression hedefini reproduce etmedik; Scheme A binary classification ve graph temsili kullandık.</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="callout neutral">
+            <strong>Graph C için literatür sınırı:</strong> Elimizde Graph C'nin birebir aynısını kullanan bir CRISPR off-target paper yok.
+            Yakın fikirler var: graph/link-prediction, feature-space similarity edge, epigenetik context kullanımı.
+            Ama <code>target_observation</code> node'ları ve strict-inductive <code>context_similar_to</code> yapısı bizim katkı/adaptasyon tarafımızdır.
+          </div>
+        </section>
+
+        <section id="findings">
+          <h2>7. Ne Bulduk?</h2>
+          <p>
+            Sprint 3'ün bulguları model performansı değil, veri-temsili ve güvenlik bulgularıdır. Bu yüzden "Graph C daha iyi çıktı"
+            demek bu sprint için yanlış olur. Doğru bulgu, Graph A/B/C'nin aynı kontrat altında güvenli şekilde üretilebildiğidir.
+          </p>
+
+          <h3>Ana bulgular</h3>
+          <ul>
+            <li>Locked measured-only graph evreni 11,446 candidate pair içeriyor.</li>
+            <li>Graph A ve Graph B'de 9,880 unique physical target site var.</li>
+            <li>Graph C'de her source row için ayrı target observation node kuruldu; 11,446 target observation oluştu.</li>
+            <li>Graph C'de 91,754 adet <code>context_similar_to</code> relation üretildi.</li>
+            <li>Graph A'da row-varying context physical target node'a konmadı; bu leakage ve context-blurring riskini azalttı.</li>
+            <li>Graph B yalnızca guide sequence benzerliği kullandı; label veya test sonucu kullanmadı.</li>
+            <li>Graph C context preprocessing'i training observation'larıyla fit edildi; held-out observation'lar sadece training referanslarına bağlandı.</li>
+          </ul>
+
+          <h3>Bu sprintte özellikle neyi engelledik?</h3>
+          <ul>
+            <li>Test label'ının graph construction'a karışmasını engelledik.</li>
+            <li>Validation/test dağılımının imputer/scaler fit'ine karışmasını engelledik.</li>
+            <li>Physical target node'a farklı satırların context değerlerini ezerek koymayı engelledik.</li>
+            <li>Graph C'yi "Graph A + birkaç edge" diye yanlış yorumlamayı engelledik; çünkü Graph C target semantics'i değiştiriyor.</li>
+            <li>Graph schema seçimini test performansına göre yapmayı engelledik.</li>
+          </ul>
+
+          <div class="callout risk">
+            <strong>Yorum riski:</strong> Graph C, topology-only bir deney değildir. Graph A'ya göre hem topology değişir
+            hem de target node'un anlamı değişir. Bu yüzden Graph C sonucu yorumlanırken "edge ekledik performans değişti"
+            kadar basit anlatılmamalıdır.
+          </div>
+        </section>
+
+        <section id="handoff">
+          <h2>8. Sprint 4'e Ne Devrettik?</h2>
+          <p>
+            Sprint 3 sonunda model eğitimi için dependency-light typed graph artifacts hazır hale geldi.
+            PyTorch Geometric ve <code>HeteroData</code> materialization Sprint 4'e bırakıldı; böylece graph schema
+            ve leakage kontrolleri model karmaşıklığına karışmadan doğrulandı.
+          </p>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Çıktı</th>
+                <th>Anlamı</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>src/crispr_gnn/graph/graph_builder.py</code></td>
+                <td>Graph A/B/C artifacts'ını üreten temel graph construction logic.</td>
+              </tr>
+              <tr>
+                <td><code>src/crispr_gnn/graph/graph_schemas.py</code></td>
+                <td>Graph isimleri, config ve schema contract tanımları.</td>
+              </tr>
+              <tr>
+                <td><code>configs/sweeps/graph_schema_ablation.yaml</code></td>
+                <td>Graph A/B/C construction ayarları; Graph C için Euclidean, <code>top_k=5</code>, train-only preprocessing.</td>
+              </tr>
+              <tr>
+                <td><code>tests/test_graph_builder.py</code></td>
+                <td>Graph sayıları, determinism, feature placement ve strict-inductive relation testleri.</td>
+              </tr>
+              <tr>
+                <td><code>tests/test_graph_leakage.py</code></td>
+                <td>Measured-only, experiment exclusion, Scheme A, guide overlap ve NaN label riskleri için leakage testleri.</td>
+              </tr>
+              <tr>
+                <td><code>outputs/sprint3/graph_schema_report.md</code></td>
+                <td>Canonical Sprint 3 schema raporu ve Sprint 4 handoff belgesi.</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="callout">
+            <strong>Sprint 4'e net görev:</strong> Graph A ile GCN baseline eğit, sonra Graph C'yi context-enriched comparison olarak değerlendir,
+            Graph B'yi ise bounded control olarak kullan. Her sonucu mutlaka <code>xgboost_unweighted / F4</code> ile karşılaştır.
+          </div>
+        </section>
+
+        <section id="summary">
+          <h2>9. Final Özet</h2>
+          <div class="summary-box">
+            Sprint 3'te yaptığımız ana iş, CRISPR off-target problemini GNN'e uygun ve leakage kontrollü bir graph veri yapısına dönüştürmekti.
+            Graph A fiziksel target lokasyonlarını güvenli bir minimal baseline olarak temsil etti; Graph B bu yapıya guide sequence similarity ekleyen
+            kontrollü bir topology deneyi oldu; Graph C ise dataset'in observation-level context yapısını dikkate alarak her satırı ayrı
+            <code>target_observation</code> node'u olarak modelledi ve benzer context'e sahip observation'ları <code>context_similar_to</code> relation'larıyla bağladı.
+            Bu Graph C fikri literatürden birebir alınmış bir mimari değildir; CRISPR-GCN/link-prediction literatürü ile Mak/crisprSQL epigenetik context
+            bulgularını bizim dataset'in satır-level yapısına uyarlayan bir temsil kararıdır. Sprint 3'te <code>context_similar_to</code>'nun biyolojik veya predictive
+            kalitesi ayrıca ölçülmedi; bu sprintte asıl başarı, graph artifacts'ın deterministic, label-free, train-only preprocessing kullanan ve strict-inductive
+            visibility kurallarına uyan şekilde üretilmesiydi. Böylece Sprint 4 ve sonrasındaki GCN/GAT deneyleri için adil, karşılaştırılabilir ve savunulabilir
+            bir graph zemini hazırlanmış oldu.
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,947 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sprint 5 Raporu - Feature Ablation ve Epigenetik Context</title>
+  <style>
+    :root {
+      --bg: #f6f8fb;
+      --paper: #ffffff;
+      --ink: #182230;
+      --muted: #667085;
+      --line: #d9e0ea;
+      --accent: #0f766e;
+      --accent-soft: #e5f5f2;
+      --blue: #1d4ed8;
+      --blue-soft: #e8f0ff;
+      --amber: #a15c07;
+      --amber-soft: #fff5df;
+      --red: #b42318;
+      --red-soft: #fff0ed;
+      --green: #147d4f;
+      --green-soft: #e7f7ef;
+      --slate: #26384f;
+      --slate-soft: #edf2f7;
+      --code-bg: #eef2f7;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.58;
+    }
+
+    a {
+      color: var(--blue);
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    .page {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 32px 24px 58px;
+    }
+
+    .hero {
+      border-radius: 8px;
+      padding: 38px;
+      color: #ffffff;
+      background:
+        linear-gradient(135deg, rgba(16, 42, 67, 0.98), rgba(15, 118, 110, 0.94)),
+        linear-gradient(45deg, #102a43, #0f766e);
+      box-shadow: 0 20px 44px rgba(16, 42, 67, 0.18);
+      margin-bottom: 24px;
+    }
+
+    .eyebrow {
+      margin: 0 0 12px;
+      font-size: 0.86rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.78);
+    }
+
+    h1 {
+      margin: 0;
+      max-width: 940px;
+      font-size: clamp(2rem, 4.2vw, 3.55rem);
+      line-height: 1.04;
+      letter-spacing: 0;
+    }
+
+    .hero p {
+      max-width: 940px;
+      margin: 18px 0 0;
+      color: rgba(255, 255, 255, 0.88);
+      font-size: 1.08rem;
+    }
+
+    .hero-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 24px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 32px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      color: #ffffff;
+      background: rgba(255, 255, 255, 0.14);
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      font-size: 0.88rem;
+      white-space: nowrap;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 278px minmax(0, 1fr);
+      gap: 24px;
+      align-items: start;
+    }
+
+    nav {
+      position: sticky;
+      top: 18px;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 18px;
+    }
+
+    nav h2 {
+      margin: 0 0 12px;
+      font-size: 1rem;
+    }
+
+    nav ol {
+      margin: 0;
+      padding-left: 18px;
+      color: var(--muted);
+    }
+
+    nav li {
+      margin: 8px 0;
+    }
+
+    section {
+      margin-bottom: 18px;
+      padding: 28px;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+    }
+
+    h2 {
+      margin: 0 0 16px;
+      font-size: 1.55rem;
+      line-height: 1.25;
+      letter-spacing: 0;
+    }
+
+    h3 {
+      margin: 24px 0 10px;
+      font-size: 1.08rem;
+      line-height: 1.3;
+      letter-spacing: 0;
+    }
+
+    p {
+      margin: 0 0 14px;
+    }
+
+    .lead {
+      color: #344054;
+      font-size: 1.06rem;
+    }
+
+    .callout {
+      margin: 18px 0;
+      padding: 16px 18px;
+      border-radius: 6px;
+      border-left: 5px solid var(--accent);
+      background: var(--accent-soft);
+    }
+
+    .callout.info {
+      border-left-color: var(--blue);
+      background: var(--blue-soft);
+    }
+
+    .callout.warning {
+      border-left-color: var(--amber);
+      background: var(--amber-soft);
+    }
+
+    .callout.risk {
+      border-left-color: var(--red);
+      background: var(--red-soft);
+    }
+
+    .callout.neutral {
+      border-left-color: var(--slate);
+      background: var(--slate-soft);
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+      margin: 20px 0 8px;
+    }
+
+    .stat {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 16px;
+      background: #fbfcfe;
+    }
+
+    .stat strong {
+      display: block;
+      font-size: 1.45rem;
+      line-height: 1.15;
+      color: var(--ink);
+    }
+
+    .stat span {
+      display: block;
+      margin-top: 6px;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      margin: 18px 0;
+    }
+
+    .card {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 18px;
+      background: #fbfcfe;
+    }
+
+    .card h3 {
+      margin-top: 0;
+    }
+
+    ul {
+      margin: 10px 0 16px;
+      padding-left: 20px;
+    }
+
+    li {
+      margin: 7px 0;
+    }
+
+    code,
+    pre {
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+    }
+
+    code {
+      padding: 2px 5px;
+      border-radius: 4px;
+      background: var(--code-bg);
+      color: #111827;
+      font-size: 0.92em;
+    }
+
+    pre {
+      overflow-x: auto;
+      margin: 16px 0;
+      padding: 16px;
+      border-radius: 8px;
+      background: #111827;
+      color: #e5e7eb;
+      font-size: 0.92rem;
+      line-height: 1.5;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0 8px;
+      font-size: 0.94rem;
+    }
+
+    th,
+    td {
+      padding: 11px 12px;
+      border: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background: #f1f5f9;
+      color: #233044;
+      font-weight: 700;
+    }
+
+    tr:nth-child(even) td {
+      background: #fbfcfe;
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      min-height: 26px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      font-size: 0.82rem;
+      font-weight: 650;
+      background: var(--slate-soft);
+      color: var(--slate);
+      white-space: nowrap;
+    }
+
+    .tag.primary {
+      background: var(--accent-soft);
+      color: var(--accent);
+    }
+
+    .tag.control {
+      background: var(--blue-soft);
+      color: var(--blue);
+    }
+
+    .tag.warning {
+      background: var(--amber-soft);
+      color: var(--amber);
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+      margin: 16px 0;
+    }
+
+    .definition {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 15px;
+      background: #fbfcfe;
+    }
+
+    .definition strong {
+      display: block;
+      margin-bottom: 6px;
+      color: #111827;
+    }
+
+    .summary-box {
+      border: 1px solid #b7dfd8;
+      border-radius: 8px;
+      padding: 20px;
+      background: #f0fbf8;
+      font-size: 1.02rem;
+    }
+
+    .small {
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    @media (max-width: 920px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+
+      nav {
+        position: static;
+      }
+
+      .stats,
+      .cards,
+      .two-col {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .page {
+        padding: 20px 14px 40px;
+      }
+
+      .hero,
+      section {
+        padding: 22px;
+      }
+
+      table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header class="hero">
+      <p class="eyebrow">CRISPR-GNN Tez Raporu - Sprint 5</p>
+      <h1>Feature Ablation ve Epigenetik Context Analizi</h1>
+      <p>
+        Sprint 5'te graph topology'yi sabit tutup modele verilen feature ailelerini kademeli olarak değiştirdik.
+        Amaç, GCN'in sequence, mismatch, binding energy, experimental epigenetic ve computed nucleosome context
+        bilgilerinden hangisini gerçekten kullanabildiğini ölçmekti.
+      </p>
+      <div class="hero-meta">
+        <span class="pill">Ana model: Graph A GCN</span>
+        <span class="pill">Yöntem: cumulative feature ablation</span>
+        <span class="pill">En güçlü GCN: S5F2_energy</span>
+        <span class="pill">Primary metric: AUPRC</span>
+      </div>
+    </header>
+
+    <div class="layout">
+      <nav aria-label="İçindekiler">
+        <h2>İçindekiler</h2>
+        <ol>
+          <li><a href="#big-picture">Sprint 5 Nedir?</a></li>
+          <li><a href="#ablation">Ablation Mantığı</a></li>
+          <li><a href="#contract">Deney Kontratı</a></li>
+          <li><a href="#feature-ladder">Feature Ladder</a></li>
+          <li><a href="#results">Ana Sonuçlar</a></li>
+          <li><a href="#sprint5b">Sprint 5B</a></li>
+          <li><a href="#literature">Literatürle İlişki</a></li>
+          <li><a href="#interpretation">Yorum Sınırları</a></li>
+          <li><a href="#summary">Final Özet</a></li>
+        </ol>
+      </nav>
+
+      <main>
+        <section id="big-picture">
+          <h2>1. Sprint 5 Nedir?</h2>
+          <p class="lead">
+            Sprint 5, projenin ana biyolojik feature deneyidir. Sprint 4'te GCN'in çalıştığını gördük;
+            Sprint 5'te ise bu GCN'in hangi bilgi türlerinden faydalandığını sistematik olarak test ettik.
+          </p>
+
+          <div class="callout">
+            <strong>En basit anlatım:</strong> Bu sprintte graph yapısını değiştirmedik. Aynı Graph A üzerinde sadece
+            modele verilen feature paketini değiştirdik. Böylece performans değişimini feature ailesine bağlamak daha mümkün oldu.
+          </div>
+
+          <h3>Bu sprintte ne aradık?</h3>
+          <ul>
+            <li>Sadece sequence bilgisi GCN için yeterli mi?</li>
+            <li>Mismatch feature'ları eklenince performans artıyor mu?</li>
+            <li>Binding-energy feature'ları off-target tahmini için güçlü sinyal taşıyor mu?</li>
+            <li>6 experimental epigenetic scalar feature Graph A GCN'e katkı veriyor mu?</li>
+            <li>Computed nucleosome aggregate ve position-resolved feature'lar modeli iyileştiriyor mu?</li>
+            <li>En iyi Graph A feature seti, Graph C context-observation yapısıyla da uyumlu mu?</li>
+          </ul>
+
+          <div class="stats">
+            <div class="stat">
+              <strong>6</strong>
+              <span>Graph A feature seti: S5F0-S5F5</span>
+            </div>
+            <div class="stat">
+              <strong>0.976585</strong>
+              <span>En iyi Sprint 5 Graph A test AUPRC</span>
+            </div>
+            <div class="stat">
+              <strong>0.477933</strong>
+              <span>S5F2_energy test MCC</span>
+            </div>
+            <div class="stat">
+              <strong>0.992522</strong>
+              <span>XGBoost F4 AUPRC referansı</span>
+            </div>
+          </div>
+        </section>
+
+        <section id="ablation">
+          <h2>2. Ablation Mantığı</h2>
+          <p>
+            Ablation, modele bilgileri adım adım verip her adımda performansın nasıl değiştiğini ölçmektir.
+            Sprint 5'te bu ablation cumulative yani birikimli yapıldı: her yeni feature set, öncekinin üzerine yeni bir bilgi ailesi ekledi.
+          </p>
+
+          <pre>S5F0: sequence
+→ S5F1: sequence + mismatch
+→ S5F2: sequence + mismatch + binding energy
+→ S5F3: + experimental epigenetic
+→ S5F4: + computed nucleosome aggregates
+→ S5F5: + position-resolved computed nucleosome vectors</pre>
+
+          <div class="callout info">
+            <strong>Neden Graph A?</strong> Graph A'da target node'lar featureless kaldığı ve topology değişmediği için
+            feature ailesi katkısını daha temiz ölçebiliyoruz. Graph C ana ablation için uygun değildi; çünkü Graph C zaten
+            context'i target_observation node'ları ve context_similar_to topology'si üzerinden taşıyor.
+          </div>
+
+          <div class="two-col">
+            <div class="definition">
+              <strong>Binding energy</strong>
+              Guide-target bağlanma enerjisini temsil eden <code>energy_1</code>-<code>energy_5</code> scalar feature'larıdır.
+              Epigenetik feature değildir.
+            </div>
+            <div class="definition">
+              <strong>Experimental epigenetic</strong>
+              Deneysel chromatin/epigenetik sinyallerden gelen 6 scalar feature: CTCF, DNase, RRBS, H3K4me3, DRIP ve MNase.
+            </div>
+            <div class="definition">
+              <strong>Computed nucleosome</strong>
+              Nükleozom organizasyonu ve DNA erişilebilirliğiyle ilişkili hesaplanmış feature ailesidir; aggregate ve position-resolved biçimleri vardır.
+            </div>
+            <div class="definition">
+              <strong>Feature placement</strong>
+              Sprint 5'te bu feature'lar physical target node'a değil, candidate edge feature tensor'ına kondu.
+            </div>
+          </div>
+        </section>
+
+        <section id="contract">
+          <h2>3. Sabit Deney Kontratı</h2>
+          <p>
+            Sprint 5'in güvenilir olması için model, split ve graph yapısı sabit tutuldu. Değişen tek ana değişken candidate-edge feature setiydi.
+          </p>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Kural</th>
+                <th>Sprint 5'te uygulama</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Graph topology</td>
+                <td>Primary ablation için <code>graph_a_minimal_physical_target</code> sabit kaldı.</td>
+              </tr>
+              <tr>
+                <td>Label</td>
+                <td>Scheme A: <code>cleavage_freq &gt; 1e-5</code>.</td>
+              </tr>
+              <tr>
+                <td>Split</td>
+                <td><code>sprint2_main_seed42</code>, guide-disjoint split.</td>
+              </tr>
+              <tr>
+                <td>Universe</td>
+                <td>Measured-only; <code>experiment_id=18</code> headline train/validation/test dışında.</td>
+              </tr>
+              <tr>
+                <td>Checkpoint</td>
+                <td>Validation AUPRC ile seçildi.</td>
+              </tr>
+              <tr>
+                <td>Threshold</td>
+                <td>Validation max-F1 ile seçildi; test threshold tuning yapılmadı.</td>
+              </tr>
+              <tr>
+                <td>Primary metric</td>
+                <td>AUPRC; MCC, macro F1 ve specificity secondary yorum olarak raporlandı.</td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+
+        <section id="feature-ladder">
+          <h2>4. Feature Ladder</h2>
+          <p>
+            Sprint 5'te feature set isimlerini özellikle yeni tuttuk. Çünkü Sprint 2'deki F1-F4 ile aynı şeyleri
+            birebir tekrar etmiyorduk; sequence-only view ve daha geniş computed feature representation eklenmişti.
+          </p>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Feature set</th>
+                <th>İçerik</th>
+                <th>Kolon</th>
+                <th>Bilimsel soru</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>S5F0_seq</code></td>
+                <td>Guide ve target sequence one-hot; explicit mismatch channel yok.</td>
+                <td>230</td>
+                <td>Saf sequence bilgisi ne kadar yeterli?</td>
+              </tr>
+              <tr>
+                <td><code>S5F1_mismatch</code></td>
+                <td>Sequence + mismatch channel + engineered mismatch/sequence summary feature'ları.</td>
+                <td>263</td>
+                <td>Mismatch bilgisi eklenince model daha iyi öğreniyor mu?</td>
+              </tr>
+              <tr>
+                <td><code>S5F2_energy</code></td>
+                <td><code>S5F1</code> + <code>energy_1</code>-<code>energy_5</code>.</td>
+                <td>268</td>
+                <td>Binding-energy sinyali off-target tahmini için güçlü mü?</td>
+              </tr>
+              <tr>
+                <td><code>S5F3_experimental_epi</code></td>
+                <td><code>S5F2</code> + CTCF, DNase, RRBS, H3K4me3, DRIP, MNase.</td>
+                <td>274</td>
+                <td>Deneysel epigenetik scalar'lar Graph A GCN'i iyileştiriyor mu?</td>
+              </tr>
+              <tr>
+                <td><code>S5F4_computed_agg</code></td>
+                <td><code>S5F3</code> + computed nucleosome aggregate + missingness indicators.</td>
+                <td>365</td>
+                <td>Özetlenmiş computed nucleosome context faydalı mı?</td>
+              </tr>
+              <tr>
+                <td><code>S5F5_computed_pos</code></td>
+                <td><code>S5F4</code> + 13 × 23 position-resolved computed nucleosome vector.</td>
+                <td>664</td>
+                <td>Pozisyon bazlı computed context daha fazla sinyal veriyor mu?</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="callout warning">
+            <strong>Terminoloji sınırı:</strong> <code>S5F2_energy</code> epigenetik değildir. Sprint 5'te epigenetik bilgi
+            <code>S5F3_experimental_epi</code> ile başlar; computed nucleosome/context ise <code>S5F4</code> ve <code>S5F5</code> ile başlar.
+          </div>
+        </section>
+
+        <section id="results">
+          <h2>5. Ana Sonuçlar</h2>
+          <p>
+            Sprint 5'in en güçlü sonucu <code>S5F2_energy</code> oldu. Binding-energy feature'ları sequence/mismatch üzerine
+            eklenince AUPRC, AUROC, macro F1, MCC ve negatif sınıf tanıma belirgin şekilde iyileşti.
+          </p>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Feature set</th>
+                <th>Test AUPRC</th>
+                <th>Test AUROC</th>
+                <th>Macro F1</th>
+                <th>MCC</th>
+                <th>Specificity</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>S5F0_seq</code></td>
+                <td>0.960432</td>
+                <td>0.723843</td>
+                <td>0.667772</td>
+                <td>0.360493</td>
+                <td>0.295858</td>
+              </tr>
+              <tr>
+                <td><code>S5F1_mismatch</code></td>
+                <td>0.968203</td>
+                <td>0.745651</td>
+                <td>0.473879</td>
+                <td>0.000000</td>
+                <td>0.000000</td>
+              </tr>
+              <tr>
+                <td><code>S5F2_energy</code></td>
+                <td>0.976585</td>
+                <td>0.817765</td>
+                <td>0.695284</td>
+                <td>0.477933</td>
+                <td>0.284024</td>
+              </tr>
+              <tr>
+                <td><code>S5F3_experimental_epi</code></td>
+                <td>0.967214</td>
+                <td>0.761677</td>
+                <td>0.613482</td>
+                <td>0.314439</td>
+                <td>0.171598</td>
+              </tr>
+              <tr>
+                <td><code>S5F4_computed_agg</code></td>
+                <td>0.910866</td>
+                <td>0.544960</td>
+                <td>0.473879</td>
+                <td>0.000000</td>
+                <td>0.000000</td>
+              </tr>
+              <tr>
+                <td><code>S5F5_computed_pos</code></td>
+                <td>0.909031</td>
+                <td>0.506268</td>
+                <td>0.473879</td>
+                <td>0.000000</td>
+                <td>0.000000</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h3>Confusion matrix özeti</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Feature set</th>
+                <th>Threshold</th>
+                <th>TN</th>
+                <th>FP</th>
+                <th>FN</th>
+                <th>TP</th>
+                <th>Yorum</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>S5F0_seq</code></td>
+                <td>0.151176</td>
+                <td>50</td>
+                <td>119</td>
+                <td>40</td>
+                <td>1493</td>
+                <td>Saf sequence bazı negatifleri yakalıyor ama pozitif kaçırma artıyor.</td>
+              </tr>
+              <tr>
+                <td><code>S5F1_mismatch</code></td>
+                <td>0.095585</td>
+                <td>0</td>
+                <td>169</td>
+                <td>0</td>
+                <td>1533</td>
+                <td>Selected threshold her test örneğini pozitif sınıfa yaklaştırıyor.</td>
+              </tr>
+              <tr>
+                <td><code>S5F2_energy</code></td>
+                <td>0.157007</td>
+                <td>48</td>
+                <td>121</td>
+                <td>6</td>
+                <td>1527</td>
+                <td>En dengeli Sprint 5 Graph A sonucu; negatif sınıf tanıma güçleniyor.</td>
+              </tr>
+              <tr>
+                <td><code>S5F3_experimental_epi</code></td>
+                <td>0.139497</td>
+                <td>29</td>
+                <td>140</td>
+                <td>13</td>
+                <td>1520</td>
+                <td>Experimental epigenetic eklemek bu GCN koşusunda iyileştirme getirmiyor.</td>
+              </tr>
+              <tr>
+                <td><code>S5F4_computed_agg</code></td>
+                <td>0.998882</td>
+                <td>0</td>
+                <td>169</td>
+                <td>0</td>
+                <td>1533</td>
+                <td>Computed aggregate eklenince selected threshold negatif sınıfı tamamen kaçırıyor.</td>
+              </tr>
+              <tr>
+                <td><code>S5F5_computed_pos</code></td>
+                <td>0.745966</td>
+                <td>0</td>
+                <td>169</td>
+                <td>0</td>
+                <td>1533</td>
+                <td>Position-resolved computed context de bu formulation içinde stabil fayda göstermiyor.</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="callout">
+            <strong>Ana bulgu:</strong> En güçlü pozitif ablation adımı <code>S5F1_mismatch</code> → <code>S5F2_energy</code>
+            geçişidir. Test AUPRC <code>0.968203</code>'ten <code>0.976585</code>'e, MCC ise <code>0.000000</code>'dan
+            <code>0.477933</code>'e yükseldi.
+          </div>
+
+          <div class="callout warning">
+            <strong>Yanlış anlaşılmaması gereken nokta:</strong> Experimental epigenetic ve computed nucleosome feature'larının
+            bu modelde işe yaramaması, chromatin/nucleosome biyolojisinin önemsiz olduğu anlamına gelmez. Bu sadece mevcut
+            Graph A GCN, feature placement ve validation-selected threshold kontratı altında gözlenen modelleme sonucudur.
+          </div>
+        </section>
+
+        <section id="sprint5b">
+          <h2>6. Sprint 5B: Graph C Energy Sensitivity</h2>
+          <p>
+            Ana Sprint 5 ablation'ından sonra tek bir secondary sensitivity çalıştırıldı: Graph C topology ve
+            target-observation context semantics sabit kaldı, candidate-edge tarafına <code>S5F2_energy</code> eklendi.
+          </p>
+
+          <div class="callout neutral">
+            <strong>Yorum sınırı:</strong> Sprint 5B temiz bir feature ablation değildir. Graph C zaten
+            <code>target_observation</code> node feature'ları ve <code>context_similar_to</code> edge'leriyle context taşır.
+            Bu nedenle Sprint 5B sadece "en iyi energy edge setting Graph C ile uyumlu mu?" sorusuna cevap verir.
+          </div>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Reference</th>
+                <th>Setting</th>
+                <th>Test AUPRC</th>
+                <th>Macro F1</th>
+                <th>MCC</th>
+                <th>TN/FP/FN/TP</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Sprint 4 Graph C</td>
+                <td><code>CandidatePair+TargetObservationContext</code></td>
+                <td>0.961586</td>
+                <td>n/a</td>
+                <td>0.453738</td>
+                <td>43 / 126 / 5 / 1528</td>
+              </tr>
+              <tr>
+                <td>Sprint 5 Graph A</td>
+                <td><code>S5F2_energy</code></td>
+                <td>0.976585</td>
+                <td>0.695284</td>
+                <td>0.477933</td>
+                <td>48 / 121 / 6 / 1527</td>
+              </tr>
+              <tr>
+                <td>Sprint 5B Graph C</td>
+                <td><code>GraphCContext+S5F2_energy</code></td>
+                <td>0.972481</td>
+                <td>0.552442</td>
+                <td>0.274287</td>
+                <td>14 / 155 / 0 / 1533</td>
+              </tr>
+              <tr>
+                <td>Sprint 2 XGBoost</td>
+                <td><code>F4</code></td>
+                <td>0.992522</td>
+                <td>n/a</td>
+                <td>0.345198</td>
+                <td>38 / 131 / 21 / 1512</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <p>
+            Sprint 5B, Graph C AUPRC'sini Sprint 4'e göre artırdı: <code>0.961586</code> → <code>0.972481</code>.
+            Bu, binding-energy sinyalinin Graph C'de de faydalı olabileceğini destekler. Fakat Graph A <code>S5F2_energy</code>
+            sonucunu geçmedi ve selected threshold'da negatif sınıfı zayıf yakaladı.
+          </p>
+        </section>
+
+        <section id="literature">
+          <h2>7. Literatürle Eşleşmesi</h2>
+          <p>
+            Sprint 5'in literatür bağlantısı özellikle Mak et al. 2022 ve chromatin/nucleosome biyolojisi üzerinden kurulur.
+            Ancak bu sprint Mak çalışmasını birebir reproduce etmez; bizim hedefimiz Scheme A binary classification ve guide-level GCN ablation'dır.
+          </p>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Literatür</th>
+                <th>Bize ne söyledi?</th>
+                <th>Sprint 5'te nasıl kullandık?</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Mak et al. 2022</td>
+                <td>6 experimental epigenetic ve 13 computed nucleosome descriptor'ın off-target aktivitesiyle ilişkisini inceler.</td>
+                <td>Bu feature ailelerini GCN feature ladder içinde test ettik; Mak'in CA regression setup'ını reproduce etmedik.</td>
+              </tr>
+              <tr>
+                <td>crisprSQL / Störtz &amp; Minary</td>
+                <td>Guide-target assay kayıtları ve epigenetic marker annotation zemini sağlar.</td>
+                <td>Measured-only, guide-level split ve row-level feature audit kontratıyla kullandık.</td>
+              </tr>
+              <tr>
+                <td>Chromatin/Cas9 biyoloji literatürü</td>
+                <td>Chromatin accessibility ve nucleosome positioning Cas9 bağlanma/kesme erişimini etkileyebilir.</td>
+                <td>Experimental epigenetic ve computed nucleosome feature ailelerini biyolojik olarak anlamlı adaylar olarak test ettik.</td>
+              </tr>
+              <tr>
+                <td>Mak SHAP/feature-importance bulguları</td>
+                <td>Binding-energy/CRISPRspec benzeri sinyallerin önemli olabileceğini destekler.</td>
+                <td>Sprint 5'te en güçlü GCN sinyali <code>S5F2_energy</code> oldu; bu yönü literatürle uyumludur.</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="callout info">
+            <strong>Sunum cümlesi:</strong> Sprint 5, Mak et al.'ın epigenetik descriptor motivasyonunu alıp,
+            bizim guide-level, leakage-controlled GCN setup'ımızda feature-family ablation olarak test eder. Sonuç,
+            biyolojiyi reddetmek değil; mevcut Graph A GCN formulation içinde en güvenilir sinyalin binding energy olduğunu göstermektir.
+          </div>
+        </section>
+
+        <section id="interpretation">
+          <h2>8. Yorum Sınırları ve Sonraki Sprintlere Devir</h2>
+          <p>
+            Sprint 5 sonuçları güçlü ama dikkatli yorumlanmalıdır. Çünkü bir feature ailesinin bu mimaride işe yaramaması,
+            o biyolojik faktörün gerçek hayatta önemsiz olduğu anlamına gelmez.
+          </p>
+
+          <h3>Bu sprintte kesin söyleyebileceklerimiz</h3>
+          <ul>
+            <li>Graph A fixed-topology GCN içinde <code>S5F2_energy</code> en iyi feature set oldu.</li>
+            <li>Binding-energy eklemek sequence/mismatch baseline'a göre açık performans artışı sağladı.</li>
+            <li>Experimental epigenetic scalar'lar bu koşuda <code>S5F2_energy</code> üzerine ek fayda sağlamadı.</li>
+            <li>Computed nucleosome aggregate ve position-resolved feature'lar selected threshold'da negatif sınıfı tamamen kaçırdı.</li>
+            <li>Graph C'ye energy eklemek Graph C AUPRC'sini artırdı ama Graph A <code>S5F2_energy</code>'yi geçmedi.</li>
+          </ul>
+
+          <h3>Kesin söylemememiz gerekenler</h3>
+          <ul>
+            <li>"Epigenetik biyolojik olarak önemsizdir" denmez.</li>
+            <li>"Nükleozom context işe yaramaz" denmez.</li>
+            <li>"Graph C daha kötü olduğu için context yaklaşımı başarısızdır" denmez.</li>
+            <li>"XGBoost'u geçtik" denmez; primary AUPRC'de XGBoost F4 hâlâ en güçlü baseline'dır.</li>
+          </ul>
+
+          <div class="callout risk">
+            <strong>Sonraki sprint motivasyonu:</strong> Sprint 5, feature tarafında en güçlü adayın energy olduğunu gösterdi.
+            Ama threshold collapse ve rare-negative tanıma problemleri devam etti. Bu yüzden Sprint 6'da loss/imbalance/threshold davranışını,
+            daha sonraki sprintlerde de attention ve target-context encoder yapılarını test etmek bilimsel olarak gerekli hale geldi.
+          </div>
+        </section>
+
+        <section id="summary">
+          <h2>9. Final Özet</h2>
+          <div class="summary-box">
+            Sprint 5'te temel amaç, graph yapısını sabit tutarak GCN'in hangi feature ailelerinden gerçekten faydalandığını ölçmekti.
+            Bu nedenle ana ablation Graph A üzerinde yapıldı ve yalnızca candidate-edge feature setleri <code>S5F0_seq</code>'den
+            <code>S5F5_computed_pos</code>'a kadar kademeli biçimde değiştirildi. Sonuçta en güçlü ve en dengeli GCN ayarı
+            <code>S5F2_energy</code> oldu; binding-energy feature'ları test AUPRC, AUROC, macro F1, MCC ve negatif sınıf tanıma açısından
+            en net iyileşmeyi sağladı. Buna karşılık 6 experimental epigenetic scalar feature ve computed nucleosome feature'ları mevcut
+            Graph A GCN formulation içinde ek fayda sağlamadı; computed feature setleri selected threshold'da true negative yakalayamayan
+            bir davranışa yol açtı. Sprint 5B'de <code>S5F2_energy</code> Graph C'ye de eklendi ve Graph C AUPRC'si Sprint 4'e göre arttı,
+            fakat Graph A <code>S5F2_energy</code>'yi veya XGBoost F4 AUPRC baseline'ını geçmedi. Bu sprintin ana mesajı, epigenetik veya
+            nükleozom biyolojisini reddetmek değil; mevcut guide-level GCN setup'ında en güvenilir sinyalin binding energy olduğunu,
+            context feature'larını daha iyi kullanmak için ise sonraki sprintlerde imbalance, attention ve target-context encoder
+            çalışmalarına ihtiyaç olduğunu göstermektir.
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+</body>
+</html>

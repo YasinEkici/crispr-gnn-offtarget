@@ -1,0 +1,1203 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sprint 1 Raporu - Dataset ve Label Audit</title>
+  <style>
+    :root {
+      --bg: #f6f8fb;
+      --paper: #ffffff;
+      --ink: #182230;
+      --muted: #667085;
+      --line: #d9e0ea;
+      --accent: #0f766e;
+      --accent-soft: #e5f5f2;
+      --blue: #1d4ed8;
+      --blue-soft: #e8f0ff;
+      --amber: #a15c07;
+      --amber-soft: #fff5df;
+      --red: #b42318;
+      --red-soft: #fff0ed;
+      --green: #147d4f;
+      --green-soft: #e7f7ef;
+      --purple: #6d28d9;
+      --purple-soft: #f1ecff;
+      --code-bg: #eef2f7;
+      --dark: #102a43;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.58;
+    }
+
+    a {
+      color: var(--blue);
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    .page {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 32px 24px 58px;
+    }
+
+    .hero {
+      border-radius: 8px;
+      padding: 38px;
+      color: #ffffff;
+      background:
+        linear-gradient(135deg, rgba(16, 42, 67, 0.98), rgba(15, 118, 110, 0.94)),
+        linear-gradient(45deg, #102a43, #0f766e);
+      box-shadow: 0 20px 44px rgba(16, 42, 67, 0.18);
+      margin-bottom: 24px;
+    }
+
+    .eyebrow {
+      margin: 0 0 12px;
+      font-size: 0.86rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.78);
+    }
+
+    h1 {
+      margin: 0;
+      max-width: 900px;
+      font-size: clamp(2rem, 4.2vw, 3.55rem);
+      line-height: 1.04;
+      letter-spacing: 0;
+    }
+
+    .hero p {
+      max-width: 920px;
+      margin: 18px 0 0;
+      color: rgba(255, 255, 255, 0.88);
+      font-size: 1.08rem;
+    }
+
+    .hero-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 24px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 32px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      color: #ffffff;
+      background: rgba(255, 255, 255, 0.14);
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      font-size: 0.88rem;
+      white-space: nowrap;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 278px minmax(0, 1fr);
+      gap: 24px;
+      align-items: start;
+    }
+
+    nav {
+      position: sticky;
+      top: 18px;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 18px;
+    }
+
+    nav h2 {
+      margin: 0 0 12px;
+      font-size: 1rem;
+    }
+
+    nav ol {
+      margin: 0;
+      padding-left: 18px;
+      color: var(--muted);
+    }
+
+    nav li {
+      margin: 8px 0;
+    }
+
+    section {
+      margin-bottom: 18px;
+      padding: 28px;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+    }
+
+    h2 {
+      margin: 0 0 16px;
+      font-size: 1.55rem;
+      line-height: 1.25;
+      letter-spacing: 0;
+    }
+
+    h3 {
+      margin: 24px 0 10px;
+      font-size: 1.08rem;
+      line-height: 1.3;
+      letter-spacing: 0;
+    }
+
+    p {
+      margin: 0 0 14px;
+    }
+
+    .lead {
+      color: #344054;
+      font-size: 1.06rem;
+    }
+
+    .callout {
+      margin: 18px 0;
+      padding: 16px 18px;
+      border-radius: 6px;
+      border-left: 5px solid var(--accent);
+      background: var(--accent-soft);
+    }
+
+    .callout.warning {
+      border-left-color: var(--amber);
+      background: var(--amber-soft);
+    }
+
+    .callout.negative {
+      border-left-color: var(--red);
+      background: var(--red-soft);
+    }
+
+    .callout.info {
+      border-left-color: var(--blue);
+      background: var(--blue-soft);
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+      margin: 20px 0 8px;
+    }
+
+    .stat {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 16px;
+      background: #fbfcfe;
+    }
+
+    .stat strong {
+      display: block;
+      font-size: 1.45rem;
+      line-height: 1.15;
+      color: var(--ink);
+    }
+
+    .stat span {
+      display: block;
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .timeline {
+      display: grid;
+      gap: 12px;
+      margin-top: 18px;
+    }
+
+    .timeline-item {
+      display: grid;
+      grid-template-columns: 160px minmax(0, 1fr);
+      gap: 14px;
+      padding: 16px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fbfcfe;
+    }
+
+    .timeline-item b {
+      color: var(--accent);
+    }
+
+    .timeline-item p {
+      margin: 0;
+      color: #344054;
+    }
+
+    .flow {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 10px;
+      margin: 20px 0 6px;
+    }
+
+    .flow-step {
+      min-height: 112px;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fbfcfe;
+    }
+
+    .flow-step b {
+      display: block;
+      margin-bottom: 6px;
+      color: var(--accent);
+    }
+
+    .flow-step span {
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      margin: 16px 0 24px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.95rem;
+    }
+
+    .table-wrap table {
+      min-width: 760px;
+    }
+
+    th,
+    td {
+      padding: 11px 10px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background: #f3f6fa;
+      color: #344054;
+      font-weight: 700;
+    }
+
+    tr:last-child td {
+      border-bottom: 0;
+    }
+
+    code,
+    .mono {
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+      color: #111827;
+      background: var(--code-bg);
+      border-radius: 4px;
+      padding: 2px 5px;
+    }
+
+    pre {
+      overflow-x: auto;
+      margin: 14px 0;
+      padding: 16px;
+      border-radius: 8px;
+      background: #111827;
+      color: #f9fafb;
+      font-size: 0.92rem;
+      line-height: 1.5;
+    }
+
+    pre code {
+      color: inherit;
+      background: transparent;
+      padding: 0;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      min-height: 28px;
+      padding: 4px 9px;
+      border-radius: 999px;
+      font-size: 0.84rem;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .badge.pass {
+      color: var(--green);
+      background: var(--green-soft);
+    }
+
+    .badge.info {
+      color: var(--blue);
+      background: var(--blue-soft);
+    }
+
+    .badge.warn {
+      color: var(--amber);
+      background: var(--amber-soft);
+    }
+
+    .scheme-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 18px;
+    }
+
+    .scheme-card {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 18px;
+      background: #fbfcfe;
+    }
+
+    .scheme-card h3 {
+      margin: 0 0 8px;
+      color: var(--accent);
+    }
+
+    .scheme-card p {
+      color: #344054;
+    }
+
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 18px;
+    }
+
+    .feature-card {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 18px;
+      background: #fbfcfe;
+    }
+
+    .feature-card h3 {
+      margin: 0 0 8px;
+      color: var(--accent);
+    }
+
+    .feature-card p {
+      color: #344054;
+      margin-bottom: 0;
+    }
+
+    .artifact-list {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 16px;
+    }
+
+    .artifact {
+      padding: 16px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fbfcfe;
+    }
+
+    .artifact h3 {
+      margin: 0 0 8px;
+      color: var(--accent);
+    }
+
+    .artifact ul {
+      margin: 0;
+      padding-left: 18px;
+      color: #344054;
+    }
+
+    .artifact li {
+      margin: 6px 0;
+    }
+
+    .summary {
+      color: white;
+      background: var(--dark);
+      border-color: transparent;
+    }
+
+    .summary p {
+      color: rgba(255, 255, 255, 0.9);
+      font-size: 1.04rem;
+      margin-bottom: 0;
+    }
+
+    .footnote {
+      color: var(--muted);
+      font-size: 0.9rem;
+      margin-top: 16px;
+    }
+
+    @media (max-width: 1000px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+
+      nav {
+        position: static;
+      }
+
+      .stats,
+      .flow,
+      .scheme-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 760px) {
+      .page {
+        padding: 18px 14px 40px;
+      }
+
+      .hero,
+      section {
+        padding: 22px;
+      }
+
+      .stats,
+      .flow,
+      .scheme-grid,
+      .feature-grid,
+      .artifact-list {
+        grid-template-columns: 1fr;
+      }
+
+      .timeline-item {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media print {
+      body {
+        background: white;
+      }
+
+      .page {
+        max-width: none;
+        padding: 0;
+      }
+
+      nav {
+        display: none;
+      }
+
+      .layout {
+        display: block;
+      }
+
+      .hero,
+      section {
+        box-shadow: none;
+        break-inside: avoid;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header class="hero">
+      <p class="eyebrow">Sprint 1 raporu</p>
+      <h1>Dataset, Label ve Feature Audit</h1>
+      <p>
+        Sprint 1'de model eğitilmedi. Bu sprintin amacı, Mak et al. 2022
+        crisprSQL tabanlı dataset'in güvenilirliğini doğrulamak, label politikasını
+        belirlemek, epigenetik/nükleozom feature'larının formatını anlamak ve sonraki
+        tüm model sprintleri için evaluation kurallarını sabitlemekti.
+      </p>
+      <div class="hero-meta">
+        <span class="pill">Sprint tipi: Veri doğrulama</span>
+        <span class="pill">Ana çıktı: Scheme A label</span>
+        <span class="pill">Test kuralı: measured=1 only</span>
+        <span class="pill">Primary metric: AUPRC</span>
+      </div>
+    </header>
+
+    <div class="layout">
+      <nav aria-label="İçindekiler">
+        <h2>İçindekiler</h2>
+        <ol>
+          <li><a href="#purpose">Amaç</a></li>
+          <li><a href="#literature">Literatür Bağlantısı</a></li>
+          <li><a href="#audit">Dataset Audit</a></li>
+          <li><a href="#labels">Label Deneyleri</a></li>
+          <li><a href="#quality">Veri Kalitesi</a></li>
+          <li><a href="#features">Feature Audit</a></li>
+          <li><a href="#epigenetic">Epigenetik Feature'lar</a></li>
+          <li><a href="#parser">Parser ve Missingness</a></li>
+          <li><a href="#evaluation">Split ve Evaluation</a></li>
+          <li><a href="#artifacts">Kod ve Raporlar</a></li>
+          <li><a href="#summary">Özet</a></li>
+        </ol>
+      </nav>
+
+      <div>
+        <section id="purpose">
+          <h2>1. Sprint 1'in Amacı</h2>
+          <p class="lead">
+            Sprint 1, model kurmadan önce verinin ne olduğunu teknik ve biyolojik
+            olarak doğrulama sprintidir. Bu aşamada amaç performans almak değil,
+            sonraki tüm deneylerin güvenilir bir zeminde yapılmasını sağlamaktı.
+          </p>
+
+          <div class="callout">
+            <strong>Toplantı cümlesi:</strong>
+            Sprint 1'de önce dataset'in gerçekten beklenen Mak/crisprSQL veri seti
+            olup olmadığını, hangi satırların deneysel ground truth sayılabileceğini,
+            label'ın nasıl üretileceğini ve epigenetik/nükleozom feature'larının
+            kullanılabilirliğini doğruladık.
+          </div>
+
+          <div class="flow">
+            <div class="flow-step">
+              <b>1. Kaynak</b>
+              <span>Raw parquet dosyasının doğru dataset olup olmadığı kontrol edildi.</span>
+            </div>
+            <div class="flow-step">
+              <b>2. Schema</b>
+              <span>Satır, kolon, guide, target ve feature grupları doğrulandı.</span>
+            </div>
+            <div class="flow-step">
+              <b>3. Label</b>
+              <span><code>cleavage_freq</code> üzerinden A/B/C label seçenekleri incelendi.</span>
+            </div>
+            <div class="flow-step">
+              <b>4. Feature</b>
+              <span>Epigenetik ve computed nucleosome feature formatı test edildi.</span>
+            </div>
+            <div class="flow-step">
+              <b>5. Protocol</b>
+              <span>Split, leakage ve evaluation kuralları sabitlendi.</span>
+            </div>
+          </div>
+        </section>
+
+        <section id="literature">
+          <h2>2. Literatürle Eşleşmesi</h2>
+          <p>
+            Bu sprintin literatür merkezi <strong>Mak et al. 2022</strong> çalışmasıydı:
+            <em>Comprehensive computational analysis of epigenetic descriptors affecting
+            CRISPR-Cas9 off-target activity</em>. Paper'ın ana iddiası, CRISPR-Cas9
+            off-target activity'nin yalnızca guide-target sequence benzerliğiyle değil,
+            epigenetik ve nükleozom context'iyle de ilişkili olabileceğidir.
+          </p>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Literatürde söylenen</th>
+                  <th>Sprint 1'de kontrol edilen</th>
+                  <th>Sonuç</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Dataset crisprSQL tabanlıdır.</td>
+                  <td>Raw parquet dosyasının satır, kolon, guide ve target sayıları audit edildi.</td>
+                  <td><span class="badge pass">Doğrulandı</span></td>
+                </tr>
+                <tr>
+                  <td>Dataset 19 epigenetik feature içerir.</td>
+                  <td>6 experimental epigenetic + 13 computed nucleosome feature dosyada arandı.</td>
+                  <td><span class="badge pass">Hepsi var</span></td>
+                </tr>
+                <tr>
+                  <td>Computed nucleosome feature'ları base-pair resolution'dadır.</td>
+                  <td>13 computed feature'ın 23 değerlik string-array olarak saklanıp saklanmadığı test edildi.</td>
+                  <td><span class="badge pass">23 değer formatı doğrulandı</span></td>
+                </tr>
+                <tr>
+                  <td>Paper CA / Box-Cox transformed activity kullanır.</td>
+                  <td>Dataset'te hazır <code>CA</code> veya CA-like kolon var mı bakıldı.</td>
+                  <td><span class="badge warn">CA yok, raw cleavage_freq var</span></td>
+                </tr>
+                <tr>
+                  <td>Putative off-target satırları paper dataset'ine eklenmiştir.</td>
+                  <td><code>measured=0</code> ve <code>measured=1</code> dağılımı çıkarıldı.</td>
+                  <td><span class="badge pass">Ayrım netleşti</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="callout warning">
+            <strong>Önemli tez sınırı:</strong>
+            Biz Mak et al. paper'ını birebir reproduce etmiyoruz. Çünkü paper'ın transformed
+            <code>CA</code> hedefi raw dosyada hazır değil. Biz aynı veri ailesi üzerinde
+            guide-level binary off-target classification kuruyoruz.
+          </div>
+        </section>
+
+        <section id="audit">
+          <h2>3. Dataset Audit: Ne Aradık, Ne Bulduk?</h2>
+          <p class="lead">
+            İlk audit sorusu basitti: "Elimizdeki dosya gerçekten beklenen dataset mi?"
+            Bunun için dosya sıfırdan yüklenip beklenen referans değerlerle karşılaştırıldı.
+          </p>
+
+          <div class="stats">
+            <div class="stat">
+              <strong>310,142</strong>
+              <span>toplam satır</span>
+            </div>
+            <div class="stat">
+              <strong>45</strong>
+              <span>toplam kolon</span>
+            </div>
+            <div class="stat">
+              <strong>154</strong>
+              <span>benzersiz guide / sgRNA</span>
+            </div>
+            <div class="stat">
+              <strong>138,747</strong>
+              <span>benzersiz target lokasyon</span>
+            </div>
+          </div>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Kontrol</th>
+                  <th>Bulgu</th>
+                  <th>Yorum</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Shape</td>
+                  <td><code>310142 × 45</code></td>
+                  <td>Beklenen Mak snapshot değeriyle eşleşti.</td>
+                </tr>
+                <tr>
+                  <td><code>measured=1</code></td>
+                  <td>25,632 satır</td>
+                  <td>Gerçek deneysel ölçüm içeren satırlar.</td>
+                </tr>
+                <tr>
+                  <td><code>measured=0</code></td>
+                  <td>284,510 satır</td>
+                  <td>Putative/adayı off-target satırları; test ground truth olarak kullanılmaz.</td>
+                </tr>
+                <tr>
+                  <td>Genome'lar</td>
+                  <td><code>hg19</code>, <code>hg38</code>, <code>mm10</code>, <code>mm9</code>, <code>rn5</code></td>
+                  <td>Veri sadece insan değil; fare ve rat referansları da var.</td>
+                </tr>
+                <tr>
+                  <td>Cell line</td>
+                  <td>7 cell line, 14,108 missing</td>
+                  <td>Eksik cell line'lar <code>experiment_id=18</code> içinde yoğunlaşıyor.</td>
+                </tr>
+                <tr>
+                  <td>CA-like kolon</td>
+                  <td>Yok</td>
+                  <td>Paper reproduction için CA yeniden hesaplanmalı; ana track raw <code>cleavage_freq</code> kullanır.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="callout">
+            <strong>En kritik bulgu:</strong>
+            Dataset'in büyük kısmı gerçek deneysel ölçüm değil. Bu yüzden Sprint 1 sonunda
+            "test seti yalnızca <code>measured=1</code> satırlardan oluşmalı" kuralı sabitlendi.
+          </div>
+        </section>
+
+        <section id="labels">
+          <h2>4. Label Deneyleri: Scheme A, B, C</h2>
+          <p>
+            Sprint 1'de label konusu özellikle önemliydi çünkü modelin neyi öğrenmeye
+            çalıştığı doğrudan label tanımına bağlı. Dosyada paper'ın transformed
+            <code>CA</code> hedefi olmadığı için raw <code>cleavage_freq</code> üzerinden
+            binary label şemaları tanımlandı.
+          </p>
+
+          <div class="scheme-grid">
+            <div class="scheme-card">
+              <h3>Scheme A</h3>
+              <p><strong>Ana binary label.</strong></p>
+              <pre><code>label = 1 if cleavage_freq &gt; 1e-5 else 0</code></pre>
+              <p>
+                Paper'daki assay accuracy boundary ile uyumlu olduğu için ana proje
+                hedefi olarak seçildi.
+              </p>
+            </div>
+
+            <div class="scheme-card">
+              <h3>Scheme B</h3>
+              <p><strong>Paper-comparison track.</strong></p>
+              <pre><code>Mak-style CA / Box-Cox transformed target</code></pre>
+              <p>
+                Hazır <code>CA</code> kolonu olmadığı için ana sprintlerde kullanılmadı.
+                İleride paper reproduction için ayrı yapılabilir.
+              </p>
+            </div>
+
+            <div class="scheme-card">
+              <h3>Scheme C</h3>
+              <p><strong>Robustness sensitivity.</strong></p>
+              <pre><code>label = 1 if cleavage_freq &gt; 1e-3 else 0</code></pre>
+              <p>
+                Daha katı pozitif tanımıdır. Ana hedef değil, sonraki robustness
+                analizleri için ayrıldı.
+              </p>
+            </div>
+          </div>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Scheme</th>
+                  <th>Threshold</th>
+                  <th>Label-eligible rows</th>
+                  <th>Pozitif</th>
+                  <th>Negatif</th>
+                  <th>Pozitif oranı</th>
+                  <th>Rolü</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Scheme A</td>
+                  <td><code>1e-5</code></td>
+                  <td>310,064</td>
+                  <td>21,365</td>
+                  <td>288,699</td>
+                  <td>6.89%</td>
+                  <td>Ana binary label</td>
+                </tr>
+                <tr>
+                  <td>Scheme C</td>
+                  <td><code>1e-3</code></td>
+                  <td>310,064</td>
+                  <td>8,280</td>
+                  <td>301,784</td>
+                  <td>2.67%</td>
+                  <td>Robustness sensitivity</td>
+                </tr>
+                <tr>
+                  <td>High threshold</td>
+                  <td><code>0.1</code></td>
+                  <td>310,064</td>
+                  <td>1,184</td>
+                  <td>308,880</td>
+                  <td>0.38%</td>
+                  <td>Audit-only sensitivity</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="callout info">
+            <strong>Measured-only Scheme A:</strong>
+            Deneysel label-eligible satırlarda 21,365 pozitif ve 4,189 negatif var.
+            Bu test/validation tasarımı için önemlidir çünkü measured-only evrende pozitif oranı yüksektir.
+          </div>
+        </section>
+
+        <section id="quality">
+          <h2>5. Veri Kalitesi ve Outlier Kararları</h2>
+          <p>
+            <code>cleavage_freq</code> raw deneysel/kurasyon değeridir. Bu kolonda eksik,
+            negatif veya 1'den büyük değerler olduğu için bunların modelleme politikasını
+            Sprint 1'de açıkça belirledik.
+          </p>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Durum</th>
+                  <th>Sayı</th>
+                  <th>Karar</th>
+                  <th>Neden</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>NaN <code>cleavage_freq</code></td>
+                  <td>78</td>
+                  <td>Supervised train/validation/test label üretiminden çıkar.</td>
+                  <td>Eksik label'ı sessizce negatif yapmak yanlış öğrenmeye yol açar.</td>
+                </tr>
+                <tr>
+                  <td>Negatif <code>cleavage_freq</code></td>
+                  <td>685</td>
+                  <td>Binary threshold altında kabul edilir, kalite notu olarak işaretlenir.</td>
+                  <td>Binary sınıflandırmada negatif sayılabilir ama raw ölçüm kalitesi açısından raporlanmalıdır.</td>
+                </tr>
+                <tr>
+                  <td><code>cleavage_freq &gt; 1</code></td>
+                  <td>298</td>
+                  <td>Pozitif kabul edilir, clipping yapılmaz.</td>
+                  <td>Binary label için sadece threshold üstünde olması önemlidir.</td>
+                </tr>
+                <tr>
+                  <td><code>measured=0</code></td>
+                  <td>284,510</td>
+                  <td>Opsiyonel training negatifi; test ground truth değil.</td>
+                  <td>Bu satırlar deneysel olarak ölçülmemiş putative adaylardır.</td>
+                </tr>
+                <tr>
+                  <td><code>experiment_id=18</code></td>
+                  <td>14,108 missing cell-line satırı</td>
+                  <td>Main evaluation dışında tutulmalı veya ayrı sensitivity olarak raporlanmalı.</td>
+                  <td>Eksik cell-line ve computed feature missingness burada yoğunlaşıyor.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section id="features">
+          <h2>6. Feature Audit: Hangi Feature'lar Var?</h2>
+          <p class="lead">
+            Mak paper'ı 19 epigenetik/nükleozom feature'dan bahsediyor. Sprint 1'de
+            bu feature'ların dosyada gerçekten var olduğu ve hangi formatta saklandığı doğrulandı.
+          </p>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Feature grubu</th>
+                  <th>Feature sayısı</th>
+                  <th>Eksik satır</th>
+                  <th>Sprint 1 sonucu</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Experimental epigenetic</td>
+                  <td>6</td>
+                  <td>0</td>
+                  <td>Tamamı mevcut ve scalar formatta.</td>
+                </tr>
+                <tr>
+                  <td>Computed nucleosome</td>
+                  <td>13</td>
+                  <td>15,153</td>
+                  <td>23 değerlik string-array formatı doğrulandı.</td>
+                </tr>
+                <tr>
+                  <td>Binding energy</td>
+                  <td>5</td>
+                  <td>0</td>
+                  <td>Tamamı mevcut ve scalar formatta.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h3>Computed Nucleosome Feature'ları</h3>
+          <p>
+            Bu 13 feature tek sayı değil, target bölge boyunca 23 pozisyonluk değer
+            dizileri olarak saklanır. Örneğin:
+          </p>
+          <pre><code>GCContent = [0.531 0.531 0.531 ... 0.537 0.531]</code></pre>
+
+          <p>
+            Bu format, target'ın çevresindeki nükleozom ve sequence-structure context'inin
+            pozisyon bazlı tutulduğunu gösterir.
+          </p>
+        </section>
+
+        <section id="epigenetic">
+          <h2>7. Experimental Epigenetic Feature'lar Ne Anlama Geliyor?</h2>
+          <p class="lead">
+            Bu altı feature, target bölgenin DNA sequence dışındaki deneysel kromatin
+            bağlamını temsil eder. Yani modelin "sequence benziyor mu?" sorusunun yanında
+            "bu bölge hücre içinde erişilebilir mi?" sorusuna da bakabilmesini sağlar.
+          </p>
+
+          <div class="feature-grid">
+            <div class="feature-card">
+              <h3><code>epigen_ctcf</code></h3>
+              <p>
+                CTCF binding sinyalidir. CTCF, genomun 3D organizasyonu, kromatin sınırları
+                ve regülasyonel bölgelerle ilişkili bir DNA-binding proteindir. CTCF bulunan
+                bölgelerde kromatin organizasyonu farklı olabileceği için Cas9 erişimi etkilenebilir.
+              </p>
+            </div>
+
+            <div class="feature-card">
+              <h3><code>epigen_dnase</code></h3>
+              <p>
+                DNase I hypersensitivity sinyalidir. DNase enziminin DNA'ya kolay erişebildiği
+                bölgeler genelde açık kromatin bölgeleridir. DNase yüksekse target DNA'nın
+                Cas9 için daha erişilebilir olma ihtimali artabilir.
+              </p>
+            </div>
+
+            <div class="feature-card">
+              <h3><code>epigen_rrbs</code></h3>
+              <p>
+                Reduced Representation Bisulfite Sequencing verisidir. DNA methylation,
+                özellikle CpG methylation hakkında bilgi verir. Methylation, gen regülasyonu
+                ve kromatin kapalılığıyla ilişkili olduğundan Cas9 erişimini dolaylı etkileyebilir.
+              </p>
+            </div>
+
+            <div class="feature-card">
+              <h3><code>epigen_h3k4me3</code></h3>
+              <p>
+                Histone H3 lysine 4 trimethylation sinyalidir. Genelde aktif promoter
+                bölgeleriyle ilişkilidir. Bu işaret yüksekse bölge daha aktif/açık kromatin
+                karakteri taşıyabilir.
+              </p>
+            </div>
+
+            <div class="feature-card">
+              <h3><code>epigen_drip</code></h3>
+              <p>
+                DRIP-seq sinyalidir. DNA-RNA hybrid veya R-loop oluşumlarıyla ilişkilidir.
+                R-loop bölgeleri transkripsiyon ve kromatin durumu ile bağlantılı olabilir;
+                bu da target erişilebilirliğini etkileyebilir.
+              </p>
+            </div>
+
+            <div class="feature-card">
+              <h3><code>MNase</code></h3>
+              <p>
+                MNase-seq / nucleosome occupancy ilişkili sinyaldir. MNase açık DNA'yı
+                keserken nükleozomla sarılı DNA daha korunaklı olabilir. Bu yüzden MNase,
+                target bölgenin nükleozomla ilişkisini ve erişilebilirliğini anlamaya yardım eder.
+              </p>
+            </div>
+          </div>
+
+          <div class="callout">
+            <strong>Basit karşılıkları:</strong>
+            <code>epigen_dnase</code> DNA açık mı, <code>epigen_rrbs</code> methylation durumu nasıl,
+            <code>epigen_h3k4me3</code> aktif promoter sinyali var mı, <code>epigen_ctcf</code>
+            regülasyonel/3D organizasyon sinyali var mı, <code>epigen_drip</code> R-loop sinyali var mı,
+            <code>MNase</code> bölge nükleozomla sarılı mı sorularına bilgi verir.
+          </div>
+        </section>
+
+        <section id="parser">
+          <h2>8. Parser ve Missingness Deneyi</h2>
+          <p>
+            Computed nucleosome feature'ları string olarak tutulduğu için Sprint 1'de
+            küçük ama kritik bir parser altyapısı yazıldı. Amaç, bu feature'ları
+            yanlış veya eksik parse ederek modele hatalı veri vermemekti.
+          </p>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Parser kuralı</th>
+                  <th>Açıklama</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Tam 23 numeric değer</td>
+                  <td>Her computed nucleosome array'i 23 sayı içermeli.</td>
+                </tr>
+                <tr>
+                  <td>Eksik değer ayrı statü</td>
+                  <td>Missing değer hata ile karıştırılmadı; ayrı raporlandı.</td>
+                </tr>
+                <tr>
+                  <td>Yanlış uzunluk reject</td>
+                  <td>23 yerine farklı sayıda değer varsa parser bunu malformed sayar.</td>
+                </tr>
+                <tr>
+                  <td>Non-numeric reject</td>
+                  <td>Sayıya çevrilemeyen değerler sessizce kabul edilmez.</td>
+                </tr>
+                <tr>
+                  <td>İmputation yok</td>
+                  <td>Sprint 1'de padding, clipping veya imputation yapılmadı.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="stats">
+            <div class="stat">
+              <strong>294,989</strong>
+              <span>valid parsed row</span>
+            </div>
+            <div class="stat">
+              <strong>15,153</strong>
+              <span>missing computed feature row</span>
+            </div>
+            <div class="stat">
+              <strong>0</strong>
+              <span>malformed length</span>
+            </div>
+            <div class="stat">
+              <strong>0</strong>
+              <span>non-numeric row</span>
+            </div>
+          </div>
+
+          <div class="callout warning">
+            Computed feature missingness yaklaşık %4.9'dur ve büyük ölçüde
+            <code>experiment_id=18</code> içinde yoğunlaşır. Bu yüzden ileride F4 gibi
+            context feature set'leri kullanılırken imputation train-only yapılmalı ve
+            missingness indicator'ları korunmalıdır.
+          </div>
+        </section>
+
+        <section id="evaluation">
+          <h2>9. Split ve Evaluation Kararları</h2>
+          <p>
+            Sprint 1'in en önemli çıktılarından biri, sonraki tüm model sprintlerinin
+            aynı evaluation sözleşmesine bağlı kalmasıdır. Bu, model karşılaştırmalarının
+            adil ve leakage-safe olması için gerekliydi.
+          </p>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Karar</th>
+                  <th>Neden önemli?</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Test seti sadece <code>measured=1</code> olacak.</td>
+                  <td>Putative <code>measured=0</code> satırlar gerçek deneysel ground truth değildir.</td>
+                </tr>
+                <tr>
+                  <td>Random row/edge split final sonuç olmayacak.</td>
+                  <td>Aynı guide train ve test'e düşerse model guide'a özgü pattern ezberleyebilir.</td>
+                </tr>
+                <tr>
+                  <td>Final evaluation guide-level split ile yapılacak.</td>
+                  <td>Train ve test guide ID'leri ayrılırsa gerçek guide-level generalization ölçülür.</td>
+                </tr>
+                <tr>
+                  <td>Primary metric AUPRC olacak.</td>
+                  <td>Problem dengesiz sınıflandırma olduğu için precision-recall alanı daha anlamlıdır.</td>
+                </tr>
+                <tr>
+                  <td>NaN label satırları supervised eğitim/evaluation dışı.</td>
+                  <td>Eksik label yanlışlıkla negatif sayılmamalıdır.</td>
+                </tr>
+                <tr>
+                  <td>Feature imputation train-only yapılmalı.</td>
+                  <td>Validation/test bilgisinin preprocessing'e sızması leakage olur.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <p>
+            Ayrıca guide başına target sayısının çok dengesiz olduğu görüldü. En büyük guide
+            50,422 target lokasyona sahipti. Bu nedenle split tasarımında büyük guide'ların
+            dağılımı özellikle dikkate alınmalıdır.
+          </p>
+        </section>
+
+        <section id="artifacts">
+          <h2>10. Kod, Test ve Rapor Çıktıları</h2>
+          <p>
+            Sprint 1 sonunda hem audit raporları hem de tekrar kullanılabilir küçük veri
+            altyapısı üretildi. Bunlar sonraki sprintlerin temelini oluşturdu.
+          </p>
+
+          <div class="artifact-list">
+            <div class="artifact">
+              <h3>Kod</h3>
+              <ul>
+                <li><code>scripts/audit_dataset.py</code>: Audit CLI runner.</li>
+                <li><code>src/crispr_gnn/data/schemas.py</code>: Beklenen schema ve feature grupları.</li>
+                <li><code>src/crispr_gnn/data/labels.py</code>: Label üretme kuralları.</li>
+                <li><code>src/crispr_gnn/data/parsers.py</code>: 23 değerlik array parser'ı.</li>
+                <li><code>src/crispr_gnn/data/audit_reports.py</code>: Markdown rapor üretimi.</li>
+              </ul>
+            </div>
+
+            <div class="artifact">
+              <h3>Testler</h3>
+              <ul>
+                <li><code>tests/test_labels.py</code>: Threshold, NaN, negatif ve yüksek değer davranışları.</li>
+                <li><code>tests/test_feature_parsers.py</code>: Valid array, missing, wrong-length ve non-numeric durumları.</li>
+              </ul>
+            </div>
+
+            <div class="artifact">
+              <h3>Üretilen Raporlar</h3>
+              <ul>
+                <li><code>outputs/sprint1/dataset_audit.md</code></li>
+                <li><code>outputs/sprint1/label_threshold_sensitivity.md</code></li>
+                <li><code>outputs/sprint1/feature_missingness.md</code></li>
+              </ul>
+            </div>
+
+            <div class="artifact">
+              <h3>Güncellenen Dokümanlar</h3>
+              <ul>
+                <li><code>docs/DATASET_AUDIT.md</code></li>
+                <li><code>docs/LABEL_SCHEMES.md</code></li>
+                <li><code>docs/FEATURE_PARSING.md</code></li>
+                <li><code>docs/EVALUATION_PROTOCOL.md</code></li>
+                <li><code>docs/DECISIONS.md</code></li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <section id="summary" class="summary">
+          <h2>11. Kısa Özet Paragraf</h2>
+          <p>
+            Sprint 1'de model eğitmek yerine, Mak et al. 2022 crisprSQL-derived
+            epigenetik/nükleozom dataset'inin güvenilirliğini ve modelleme sözleşmesini
+            netleştirdik. Raw parquet dosyasının 310,142 satır ve 45 kolondan oluştuğunu,
+            154 guide ve 138,747 target lokasyon içerdiğini doğruladık. Dataset'teki
+            <code>measured=1</code> satırların gerçek deneysel ölçüm, <code>measured=0</code>
+            satırların ise putative/adayı negatif olduğunu gördüğümüz için test setinde
+            yalnızca <code>measured=1</code> kullanma kuralını sabitledik. Paper'da kullanılan
+            transformed <code>CA</code> kolonunun dosyada bulunmadığını, ana label bilgisinin
+            raw <code>cleavage_freq</code> olduğunu doğruladık ve ana binary label şemasını
+            <code>cleavage_freq &gt; 1e-5</code> olarak belirledik. Ayrıca 6 experimental
+            epigenetic feature, 13 computed nucleosome feature ve 5 binding-energy feature'ın
+            dosyada bulunduğunu, computed feature'ların 23 değerlik array formatında saklandığını
+            ve yaklaşık %4.9 missingness taşıdığını gösterdik. Böylece Sprint 1, sonraki tüm
+            baseline, graph ve GNN sprintleri için dataset, label, feature parsing, split ve
+            evaluation kurallarını güvenilir şekilde sabitleyen temel hazırlık sprinti oldu.
+          </p>
+        </section>
+      </div>
+    </div>
+  </main>
+</body>
+</html>

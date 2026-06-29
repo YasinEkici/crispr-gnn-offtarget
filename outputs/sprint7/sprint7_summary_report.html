@@ -1,0 +1,1173 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sprint 7 Raporu - Attention, Context ve Family-Aware Encoder</title>
+  <style>
+    :root {
+      --bg: #f6f8fb;
+      --paper: #ffffff;
+      --ink: #182230;
+      --muted: #667085;
+      --line: #d9e0ea;
+      --accent: #0f766e;
+      --accent-soft: #e5f5f2;
+      --blue: #1d4ed8;
+      --blue-soft: #e8f0ff;
+      --amber: #a15c07;
+      --amber-soft: #fff5df;
+      --red: #b42318;
+      --red-soft: #fff0ed;
+      --green: #147d4f;
+      --green-soft: #e7f7ef;
+      --slate: #26384f;
+      --slate-soft: #edf2f7;
+      --code-bg: #eef2f7;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.58;
+    }
+
+    a {
+      color: var(--blue);
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    .page {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 32px 24px 58px;
+    }
+
+    .hero {
+      border-radius: 8px;
+      padding: 38px;
+      color: #ffffff;
+      background:
+        linear-gradient(135deg, rgba(16, 42, 67, 0.98), rgba(15, 118, 110, 0.94)),
+        linear-gradient(45deg, #102a43, #0f766e);
+      box-shadow: 0 20px 44px rgba(16, 42, 67, 0.18);
+      margin-bottom: 24px;
+    }
+
+    .eyebrow {
+      margin: 0 0 12px;
+      font-size: 0.86rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.78);
+    }
+
+    h1 {
+      margin: 0;
+      max-width: 980px;
+      font-size: clamp(2rem, 4.2vw, 3.55rem);
+      line-height: 1.04;
+      letter-spacing: 0;
+    }
+
+    .hero p {
+      max-width: 960px;
+      margin: 18px 0 0;
+      color: rgba(255, 255, 255, 0.88);
+      font-size: 1.08rem;
+    }
+
+    .hero-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 24px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 32px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      color: #ffffff;
+      background: rgba(255, 255, 255, 0.14);
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      font-size: 0.88rem;
+      white-space: nowrap;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 286px minmax(0, 1fr);
+      gap: 24px;
+      align-items: start;
+    }
+
+    nav {
+      position: sticky;
+      top: 18px;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 18px;
+    }
+
+    nav h2 {
+      margin: 0 0 12px;
+      font-size: 1rem;
+    }
+
+    nav ol {
+      margin: 0;
+      padding-left: 18px;
+      color: var(--muted);
+    }
+
+    nav li {
+      margin: 8px 0;
+    }
+
+    section {
+      margin-bottom: 18px;
+      padding: 28px;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+    }
+
+    h2 {
+      margin: 0 0 16px;
+      font-size: 1.55rem;
+      line-height: 1.25;
+      letter-spacing: 0;
+    }
+
+    h3 {
+      margin: 24px 0 10px;
+      font-size: 1.08rem;
+      line-height: 1.3;
+      letter-spacing: 0;
+    }
+
+    p {
+      margin: 0 0 14px;
+    }
+
+    .lead {
+      color: #344054;
+      font-size: 1.06rem;
+    }
+
+    .callout {
+      margin: 18px 0;
+      padding: 16px 18px;
+      border-radius: 6px;
+      border-left: 5px solid var(--accent);
+      background: var(--accent-soft);
+    }
+
+    .callout.info {
+      border-left-color: var(--blue);
+      background: var(--blue-soft);
+    }
+
+    .callout.warning {
+      border-left-color: var(--amber);
+      background: var(--amber-soft);
+    }
+
+    .callout.risk {
+      border-left-color: var(--red);
+      background: var(--red-soft);
+    }
+
+    .callout.neutral {
+      border-left-color: var(--slate);
+      background: var(--slate-soft);
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+      margin: 20px 0 8px;
+    }
+
+    .stat {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 16px;
+      background: #fbfcfe;
+    }
+
+    .stat strong {
+      display: block;
+      font-size: 1.45rem;
+      line-height: 1.15;
+      color: var(--ink);
+    }
+
+    .stat span {
+      display: block;
+      margin-top: 6px;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      margin: 18px 0;
+    }
+
+    .card {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 18px;
+      background: #fbfcfe;
+    }
+
+    .card h3 {
+      margin-top: 0;
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+      margin: 16px 0;
+    }
+
+    .definition {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 15px;
+      background: #fbfcfe;
+    }
+
+    .definition strong {
+      display: block;
+      margin-bottom: 6px;
+      color: #111827;
+    }
+
+    ul {
+      margin: 10px 0 16px;
+      padding-left: 20px;
+    }
+
+    li {
+      margin: 7px 0;
+    }
+
+    code,
+    pre {
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+    }
+
+    code {
+      padding: 2px 5px;
+      border-radius: 4px;
+      background: var(--code-bg);
+      color: #111827;
+      font-size: 0.92em;
+    }
+
+    pre {
+      overflow-x: auto;
+      margin: 16px 0;
+      padding: 16px;
+      border-radius: 8px;
+      background: #111827;
+      color: #e5e7eb;
+      font-size: 0.92rem;
+      line-height: 1.5;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0 8px;
+      font-size: 0.94rem;
+    }
+
+    th,
+    td {
+      padding: 11px 12px;
+      border: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background: #f1f5f9;
+      color: #233044;
+      font-weight: 700;
+    }
+
+    tr:nth-child(even) td {
+      background: #fbfcfe;
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      min-height: 26px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      font-size: 0.82rem;
+      font-weight: 650;
+      background: var(--slate-soft);
+      color: var(--slate);
+      white-space: nowrap;
+    }
+
+    .tag.primary {
+      background: var(--accent-soft);
+      color: var(--accent);
+    }
+
+    .tag.control {
+      background: var(--blue-soft);
+      color: var(--blue);
+    }
+
+    .tag.warning {
+      background: var(--amber-soft);
+      color: var(--amber);
+    }
+
+    .tag.risk {
+      background: var(--red-soft);
+      color: var(--red);
+    }
+
+    .small {
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .summary-box {
+      border: 1px solid #b7dfd8;
+      border-radius: 8px;
+      padding: 20px;
+      background: #f0fbf8;
+      font-size: 1.02rem;
+    }
+
+    @media (max-width: 920px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+
+      nav {
+        position: static;
+      }
+
+      .stats,
+      .cards,
+      .two-col {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .page {
+        padding: 20px 14px 40px;
+      }
+
+      .hero,
+      section {
+        padding: 22px;
+      }
+
+      table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header class="hero">
+      <p class="eyebrow">CRISPR-GNN Tez Raporu - Sprint 7</p>
+      <h1>Attention, Target Context ve Family-Aware Encoder Analizi</h1>
+      <p>
+        Sprint 7'de temel soru şuydu: GNN modelimiz guide-target ilişkisini ve target'ın epigenetik/context bilgisini
+        attention mekanizması içinde gerçekten kullanabiliyor mu? Bu sprintte Graph A üzerinde GAT/GATv2 denendi,
+        Graph B ve Graph C ile topology/context etkisi ayrıştırıldı, ardından Graph C GATv2'nin hangi feature aileleri
+        sayesinde rare-negative davranış ürettiği test edildi.
+      </p>
+      <div class="hero-meta">
+        <span class="pill">Ana eksen: edge-aware GAT/GATv2</span>
+        <span class="pill">Kritik graph: Graph C</span>
+        <span class="pill">En iyi GNN AUPRC: 0.984945</span>
+        <span class="pill">XGBoost F4 barı: 0.992522</span>
+      </div>
+    </header>
+
+    <div class="layout">
+      <nav aria-label="İçindekiler">
+        <h2>İçindekiler</h2>
+        <ol>
+          <li><a href="#big-picture">Sprint 7 Nedir?</a></li>
+          <li><a href="#concepts">Kavramlar</a></li>
+          <li><a href="#contract">Sabit Kontrat</a></li>
+          <li><a href="#s7a">A. Graph A Attention</a></li>
+          <li><a href="#s7b">B. Graph B/C Topology</a></li>
+          <li><a href="#s7c">C. Row-Level Açıklama</a></li>
+          <li><a href="#s7d">D. Mekanizma Ablation</a></li>
+          <li><a href="#s7e">E. Feature Subgroup Ablation</a></li>
+          <li><a href="#s7f">F. Family-Aware Encoder</a></li>
+          <li><a href="#literature">Literatürle İlişki</a></li>
+          <li><a href="#boundaries">Sınırlar</a></li>
+          <li><a href="#summary">Final Özet</a></li>
+        </ol>
+      </nav>
+
+      <main>
+        <section id="big-picture">
+          <h2>1. Sprint 7 Nedir?</h2>
+          <p class="lead">
+            Sprint 7, "attention ekleyelim ve sonucu görelim" gibi tek adımlı bir sprint değildir. Asıl amaç, GNN'in
+            hangi bilgi kanalından faydalandığını anlamaktır: guide-target kenar feature'ları mı, graph topology mi,
+            target lokasyonunun context feature'ları mı, yoksa bunların birleşimi mi?
+          </p>
+
+          <div class="callout">
+            <strong>En basit anlatım:</strong> Önceki sprintlerde iyi çalışan GCN ayarları vardı. Sprint 7'de bu kez
+            modelin komşulardan bilgi alırken "hangi komşu/kenar daha önemli?" sorusunu öğrenmesini sağladık. Buna
+            attention diyoruz. Sonra attention'ın gerçekten neyi kullandığını tek tek parçalayarak test ettik.
+          </div>
+
+          <h3>Bu sprintte ne aradık?</h3>
+          <ul>
+            <li>Graph A üzerinde GAT veya GATv2, Sprint 6 GCN'ini geçiyor mu?</li>
+            <li>Guide similarity içeren Graph B, attention için yeterli mi?</li>
+            <li>Target observation ve context feature içeren Graph C, rare-negative ayrımını iyileştiriyor mu?</li>
+            <li>Graph C GATv2'nin kazancı gerçek satır düzeyinde mi, yoksa sadece metrik dalgalanması mı?</li>
+            <li>Bu davranış context edge'lerinden mi, edge-aware <code>S5F2_energy</code> mesaj geçişinden mi, yoksa doğrudan target context feature'larından mı geliyor?</li>
+            <li>Target context içindeki hangi feature ailesi kritik: sequence, experimental epigenetic, nucleosome aggregate veya missingness?</li>
+            <li>Feature ailelerini ayrı işleyen family-aware encoder, düz bir encoder'dan daha iyi mi?</li>
+          </ul>
+
+          <div class="stats">
+            <div class="stat">
+              <strong>6</strong>
+              <span>Sprint 7 alt aşaması: 7, 7B, 7C, 7D, 7E, 7F</span>
+            </div>
+            <div class="stat">
+              <strong>0.984945</strong>
+              <span>En iyi Sprint 7 GNN AUPRC: S7F_R3</span>
+            </div>
+            <div class="stat">
+              <strong>0.603489</strong>
+              <span>En iyi rare-negative MCC: S7F_R2</span>
+            </div>
+            <div class="stat">
+              <strong>0.992522</strong>
+              <span>XGBoost F4 matched-contract AUPRC barı</span>
+            </div>
+          </div>
+        </section>
+
+        <section id="concepts">
+          <h2>2. Kavramları Basitçe Açalım</h2>
+          <p>
+            Sprint 7'de geçen kavramlar ilk bakışta model mimarisi gibi duruyor; ama tez anlatımı açısından bunları
+            biyolojik veri temsilini daha iyi öğrenme denemeleri olarak düşünmek daha doğru olur.
+          </p>
+
+          <div class="two-col">
+            <div class="definition">
+              <strong>GNN</strong>
+              Veriyi düğümler ve kenarlar olarak temsil eden neural network ailesidir. Burada guide, target veya
+              target observation düğüm olabilir; guide-target ilişkisi ise kenardır.
+            </div>
+            <div class="definition">
+              <strong>GCN</strong>
+              Komşu düğümlerden gelen bilgiyi daha sabit bir toplama mantığıyla işler. Önceki sprintlerde güçlü GNN
+              baseline'ımız buydu.
+            </div>
+            <div class="definition">
+              <strong>GAT</strong>
+              Graph Attention Network demektir. Model her komşuya aynı ağırlıkla bakmak yerine "bu komşu benim için
+              ne kadar önemli?" sorusunu öğrenir.
+            </div>
+            <div class="definition">
+              <strong>GATv2</strong>
+              GAT'in daha dinamik attention hesaplayan geliştirilmiş versiyonudur. Literatürde klasik GAT'in bazı
+              statik attention kısıtlarına çözüm olarak önerilir.
+            </div>
+            <div class="definition">
+              <strong>Edge-aware attention</strong>
+              Attention hesabına sadece node feature'ları değil, guide-target kenarının feature'ları da girer.
+              Bizde bunun en önemli örneği <code>S5F2_energy</code> feature setidir.
+            </div>
+            <div class="definition">
+              <strong>Target observation</strong>
+              Target'ı yalnızca fiziksel koordinat olarak değil, o satırdaki gözlem/context bilgisiyle birlikte
+              temsil etme fikridir. Graph C'nin ana farkı budur.
+            </div>
+            <div class="definition">
+              <strong>Context feature</strong>
+              Target çevresindeki epigenetik, kromatin veya nucleosome durumunu anlatan feature'lardır. DNA dizisinin
+              kendisi dışında "bu bölge hücre içinde nasıl bir ortamda?" sorusuna yaklaşır.
+            </div>
+            <div class="definition">
+              <strong>Family-aware encoder</strong>
+              Tüm target context feature'larını tek torbaya atmak yerine sequence, epigenetic, nucleosome ve missingness
+              ailelerini ayrı dallarda işleyen encoder yapısıdır.
+            </div>
+          </div>
+        </section>
+
+        <section id="contract">
+          <h2>3. Sabit Deney Kontratı</h2>
+          <p>
+            Sprint 7 boyunca sonuçların karşılaştırılabilir olması için evaluation kontratı sabit tutuldu. Böylece
+            değişen şeyin model/topology/encoder olduğunu, split veya label hilesi olmadığını söyleyebiliyoruz.
+          </p>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Alan</th>
+                <th>Sabit Tutulan Karar</th>
+                <th>Neden Önemli?</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Label scheme</td>
+                <td><code>scheme_a = int(cleavage_freq &gt; 1e-5)</code></td>
+                <td>Pozitif/negatif tanımı değişmedi.</td>
+              </tr>
+              <tr>
+                <td>Split</td>
+                <td><code>sprint2_main_seed42</code>, guide-disjoint</td>
+                <td>Aynı guide'ın train ve testte karışması engellendi.</td>
+              </tr>
+              <tr>
+                <td>Evaluation universe</td>
+                <td>Measured-only headline rows, <code>experiment_id=18</code> hariç</td>
+                <td>Putative/unmeasured satırlar headline testte kullanılmadı.</td>
+              </tr>
+              <tr>
+                <td>Primary metric</td>
+                <td>AUPRC</td>
+                <td>Final sıralama metriği değişmedi.</td>
+              </tr>
+              <tr>
+                <td>Threshold policy</td>
+                <td>Threshold validation set üzerinden seçildi</td>
+                <td>Test set üzerinden eşik ayarı yapılmadı.</td>
+              </tr>
+              <tr>
+                <td>Loss</td>
+                <td>Sprint 6 winner: weighted BCE, <code>pos_weight:auto</code></td>
+                <td>Loss değişimi ile architecture etkisi karıştırılmadı.</td>
+              </tr>
+              <tr>
+                <td>Rare class</td>
+                <td>Negative class</td>
+                <td>Test pozitif oranı yaklaşık <code>0.900705</code>; negatifler azınlık.</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="callout warning">
+            <strong>Tez anlatımında kritik nokta:</strong> MCC, specificity ve TN sayısı rare-negative davranışı anlamak
+            için çok değerliydi; ama primary metric yine AUPRC idi. Bu yüzden "Graph C GATv2 her şeyi geçti" demiyoruz.
+          </div>
+        </section>
+
+        <section id="s7a">
+          <h2>4. A. Graph A Üzerinde Attention Denemesi</h2>
+          <p>
+            İlk deneyde Graph A sabit tutuldu. Yani graph topology ve feature set aynı kaldı; sadece GCN yerine GAT ve
+            GATv2 denendi. Amaç, edge-aware attention'ın tek başına Sprint 6 GCN'ini geçip geçmediğini görmekti.
+          </p>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Run</th>
+                <th>Model</th>
+                <th>Test AUPRC</th>
+                <th>MCC</th>
+                <th>Specificity</th>
+                <th>TN/FP/FN/TP</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>S7R0_gcn_reference</code></td>
+                <td>Graph A GCN</td>
+                <td>0.976935</td>
+                <td>0.483719</td>
+                <td>0.289941</td>
+                <td>49/120/6/1527</td>
+              </tr>
+              <tr>
+                <td><code>S7R1_gat_edge_aware</code></td>
+                <td>Graph A GAT</td>
+                <td>0.950763</td>
+                <td>-0.016850</td>
+                <td>0.183432</td>
+                <td>31/138/316/1217</td>
+              </tr>
+              <tr>
+                <td><code>S7R2_gatv2_edge_aware</code></td>
+                <td>Graph A GATv2</td>
+                <td>0.965449</td>
+                <td>0.291367</td>
+                <td>0.218935</td>
+                <td>37/132/35/1498</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="callout">
+            <strong>Bulgu:</strong> Graph A üzerinde attention tek başına performansı artırmadı. GAT ciddi düştü,
+            GATv2 daha iyi olsa da GCN'i geçemedi. Bu sonuç "attention işe yaramaz" değil, "minimal Graph A üzerinde
+            attention tek başına yeterli değildir" demektir.
+          </div>
+        </section>
+
+        <section id="s7b">
+          <h2>5. B. Graph B ve Graph C ile Topology/Context Etkisi</h2>
+          <p>
+            Graph A sonucundan sonra daha zengin graph yapılarında GATv2'nin davranışı test edildi. Burada iki ana fikir
+            vardı: Graph B guide similarity ekliyordu; Graph C ise target'ı observation/context bilgisiyle temsil ediyordu.
+          </p>
+
+          <div class="cards">
+            <div class="card">
+              <h3>Graph A</h3>
+              <p>Minimal physical target graph. Basit ve güçlü baseline; ama target context bilgisi sınırlı.</p>
+            </div>
+            <div class="card">
+              <h3>Graph B</h3>
+              <p>Guide similarity bağlantıları ekler. Soru: benzer guide'lar attention için faydalı mı?</p>
+            </div>
+            <div class="card">
+              <h3>Graph C</h3>
+              <p>Target observation düğümleri ve context feature'ları taşır. Soru: target context rare-negative ayrımını iyileştiriyor mu?</p>
+            </div>
+          </div>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Run</th>
+                <th>Graph/Model</th>
+                <th>AUPRC</th>
+                <th>MCC</th>
+                <th>Specificity</th>
+                <th>Yorum</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>S7B_R1</code></td>
+                <td>Graph B GCN</td>
+                <td>0.973583</td>
+                <td>0.437157</td>
+                <td>0.254438</td>
+                <td>Guide similarity için GCN kontrolü.</td>
+              </tr>
+              <tr>
+                <td><code>S7B_R2</code></td>
+                <td>Graph B GATv2</td>
+                <td>0.979139</td>
+                <td>0.272970</td>
+                <td>0.094675</td>
+                <td>AUPRC arttı ama negatif tanıma zayıfladı.</td>
+              </tr>
+              <tr>
+                <td><code>S7B_R3</code></td>
+                <td>Graph C GATv2</td>
+                <td>0.969078</td>
+                <td>0.531774</td>
+                <td>0.372781</td>
+                <td>AUPRC kazanmadı; rare-negative davranış çok güçlendi.</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="callout info">
+            <strong>Bulgu:</strong> Guide similarity tek başına açıklayıcı olmadı. Asıl dikkat çekici sonuç Graph C'de
+            geldi: target observation context + edge-aware GATv2, nadir negatifleri daha iyi ayırdı.
+          </div>
+        </section>
+
+        <section id="s7c">
+          <h2>6. C. Graph C GATv2 Sonucunu Satır Satır Açıklama</h2>
+          <p>
+            Sprint 7C'de yeni model eğitilmedi. Amaç, Graph C GATv2'nin Graph C GCN'e göre gerçekten hangi satırlarda
+            fark yarattığını görmekti. Böylece metrik artışının gerçek row-level davranış olup olmadığı kontrol edildi.
+          </p>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Karşılaştırma</th>
+                <th>Graph C GCN</th>
+                <th>Graph C GATv2</th>
+                <th>Değişim</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>AUPRC</td>
+                <td>0.972481</td>
+                <td>0.969078</td>
+                <td>-0.003403</td>
+              </tr>
+              <tr>
+                <td>MCC</td>
+                <td>0.274287</td>
+                <td>0.531774</td>
+                <td>+0.257487</td>
+              </tr>
+              <tr>
+                <td>Specificity</td>
+                <td>0.082840</td>
+                <td>0.372781</td>
+                <td>+0.289941</td>
+              </tr>
+              <tr>
+                <td>TN/FP/FN/TP</td>
+                <td>14/155/0/1533</td>
+                <td>63/106/12/1521</td>
+                <td>+49 net TN</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <pre>Graph C GCN -> Graph C GATv2 error transition:
+ recovered negatives (FP -> TN): 53
+ lost negatives (TN -> FP): 4
+ net true-negative gain: +49
+ new false negatives (TP -> FN): 12</pre>
+
+          <div class="callout">
+            <strong>Bulgu:</strong> Graph C GATv2'nin rare-negative kazanımı gerçek satır düzeyinde görüldü. Ancak bu
+            primary AUPRC kazanımı değildir; threshold-selected operating point kazanımıdır.
+          </div>
+        </section>
+
+        <section id="s7d">
+          <h2>7. D. Mekanizma Ablation: Bu Davranış Nereden Geliyor?</h2>
+          <p>
+            Sprint 7D'de Graph C GATv2'nin parçaları tek tek kapatıldı. Böylece "rare-negative kazanımı context
+            topology'den mi, edge-aware enerji bilgisinden mi, doğrudan target context feature'larından mı geliyor?"
+            sorusu test edildi.
+          </p>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Deney</th>
+                <th>Ne Kapatıldı?</th>
+                <th>AUPRC</th>
+                <th>MCC</th>
+                <th>Specificity</th>
+                <th>TN/FP/FN/TP</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Full Graph C GATv2</td>
+                <td>Hiçbiri</td>
+                <td>0.969078</td>
+                <td>0.531774</td>
+                <td>0.372781</td>
+                <td>63/106/12/1521</td>
+              </tr>
+              <tr>
+                <td><code>S7D_R1</code></td>
+                <td><code>context_similar_to</code> edge'leri</td>
+                <td>0.965598</td>
+                <td>0.517970</td>
+                <td>0.366864</td>
+                <td>62/107/14/1519</td>
+              </tr>
+              <tr>
+                <td><code>S7D_R2</code></td>
+                <td><code>S5F2_energy</code> attention/message passing içinde</td>
+                <td>0.945691</td>
+                <td>0.182915</td>
+                <td>0.248521</td>
+                <td>42/127/112/1421</td>
+              </tr>
+              <tr>
+                <td><code>S7D_R3</code></td>
+                <td>Direct target context feature'ları</td>
+                <td>0.893657</td>
+                <td>-0.013952</td>
+                <td>0.000000</td>
+                <td>0/169/3/1530</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="callout info">
+            <strong>Bulgu:</strong> Context-similarity edge'lerini kaldırmak çok az zarar verdi. Buna karşılık target
+            context feature'larını maskelemek modeli çökertti. Yani Graph C GATv2 davranışı öncelikle doğrudan
+            <code>target_observation</code> context feature'larından geliyor; <code>S5F2_energy</code>'nin attention içinde
+            kullanılması da önemli destek sağlıyor.
+          </div>
+        </section>
+
+        <section id="s7e">
+          <h2>8. E. Target Context Feature Aileleri</h2>
+          <p>
+            Sprint 7E'de artık "target context önemli" demekle yetinmedik. Bu context'in hangi feature ailesinden geldiğini
+            araştırdık. Graph C target observation feature tablosu 212 kolondan oluşuyordu.
+          </p>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Feature Ailesi</th>
+                <th>Kolon Sayısı</th>
+                <th>Ne Anlatır?</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Target sequence one-hot</td>
+                <td>115</td>
+                <td>Target DNA dizisinin harf bazlı temsili.</td>
+              </tr>
+              <tr>
+                <td>Experimental epigenetic</td>
+                <td>6</td>
+                <td><code>epigen_ctcf</code>, <code>epigen_dnase</code>, <code>epigen_rrbs</code>, <code>epigen_h3k4me3</code>, <code>epigen_drip</code>, <code>MNase</code>.</td>
+              </tr>
+              <tr>
+                <td>Computed nucleosome aggregates</td>
+                <td>78</td>
+                <td>Target çevresindeki nükleozom bağlamından hesaplanan özet feature'lar.</td>
+              </tr>
+              <tr>
+                <td>Computed nucleosome missingness</td>
+                <td>13</td>
+                <td>Nükleozom feature'larının eksiklik/varlık bilgisini taşıyan göstergeler.</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Maskelenen Grup</th>
+                <th>AUPRC</th>
+                <th>MCC</th>
+                <th>Specificity</th>
+                <th>Yorum</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Hiçbiri: no-context-edge baseline</td>
+                <td>0.965598</td>
+                <td>0.517970</td>
+                <td>0.366864</td>
+                <td>7E için referans.</td>
+              </tr>
+              <tr>
+                <td>Target sequence</td>
+                <td>0.970151</td>
+                <td>0.489597</td>
+                <td>0.331361</td>
+                <td>Sequence ana açıklama değil.</td>
+              </tr>
+              <tr>
+                <td>Experimental epigenetic</td>
+                <td>0.885321</td>
+                <td>-0.011388</td>
+                <td>0.000000</td>
+                <td>Model rare-negative tanımayı kaybetti.</td>
+              </tr>
+              <tr>
+                <td>Nucleosome aggregates</td>
+                <td>0.955915</td>
+                <td>0.511808</td>
+                <td>0.319527</td>
+                <td>Çoğu sinyal korundu.</td>
+              </tr>
+              <tr>
+                <td>Nucleosome missingness</td>
+                <td>0.949947</td>
+                <td>0.447562</td>
+                <td>0.230769</td>
+                <td>Kısmi düşüş var.</td>
+              </tr>
+              <tr>
+                <td>Tüm non-sequence context</td>
+                <td>0.890660</td>
+                <td>-0.011388</td>
+                <td>0.000000</td>
+                <td>Experimental epigenetic maskesiyle benzer çöküş.</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="callout">
+            <strong>Bulgu:</strong> Altı experimental epigenetic feature kaldırılınca model çöktü. Bu, Sprint 7E'nin en
+            net sonucudur: Graph C GATv2 rare-negative davranışını yeniden üretmek için direct experimental epigenetic
+            target context feature'ları gerekli görünüyor.
+          </div>
+
+          <div class="callout warning">
+            <strong>Yorum sınırı:</strong> Bu sonuç "MNase veya DNase biyolojik olarak kesin sebep" demek değildir.
+            Sinyal biyolojik epigenetik context'ten, assay/source/cell-line yapısından veya bunların birleşiminden
+            gelebilir. Sprint 7E model mekanizmasını gösterir, nedensellik kanıtlamaz.
+          </div>
+        </section>
+
+        <section id="s7f">
+          <h2>9. F. Family-Aware Target Context Encoder</h2>
+          <p>
+            Sprint 7F, Sprint 7D ve 7E'nin doğal devamıydı. Madem direct target context feature'ları önemliydi ve özellikle
+            experimental epigenetic aile kritik görünüyordu, o zaman bu feature ailelerini tek büyük vektör olarak değil,
+            ayrı encoder dallarıyla işlemek mantıklıydı.
+          </p>
+
+          <div class="callout neutral">
+            <strong>Kontrollü değişken:</strong> Graph C, GATv2, no-context-edge policy, <code>S5F2_energy</code>,
+            weighted BCE, split, checkpoint ve threshold politikası sabit kaldı. Yeni değişen şey yalnızca
+            <code>target_observation</code> encoder yapısıydı.
+          </div>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Run</th>
+                <th>Encoder</th>
+                <th>AUPRC</th>
+                <th>AUROC</th>
+                <th>MCC</th>
+                <th>Specificity</th>
+                <th>TN/FP/FN/TP</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>S7F_REF_NO_CONTEXT_EDGE_GATV2</code></td>
+                <td>Unified shallow baseline</td>
+                <td>0.965598</td>
+                <td>0.850137</td>
+                <td>0.517970</td>
+                <td>0.366864</td>
+                <td>62/107/14/1519</td>
+              </tr>
+              <tr>
+                <td><code>S7F_R1</code></td>
+                <td>Unified deep encoder</td>
+                <td>0.969201</td>
+                <td>0.848765</td>
+                <td>0.500460</td>
+                <td>0.301775</td>
+                <td>51/118/5/1528</td>
+              </tr>
+              <tr>
+                <td><code>S7F_R2</code></td>
+                <td>Family-aware balanced encoder</td>
+                <td>0.982062</td>
+                <td>0.906557</td>
+                <td>0.603489</td>
+                <td>0.650888</td>
+                <td>110/59/63/1470</td>
+              </tr>
+              <tr>
+                <td><code>S7F_R3</code></td>
+                <td>Family-aware experimental emphasis</td>
+                <td>0.984945</td>
+                <td>0.926551</td>
+                <td>0.568108</td>
+                <td>0.497041</td>
+                <td>84/85/31/1502</td>
+              </tr>
+              <tr>
+                <td><code>S7F_REF_XGB_F4</code></td>
+                <td>XGBoost F4 reference</td>
+                <td>0.992522</td>
+                <td>0.938416</td>
+                <td>0.345198</td>
+                <td>n/a</td>
+                <td>38/131/21/1512</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h3>R2 ve R3 Neden Ayrı Ayrı Önemli?</h3>
+          <ul>
+            <li><code>S7F_R3</code> primary ranking metriklerinde en iyi Sprint 7 GNN oldu: AUPRC <code>0.984945</code>, AUROC <code>0.926551</code>.</li>
+            <li><code>S7F_R2</code> rare-negative operating point açısından en güçlü model oldu: MCC <code>0.603489</code>, specificity <code>0.650888</code>, TN <code>110</code>.</li>
+            <li>R2 daha çok negatif yakaladı ama daha fazla false negative üretti. R3 daha dengeli ranking ve daha yüksek AUPRC verdi.</li>
+          </ul>
+
+          <h3>Capacity Control</h3>
+          <p>
+            Sprint 7F'deki önemli kontrol şuydu: Unified deep encoder daha fazla parametreye sahipti ama family-aware
+            encoder'lar kadar iyi performans vermedi. Bu yüzden iyileşmeyi sadece "model büyüdü" diye açıklamak zayıf
+            kalır.
+          </p>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Encoder</th>
+                <th>Target Encoder Params</th>
+                <th>Total Params</th>
+                <th>AUPRC</th>
+                <th>MCC</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Unified deep</td>
+                <td>44,032</td>
+                <td>294,657</td>
+                <td>0.969201</td>
+                <td>0.500460</td>
+              </tr>
+              <tr>
+                <td>Family-aware</td>
+                <td>24,976</td>
+                <td>275,601</td>
+                <td>0.982062</td>
+                <td>0.603489</td>
+              </tr>
+              <tr>
+                <td>Family-aware experimental emphasis</td>
+                <td>23,528</td>
+                <td>274,153</td>
+                <td>0.984945</td>
+                <td>0.568108</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="callout">
+            <strong>Bulgu:</strong> Family-aware target context encoding, Sprint 7'nin en güçlü GNN yönü oldu. Bu yapı
+            XGBoost F4 AUPRC barını geçmedi; ama önceki GNN çizgisine göre hem AUPRC'yi hem rare-negative diagnostiklerini
+            ciddi biçimde iyileştirdi.
+          </div>
+        </section>
+
+        <section id="literature">
+          <h2>10. Literatürle İlişki</h2>
+          <p>
+            Sprint 7 literatürdeki birkaç ana fikrin proje özelindeki kontrollü adaptasyonudur. Burada hiçbir paper'ı
+            birebir reproduce ettiğimizi iddia etmiyoruz; aynı kavramsal yönleri kendi datasetimiz, label scheme'imiz ve
+            evaluation kontratımız altında test ediyoruz.
+          </p>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Literatür Fikri</th>
+                <th>Bizdeki Karşılığı</th>
+                <th>Claim Sınırı</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>GCN tabanlı graph learning</td>
+                <td>Graph A/B/C GCN referansları ve GNN baseline çizgisi.</td>
+                <td>Kipf &amp; Welling çizgisine mimari olarak yakın; paper reproduction değil.</td>
+              </tr>
+              <tr>
+                <td>Graph Attention Networks</td>
+                <td>GAT ile komşu/kenar önemini öğrenme denemesi.</td>
+                <td>Graph A'da GAT zayıf kaldı; attention tek başına yeterli değil.</td>
+              </tr>
+              <tr>
+                <td>GATv2 dynamic attention</td>
+                <td>GATv2 ile daha esnek edge-aware attention denemeleri.</td>
+                <td>GATv2 ancak Graph C/context tarafında anlamlı rare-negative davranış verdi.</td>
+              </tr>
+              <tr>
+                <td>CRISPR graph/link prediction yaklaşımı</td>
+                <td>Guide-target ilişkisini graph üzerinde modelleme.</td>
+                <td>Off-target görevi, split, dataset ve metrikler literatürdeki çalışmalardan birebir aynı değil.</td>
+              </tr>
+              <tr>
+                <td>Epigenetic/chromatin context'in CRISPR etkisi</td>
+                <td>DNase, CTCF, H3K4me3, RRBS, DRIP, MNase ve nucleosome context feature'ları.</td>
+                <td>Model bu sinyalleri kullanıyor gibi görünüyor; biyolojik nedensellik kanıtlanmadı.</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="callout info">
+            <strong>Literatürle eşleşen ana fikir:</strong> CRISPR off-target etkisi yalnızca guide-target sequence
+            uyumuyla açıklanmayabilir; target bölgesinin kromatin/epigenetik durumu da model için bilgi taşıyabilir.
+            Sprint 7'nin Graph C ve family-aware encoder sonuçları bu fikri model davranışı düzeyinde destekliyor.
+          </div>
+        </section>
+
+        <section id="boundaries">
+          <h2>11. Claim Sınırları</h2>
+          <p>
+            Sprint 7 güçlü bir model-mechanism sprintidir; ama bazı şeyleri özellikle abartmamak gerekir.
+          </p>
+
+          <ul>
+            <li><span class="tag primary">Doğru claim</span> Family-aware target context encoding, Sprint 7'deki en umut verici GNN yönüdür.</li>
+            <li><span class="tag primary">Doğru claim</span> Graph C GATv2 rare-negative davranışı büyük ölçüde direct target context feature'larıyla ilişkilidir.</li>
+            <li><span class="tag control">Doğru claim</span> Experimental epigenetic feature'lar maskelenince modelin rare-negative davranışı çöküyor.</li>
+            <li><span class="tag warning">Dikkat</span> XGBoost F4 hâlâ AUPRC açısından authoritative bar olarak kalıyor.</li>
+            <li><span class="tag warning">Dikkat</span> MCC/specificity artışları threshold diagnostikleridir; AUPRC kazanımı gibi sunulmamalıdır.</li>
+            <li><span class="tag risk">Yanlış claim</span> "Attention biyolojik sebebi buldu" denemez.</li>
+            <li><span class="tag risk">Yanlış claim</span> "MNase kesin nedensel feature'dır" denemez.</li>
+            <li><span class="tag risk">Yanlış claim</span> "Graph C GATv2 bütün modellerden iyi" denemez.</li>
+          </ul>
+        </section>
+
+        <section id="summary">
+          <h2>12. Final Özet</h2>
+          <div class="summary-box">
+            Sprint 7'de GNN mimarisinin attention ve context bilgisinden nasıl faydalandığını sistematik olarak inceledik.
+            İlk deneylerde Graph A üzerinde GAT/GATv2, Sprint 6 GCN baseline'ını geçemedi; bu da attention'ın tek başına
+            yeterli olmadığını gösterdi. Graph B guide similarity ile AUPRC'de küçük kazanım sağladı ama rare-negative
+            tanımayı güçlendirmedi. Asıl kırılma Graph C'de geldi: target observation context ve edge-aware GATv2, AUPRC
+            lideri olmasa da nadir negatifleri çok daha iyi yakaladı. Sprint 7D ve 7E ablation'ları bu davranışın esas
+            olarak direct target context feature'larından, özellikle experimental epigenetic feature ailesinden geldiğini
+            gösterdi. Sprint 7F'de feature ailelerini ayrı işleyen family-aware encoder, GNN tarafındaki en güçlü sonucu
+            verdi: <code>S7F_R3</code> AUPRC <code>0.984945</code> ile en iyi Sprint 7 GNN ranking sonucunu, <code>S7F_R2</code>
+            ise MCC <code>0.603489</code> ve specificity <code>0.650888</code> ile en güçlü rare-negative operating point'i
+            sağladı. Yine de XGBoost F4, AUPRC <code>0.992522</code> ile ana referans barı olarak kaldı. Sprint 7'nin tez
+            açısından ana katkısı, "attention işe yarıyor mu?" sorusuna daha net bir cevap vermesidir: doğru graph semantics
+            ve doğru target context encoder ile işe yarıyor; ama bu sonuç model davranışı düzeyindedir, biyolojik nedensellik
+            veya nihai robustness kanıtı değildir.
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,894 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sprint 6 Raporu - Imbalance ve Loss Comparison</title>
+  <style>
+    :root {
+      --bg: #f6f8fb;
+      --paper: #ffffff;
+      --ink: #182230;
+      --muted: #667085;
+      --line: #d9e0ea;
+      --accent: #0f766e;
+      --accent-soft: #e5f5f2;
+      --blue: #1d4ed8;
+      --blue-soft: #e8f0ff;
+      --amber: #a15c07;
+      --amber-soft: #fff5df;
+      --red: #b42318;
+      --red-soft: #fff0ed;
+      --green: #147d4f;
+      --green-soft: #e7f7ef;
+      --slate: #26384f;
+      --slate-soft: #edf2f7;
+      --code-bg: #eef2f7;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.58;
+    }
+
+    a {
+      color: var(--blue);
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    .page {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 32px 24px 58px;
+    }
+
+    .hero {
+      border-radius: 8px;
+      padding: 38px;
+      color: #ffffff;
+      background:
+        linear-gradient(135deg, rgba(16, 42, 67, 0.98), rgba(15, 118, 110, 0.94)),
+        linear-gradient(45deg, #102a43, #0f766e);
+      box-shadow: 0 20px 44px rgba(16, 42, 67, 0.18);
+      margin-bottom: 24px;
+    }
+
+    .eyebrow {
+      margin: 0 0 12px;
+      font-size: 0.86rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.78);
+    }
+
+    h1 {
+      margin: 0;
+      max-width: 940px;
+      font-size: clamp(2rem, 4.2vw, 3.55rem);
+      line-height: 1.04;
+      letter-spacing: 0;
+    }
+
+    .hero p {
+      max-width: 940px;
+      margin: 18px 0 0;
+      color: rgba(255, 255, 255, 0.88);
+      font-size: 1.08rem;
+    }
+
+    .hero-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 24px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 32px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      color: #ffffff;
+      background: rgba(255, 255, 255, 0.14);
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      font-size: 0.88rem;
+      white-space: nowrap;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 278px minmax(0, 1fr);
+      gap: 24px;
+      align-items: start;
+    }
+
+    nav {
+      position: sticky;
+      top: 18px;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 18px;
+    }
+
+    nav h2 {
+      margin: 0 0 12px;
+      font-size: 1rem;
+    }
+
+    nav ol {
+      margin: 0;
+      padding-left: 18px;
+      color: var(--muted);
+    }
+
+    nav li {
+      margin: 8px 0;
+    }
+
+    section {
+      margin-bottom: 18px;
+      padding: 28px;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+    }
+
+    h2 {
+      margin: 0 0 16px;
+      font-size: 1.55rem;
+      line-height: 1.25;
+      letter-spacing: 0;
+    }
+
+    h3 {
+      margin: 24px 0 10px;
+      font-size: 1.08rem;
+      line-height: 1.3;
+      letter-spacing: 0;
+    }
+
+    p {
+      margin: 0 0 14px;
+    }
+
+    .lead {
+      color: #344054;
+      font-size: 1.06rem;
+    }
+
+    .callout {
+      margin: 18px 0;
+      padding: 16px 18px;
+      border-radius: 6px;
+      border-left: 5px solid var(--accent);
+      background: var(--accent-soft);
+    }
+
+    .callout.info {
+      border-left-color: var(--blue);
+      background: var(--blue-soft);
+    }
+
+    .callout.warning {
+      border-left-color: var(--amber);
+      background: var(--amber-soft);
+    }
+
+    .callout.risk {
+      border-left-color: var(--red);
+      background: var(--red-soft);
+    }
+
+    .callout.neutral {
+      border-left-color: var(--slate);
+      background: var(--slate-soft);
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+      margin: 20px 0 8px;
+    }
+
+    .stat {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 16px;
+      background: #fbfcfe;
+    }
+
+    .stat strong {
+      display: block;
+      font-size: 1.45rem;
+      line-height: 1.15;
+      color: var(--ink);
+    }
+
+    .stat span {
+      display: block;
+      margin-top: 6px;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      margin: 18px 0;
+    }
+
+    .card {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 18px;
+      background: #fbfcfe;
+    }
+
+    .card h3 {
+      margin-top: 0;
+    }
+
+    ul {
+      margin: 10px 0 16px;
+      padding-left: 20px;
+    }
+
+    li {
+      margin: 7px 0;
+    }
+
+    code,
+    pre {
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+    }
+
+    code {
+      padding: 2px 5px;
+      border-radius: 4px;
+      background: var(--code-bg);
+      color: #111827;
+      font-size: 0.92em;
+    }
+
+    pre {
+      overflow-x: auto;
+      margin: 16px 0;
+      padding: 16px;
+      border-radius: 8px;
+      background: #111827;
+      color: #e5e7eb;
+      font-size: 0.92rem;
+      line-height: 1.5;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0 8px;
+      font-size: 0.94rem;
+    }
+
+    th,
+    td {
+      padding: 11px 12px;
+      border: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background: #f1f5f9;
+      color: #233044;
+      font-weight: 700;
+    }
+
+    tr:nth-child(even) td {
+      background: #fbfcfe;
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      min-height: 26px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      font-size: 0.82rem;
+      font-weight: 650;
+      background: var(--slate-soft);
+      color: var(--slate);
+      white-space: nowrap;
+    }
+
+    .tag.primary {
+      background: var(--accent-soft);
+      color: var(--accent);
+    }
+
+    .tag.control {
+      background: var(--blue-soft);
+      color: var(--blue);
+    }
+
+    .tag.warning {
+      background: var(--amber-soft);
+      color: var(--amber);
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+      margin: 16px 0;
+    }
+
+    .definition {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 15px;
+      background: #fbfcfe;
+    }
+
+    .definition strong {
+      display: block;
+      margin-bottom: 6px;
+      color: #111827;
+    }
+
+    .summary-box {
+      border: 1px solid #b7dfd8;
+      border-radius: 8px;
+      padding: 20px;
+      background: #f0fbf8;
+      font-size: 1.02rem;
+    }
+
+    .small {
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    @media (max-width: 920px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+
+      nav {
+        position: static;
+      }
+
+      .stats,
+      .cards,
+      .two-col {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .page {
+        padding: 20px 14px 40px;
+      }
+
+      .hero,
+      section {
+        padding: 22px;
+      }
+
+      table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header class="hero">
+      <p class="eyebrow">CRISPR-GNN Tez Raporu - Sprint 6</p>
+      <h1>Imbalance, Loss Function ve Rare-Negative Analizi</h1>
+      <p>
+        Sprint 6'da Sprint 5'in en iyi GCN ayarı olan Graph A + S5F2_energy sabit tutuldu.
+        Yalnızca loss function ve training-time sampling değiştirildi. Amaç, negatif sınıfı kaçırma
+        ve threshold collapse probleminin loss/sampling ile çözülüp çözülemeyeceğini test etmekti.
+      </p>
+      <div class="hero-meta">
+        <span class="pill">Sabit model: Graph A + S5F2_energy</span>
+        <span class="pill">Değişen eksen: loss/sampling</span>
+        <span class="pill">Rare class: negative</span>
+        <span class="pill">En iyi run: S6R0_wbce</span>
+      </div>
+    </header>
+
+    <div class="layout">
+      <nav aria-label="İçindekiler">
+        <h2>İçindekiler</h2>
+        <ol>
+          <li><a href="#big-picture">Sprint 6 Nedir?</a></li>
+          <li><a href="#imbalance">Imbalance Problemi</a></li>
+          <li><a href="#contract">Sabit Kontrat</a></li>
+          <li><a href="#runs">Alt Deneyler</a></li>
+          <li><a href="#results">Sonuçlar</a></li>
+          <li><a href="#architecture">Mimari Caveat</a></li>
+          <li><a href="#literature">Literatürle İlişki</a></li>
+          <li><a href="#handoff">Sonraki Sprintlere Devir</a></li>
+          <li><a href="#summary">Final Özet</a></li>
+        </ol>
+      </nav>
+
+      <main>
+        <section id="big-picture">
+          <h2>1. Sprint 6 Nedir?</h2>
+          <p class="lead">
+            Sprint 6, loss function ve training-time sampling karşılaştırmasıdır. Burada yeni graph, yeni feature set
+            veya yeni architecture denemedik; yalnızca modelin nasıl cezalandırıldığını ve training örneklerinin nasıl
+            dengelendiğini değiştirdik.
+          </p>
+
+          <div class="callout">
+            <strong>En basit anlatım:</strong> Sprint 5'te en iyi GCN feature setini bulduk: <code>S5F2_energy</code>.
+            Sprint 6'da bu ayarı dondurduk ve "model negatifleri kaçırıyorsa loss'u değiştirerek bunu düzeltebilir miyiz?"
+            sorusunu test ettik.
+          </div>
+
+          <h3>Bu sprintte ne aradık?</h3>
+          <ul>
+            <li>Weighted BCE gerçekten en iyi başlangıç loss'u mu?</li>
+            <li>Unweighted BCE class weighting etkisini kaldırınca performans ne oluyor?</li>
+            <li>Focal loss zor/yanlış sınıflanan örneklere odaklanarak rare negative tanımayı iyileştiriyor mu?</li>
+            <li>Dice ve Tversky gibi imbalance loss'ları negatif sınıfı kurtarabiliyor mu?</li>
+            <li>Measured-only balanced sampling, AUPRC veya MCC'yi artırıyor mu?</li>
+            <li>Threshold collapse problemi loss kaynaklı mı, yoksa mimari/feature kullanım biçimiyle mi ilgili?</li>
+          </ul>
+
+          <div class="stats">
+            <div class="stat">
+              <strong>8</strong>
+              <span>Predeclared headline loss/sampling run</span>
+            </div>
+            <div class="stat">
+              <strong>0.976935</strong>
+              <span>En iyi Sprint 6 GCN test AUPRC</span>
+            </div>
+            <div class="stat">
+              <strong>0.483719</strong>
+              <span>Weighted BCE test MCC</span>
+            </div>
+            <div class="stat">
+              <strong>0.900705</strong>
+              <span>Test positive prevalence</span>
+            </div>
+          </div>
+        </section>
+
+        <section id="imbalance">
+          <h2>2. Imbalance Problemi Nedir?</h2>
+          <p>
+            Sprint 6'yı anlamak için dataset dengesizliğinin yönünü doğru anlamak gerekir. Genel CRISPR off-target
+            literatüründe çoğu zaman pozitifler nadirdir. Bizim measured-only headline evrenimizde ise test setinin
+            yaklaşık %90'ı pozitiftir; yani nadir sınıf negatiftir.
+          </p>
+
+          <pre>Measured-only test evreni:
+pozitif oranı ≈ 0.900705
+negatif oranı ≈ 0.099295
+
+Bu sprintte rare class = negative</pre>
+
+          <div class="callout warning">
+            <strong>Neden önemli?</strong> Literatürdeki pozitif-oversampling veya rare-positive loss reçetelerini aynen
+            kopyalarsak yanlış yönde ağırlık verebiliriz. Bizde amaç pozitifleri kurtarmak değil; false positive'i azaltıp
+            nadir negatifleri daha iyi tanımaktır.
+          </div>
+
+          <div class="two-col">
+            <div class="definition">
+              <strong>False positive</strong>
+              Gerçekte negatif olan bir guide-target çiftini pozitif tahmin etmek. Sprint 6'nın ana eşik problemi budur.
+            </div>
+            <div class="definition">
+              <strong>Specificity / TNR</strong>
+              Negatifleri doğru yakalama oranıdır. Nadir negatif sınıfı izlemek için kritik secondary metriktir.
+            </div>
+            <div class="definition">
+              <strong>MCC</strong>
+              Dengesiz sınıflarda threshold-selected classification dengesini daha iyi gösteren secondary metriktir.
+            </div>
+            <div class="definition">
+              <strong>AUPRC</strong>
+              Primary metric olarak kalır. MCC veya specificity artışı, AUPRC artışı gibi sunulmamalıdır.
+            </div>
+          </div>
+        </section>
+
+        <section id="contract">
+          <h2>3. Sabit Kontrat</h2>
+          <p>
+            Sprint 6'nın bilimsel temizliği, yalnızca loss/sampling ekseninin değişmesinden gelir. Graph, feature, model ve split
+            sabit tutuldu; böylece performans farkı objective seçimine bağlanabilir.
+          </p>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Axis</th>
+                <th>Sabit değer</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Graph schema</td>
+                <td><code>graph_a_minimal_physical_target</code></td>
+              </tr>
+              <tr>
+                <td>Feature set</td>
+                <td><code>S5F2_energy</code>, 268 candidate-edge feature column</td>
+              </tr>
+              <tr>
+                <td>Model</td>
+                <td><code>GraphAEdgeGCN</code>, 2-layer GCNConv, hidden 128, LayerNorm+ReLU, dropout 0.2</td>
+              </tr>
+              <tr>
+                <td>Optimizer/scheduler</td>
+                <td>AdamW, ReduceLROnPlateau on validation AUPRC, grad clip 1.0</td>
+              </tr>
+              <tr>
+                <td>Seed/split</td>
+                <td>Seed 42, <code>sprint2_main_seed42</code></td>
+              </tr>
+              <tr>
+                <td>Evaluation universe</td>
+                <td>Measured-only, <code>experiment_id=18</code> excluded, no <code>measured=0</code> headline rows</td>
+              </tr>
+              <tr>
+                <td>Selection policy</td>
+                <td>Checkpoint validation AUPRC; threshold validation max-F1; no test tuning</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="callout info">
+            <strong>Kontrollü değişken:</strong> Sprint 6'da sadece loss function veya measured-only training-time sampling değişti.
+          </div>
+        </section>
+
+        <section id="runs">
+          <h2>4. Alt Deneyler</h2>
+          <p>
+            Sprint 6'daki tüm headline run'lar önceden belirlendi. Bu sayede test sonucuna bakarak loss seçme veya
+            hyperparameter ayarlama yapılmadı.
+          </p>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Run ID</th>
+                <th>Objective</th>
+                <th>Parametre</th>
+                <th>Test edilen soru</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>S6R0_wbce</code></td>
+                <td>Weighted BCE</td>
+                <td><code>pos_weight=auto</code></td>
+                <td>Sprint 5 baseline'ı aynı harness içinde tekrar güçlü mü?</td>
+              </tr>
+              <tr>
+                <td><code>S6R1_bce_unw</code></td>
+                <td>Unweighted BCE</td>
+                <td><code>pos_weight=1.0</code></td>
+                <td>Class weighting kaldırılınca ne olur?</td>
+              </tr>
+              <tr>
+                <td><code>S6R2_focal_g2_a25</code></td>
+                <td>Focal loss</td>
+                <td>gamma=2.0, alpha=0.25</td>
+                <td>Hard examples'a odaklanmak nadir negatifleri kurtarır mı?</td>
+              </tr>
+              <tr>
+                <td><code>S6R3_focal_g1_a25</code></td>
+                <td>Focal loss</td>
+                <td>gamma=1.0, alpha=0.25</td>
+                <td>Daha hafif focusing etkisi daha stabil mi?</td>
+              </tr>
+              <tr>
+                <td><code>S6R4_focal_g2_a50</code></td>
+                <td>Focal loss</td>
+                <td>gamma=2.0, alpha=0.50</td>
+                <td>Class alpha etkisini nötrleyince ne olur?</td>
+              </tr>
+              <tr>
+                <td><code>S6R5_dice</code></td>
+                <td>Generalized Dice</td>
+                <td>inverse-volume weights, epsilon=1.0</td>
+                <td>Overlap-based imbalance loss çalışır mı?</td>
+              </tr>
+              <tr>
+                <td><code>S6R6_tversky_a70_b30</code></td>
+                <td>Tversky</td>
+                <td>alpha=0.70, beta=0.30</td>
+                <td>FP'yi daha fazla cezalandırmak specificity'yi artırır mı?</td>
+              </tr>
+              <tr>
+                <td><code>S6R7_balanced_sampling</code></td>
+                <td>Balanced sampling + unweighted BCE</td>
+                <td>measured-only 1:1 train subsampling</td>
+                <td>Training distribution'ı dengelemek loss değiştirmeden fayda sağlar mı?</td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+
+        <section id="results">
+          <h2>5. Sonuçlar</h2>
+          <p>
+            Sprint 6'nın ana sonucu açıktır: hiçbir predeclared loss veya sampling yöntemi, primary metric olan AUPRC'de
+            weighted BCE baseline'ını geçemedi.
+          </p>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Run</th>
+                <th>Loss / sampling</th>
+                <th>Test AUPRC</th>
+                <th>AUROC</th>
+                <th>Macro F1</th>
+                <th>MCC</th>
+                <th>Specificity</th>
+                <th>TN/FP/FN/TP</th>
+                <th>Δ AUPRC vs S6R0</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>S6R0</code></td>
+                <td>Weighted BCE</td>
+                <td>0.976935</td>
+                <td>0.819972</td>
+                <td>0.698939</td>
+                <td>0.483719</td>
+                <td>0.289941</td>
+                <td>49/120/6/1527</td>
+                <td>0.000000</td>
+              </tr>
+              <tr>
+                <td><code>S6R1</code></td>
+                <td>Unweighted BCE</td>
+                <td>0.949280</td>
+                <td>0.685090</td>
+                <td>0.550154</td>
+                <td>0.234557</td>
+                <td>0.082840</td>
+                <td>14/155/4/1529</td>
+                <td>-0.027655</td>
+              </tr>
+              <tr>
+                <td><code>S6R2</code></td>
+                <td>Focal gamma=2 alpha=0.25</td>
+                <td>0.963497</td>
+                <td>0.805436</td>
+                <td>0.525318</td>
+                <td>0.205834</td>
+                <td>0.053254</td>
+                <td>9/160/1/1532</td>
+                <td>-0.013439</td>
+              </tr>
+              <tr>
+                <td><code>S6R3</code></td>
+                <td>Focal gamma=1 alpha=0.25</td>
+                <td>0.962372</td>
+                <td>0.795308</td>
+                <td>0.508688</td>
+                <td>0.162851</td>
+                <td>0.035503</td>
+                <td>6/163/1/1532</td>
+                <td>-0.014563</td>
+              </tr>
+              <tr>
+                <td><code>S6R4</code></td>
+                <td>Focal gamma=2 alpha=0.50</td>
+                <td>0.956803</td>
+                <td>0.773731</td>
+                <td>0.508688</td>
+                <td>0.162851</td>
+                <td>0.035503</td>
+                <td>6/163/1/1532</td>
+                <td>-0.020132</td>
+              </tr>
+              <tr>
+                <td><code>S6R5</code></td>
+                <td>Generalized Dice</td>
+                <td>0.871174</td>
+                <td>0.382662</td>
+                <td>0.473879</td>
+                <td>0.000000</td>
+                <td>0.000000</td>
+                <td>0/169/0/1533</td>
+                <td>-0.105762</td>
+              </tr>
+              <tr>
+                <td><code>S6R6</code></td>
+                <td>Tversky alpha=0.70 beta=0.30</td>
+                <td>0.955804</td>
+                <td>0.710071</td>
+                <td>0.551863</td>
+                <td>0.262978</td>
+                <td>0.082840</td>
+                <td>14/155/1/1532</td>
+                <td>-0.021132</td>
+              </tr>
+              <tr>
+                <td><code>S6R7</code></td>
+                <td>Balanced sampling</td>
+                <td>0.976205</td>
+                <td>0.815167</td>
+                <td>0.673742</td>
+                <td>0.447602</td>
+                <td>0.248521</td>
+                <td>42/127/5/1528</td>
+                <td>-0.000731</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="callout">
+            <strong>Ana bulgu:</strong> Weighted BCE hem en iyi AUPRC'yi verdi hem de negatif sınıf tanıma açısından
+            en güçlü sonucu üretti: <code>TN=49</code>, <code>specificity=0.289941</code>, <code>MCC=0.483719</code>.
+          </div>
+
+          <h3>Ne anlama geliyor?</h3>
+          <ul>
+            <li>Unweighted BCE, weighting'in faydalı olduğunu gösterdi; AUPRC ve MCC belirgin düştü.</li>
+            <li>Focal loss, literatürde güçlü bir aday olmasına rağmen bu measured-only/inverted imbalance setup'ta weighted BCE'yi geçemedi.</li>
+            <li>Tversky FP'yi daha fazla cezalandıracak şekilde ayarlandı ama specificity'yi yeterince yükseltmedi.</li>
+            <li>Generalized Dice açık şekilde başarısız oldu; AUPRC positive-prevalence floor'un altına indi ve TN=0 oldu.</li>
+            <li>Balanced sampling weighted BCE'ye çok yaklaştı ama onu geçmedi; ayrıca minority negative pool küçük olduğu için overfitting riski taşıyor.</li>
+          </ul>
+        </section>
+
+        <section id="architecture">
+          <h2>6. Mimari Caveat</h2>
+          <p>
+            Sprint 6'nın en önemli yorumu sadece "weighted BCE en iyi çıktı" değildir. Daha derin sonuç şudur:
+            loss değiştirmek rare-negative problemini tek başına çözmedi. Bu da mimari tarafında bir sınıra işaret ediyor.
+          </p>
+
+          <pre>Current GraphAEdgeGCN:
+GCN message passing = sgRNA node + featureless target type
+S5F2_energy = final edge classifier aşamasında concatenation
+
+Yani energy feature'ları message passing içine doğrudan girmiyor.</pre>
+
+          <div class="callout warning">
+            <strong>Yorum sınırı:</strong> Threshold collapse veya negatif sınıfı kaçırma davranışı yalnızca loss'a bağlanamaz.
+            Çünkü güçlü candidate-edge feature'ları GCNConv message passing içinde kullanılmıyor; sadece son edge classifier'da görülüyor.
+          </div>
+
+          <p>
+            Bu nedenle Sprint 6, Sprint 7 için doğrudan motivasyon oluşturdu: edge-aware attention veya GAT/GATv2 gibi
+            candidate-edge feature'larını message passing ve attention mekanizmasına daha iyi dahil eden mimariler denenmeliydi.
+          </p>
+        </section>
+
+        <section id="literature">
+          <h2>7. Literatürle Eşleşmesi</h2>
+          <p>
+            Sprint 6, imbalance ve cost-sensitive learning literatüründen motive oldu. Ancak bu literatür birebir kopyalanmadı;
+            çünkü bizim headline measured-only evrenimizde sınıf dengesizliği yönü ters: nadir sınıf negatif.
+          </p>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Literatür / yöntem</th>
+                <th>Genel fikir</th>
+                <th>Sprint 6 adaptasyonu</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Lin et al. 2017 - Focal loss</td>
+                <td>Kolay örneklerin etkisini azaltıp hard/misclassified örneklere odaklanır.</td>
+                <td>Gamma ve alpha predeclared seçildi; alpha yönü nadir negatif sınıfı down-weight etmeyecek şekilde yorumlandı.</td>
+              </tr>
+              <tr>
+                <td>Guan 2024 CRISPR imbalance</td>
+                <td>CRISPR off-target modellerinde focal/cost-sensitive yöntemleri güçlü aday olarak tartışır.</td>
+                <td>Focal loss test edildi ama bizim measured-only ters imbalance setup'ımızda weighted BCE'yi geçmedi.</td>
+              </tr>
+              <tr>
+                <td>Sudre 2017 - Generalized Dice</td>
+                <td>Overlap-based loss, class imbalance için kullanılabilir.</td>
+                <td>Inverse-volume weighted generalized Dice denendi; pozitif-heavy setup'ta collapse etti.</td>
+              </tr>
+              <tr>
+                <td>Salehi 2017 - Tversky</td>
+                <td>FP/FN trade-off'u alpha ve beta ile ayarlanır.</td>
+                <td>Bizde rare class negatif olduğu için FP'yi daha fazla cezalandıran alpha=0.70, beta=0.30 seçildi.</td>
+              </tr>
+              <tr>
+                <td>Gao 2020 / genel sampling literatürü</td>
+                <td>Sampling imbalance durumlarında yardımcı olabilir ama küçük minority pool overfitting riski taşır.</td>
+                <td>Measured-only balanced sampling secondary run olarak test edildi; weighted BCE'ye yaklaştı ama geçmedi.</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="callout info">
+            <strong>Sunum cümlesi:</strong> Sprint 6, literatürdeki imbalance loss'larını bizim sınıf yapımıza adapte ederek
+            test eder. Bu bir Gao/Guan/Mak reproduksiyonu değildir; aynı guide-level, measured-only GCN kontratında loss/sampling
+            eksenini izole eden kontrollü bir karşılaştırmadır.
+          </div>
+        </section>
+
+        <section id="handoff">
+          <h2>8. Sonraki Sprintlere Devir</h2>
+          <p>
+            Sprint 6 sonunda şu karar netleşti: loss/sampling değişikliği, mevcut GCN mimarisinin sınırlarını aşmaya yetmedi.
+            Bu yüzden sonraki mantıklı eksen mimariydi.
+          </p>
+
+          <h3>Kesin söyleyebileceklerimiz</h3>
+          <ul>
+            <li>Weighted BCE, Sprint 6 headline run'ları içinde en iyi primary AUPRC sonucunu verdi.</li>
+            <li>Weighted BCE aynı zamanda en iyi negatif sınıf tanıma profilini verdi.</li>
+            <li>Balanced sampling çok yakın geldi ama AUPRC'de weighted BCE'yi geçmedi.</li>
+            <li>Focal, Tversky ve Dice bu setup'ta beklenen iyileştirmeyi sağlamadı.</li>
+            <li>XGBoost F4 hâlâ primary AUPRC açısından en güçlü baseline olarak kaldı.</li>
+          </ul>
+
+          <h3>Söylemememiz gerekenler</h3>
+          <ul>
+            <li>"Focal loss genel olarak kötü" denmez; sadece bu setup'ta weighted BCE'yi geçmedi.</li>
+            <li>"Dice/Tversky literatürü yanlış" denmez; bizim class direction ve measured-only evren farklıdır.</li>
+            <li>"Problem tamamen loss kaynaklıdır" denmez; sonuçlar tam tersine mimari/feature kullanım sınırına işaret eder.</li>
+            <li>"GCN XGBoost'u geçti" denmez; XGBoost F4 AUPRC <code>0.992522</code> ile hâlâ üsttedir.</li>
+          </ul>
+
+          <div class="callout risk">
+            <strong>Sprint 7 motivasyonu:</strong> Edge feature'lar GCN message passing içine girmediği için, sonraki sprintte
+            GAT/GATv2 gibi edge-aware veya attention tabanlı mimarileri denemek bilimsel olarak gerekli hale geldi.
+          </div>
+        </section>
+
+        <section id="summary">
+          <h2>9. Final Özet</h2>
+          <div class="summary-box">
+            Sprint 6'da, Sprint 5'te en iyi çıkan <code>Graph A + S5F2_energy</code> ayarı tamamen sabit tutuldu ve yalnızca
+            loss function veya measured-only training-time sampling değiştirildi. Amaç, pozitif oranı yaklaşık %90 olan headline
+            measured-only evrende nadir negatif sınıfı kaçırma probleminin objective değişikliğiyle çözülüp çözülemeyeceğini test etmekti.
+            Önceden belirlenmiş sekiz run arasında weighted BCE en iyi test AUPRC'yi (<code>0.976935</code>) ve en güçlü negatif sınıf
+            tanıma profilini verdi; balanced sampling çok yakın kaldı fakat geçemedi, focal ve Tversky geride kaldı, generalized Dice ise
+            positive-prevalence floor'un altına düşerek çöktü. Bu sonuçlar, threshold collapse probleminin yalnızca loss seçimiyle
+            açıklanamayacağını gösterdi. Mevcut <code>GraphAEdgeGCN</code> mimarisinde <code>S5F2_energy</code> gibi güçlü candidate-edge
+            feature'ları GCN message passing içine değil, final edge classifier'a girdiği için residual problem mimari/feature-interaction
+            sınırına işaret etti. Bu nedenle Sprint 6, Sprint 7'de edge-aware attention ve GAT/GATv2 modellerini denemek için doğrudan
+            bilimsel gerekçe oluşturdu; XGBoost F4 ise primary AUPRC açısından hâlâ en güçlü baseline olarak kaldı.
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+</body>
+</html>
