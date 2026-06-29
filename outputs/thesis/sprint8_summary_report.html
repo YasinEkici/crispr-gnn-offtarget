@@ -1,0 +1,954 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sprint 8 Raporu - Target Context, FiLM ve Sequence Fusion</title>
+  <style>
+    :root {
+      --bg: #f6f8fb;
+      --paper: #ffffff;
+      --ink: #182230;
+      --muted: #667085;
+      --line: #d9e0ea;
+      --accent: #0f766e;
+      --accent-soft: #e5f5f2;
+      --blue: #1d4ed8;
+      --blue-soft: #e8f0ff;
+      --amber: #a15c07;
+      --amber-soft: #fff5df;
+      --red: #b42318;
+      --red-soft: #fff0ed;
+      --green: #147d4f;
+      --green-soft: #e7f7ef;
+      --slate: #26384f;
+      --slate-soft: #edf2f7;
+      --code-bg: #eef2f7;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.58;
+    }
+
+    a {
+      color: var(--blue);
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    .page {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 32px 24px 58px;
+    }
+
+    .hero {
+      border-radius: 8px;
+      padding: 38px;
+      color: #ffffff;
+      background:
+        linear-gradient(135deg, rgba(16, 42, 67, 0.98), rgba(15, 118, 110, 0.94)),
+        linear-gradient(45deg, #102a43, #0f766e);
+      box-shadow: 0 20px 44px rgba(16, 42, 67, 0.18);
+      margin-bottom: 24px;
+    }
+
+    .eyebrow {
+      margin: 0 0 12px;
+      font-size: 0.86rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.78);
+    }
+
+    h1 {
+      margin: 0;
+      max-width: 980px;
+      font-size: clamp(2rem, 4.2vw, 3.55rem);
+      line-height: 1.04;
+      letter-spacing: 0;
+    }
+
+    .hero p {
+      max-width: 960px;
+      margin: 18px 0 0;
+      color: rgba(255, 255, 255, 0.88);
+      font-size: 1.08rem;
+    }
+
+    .hero-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 24px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 32px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      color: #ffffff;
+      background: rgba(255, 255, 255, 0.14);
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      font-size: 0.88rem;
+      white-space: nowrap;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 286px minmax(0, 1fr);
+      gap: 24px;
+      align-items: start;
+    }
+
+    nav {
+      position: sticky;
+      top: 18px;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 18px;
+    }
+
+    nav h2 {
+      margin: 0 0 12px;
+      font-size: 1rem;
+    }
+
+    nav ol {
+      margin: 0;
+      padding-left: 18px;
+      color: var(--muted);
+    }
+
+    nav li {
+      margin: 8px 0;
+    }
+
+    section {
+      margin-bottom: 18px;
+      padding: 28px;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+    }
+
+    h2 {
+      margin: 0 0 16px;
+      font-size: 1.55rem;
+      line-height: 1.25;
+      letter-spacing: 0;
+    }
+
+    h3 {
+      margin: 24px 0 10px;
+      font-size: 1.08rem;
+      line-height: 1.3;
+      letter-spacing: 0;
+    }
+
+    p {
+      margin: 0 0 14px;
+    }
+
+    .lead {
+      color: #344054;
+      font-size: 1.06rem;
+    }
+
+    .callout {
+      margin: 18px 0;
+      padding: 16px 18px;
+      border-radius: 6px;
+      border-left: 5px solid var(--accent);
+      background: var(--accent-soft);
+    }
+
+    .callout.info {
+      border-left-color: var(--blue);
+      background: var(--blue-soft);
+    }
+
+    .callout.warning {
+      border-left-color: var(--amber);
+      background: var(--amber-soft);
+    }
+
+    .callout.risk {
+      border-left-color: var(--red);
+      background: var(--red-soft);
+    }
+
+    .callout.neutral {
+      border-left-color: var(--slate);
+      background: var(--slate-soft);
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+      margin: 20px 0 8px;
+    }
+
+    .stat {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 16px;
+      background: #fbfcfe;
+    }
+
+    .stat strong {
+      display: block;
+      font-size: 1.45rem;
+      line-height: 1.15;
+      color: var(--ink);
+    }
+
+    .stat span {
+      display: block;
+      margin-top: 6px;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      margin: 18px 0;
+    }
+
+    .card {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 18px;
+      background: #fbfcfe;
+    }
+
+    .card h3 {
+      margin-top: 0;
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+      margin: 16px 0;
+    }
+
+    .definition {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 15px;
+      background: #fbfcfe;
+    }
+
+    .definition strong {
+      display: block;
+      margin-bottom: 6px;
+      color: #111827;
+    }
+
+    ul {
+      margin: 10px 0 16px;
+      padding-left: 20px;
+    }
+
+    li {
+      margin: 7px 0;
+    }
+
+    code,
+    pre {
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+    }
+
+    code {
+      padding: 2px 5px;
+      border-radius: 4px;
+      background: var(--code-bg);
+      color: #111827;
+      font-size: 0.92em;
+    }
+
+    pre {
+      overflow-x: auto;
+      margin: 16px 0;
+      padding: 16px;
+      border-radius: 8px;
+      background: #111827;
+      color: #e5e7eb;
+      font-size: 0.92rem;
+      line-height: 1.5;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0 8px;
+      font-size: 0.94rem;
+    }
+
+    th,
+    td {
+      padding: 11px 12px;
+      border: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background: #f1f5f9;
+      color: #233044;
+      font-weight: 700;
+    }
+
+    tr:nth-child(even) td {
+      background: #fbfcfe;
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      min-height: 26px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      font-size: 0.82rem;
+      font-weight: 650;
+      background: var(--slate-soft);
+      color: var(--slate);
+      white-space: nowrap;
+    }
+
+    .tag.primary {
+      background: var(--accent-soft);
+      color: var(--accent);
+    }
+
+    .tag.control {
+      background: var(--blue-soft);
+      color: var(--blue);
+    }
+
+    .tag.warning {
+      background: var(--amber-soft);
+      color: var(--amber);
+    }
+
+    .tag.risk {
+      background: var(--red-soft);
+      color: var(--red);
+    }
+
+    .small {
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .summary-box {
+      border: 1px solid #b7dfd8;
+      border-radius: 8px;
+      padding: 20px;
+      background: #f0fbf8;
+      font-size: 1.02rem;
+    }
+
+    @media (max-width: 920px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+
+      nav {
+        position: static;
+      }
+
+      .stats,
+      .cards,
+      .two-col {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .page {
+        padding: 20px 14px 40px;
+      }
+
+      .hero,
+      section {
+        padding: 22px;
+      }
+
+      table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header class="hero">
+      <p class="eyebrow">CRISPR-GNN Tez Raporu - Sprint 8</p>
+      <h1>Target Context, Context-Edge FiLM ve Sequence Fusion Analizi</h1>
+      <p>
+        Sprint 8, Graph C GATv2 çizgisini büyütmek için yapılan açık uçlu bir arama değildir. Bu sprintte amaç,
+        Sprint 7F ile güçlenen target-observation context temsilini iki kontrollü yönden sınamaktır: önce context ile
+        candidate-edge energy sinyali daha bilinçli etkileştirildi, sonra sequence bilgisi bu context-aware yapıya
+        kontrollü bir late-fusion dalı olarak eklendi.
+      </p>
+      <div class="hero-meta">
+        <span class="pill">8A: context-edge interaction</span>
+        <span class="pill">8B: sequence/context fusion</span>
+        <span class="pill">En iyi GNN AUPRC: 0.986020</span>
+        <span class="pill">XGBoost F4 barı: 0.992522</span>
+      </div>
+    </header>
+
+    <div class="layout">
+      <nav aria-label="İçindekiler">
+        <h2>İçindekiler</h2>
+        <ol>
+          <li><a href="#big-picture">Sprint 8 Nedir?</a></li>
+          <li><a href="#contract">Sabit Kontrat</a></li>
+          <li><a href="#concepts">Kavramlar</a></li>
+          <li><a href="#s8a">Sprint 8A</a></li>
+          <li><a href="#s8a-results">8A Sonuçları</a></li>
+          <li><a href="#s8b">Sprint 8B</a></li>
+          <li><a href="#s8b-results">8B Sonuçları</a></li>
+          <li><a href="#findings">Ana Bulgular</a></li>
+          <li><a href="#literature">Literatürle İlişki</a></li>
+          <li><a href="#boundaries">Claim Sınırları</a></li>
+          <li><a href="#summary">Final Özet</a></li>
+        </ol>
+      </nav>
+
+      <main>
+        <section id="big-picture">
+          <h2>1. Sprint 8 Nedir?</h2>
+          <p class="lead">
+            Sprint 8, önceki sprintlerde bulunan en umut verici GNN yönünü yani Graph C GATv2 target-context modelini
+            geliştirme sprintidir. Burada aranan şey yeni bir label, yeni bir split veya daha gevşek bir değerlendirme
+            değil; aynı sabit kontrat altında modelin context, energy ve sequence bilgisini daha iyi birleştirip
+            birleştiremediğidir.
+          </p>
+
+          <div class="callout">
+            <strong>En basit anlatım:</strong> Sprint 7 sonunda modelin target bölgesinin epigenetik/kromatin bağlamından
+            faydalandığı görüldü. Sprint 8'de bu bağlam bilgisini iki yönden sınadık: 8A'da bağlam ile energy edge
+            sinyalini etkileştirdik; 8B'de sequence bilgisini bu bağlam modeline ekledik.
+          </div>
+
+          <div class="stats">
+            <div class="stat">
+              <strong>2</strong>
+              <span>Ana parça: Sprint 8A ve Sprint 8B</span>
+            </div>
+            <div class="stat">
+              <strong>5</strong>
+              <span>8A canonical run: R0-R4</span>
+            </div>
+            <div class="stat">
+              <strong>3</strong>
+              <span>8B run: R0 reference, R1 sequence-only, R2 sequence+context</span>
+            </div>
+            <div class="stat">
+              <strong>0.986020</strong>
+              <span>En yüksek single-seed Sprint 8 GNN AUPRC</span>
+            </div>
+          </div>
+
+          <h3>Bu sprintte ne arandı?</h3>
+          <ul>
+            <li>Target context ile <code>S5F2_energy</code> edge feature'ları classifier head içinde daha iyi etkileşebilir mi?</li>
+            <li>Feature aileleri için learned gate eklemek fayda sağlar mı?</li>
+            <li>Experimental epigenetic branch daha fazla regularize edilirse model daha güvenilir olur mu?</li>
+            <li>Sequence-only bir Conv+BiLSTM encoder, bu benchmark'ta kendi başına sinyal taşıyabilir mi?</li>
+            <li>Sequence embedding, context-aware Graph C GATv2 modele eklendiğinde ek değer sağlar mı?</li>
+            <li>Bu kazanımlar XGBoost F4 AUPRC barını geçecek kadar güçlü mü?</li>
+          </ul>
+        </section>
+
+        <section id="contract">
+          <h2>2. Sabit Deney Kontratı</h2>
+          <p>
+            Sprint 8'in güvenilirliği, model dışında kalan kararların değiştirilmemesinden gelir. Label, split, evaluation
+            universe, checkpoint selection ve threshold policy Sprint 7F çizgisinden aynen devralındı.
+          </p>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Alan</th>
+                <th>Sabit Karar</th>
+                <th>Neden Önemli?</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Label</td>
+                <td><code>Scheme A = cleavage_freq &gt; 1e-5</code></td>
+                <td>Pozitif/negatif tanımı değiştirilmedi.</td>
+              </tr>
+              <tr>
+                <td>Split</td>
+                <td><code>sprint2_main_seed42</code>, guide-disjoint</td>
+                <td>Guide leakage engellendi.</td>
+              </tr>
+              <tr>
+                <td>Headline evren</td>
+                <td>Measured-only, <code>experiment_id=18</code> hariç</td>
+                <td>Putative satırlar test ground truth yapılmadı.</td>
+              </tr>
+              <tr>
+                <td>Graph</td>
+                <td>Graph C target-observation schema</td>
+                <td>Target context temsilinin korunması sağlandı.</td>
+              </tr>
+              <tr>
+                <td>Loss</td>
+                <td>Weighted BCE, <code>pos_weight:auto</code></td>
+                <td>Loss değişimi ile mimari etkisi karıştırılmadı.</td>
+              </tr>
+              <tr>
+                <td>Selection</td>
+                <td>Checkpoint validation AUPRC; threshold validation max-F1</td>
+                <td>Test seti üzerinden model veya eşik seçilmedi.</td>
+              </tr>
+              <tr>
+                <td>Primary metric</td>
+                <td>AUPRC</td>
+                <td>MCC ve specificity önemli ama secondary threshold diagnostics olarak kaldı.</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="callout warning">
+            <strong>Kritik sınır:</strong> Sprint 8 sonuçları single-seed ve validation-selected sonuçlardır. Robust
+            superiority iddiası bu sprintte değil, Sprint 9 robustness analizinde sınanmıştır.
+          </div>
+        </section>
+
+        <section id="concepts">
+          <h2>3. Sprint 8 Kavramları</h2>
+          <p>
+            Sprint 8'deki kavramlar ilk bakışta mimari ayrıntı gibi görünür. Ancak tez anlatısında bunları modelin farklı
+            bilgi kaynaklarını nasıl birleştirdiğini gösteren kontrollü deneyler olarak okumak daha doğrudur.
+          </p>
+
+          <div class="two-col">
+            <div class="definition">
+              <strong>Target-observation context</strong>
+              Graph C'de target tarafının fiziksel koordinat olarak değil, her satırdaki bağlamıyla birlikte observation
+              node olarak temsil edilmesidir.
+            </div>
+            <div class="definition">
+              <strong>Family-aware encoder</strong>
+              Target sequence, experimental epigenetic, computed nucleosome aggregate ve missingness ailelerini ayrı
+              dallarda işleyen target-context encoder yapısıdır.
+            </div>
+            <div class="definition">
+              <strong>S5F2_energy</strong>
+              Candidate edge üzerinde taşınan binding-energy ağırlıklı feature setidir. Sprint 5 ve 6'da güçlü edge-level
+              sinyal verdiği için Sprint 8'de interaction denemelerinin odağıdır.
+            </div>
+            <div class="definition">
+              <strong>FiLM</strong>
+              Bir temsilin başka bir bağlama göre ölçeklenip kaydırılmasıdır. Sprint 8A'da target context, edge-energy
+              embedding'ini modüle etmek için kullanılmıştır.
+            </div>
+            <div class="definition">
+              <strong>Sequence-context fusion</strong>
+              Guide-target sequence embedding'inin context-aware Graph C GATv2 classifier head'e eklenmesidir.
+            </div>
+            <div class="definition">
+              <strong>Validation-selected candidate</strong>
+              Modelin test sonucuna göre değil, validation AUPRC kuralına göre seçilmiş aday olmasıdır. Bu, superiority
+              anlamına gelmez.
+            </div>
+          </div>
+        </section>
+
+        <section id="s8a">
+          <h2>4. Sprint 8A: Target-Context ve Context-Edge Interaction</h2>
+          <p>
+            Sprint 8A'nın ana sorusu şuydu: Sprint 7F'de en iyi çalışan family-aware Graph C GATv2 modeli, target context
+            ile candidate-edge energy feature'ları arasında daha iyi bir interaction kurarsa gelişir mi?
+          </p>
+
+          <div class="callout neutral">
+            <strong>Base model:</strong> Sprint 7F R3 <code>family_aware_experimental_emphasis</code> encoder seçildi.
+            Bu seçim test sonucuyla değil, validation AUPRC ile yapılmıştı. <code>context_similar_to</code> edge'leri her
+            Sprint 8A run'ında kapalı kaldı; GATv2 message passing yolu değiştirilmedi.
+          </div>
+
+          <div class="cards">
+            <div class="card">
+              <h3>R0 Base Reference</h3>
+              <p>Sprint 7F R3 path'inin Sprint 8A harness içindeki anchor koşuludur. Yeni fikir test etmez.</p>
+            </div>
+            <div class="card">
+              <h3>R1 Family Gate</h3>
+              <p>Feature ailelerine sabit değil, öğrenilen ağırlıklarla bakmayı dener.</p>
+            </div>
+            <div class="card">
+              <h3>R2 Context-Edge FiLM</h3>
+              <p>Target context embedding ile <code>S5F2_energy</code> edge embedding'i head içinde etkileştirir.</p>
+            </div>
+            <div class="card">
+              <h3>R3 Gate + FiLM</h3>
+              <p>R1 ve R2 fikirlerini birlikte test eder.</p>
+            </div>
+            <div class="card">
+              <h3>R4 Regularized Exp Branch</h3>
+              <p>Experimental epigenetic branch'i bottleneck ve feature dropout ile regularize eder.</p>
+            </div>
+            <div class="card">
+              <h3>HP Refinement</h3>
+              <p>Planlıydı ama sonuç sonrası overtuning riskini artırmamak için bilinçli olarak çalıştırılmadı.</p>
+            </div>
+          </div>
+        </section>
+
+        <section id="s8a-results">
+          <h2>5. Sprint 8A Sonuçları</h2>
+          <p>
+            Sprint 8A'da validation AUPRC'ye göre seçilen aday <code>S8A_R2_context_edge_film</code> oldu. Bu model
+            R0'a göre hem AUPRC hem rare-negative operating point tarafında daha iyi davrandı, fakat XGBoost F4 AUPRC
+            barını geçmedi.
+          </p>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Run</th>
+                <th>Kontrollü Değişken</th>
+                <th>AUPRC</th>
+                <th>AUROC</th>
+                <th>MCC</th>
+                <th>Specificity</th>
+                <th>TN/FP/FN/TP</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>S8A_REF_XGB_F4</code></td>
+                <td>Non-graph reference</td>
+                <td>0.992522</td>
+                <td>0.938416</td>
+                <td>0.345198</td>
+                <td>n/a</td>
+                <td>38/131/21/1512</td>
+              </tr>
+              <tr>
+                <td><code>S8A_REF_S7F_R3</code></td>
+                <td>Carry-forward Sprint 7F base</td>
+                <td>0.984945</td>
+                <td>0.926551</td>
+                <td>0.568108</td>
+                <td>0.497041</td>
+                <td>84/85/31/1502</td>
+              </tr>
+              <tr>
+                <td><code>S8A_R0</code></td>
+                <td>Base reference in 8A harness</td>
+                <td>0.975596</td>
+                <td>0.913840</td>
+                <td>0.366171</td>
+                <td>0.159763</td>
+                <td>27/142/2/1531</td>
+              </tr>
+              <tr>
+                <td><code>S8A_R1</code></td>
+                <td>Family gate</td>
+                <td>0.976955</td>
+                <td>0.867757</td>
+                <td>0.384165</td>
+                <td>0.319527</td>
+                <td>54/115/40/1493</td>
+              </tr>
+              <tr>
+                <td><code>S8A_R2</code></td>
+                <td>Context-edge FiLM</td>
+                <td>0.982757</td>
+                <td>0.910575</td>
+                <td>0.563656</td>
+                <td>0.520710</td>
+                <td>88/81/39/1494</td>
+              </tr>
+              <tr>
+                <td><code>S8A_R3</code></td>
+                <td>Family gate + FiLM</td>
+                <td>0.979899</td>
+                <td>0.885077</td>
+                <td>0.303431</td>
+                <td>0.218935</td>
+                <td>37/132/31/1502</td>
+              </tr>
+              <tr>
+                <td><code>S8A_R4</code></td>
+                <td>Regularized experimental branch</td>
+                <td>0.975687</td>
+                <td>0.825673</td>
+                <td>0.389211</td>
+                <td>0.443787</td>
+                <td>75/94/90/1443</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h3>8A'dan Çıkan Ana Dersler</h3>
+          <ul>
+            <li><code>R2</code>, target context ile <code>S5F2_energy</code> edge sinyalini FiLM ile etkileştirmenin en temiz kazanç olduğunu gösterdi.</li>
+            <li><code>R1</code> family gate tek başına daha fazla negatif yakaladı ama ranking tarafında büyük sıçrama üretmedi.</li>
+            <li><code>R3</code> gate + FiLM birleşimi R2'den kötüydü; bu, iki iyi fikrin birlikte otomatik olarak daha iyi çalışmadığını gösterdi.</li>
+            <li><code>R4</code> bazı negatifleri yakaladı fakat çok fazla false negative üretti; regularization bu haliyle fazla sert kaldı.</li>
+          </ul>
+
+          <div class="callout">
+            <strong>8A sonucu:</strong> Sprint 8A, <code>S8A_R2_context_edge_film</code> adayını seçti. Bu sonuç bir
+            model-improvement sinyalidir; XGBoost F4'e karşı AUPRC superiority değildir.
+          </div>
+        </section>
+
+        <section id="s8b">
+          <h2>6. Sprint 8B: Sequence-Context Encoder</h2>
+          <p>
+            Sprint 8B, Sprint 8A'dan ayrı bir soru sordu: Sequence bilgisi, target-context + FiLM modeline eklendiğinde
+            ek değer sağlar mı? Burada sequence encoder CRISPR-Net/CRISPR-IP çizgisinden esinlenmiştir; fakat bu bir
+            reproduction değildir. Veri, split, label ve metric farklıdır.
+          </p>
+
+          <div class="callout info">
+            <strong>Leakage disiplini:</strong> Sequence branch, <code>S1</code> guide-target sequence pair bilgisini Graph C
+            one-hot artifact'larından yeniden kurdu. Energy, epigenetic veya context feature'ları sequence branch'e
+            sızmadı. External pretrained CRISPR/genomic weights kullanılmadı.
+          </div>
+
+          <div class="cards">
+            <div class="card">
+              <h3>R0 Reference</h3>
+              <p>Sprint 8A R2 context-edge FiLM adayının carry-forward halidir. Yeniden eğitilmedi.</p>
+            </div>
+            <div class="card">
+              <h3>R1 Sequence-Only</h3>
+              <p>Yalnızca S1 sequence pair üzerinden Conv+BiLSTM encoder ve classifier kullanıldı.</p>
+            </div>
+            <div class="card">
+              <h3>R2 Sequence + Context</h3>
+              <p>Sequence embedding, 8A R2 context/edge classifier input'una late-fusion olarak eklendi.</p>
+            </div>
+          </div>
+        </section>
+
+        <section id="s8b-results">
+          <h2>7. Sprint 8B Sonuçları</h2>
+          <p>
+            Sprint 8B'de sequence-only yol zayıf kaldı. Buna karşılık sequence + context late fusion, en yüksek
+            single-seed GNN AUPRC sonucunu verdi. Ancak bu sonuç da XGBoost F4 AUPRC barını geçmedi.
+          </p>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Run</th>
+                <th>Mode</th>
+                <th>AUPRC</th>
+                <th>AUROC</th>
+                <th>MCC</th>
+                <th>Specificity</th>
+                <th>TN/FP/FN/TP</th>
+                <th>Yorum</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>S8B_R0</code></td>
+                <td>8A R2 reference</td>
+                <td>0.982757</td>
+                <td>0.910575</td>
+                <td>0.563656</td>
+                <td>0.520710</td>
+                <td>88/81/39/1494</td>
+                <td>Sequence eklenmeden önceki anchor.</td>
+              </tr>
+              <tr>
+                <td><code>S8B_R1</code></td>
+                <td>Sequence-only</td>
+                <td>0.856666</td>
+                <td>0.304164</td>
+                <td>-0.019749</td>
+                <td>0.000000</td>
+                <td>0/169/6/1527</td>
+                <td>Bu compact S1 Conv+BiLSTM path tek başına context sinyalini yakalayamadı.</td>
+              </tr>
+              <tr>
+                <td><code>S8B_R2</code></td>
+                <td>Sequence + context late fusion</td>
+                <td>0.986020</td>
+                <td>0.903480</td>
+                <td>0.567309</td>
+                <td>0.863905</td>
+                <td>146/23/180/1353</td>
+                <td>En iyi single-seed GNN AUPRC ve en güçlü TN recovery, fakat daha fazla FN.</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h3>8B'deki Trade-off</h3>
+          <pre>S8A R2 -> S8B R2:
+ AUPRC: 0.982757 -> 0.986020  (+0.003263)
+ TN:    88       -> 146       (+58)
+ FP:    81       -> 23        (-58)
+ FN:    39       -> 180       (+141)
+ TP:    1494     -> 1353      (-141)</pre>
+
+          <div class="callout warning">
+            <strong>Yorum:</strong> <code>S8B_R2</code> daha çok negatif yakaladı, ancak daha çok pozitif kaçırdı. Bu nedenle
+            specificity ve TN artışı tek başına "model daha iyi" anlamına gelmez. AUPRC primary metric olarak kalır.
+          </div>
+        </section>
+
+        <section id="findings">
+          <h2>8. Ana Bulgular</h2>
+          <ul>
+            <li><span class="tag primary">Bulgu 1</span> Sprint 8A'da en iyi kontrollü model-iyileştirme sinyali context-edge FiLM oldu.</li>
+            <li><span class="tag primary">Bulgu 2</span> Family gate tek başına bazı threshold metriklerini iyileştirdi, fakat ana çözüm olmadı.</li>
+            <li><span class="tag warning">Bulgu 3</span> Gate + FiLM birleşimi beklenen sinerjiyi üretmedi; R2'den daha kötü rare-negative davranış verdi.</li>
+            <li><span class="tag warning">Bulgu 4</span> Experimental branch regularization fazla sert kaldı; negatif kazanımını daha fazla false negative ile ödedi.</li>
+            <li><span class="tag risk">Bulgu 5</span> Sequence-only path bu benchmark'ta çöktü; TN=0 ve AUPRC=0.856666 ile context sinyalini taşıyamadı.</li>
+            <li><span class="tag primary">Bulgu 6</span> Sequence + context fusion, en yüksek single-seed GNN AUPRC'yi verdi: 0.986020.</li>
+            <li><span class="tag warning">Bulgu 7</span> Hiçbir Sprint 8 modeli XGBoost F4 historical AUPRC barını, yani 0.992522'yi geçmedi.</li>
+          </ul>
+        </section>
+
+        <section id="literature">
+          <h2>9. Literatürle İlişki</h2>
+          <p>
+            Sprint 8, literatürdeki birkaç mimari fikri bu projenin frozen Graph C kontratına uyarlamıştır. Bu çalışmalar
+            doğrudan reproduce edilmemiştir; data, split, target ve metric farklıdır.
+          </p>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Literatür Fikri</th>
+                <th>Sprint 8'deki Karşılığı</th>
+                <th>Sonuç ve Sınır</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>SENet / FiBiNET</td>
+                <td>R1 family gate ve R3 gate + FiLM</td>
+                <td>Feature-family reweighting mantıklı bir fikir olarak denendi; tek başına güçlü kazanç üretmedi.</td>
+              </tr>
+              <tr>
+                <td>FiLM</td>
+                <td>R2 context-edge FiLM</td>
+                <td>Target context'in edge-energy temsilini modüle etmesi Sprint 8A'nın en temiz improvement sinyali oldu.</td>
+              </tr>
+              <tr>
+                <td>GNN-FiLM / edge-conditioned interaction</td>
+                <td>Head-only context-edge interaction</td>
+                <td>Message passing değiştirilmeden classifier head içinde uygulandı; bu bilinçli bir kontrollü adaptasyondur.</td>
+              </tr>
+              <tr>
+                <td>Shortcut learning / regularization</td>
+                <td>R4 experimental branch bottleneck + dropout</td>
+                <td>Shortcut riskine karşı mantıklıydı, fakat bu tek-seed ayarda fazla pozitif kaybı üretti.</td>
+              </tr>
+              <tr>
+                <td>CRISPR-Net / CRISPR-IP</td>
+                <td>8B Conv+BiLSTM sequence encoder</td>
+                <td>Architecture inspiration olarak kullanıldı; reproduction iddiası yoktur.</td>
+              </tr>
+              <tr>
+                <td>Overtuning / leakage literatürü</td>
+                <td>HP refinement ve external pretrained transfer slice skip edildi</td>
+                <td>Test-sonrası tuning ve potansiyel pretrained leakage riski özellikle engellendi.</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="callout info">
+            <strong>Literatürle uyumlu ana mesaj:</strong> Context, sequence ve edge-level feature kaynakları ayrı ayrı
+            değil, kontrollü fusion mekanizmalarıyla birlikte ele alındığında daha anlamlı model davranışı üretir. Ancak
+            bu davranış model-interpretation düzeyindedir; biyolojik nedensellik kanıtı değildir.
+          </div>
+        </section>
+
+        <section id="boundaries">
+          <h2>10. Claim Sınırları</h2>
+          <p>
+            Sprint 8 sonuçları güçlüdür, fakat iddia sınırı net tutulmalıdır. Bu sprint model-improvement ve mechanism
+            sprintidir; nihai robustness sprinti değildir.
+          </p>
+
+          <ul>
+            <li><span class="tag primary">Doğru claim</span> Context-edge FiLM, Sprint 8A'da en iyi validation-selected aday olmuştur.</li>
+            <li><span class="tag primary">Doğru claim</span> Sequence + context fusion, en yüksek single-seed GNN AUPRC'yi üretmiştir.</li>
+            <li><span class="tag control">Doğru claim</span> Sequence-only Conv+BiLSTM bu frozen measured-only benchmark'ta zayıf kalmıştır.</li>
+            <li><span class="tag warning">Dikkat</span> <code>S8B_R2</code> daha fazla negatif yakalarken daha fazla pozitif kaçırmıştır.</li>
+            <li><span class="tag warning">Dikkat</span> Sprint 8 adayları validation-selected mechanism results olarak raporlanmalıdır.</li>
+            <li><span class="tag risk">Yanlış claim</span> "Sprint 8 GNN, XGBoost F4'ü geçti" denemez.</li>
+            <li><span class="tag risk">Yanlış claim</span> "CRISPR-Net reproduce edildi" denemez.</li>
+            <li><span class="tag risk">Yanlış claim</span> "FiLM/gate/sequence embedding biyolojik mekanizmayı kanıtladı" denemez.</li>
+          </ul>
+
+          <div class="callout risk">
+            <strong>Sprint 9 sonrası kesin sınır:</strong> Paired AUPRC farklarının hiçbiri sıfırı dışlamadı. Bu yüzden
+            Sprint 8 kazanımları robust AUPRC superiority olarak değil, single-seed validation-selected ve Sprint 9'da
+            "compatible with no difference" sınırına çekilen mekanizma bulguları olarak anlatılmalıdır.
+          </div>
+        </section>
+
+        <section id="summary">
+          <h2>11. Final Özet</h2>
+          <div class="summary-box">
+            Sprint 8, CRISPR-Cas9 off-target tahmininde Graph C GATv2 target-observation context çizgisini daha ileriye
+            taşımak için yürütülen iki parçalı bir model-iyileştirme sprintidir. Sprint 8A'da, Sprint 7F'de güçlenen
+            family-aware target-context encoder sabit kontrat altında yeniden ele alınmış ve target context ile
+            candidate-edge <code>S5F2_energy</code> feature'ları arasındaki etkileşim test edilmiştir. Beş önceden
+            tanımlanmış 8A koşulu içinde <code>S8A_R2_context_edge_film</code>, validation AUPRC'ye göre en iyi aday olmuş,
+            test AUPRC <code>0.982757</code>, MCC <code>0.563656</code> ve TN/FP/FN/TP <code>88/81/39/1494</code> üretmiştir.
+            Family gate tek başına sınırlı katkı sağlamış, gate + FiLM birleşimi beklenen sinerjiyi üretmemiş ve
+            experimental branch regularization negatifleri kısmen yakalasa da çok fazla false negative üretmiştir. Sprint
+            8B'de, CRISPR-Net/CRISPR-IP'ten esinlenen fakat from-scratch eğitilen küçük Conv+BiLSTM sequence encoder ile
+            sequence bilgisinin bu context-aware modele ek değer sağlayıp sağlamadığı sınanmıştır. Sequence-only
+            <code>S8B_R1</code> zayıf kalmış, test AUPRC <code>0.856666</code> ve TN <code>0</code> üretmiştir; buna karşılık
+            sequence + context late fusion modeli <code>S8B_R2_sequence_plus_context</code>, test AUPRC <code>0.986020</code>,
+            MCC <code>0.567309</code>, specificity <code>0.863905</code> ve TN/FP/FN/TP <code>146/23/180/1353</code> ile en
+            yüksek single-seed GNN sonucunu vermiştir. Bu sonuç, sequence bilgisinin tek başına değil, target-context ve
+            context-edge FiLM hattıyla birlikte sınırlı ek değer sağlayabildiğini göstermiştir. Ancak hiçbir Sprint 8
+            varyantı XGBoost F4'ün historical AUPRC barı olan <code>0.992522</code>'yi geçmemiştir; Sprint 9 robustness
+            analizi de paired AUPRC farklarının sıfırı dışlamadığını, seed ve guide-composition belirsizliğinin aday
+            kazanımlarından büyük olduğunu göstermiştir. Bu nedenle Sprint 8'in tezdeki doğru yeri, GNN üstünlüğü iddiası
+            değil, context, energy ve sequence bilgisinin Graph C GATv2 içinde hangi kontrollü etkileşimlerle daha iyi
+            rare-negative operating-point davranışı üretebildiğini gösteren mekanizma ve model-iyileştirme kanıtıdır.
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+</body>
+</html>

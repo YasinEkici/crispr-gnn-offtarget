@@ -1,0 +1,1117 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sprint 2 Raporu - Non-Graph Baseline ve Feature Ladder Analizi</title>
+  <style>
+    :root {
+      --bg: #f6f8fb;
+      --paper: #ffffff;
+      --ink: #182230;
+      --muted: #667085;
+      --line: #d9e0ea;
+      --accent: #0f766e;
+      --accent-soft: #e5f5f2;
+      --blue: #1d4ed8;
+      --blue-soft: #e8f0ff;
+      --amber: #a15c07;
+      --amber-soft: #fff5df;
+      --red: #b42318;
+      --red-soft: #fff0ed;
+      --green: #147d4f;
+      --green-soft: #e7f7ef;
+      --slate: #26384f;
+      --slate-soft: #edf2f7;
+      --code-bg: #eef2f7;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.58;
+    }
+
+    a {
+      color: var(--blue);
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    .page {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 32px 24px 58px;
+    }
+
+    .hero {
+      border-radius: 8px;
+      padding: 38px;
+      color: #ffffff;
+      background:
+        linear-gradient(135deg, rgba(16, 42, 67, 0.98), rgba(15, 118, 110, 0.94)),
+        linear-gradient(45deg, #102a43, #0f766e);
+      box-shadow: 0 20px 44px rgba(16, 42, 67, 0.18);
+      margin-bottom: 24px;
+    }
+
+    .eyebrow {
+      margin: 0 0 12px;
+      font-size: 0.86rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.78);
+    }
+
+    h1 {
+      margin: 0;
+      max-width: 980px;
+      font-size: clamp(2rem, 4.2vw, 3.55rem);
+      line-height: 1.04;
+      letter-spacing: 0;
+    }
+
+    .hero p {
+      max-width: 960px;
+      margin: 18px 0 0;
+      color: rgba(255, 255, 255, 0.88);
+      font-size: 1.08rem;
+    }
+
+    .hero-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 24px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 32px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      color: #ffffff;
+      background: rgba(255, 255, 255, 0.14);
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      font-size: 0.88rem;
+      white-space: nowrap;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 286px minmax(0, 1fr);
+      gap: 24px;
+      align-items: start;
+    }
+
+    nav {
+      position: sticky;
+      top: 18px;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 18px;
+    }
+
+    nav h2 {
+      margin: 0 0 12px;
+      font-size: 1rem;
+    }
+
+    nav ol {
+      margin: 0;
+      padding-left: 18px;
+      color: var(--muted);
+    }
+
+    nav li {
+      margin: 8px 0;
+    }
+
+    section {
+      margin-bottom: 18px;
+      padding: 28px;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+    }
+
+    h2 {
+      margin: 0 0 16px;
+      font-size: 1.55rem;
+      line-height: 1.25;
+      letter-spacing: 0;
+    }
+
+    h3 {
+      margin: 24px 0 10px;
+      font-size: 1.08rem;
+      line-height: 1.3;
+      letter-spacing: 0;
+    }
+
+    p {
+      margin: 0 0 14px;
+    }
+
+    .lead {
+      color: #344054;
+      font-size: 1.06rem;
+    }
+
+    .callout {
+      margin: 18px 0;
+      padding: 16px 18px;
+      border-radius: 6px;
+      border-left: 5px solid var(--accent);
+      background: var(--accent-soft);
+    }
+
+    .callout.info {
+      border-left-color: var(--blue);
+      background: var(--blue-soft);
+    }
+
+    .callout.warning {
+      border-left-color: var(--amber);
+      background: var(--amber-soft);
+    }
+
+    .callout.risk {
+      border-left-color: var(--red);
+      background: var(--red-soft);
+    }
+
+    .callout.neutral {
+      border-left-color: var(--slate);
+      background: var(--slate-soft);
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+      margin: 20px 0 8px;
+    }
+
+    .stat {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 16px;
+      background: #fbfcfe;
+    }
+
+    .stat strong {
+      display: block;
+      font-size: 1.45rem;
+      line-height: 1.15;
+      color: var(--ink);
+    }
+
+    .stat span {
+      display: block;
+      margin-top: 6px;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      margin: 18px 0;
+    }
+
+    .card {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 18px;
+      background: #fbfcfe;
+    }
+
+    .card h3 {
+      margin-top: 0;
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+      margin: 16px 0;
+    }
+
+    .definition {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 15px;
+      background: #fbfcfe;
+    }
+
+    .definition strong {
+      display: block;
+      margin-bottom: 6px;
+      color: #111827;
+    }
+
+    ul {
+      margin: 10px 0 16px;
+      padding-left: 20px;
+    }
+
+    li {
+      margin: 7px 0;
+    }
+
+    code,
+    pre {
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+    }
+
+    code {
+      padding: 2px 5px;
+      border-radius: 4px;
+      background: var(--code-bg);
+      color: #111827;
+      font-size: 0.92em;
+    }
+
+    pre {
+      overflow-x: auto;
+      margin: 16px 0;
+      padding: 16px;
+      border-radius: 8px;
+      background: #111827;
+      color: #e5e7eb;
+      font-size: 0.92rem;
+      line-height: 1.5;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0 8px;
+      font-size: 0.94rem;
+    }
+
+    th,
+    td {
+      padding: 11px 12px;
+      border: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background: #f1f5f9;
+      color: #233044;
+      font-weight: 700;
+    }
+
+    tr:nth-child(even) td {
+      background: #fbfcfe;
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      min-height: 26px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      font-size: 0.82rem;
+      font-weight: 650;
+      background: var(--slate-soft);
+      color: var(--slate);
+      white-space: nowrap;
+    }
+
+    .tag.primary {
+      background: var(--accent-soft);
+      color: var(--accent);
+    }
+
+    .tag.control {
+      background: var(--blue-soft);
+      color: var(--blue);
+    }
+
+    .tag.warning {
+      background: var(--amber-soft);
+      color: var(--amber);
+    }
+
+    .tag.risk {
+      background: var(--red-soft);
+      color: var(--red);
+    }
+
+    .summary-box {
+      border: 1px solid #b7dfd8;
+      border-radius: 8px;
+      padding: 20px;
+      background: #f0fbf8;
+      font-size: 1.02rem;
+    }
+
+    @media (max-width: 920px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+
+      nav {
+        position: static;
+      }
+
+      .stats,
+      .cards,
+      .two-col {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .page {
+        padding: 20px 14px 40px;
+      }
+
+      .hero,
+      section {
+        padding: 22px;
+      }
+
+      table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header class="hero">
+      <p class="eyebrow">CRISPR-GNN Tez Raporu - Sprint 2</p>
+      <h1>Non-Graph Baseline, Feature Ladder ve XGBoost F4 Barı</h1>
+      <p>
+        Sprint 2, GNN modellerine geçmeden önce adil ve güçlü non-graph baseline'ları kuran sprinttir. Burada amaç
+        "GNN iyi mi?" sorusuna hemen cevap vermek değil, graph kullanılmadan sequence, mismatch, binding-energy,
+        epigenetik context ve computed nucleosome feature'larıyla ne kadar güçlü tahmin yapılabildiğini ölçmektir.
+      </p>
+      <div class="hero-meta">
+        <span class="pill">Ana split: sprint2_main_seed42</span>
+        <span class="pill">Primary metric: AUPRC</span>
+        <span class="pill">En güçlü baseline: XGBoost F4</span>
+        <span class="pill">Test prevalence: 0.900705</span>
+      </div>
+    </header>
+
+    <div class="layout">
+      <nav aria-label="İçindekiler">
+        <h2>İçindekiler</h2>
+        <ol>
+          <li><a href="#big-picture">Sprint 2 Nedir?</a></li>
+          <li><a href="#contract">Deney Kontratı</a></li>
+          <li><a href="#features">Feature Ladder</a></li>
+          <li><a href="#lineup">Model Aileleri</a></li>
+          <li><a href="#logreg">A. Logistic Regression</a></li>
+          <li><a href="#xgboost">B. XGBoost</a></li>
+          <li><a href="#mlp">C. Tabular MLP</a></li>
+          <li><a href="#sequence">D. Sequence Models</a></li>
+          <li><a href="#fusion">E. Late Fusion</a></li>
+          <li><a href="#diagnostics">Diagnostikler</a></li>
+          <li><a href="#findings">Ana Bulgular</a></li>
+          <li><a href="#literature">Literatürle İlişki</a></li>
+          <li><a href="#boundaries">Claim Sınırları</a></li>
+          <li><a href="#summary">Final Özet</a></li>
+        </ol>
+      </nav>
+
+      <main>
+        <section id="big-picture">
+          <h2>1. Sprint 2 Nedir?</h2>
+          <p class="lead">
+            Sprint 2, projenin ölçüm çıtasını kuran sprinttir. GNN gibi daha karmaşık bir modele geçmeden önce, aynı veri
+            üzerinde graph kullanmayan modellerin ne kadar güçlü olduğu ölçülmüştür. Böylece sonraki GNN sonuçlarının zayıf
+            bir baseline'a karşı kolayca iyi görünmesi engellenmiştir.
+          </p>
+
+          <div class="callout">
+            <strong>En basit anlatım:</strong> Bu sprintte "graph yoksa ne kadar başarıyoruz?" sorusu cevaplandı. Sonuçta
+            basit lineer modeller ve sequence-only neural modeller zayıf kaldı; XGBoost ise F3/F4 context-rich tabular
+            feature'larla çok güçlü bir baseline haline geldi.
+          </div>
+
+          <div class="stats">
+            <div class="stat">
+              <strong>28</strong>
+              <span>Baseline result row</span>
+            </div>
+            <div class="stat">
+              <strong>0.992522</strong>
+              <span>XGBoost unweighted F4 test AUPRC</span>
+            </div>
+            <div class="stat">
+              <strong>0.938416</strong>
+              <span>XGBoost unweighted F4 test AUROC</span>
+            </div>
+            <div class="stat">
+              <strong>38/131/21/1512</strong>
+              <span>F4 confusion matrix: TN/FP/FN/TP</span>
+            </div>
+          </div>
+
+          <h3>Bu sprintte ne arandı?</h3>
+          <ul>
+            <li>Sequence ve mismatch feature'ları tek başına ne kadar yeterli?</li>
+            <li>Binding-energy feature'ları ek değer sağlıyor mu?</li>
+            <li>Experimental epigenetic scalar feature'lar performansta gerçek bir sıçrama yaratıyor mu?</li>
+            <li>Computed nucleosome aggregate feature'ları F3 üzerine ek katkı sağlıyor mu?</li>
+            <li>Non-graph neural modeller XGBoost gibi tabular modelleri geçebiliyor mu?</li>
+            <li>Gelecek GNN sprintleri hangi baseline'a karşı değerlendirilmelidir?</li>
+          </ul>
+        </section>
+
+        <section id="contract">
+          <h2>2. Deney Kontratı</h2>
+          <p>
+            Sprint 2 boyunca tüm modeller aynı label, aynı split, aynı measured-only evaluation evreni ve aynı threshold
+            politikasıyla değerlendirilmiştir. Bu sayede model aileleri arasında adil karşılaştırma yapılmıştır.
+          </p>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Alan</th>
+                <th>Sabit Karar</th>
+                <th>Neden Önemli?</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Label</td>
+                <td><code>Scheme A = cleavage_freq &gt; 1e-5</code></td>
+                <td>Binary off-target classification hedefi sabit tutuldu.</td>
+              </tr>
+              <tr>
+                <td>Split</td>
+                <td><code>sprint2_main_seed42</code>, guide-level</td>
+                <td>Aynı guide'ın train ve testte görünmesi engellendi.</td>
+              </tr>
+              <tr>
+                <td>Train / val / test</td>
+                <td>Required baselines measured-only</td>
+                <td><code>measured=0</code> putative satırlar headline sonuçlara girmedi.</td>
+              </tr>
+              <tr>
+                <td>Excluded subset</td>
+                <td><code>experiment_id=18</code> ana split dışında</td>
+                <td>Cell-line eksikliği ve değerlendirme riski ana sonuçtan ayrıldı.</td>
+              </tr>
+              <tr>
+                <td>Preprocessing</td>
+                <td>Train-only imputation / scaling</td>
+                <td>Validation ve test bilgisi preprocessing istatistiklerine sızmadı.</td>
+              </tr>
+              <tr>
+                <td>Threshold</td>
+                <td>Validation max-F1 ile seçildi</td>
+                <td>Test threshold tuning yapılmadı.</td>
+              </tr>
+              <tr>
+                <td>Primary metric</td>
+                <td>AUPRC</td>
+                <td>High-prevalence test evreninde ana ranking metriği olarak kullanıldı.</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h3>Locked split özeti</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Split</th>
+                <th>Rows</th>
+                <th>Guides</th>
+                <th>Positives</th>
+                <th>Negatives</th>
+                <th>Positive rate</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Train</td>
+                <td>8010</td>
+                <td>98</td>
+                <td>7109</td>
+                <td>901</td>
+                <td>0.887516</td>
+              </tr>
+              <tr>
+                <td>Validation</td>
+                <td>1734</td>
+                <td>23</td>
+                <td>1511</td>
+                <td>223</td>
+                <td>0.871396</td>
+              </tr>
+              <tr>
+                <td>Test</td>
+                <td>1702</td>
+                <td>29</td>
+                <td>1533</td>
+                <td>169</td>
+                <td>0.900705</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="callout warning">
+            <strong>Yorum sınırı:</strong> Test seti çok pozitif ağırlıklıdır. Bu nedenle AUPRC, F1 ve confusion matrix
+            mutlaka test prevalence <code>0.900705</code> ve guide dağılımı ile birlikte yorumlanmalıdır.
+          </div>
+        </section>
+
+        <section id="features">
+          <h2>3. Feature Ladder</h2>
+          <p>
+            Sprint 2'nin en önemli tasarım kararlarından biri feature ladder kurmaktır. Böylece her feature ailesinin modele
+            ne eklediği kademeli olarak görülebilmiştir.
+          </p>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Feature Set</th>
+                <th>Kolon</th>
+                <th>İçerik</th>
+                <th>Rolü</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>F1</code></td>
+                <td>33</td>
+                <td>Sequence ve mismatch engineered numeric feature'lar</td>
+                <td>Sequence/mismatch tabular başlangıç noktası.</td>
+              </tr>
+              <tr>
+                <td><code>F2</code></td>
+                <td>38</td>
+                <td>F1 + 5 binding-energy scalar feature</td>
+                <td>Binding-energy katkısını ölçer.</td>
+              </tr>
+              <tr>
+                <td><code>F3</code></td>
+                <td>44</td>
+                <td>F2 + 6 experimental epigenetic scalar feature</td>
+                <td>Epigenetik/context scalar sinyalini ölçer.</td>
+              </tr>
+              <tr>
+                <td><code>F4</code></td>
+                <td>135</td>
+                <td>F3 + computed nucleosome aggregates + missingness indicators</td>
+                <td>Nucleosome aggregate context'in ek katkısını ölçer.</td>
+              </tr>
+              <tr>
+                <td><code>S1</code></td>
+                <td>23 pozisyonlu temsil</td>
+                <td>Guide one-hot, target one-hot, aligned mismatch channel</td>
+                <td>Pure sequence neural baseline input'u.</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="callout info">
+            <strong>Leakage kontrolü:</strong> Raw guide ID, target coordinate, experiment ID, genome label, cell-line label,
+            measured flag, label ve <code>cleavage_freq</code> predictive feature olarak kullanılmadı. F4 missing değerleri
+            train-only median imputation ile işlendi.
+          </div>
+        </section>
+
+        <section id="lineup">
+          <h2>4. Model Aileleri</h2>
+          <p>
+            Sprint 2 tek bir model denemesi değildir; farklı bilgi kaynaklarını ve model kapasitelerini ayırmak için geniş
+            bir baseline ailesi kurulmuştur.
+          </p>
+
+          <div class="cards">
+            <div class="card">
+              <h3>Dummy / Prevalence</h3>
+              <p>Test prevalence'ın AUPRC için no-skill referans olduğunu gösteren sanity baseline.</p>
+            </div>
+            <div class="card">
+              <h3>Logistic Regression</h3>
+              <p>Feature pipeline ve metrik wiring'ini doğrulayan zayıf lineer baseline.</p>
+            </div>
+            <div class="card">
+              <h3>XGBoost</h3>
+              <p>F1-F4 tabular feature ladder üzerinde en güçlü non-graph baseline.</p>
+            </div>
+            <div class="card">
+              <h3>Tabular MLP</h3>
+              <p>Graph kullanmayan neural tabular model; XGBoost'a karşı neural referans.</p>
+            </div>
+            <div class="card">
+              <h3>Sequence CNN / BiLSTM</h3>
+              <p>Sadece guide-target sequence temsilinin ne kadar yeterli olduğunu test eden pure sequence baseline.</p>
+            </div>
+            <div class="card">
+              <h3>CNN + F3/F4 Late Fusion</h3>
+              <p>Sequence temsili ile context-rich tabular feature'ların basit neural fusion denemesi.</p>
+            </div>
+          </div>
+        </section>
+
+        <section id="logreg">
+          <h2>5. A. Logistic Regression</h2>
+          <p>
+            Logistic Regression, Sprint 2'nin wiring/debug baseline'ıdır. Buradaki amaç en güçlü modeli bulmak değil,
+            label, split, feature preprocessing, metric ve result yazım hattının doğru çalıştığını doğrulamaktır.
+          </p>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Model</th>
+                <th>Feature</th>
+                <th>AUPRC</th>
+                <th>AUROC</th>
+                <th>MCC</th>
+                <th>TN/FP/FN/TP</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Best Logistic Regression</td>
+                <td><code>F4</code></td>
+                <td>0.917126</td>
+                <td>0.522015</td>
+                <td>-0.011986</td>
+                <td>1/168/15/1518</td>
+              </tr>
+              <tr>
+                <td>Dummy prior</td>
+                <td>F1-F4</td>
+                <td>0.900705</td>
+                <td>0.500000</td>
+                <td>0.000000</td>
+                <td>0/169/0/1533</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="callout warning">
+            <strong>Bulgu:</strong> Logistic Regression AUPRC'yi prevalence baseline'ın biraz üstüne taşıdı, fakat negatif
+            sınıfı neredeyse hiç ayıramadı. Bu nedenle gelecekteki GNN karşılaştırmaları için ana baseline olamaz.
+          </div>
+        </section>
+
+        <section id="xgboost">
+          <h2>6. B. XGBoost</h2>
+          <p>
+            Sprint 2'nin en önemli sonucu XGBoost deneylerinden gelmiştir. XGBoost, non-linear tabular ilişkileri iyi
+            yakalamış ve özellikle F3/F4 context-rich feature setleriyle çok güçlü performans vermiştir.
+          </p>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Model</th>
+                <th>Feature</th>
+                <th>AUPRC</th>
+                <th>AUROC</th>
+                <th>MCC</th>
+                <th>TN/FP/FN/TP</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>xgboost_unweighted</code></td>
+                <td>F1</td>
+                <td>0.870583</td>
+                <td>0.315231</td>
+                <td>-0.067603</td>
+                <td>5/164/143/1390</td>
+              </tr>
+              <tr>
+                <td><code>xgboost_unweighted</code></td>
+                <td>F2</td>
+                <td>0.884561</td>
+                <td>0.365075</td>
+                <td>0.000000</td>
+                <td>0/169/0/1533</td>
+              </tr>
+              <tr>
+                <td><code>xgboost_unweighted</code></td>
+                <td>F3</td>
+                <td>0.985918</td>
+                <td>0.906893</td>
+                <td>0.320396</td>
+                <td>35/134/22/1511</td>
+              </tr>
+              <tr>
+                <td><code>xgboost_unweighted</code></td>
+                <td>F4</td>
+                <td>0.992522</td>
+                <td>0.938416</td>
+                <td>0.345198</td>
+                <td>38/131/21/1512</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h3>Feature-family sinyali</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>F4 feature ailesi</th>
+                <th>Total-gain payı</th>
+                <th>Yorum</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>sequence_summary</td>
+                <td>47.50%</td>
+                <td>Sequence-derived summary feature'lar güçlü kalır.</td>
+              </tr>
+              <tr>
+                <td>experimental_epigenetic</td>
+                <td>42.30%</td>
+                <td>F3 sıçramasının ana bağlam sinyali buradan gelir.</td>
+              </tr>
+              <tr>
+                <td>computed_nucleosome_aggregates</td>
+                <td>5.19%</td>
+                <td>F4'e küçük ama model-dependent ek sinyal sağlar.</td>
+              </tr>
+              <tr>
+                <td>binding_energy</td>
+                <td>4.20%</td>
+                <td>Ek destek sinyali taşır.</td>
+              </tr>
+              <tr>
+                <td>computed_nucleosome_missingness</td>
+                <td>0.00%</td>
+                <td>Bu XGBoost F4 run'ında gain üretmemiştir.</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="callout">
+            <strong>Ana bulgu:</strong> En büyük performans kırılması F3'te, yani experimental epigenetic scalar feature'lar
+            eklendiğinde oluşmuştur. F4 en iyi sonucu verir, fakat F4'ün gücünün tamamını computed nucleosome feature'lara
+            bağlamak doğru değildir.
+          </div>
+        </section>
+
+        <section id="mlp">
+          <h2>7. C. Tabular MLP</h2>
+          <p>
+            Tabular MLP, graph kullanmayan neural tabular baseline olarak çalıştırılmıştır. Logistic Regression'a göre daha
+            iyi sonuç vermiştir, fakat XGBoost'un F3/F4 performansına yaklaşamamıştır.
+          </p>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Model</th>
+                <th>Feature</th>
+                <th>AUPRC</th>
+                <th>AUROC</th>
+                <th>MCC</th>
+                <th>TN/FP/FN/TP</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>tabular_mlp_unweighted</code></td>
+                <td>F3</td>
+                <td>0.959889</td>
+                <td>0.735388</td>
+                <td>0.220770</td>
+                <td>31/138/46/1487</td>
+              </tr>
+              <tr>
+                <td><code>tabular_mlp_unweighted</code></td>
+                <td>F4</td>
+                <td>0.945968</td>
+                <td>0.678354</td>
+                <td>0.093593</td>
+                <td>8/161/16/1517</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="callout info">
+            <strong>Yorum:</strong> MLP'de F3'ün F4'ten iyi olması suspicious değildir. F4 feature alanını 44 kolondan 135
+            kolona çıkarır, imputed computed aggregate feature'lar ekler ve küçük MLP bu ek boyutu XGBoost kadar temiz
+            kullanamamış olabilir.
+          </div>
+        </section>
+
+        <section id="sequence">
+          <h2>8. D. Sequence-Only CNN/BiLSTM</h2>
+          <p>
+            Sequence-only modeller, sadece guide-target dizilim temsilinin ne kadar yeterli olduğunu test etmiştir.
+            Bu modeller binding energy, epigenetic scalar, nucleosome feature, guide ID, coordinate, measured flag veya
+            label bilgisini kullanmamıştır.
+          </p>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Model</th>
+                <th>Feature</th>
+                <th>AUPRC</th>
+                <th>AUROC</th>
+                <th>MCC</th>
+                <th>TN/FP/FN/TP</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>sequence_cnn_unweighted</code></td>
+                <td>S1</td>
+                <td>0.920075</td>
+                <td>0.535711</td>
+                <td>-0.019749</td>
+                <td>0/169/6/1527</td>
+              </tr>
+              <tr>
+                <td><code>sequence_bilstm_unweighted</code></td>
+                <td>S1</td>
+                <td>0.886870</td>
+                <td>0.340957</td>
+                <td>0.000000</td>
+                <td>0/169/0/1533</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="callout warning">
+            <strong>Bulgu:</strong> Sequence-only modeller, locked measured-only guide-level split altında güçlü genelleme
+            göstermemiştir. Bu "sequence modelleri genel olarak işe yaramaz" demek değildir; bu veri, split ve label
+            kontratı altında sequence-only yolun zayıf kaldığını gösterir.
+          </div>
+        </section>
+
+        <section id="fusion">
+          <h2>9. E. CNN + F3/F4 Late Fusion</h2>
+          <p>
+            Late fusion deneyleri, sequence CNN temsiline F3/F4 tabular context feature'larını eklemiştir. Bu modeller pure
+            sequence baseline değildir; sequence + context neural fusion baseline olarak okunmalıdır.
+          </p>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Model</th>
+                <th>Feature</th>
+                <th>AUPRC</th>
+                <th>AUROC</th>
+                <th>MCC</th>
+                <th>TN/FP/FN/TP</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>sequence_cnn_plus_F3_late_fusion</code></td>
+                <td>S1+F3</td>
+                <td>0.911630</td>
+                <td>0.483872</td>
+                <td>0.000181</td>
+                <td>1/168/9/1524</td>
+              </tr>
+              <tr>
+                <td><code>sequence_cnn_plus_F4_late_fusion</code></td>
+                <td>S1+F4</td>
+                <td>0.928996</td>
+                <td>0.579449</td>
+                <td>0.000000</td>
+                <td>0/169/0/1533</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="callout">
+            <strong>Sonuç:</strong> CNN + F4 late fusion, pure sequence CNN'e göre ranking'i bir miktar iyileştirdi; ancak
+            XGBoost F3/F4 ve tabular MLP F3'ün oldukça gerisinde kaldı. Bu nedenle Sprint 2'de daha fazla neural fusion
+            tuning yapılmadı.
+          </div>
+        </section>
+
+        <section id="diagnostics">
+          <h2>10. Diagnostikler ve Test Geometrisi</h2>
+          <p>
+            Sprint 2 sadece aggregate metrik raporlamadı. Score direction, fixed-threshold metrics, per-guide/per-genome
+            breakdown ve decile-lift gibi diagnostikler de üretildi. Bu diagnostikler özellikle yüksek pozitif prevalanslı
+            test evreninde sonuçları daha doğru okumak için gereklidir.
+          </p>
+
+          <h3>Decile-lift örneği</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Model</th>
+                <th>Feature</th>
+                <th>Decile 1 positive rate</th>
+                <th>Decile 5 positive rate</th>
+                <th>Decile 10 positive rate</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>xgboost_unweighted</code></td>
+                <td>F4</td>
+                <td>1.000000</td>
+                <td>1.000000</td>
+                <td>0.438596</td>
+              </tr>
+              <tr>
+                <td><code>tabular_mlp_unweighted</code></td>
+                <td>F3</td>
+                <td>1.000000</td>
+                <td>0.929825</td>
+                <td>0.666667</td>
+              </tr>
+              <tr>
+                <td><code>sequence_cnn_unweighted</code></td>
+                <td>S1</td>
+                <td>0.947059</td>
+                <td>0.883041</td>
+                <td>0.959064</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="callout warning">
+            <strong>Guide caveat:</strong> Test setinde 29 guide vardır; 20 guide positive-only, 1 guide negative-only ve
+            8 guide mixed-class yapıdadır. Guide <code>9251</code>, 169 test negatifinin 80'ini taşır. Bu nedenle küçük metrik
+            farkları guide kompozisyonundan etkilenebilir.
+          </div>
+        </section>
+
+        <section id="findings">
+          <h2>11. Ana Bulgular</h2>
+          <ul>
+            <li><span class="tag primary">Bulgu 1</span> XGBoost F4, AUPRC <code>0.992522</code> ile Sprint 2'nin en güçlü non-graph baseline'ı olmuştur.</li>
+            <li><span class="tag primary">Bulgu 2</span> En büyük feature jump F3'te, experimental epigenetic scalar feature'lar eklenince oluşmuştur.</li>
+            <li><span class="tag control">Bulgu 3</span> F4 computed nucleosome aggregate feature'ları ek katkı sağlamıştır, fakat ana sinyalin tamamı buradan gelmemiştir.</li>
+            <li><span class="tag warning">Bulgu 4</span> Logistic Regression ve sequence-only neural modeller guide-held-out testte zayıf kalmıştır.</li>
+            <li><span class="tag control">Bulgu 5</span> Tabular MLP, Logistic Regression'dan güçlüdür ancak XGBoost'u geçmemiştir.</li>
+            <li><span class="tag warning">Bulgu 6</span> CNN + F4 late fusion, sequence CNN'e göre sınırlı ranking iyileşmesi sağlamış ama all-positive threshold davranışından çıkamamıştır.</li>
+          </ul>
+        </section>
+
+        <section id="literature">
+          <h2>12. Literatürle İlişki</h2>
+          <p>
+            Sprint 2 literatürle iki yönden uyumludur. Birincisi, CRISPR off-target tahmininde sequence ve mismatch bilgisi
+            önemlidir fakat tek başına her zaman yeterli değildir. İkincisi, epigenetik/kromatin bağlamının activity veya
+            off-target davranışıyla ilişkili olabileceği fikri, F3 ile gelen büyük XGBoost sıçramasıyla model davranışı
+            düzeyinde desteklenmiştir.
+          </p>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Literatür Fikri</th>
+                <th>Sprint 2'deki Karşılığı</th>
+                <th>Claim Sınırı</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Sequence mismatch off-target tahminde önemlidir</td>
+                <td>F1 ve S1 sequence/mismatch baseline'ları kuruldu.</td>
+                <td>Bu split altında sequence-only modeller güçlü sonuç vermedi.</td>
+              </tr>
+              <tr>
+                <td>Epigenetik/kromatin bağlam CRISPR activity ile ilişkili olabilir</td>
+                <td>F3 experimental epigenetic scalar feature'lar XGBoost'ta büyük sıçrama üretti.</td>
+                <td>Bu predictive signal'dır; causal biological evidence değildir.</td>
+              </tr>
+              <tr>
+                <td>Nucleosome context ek bilgi taşıyabilir</td>
+                <td>F4 computed nucleosome aggregates en iyi XGBoost sonucunu verdi.</td>
+                <td>F4 lift daha küçük ve model-dependent olarak anlatılmalıdır.</td>
+              </tr>
+              <tr>
+                <td>Imbalanced evaluation'da AUPRC önemlidir</td>
+                <td>AUPRC primary metric olarak kullanıldı; prevalence raporlandı.</td>
+                <td>F1 veya accuracy üzerinden ana claim kurulmadı.</td>
+              </tr>
+              <tr>
+                <td>Paper reproduction için target/split/metric eşleşmesi gerekir</td>
+                <td>Scheme A binary classification kullanıldı.</td>
+                <td>Mak et al. CA regression reproduction iddiası kurulmadı.</td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+
+        <section id="boundaries">
+          <h2>13. Claim Sınırları</h2>
+          <p>
+            Sprint 2 güçlü bir baseline sprintidir; fakat bazı iddialar özellikle kurulmalıdır, bazıları ise kaçınılmalıdır.
+          </p>
+
+          <ul>
+            <li><span class="tag primary">Doğru claim</span> XGBoost F3/F4, gelecekteki GNN modelleri için ana non-graph benchmark olmalıdır.</li>
+            <li><span class="tag primary">Doğru claim</span> Experimental epigenetic scalar feature'lar, XGBoost performansında büyük bir predictive sıçrama üretmiştir.</li>
+            <li><span class="tag control">Doğru claim</span> Computed nucleosome aggregates F4'te ek katkı sağlamıştır, fakat bu katkı F3 sıçramasından küçüktür.</li>
+            <li><span class="tag warning">Dikkat</span> Sequence-only modellerin zayıf kalması, tüm sequence modellerinin genel olarak başarısız olduğu anlamına gelmez.</li>
+            <li><span class="tag warning">Dikkat</span> AUPRC test prevalence <code>0.900705</code> ile birlikte yorumlanmalıdır.</li>
+            <li><span class="tag risk">Yanlış claim</span> "Klasik modeller kötü, bu yüzden GNN gerekli" denemez.</li>
+            <li><span class="tag risk">Yanlış claim</span> "Epigenetik feature'lar causal mekanizmayı kanıtladı" denemez.</li>
+            <li><span class="tag risk">Yanlış claim</span> "Mak et al. 2022 birebir reproduce edildi" denemez.</li>
+          </ul>
+        </section>
+
+        <section id="summary">
+          <h2>14. Final Özet</h2>
+          <div class="summary-box">
+            Sprint 2, CRISPR-Cas9 off-target prediction projesinde GNN modellerine geçmeden önce adil, leakage-safe ve
+            güçlü non-graph baseline'ları kurmak için yürütülen temel karşılaştırma sprintidir. Bu sprintte Scheme A
+            label'ı, <code>sprint2_main_seed42</code> guide-level split'i, measured-only train/validation/test evreni,
+            <code>experiment_id=18</code> hariç ana değerlendirme politikası, train-only preprocessing ve validation-selected
+            threshold kontratı sabit tutulmuştur. Önce F1-F4 feature ladder kurulmuş; F1 sequence/mismatch, F2 binding-energy,
+            F3 experimental epigenetic scalar ve F4 computed nucleosome aggregate + missingness bilgisini kademeli olarak
+            eklemiştir. Logistic Regression, pipeline'ın çalıştığını doğrulayan fakat negatif sınıfı ayırmakta zayıf kalan
+            bir lineer baseline olarak kalmış; en iyi Logistic Regression sonucu F4 ile AUPRC <code>0.917126</code> üretmiş
+            ancak MCC negatif ve TN sayısı yalnızca 1 olmuştur. XGBoost deneyleri sprintin ana sonucunu üretmiş, özellikle
+            F3 ile AUPRC <code>0.985918</code>'e büyük bir sıçrama yapmış ve F4 ile AUPRC <code>0.992522</code>, AUROC
+            <code>0.938416</code>, MCC <code>0.345198</code> ve TN/FP/FN/TP <code>38/131/21/1512</code> değerlerine ulaşarak
+            projenin ana non-GNN baseline'ı haline gelmiştir. Feature importance diagnostikleri, F4 modelinde sequence-summary
+            ve experimental epigenetic ailelerinin ana predictive payı taşıdığını, computed nucleosome aggregate feature'ların
+            ise daha küçük fakat ek bir katkı sağladığını göstermiştir. Tabular MLP, Logistic Regression'a göre daha güçlü
+            olmuş ve F3 ile AUPRC <code>0.959889</code> üretmiş, ancak XGBoost'u geçememiştir. Sequence-only CNN/BiLSTM
+            modelleri ise locked measured-only guide-level split altında güçlü genelleme göstermemiş; en iyi sequence CNN
+            sonucu AUPRC <code>0.920075</code> olsa da MCC negatif ve TN sayısı 0 kalmıştır. CNN + F3/F4 late fusion, pure
+            sequence modele göre sınırlı ranking iyileşmesi sağlamış fakat XGBoost ve tabular MLP'nin gerisinde kalmıştır.
+            Bu sprintin nihai proje katkısı, sonraki GNN sprintleri için gerçekçi ve güçlü bir çıta koymasıdır: GNN'lerin
+            yalnızca Logistic Regression veya sequence-only modelleri geçmesi yeterli değildir; graph yapısının değerini
+            savunabilmek için XGBoost F3/F4 gibi güçlü context-rich tabular baseline'larla aynı split, aynı label ve aynı
+            no-test-tuning protokolü altında karşılaştırılması gerekir.
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+</body>
+</html>

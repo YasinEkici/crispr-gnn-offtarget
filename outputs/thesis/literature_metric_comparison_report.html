@@ -1,0 +1,927 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Literatürle Karşılaştırma, AUPRC-MCC Yorumu ve Rare-Negative Davranışı</title>
+  <style>
+    :root {
+      --bg: #f6f8fb;
+      --paper: #ffffff;
+      --ink: #182230;
+      --muted: #667085;
+      --line: #d9e0ea;
+      --accent: #0f766e;
+      --accent-soft: #e5f5f2;
+      --blue: #1d4ed8;
+      --blue-soft: #e8f0ff;
+      --amber: #a15c07;
+      --amber-soft: #fff5df;
+      --red: #b42318;
+      --red-soft: #fff0ed;
+      --green: #147d4f;
+      --green-soft: #e7f7ef;
+      --slate: #26384f;
+      --slate-soft: #edf2f7;
+      --code-bg: #eef2f7;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.58;
+    }
+
+    a {
+      color: var(--blue);
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    .page {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 32px 24px 58px;
+    }
+
+    .hero {
+      border-radius: 8px;
+      padding: 38px;
+      color: #ffffff;
+      background:
+        linear-gradient(135deg, rgba(16, 42, 67, 0.98), rgba(15, 118, 110, 0.94)),
+        linear-gradient(45deg, #102a43, #0f766e);
+      box-shadow: 0 20px 44px rgba(16, 42, 67, 0.18);
+      margin-bottom: 24px;
+    }
+
+    .eyebrow {
+      margin: 0 0 12px;
+      font-size: 0.86rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.78);
+    }
+
+    h1 {
+      margin: 0;
+      max-width: 980px;
+      font-size: clamp(2rem, 4.2vw, 3.55rem);
+      line-height: 1.04;
+      letter-spacing: 0;
+    }
+
+    .hero p {
+      max-width: 960px;
+      margin: 18px 0 0;
+      color: rgba(255, 255, 255, 0.88);
+      font-size: 1.08rem;
+    }
+
+    .hero-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 24px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 32px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      color: #ffffff;
+      background: rgba(255, 255, 255, 0.14);
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      font-size: 0.88rem;
+      white-space: nowrap;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 286px minmax(0, 1fr);
+      gap: 24px;
+      align-items: start;
+    }
+
+    nav {
+      position: sticky;
+      top: 18px;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 18px;
+    }
+
+    nav h2 {
+      margin: 0 0 12px;
+      font-size: 1rem;
+    }
+
+    nav ol {
+      margin: 0;
+      padding-left: 18px;
+      color: var(--muted);
+    }
+
+    nav li {
+      margin: 8px 0;
+    }
+
+    section {
+      margin-bottom: 18px;
+      padding: 28px;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+    }
+
+    h2 {
+      margin: 0 0 16px;
+      font-size: 1.55rem;
+      line-height: 1.25;
+      letter-spacing: 0;
+    }
+
+    h3 {
+      margin: 24px 0 10px;
+      font-size: 1.08rem;
+      line-height: 1.3;
+      letter-spacing: 0;
+    }
+
+    p {
+      margin: 0 0 14px;
+    }
+
+    .lead {
+      color: #344054;
+      font-size: 1.06rem;
+    }
+
+    .callout {
+      margin: 18px 0;
+      padding: 16px 18px;
+      border-radius: 6px;
+      border-left: 5px solid var(--accent);
+      background: var(--accent-soft);
+    }
+
+    .callout.info {
+      border-left-color: var(--blue);
+      background: var(--blue-soft);
+    }
+
+    .callout.warning {
+      border-left-color: var(--amber);
+      background: var(--amber-soft);
+    }
+
+    .callout.risk {
+      border-left-color: var(--red);
+      background: var(--red-soft);
+    }
+
+    .callout.neutral {
+      border-left-color: var(--slate);
+      background: var(--slate-soft);
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+      margin: 20px 0 8px;
+    }
+
+    .stat {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 16px;
+      background: #fbfcfe;
+    }
+
+    .stat strong {
+      display: block;
+      font-size: 1.45rem;
+      line-height: 1.15;
+      color: var(--ink);
+    }
+
+    .stat span {
+      display: block;
+      margin-top: 6px;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      margin: 18px 0;
+    }
+
+    .card {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 18px;
+      background: #fbfcfe;
+    }
+
+    .card h3 {
+      margin-top: 0;
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+      margin: 16px 0;
+    }
+
+    .definition {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 15px;
+      background: #fbfcfe;
+    }
+
+    .definition strong {
+      display: block;
+      margin-bottom: 6px;
+      color: #111827;
+    }
+
+    ul {
+      margin: 10px 0 16px;
+      padding-left: 20px;
+    }
+
+    li {
+      margin: 7px 0;
+    }
+
+    code,
+    pre {
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+    }
+
+    code {
+      padding: 2px 5px;
+      border-radius: 4px;
+      background: var(--code-bg);
+      color: #111827;
+      font-size: 0.92em;
+    }
+
+    pre {
+      overflow-x: auto;
+      margin: 16px 0;
+      padding: 16px;
+      border-radius: 8px;
+      background: #111827;
+      color: #e5e7eb;
+      font-size: 0.92rem;
+      line-height: 1.5;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0 8px;
+      font-size: 0.94rem;
+    }
+
+    th,
+    td {
+      padding: 11px 12px;
+      border: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background: #f1f5f9;
+      color: #233044;
+      font-weight: 700;
+    }
+
+    tr:nth-child(even) td {
+      background: #fbfcfe;
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      min-height: 26px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      font-size: 0.82rem;
+      font-weight: 650;
+      background: var(--slate-soft);
+      color: var(--slate);
+      white-space: nowrap;
+    }
+
+    .tag.primary {
+      background: var(--accent-soft);
+      color: var(--accent);
+    }
+
+    .tag.control {
+      background: var(--blue-soft);
+      color: var(--blue);
+    }
+
+    .tag.warning {
+      background: var(--amber-soft);
+      color: var(--amber);
+    }
+
+    .tag.risk {
+      background: var(--red-soft);
+      color: var(--red);
+    }
+
+    .small {
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .summary-box {
+      border: 1px solid #b7dfd8;
+      border-radius: 8px;
+      padding: 20px;
+      background: #f0fbf8;
+      font-size: 1.02rem;
+    }
+
+    @media (max-width: 920px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+
+      nav {
+        position: static;
+      }
+
+      .stats,
+      .cards,
+      .two-col {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .page {
+        padding: 20px 14px 40px;
+      }
+
+      .hero,
+      section {
+        padding: 22px;
+      }
+
+      table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header class="hero">
+      <p class="eyebrow">CRISPR-GNN Tez Raporu</p>
+      <h1>Literatürle Karşılaştırma, AUPRC-MCC Yorumu ve Rare-Negative Davranışı</h1>
+      <p>
+        Bu rapor, projenin sonuçlarını CRISPR off-target prediction, epigenetic-context modeling, graph learning ve
+        imbalanced classification literatürüyle karşılaştırır. Ana sonuç temkinlidir: AUPRC model sıralaması için primary
+        metric olarak kalır; MCC, specificity ve confusion matrix ise validation-kilitli eşikte rare measured negative
+        davranışını görünür kılar.
+      </p>
+      <div class="hero-meta">
+        <span class="pill">AUPRC primary</span>
+        <span class="pill">MCC operating point</span>
+        <span class="pill">Rare measured negatives</span>
+        <span class="pill">No robust superiority</span>
+      </div>
+    </header>
+
+    <div class="layout">
+      <nav aria-label="İçindekiler">
+        <h2>İçindekiler</h2>
+        <ol>
+          <li><a href="#source-note">Kaynak Notu</a></li>
+          <li><a href="#metrics">Literatürde Metrikler</a></li>
+          <li><a href="#test-geometry">Zor Test Evreni</a></li>
+          <li><a href="#auprc-primary">AUPRC Neden Primary?</a></li>
+          <li><a href="#mcc-specificity">MCC ve Specificity</a></li>
+          <li><a href="#model-table">Model Karşılaştırması</a></li>
+          <li><a href="#why-negatives">Neden Daha Çok Negatif?</a></li>
+          <li><a href="#literature-position">Kavramsal Konum</a></li>
+          <li><a href="#claims">İddia Sınırları</a></li>
+          <li><a href="#advisor">Danışman Versiyonu</a></li>
+          <li><a href="#summary">Final Özet</a></li>
+        </ol>
+      </nav>
+
+      <main>
+        <section id="source-note">
+          <h2>1. Kaynak Notu</h2>
+          <p class="lead">
+            Rapor, proje karar dokümanları, Sprint 2/7/8/9 raporları ve literatür ekseni notları üzerinden hazırlanmıştır.
+            Belirtilen tez PDF yolu dosya sisteminde bulunamadığı için PDF doğrudan okunamamıştır.
+          </p>
+
+          <div class="callout warning">
+            <strong>PDF notu:</strong> <code>docs/thesis/latex/KasımDeliacı_YasinEkici_tez.pdf</code> mevcut değildir.
+            Bu nedenle değerlendirme <code>docs/thesis/notes/main_narrative_framing.md</code>, proje protokol dokümanları,
+            sprint HTML/markdown raporları ve <code>docs/literature/axes/</code> altındaki literatür notlarına dayanır.
+          </div>
+
+          <div class="stats">
+            <div class="stat">
+              <strong>0.900705</strong>
+              <span>Test positive prevalence ve no-skill PR baseline</span>
+            </div>
+            <div class="stat">
+              <strong>0.992522</strong>
+              <span>XGBoost F4 historical AUPRC</span>
+            </div>
+            <div class="stat">
+              <strong>0.986020</strong>
+              <span>S8B_R2 en yüksek single-seed GNN AUPRC</span>
+            </div>
+            <div class="stat">
+              <strong>146</strong>
+              <span>S8B_R2 true negative sayısı</span>
+            </div>
+          </div>
+        </section>
+
+        <section id="metrics">
+          <h2>2. Literatürde Metrik Kullanımı</h2>
+          <p>
+            CRISPR off-target literatüründe metrik seçimi doğrudan benchmark evrenine bağlıdır. Genome-wide tarama
+            çalışmalarında aktif off-target pozitifleri genellikle çok nadirdir; bu nedenle ROC-AUC tek başına yanıltıcı
+            olabilir ve PR-AUC/AUPRC sık kullanılır. Bu projede ise measured-only test evreni ters bir geometriye sahiptir:
+            pozitifler çoğunluktadır, nadir sınıf measured negative satırlardır.
+          </p>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Metrik</th>
+                <th>Ne Ölçer?</th>
+                <th>Dengesiz Veride Avantaj / Dezavantaj</th>
+                <th>Bu Projede Kullanımı</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>AUPRC / PR-AUC</td>
+                <td>Skor sıralamasında precision-recall trade-off'unu threshold seçmeden ölçer.</td>
+                <td>Pozitif sınıf retrieval kalitesine duyarlıdır; prevalence ile birlikte okunmalıdır.</td>
+                <td>Primary metric olarak korunmuştur. No-skill PR baseline test prevalence <code>0.900705</code>'tir.</td>
+              </tr>
+              <tr>
+                <td>AUROC</td>
+                <td>Pozitif ve negatif skorlarının genel ayrışmasını threshold-free ölçer.</td>
+                <td>Çok dengesiz veride iyi görünebilir; PR davranışını tek başına anlatmaz.</td>
+                <td>Secondary ranking metric olarak verilmiştir; AUPRC'nin yerine geçirilmemiştir.</td>
+              </tr>
+              <tr>
+                <td>Accuracy / F1</td>
+                <td>Seçili threshold altında doğru sınıflandırma veya precision-recall harmonik ortalaması.</td>
+                <td>Yüksek prevalence altında all-positive classifier bile yüksek F1 üretebilir.</td>
+                <td>F1 threshold selection için validation tarafında kullanılmıştır; ana claim metriği değildir.</td>
+              </tr>
+              <tr>
+                <td>MCC</td>
+                <td>TP, TN, FP, FN dengesini tek katsayıda birleştirir.</td>
+                <td>Her iki sınıfa duyarlıdır; fakat threshold-dependent olduğu için ranking metriği değildir.</td>
+                <td>Rare measured negative recognition davranışını görünür kılan ana secondary metric'tir.</td>
+              </tr>
+              <tr>
+                <td>Specificity</td>
+                <td>Gerçek negatiflerin ne kadarının negatif tahmin edildiğini ölçer: TN / (TN + FP).</td>
+                <td>Nadir negatif sınıf için çok açıklayıcıdır; fakat FN artışıyla birlikte okunmalıdır.</td>
+                <td>GNN'lerin F4'e göre daha fazla measured negative yakalama eğilimini gösterir.</td>
+              </tr>
+              <tr>
+                <td>Confusion matrix</td>
+                <td>TN/FP/FN/TP sayılarının doğrudan dökümüdür.</td>
+                <td>Aggregate metriklerin sakladığı trade-off'u gösterir.</td>
+                <td>S8B_R2'nin TN artışıyla birlikte FN artışını da açıkça gösterir.</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="callout info">
+            <strong>Literatür bağlantısı:</strong> Gao et al. gibi CRISPR imbalance çalışmaları benchmark'ın gerçek sınıf
+            dağılımıyla değerlendirilmesi gerektiğini vurgular. Kapoor & Narayanan çizgisi ise leakage, metric mismatch ve
+            test tuning risklerinin bilimsel claim'leri şişirebileceğini gösterir. Bu nedenle bu projede AUPRC-primary ve
+            no-test-tuning disiplini birlikte korunmuştur.
+          </div>
+        </section>
+
+        <section id="test-geometry">
+          <h2>3. Bu Projede Test Evreni Neden Zor?</h2>
+          <p>
+            Test seti satır sayısı bakımından makul görünse de istatistiksel olarak küçük ve dengesiz bir guide geometrisine
+            sahiptir. Bu durum özellikle rare-negative sonuçlarının yorumunu kırılgan hale getirir.
+          </p>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Özellik</th>
+                <th>Değer</th>
+                <th>Metrik Yorumu</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Test satırı</td>
+                <td>1702</td>
+                <td>Satır sayısı tek başına güven aralığını belirlemez; bağımsız guide sayısı daha kritik hale gelir.</td>
+              </tr>
+              <tr>
+                <td>Guide sayısı</td>
+                <td>29</td>
+                <td>Guide-cluster bootstrap aralıklarının geniş olmasının temel nedeni budur.</td>
+              </tr>
+              <tr>
+                <td>Pozitif / negatif</td>
+                <td>1533 pozitif, 169 negatif</td>
+                <td>AUPRC yüksek görünmeye yatkındır; MCC/specificity negatif sınıfı ayrıca görünür kılar.</td>
+              </tr>
+              <tr>
+                <td>Pozitif prevalans</td>
+                <td>0.900705</td>
+                <td>AUPRC için no-skill PR baseline'dır; "floor" gibi sunulmamalıdır.</td>
+              </tr>
+              <tr>
+                <td>Negatif taşıyan guide</td>
+                <td>9 guide</td>
+                <td>Specificity ve TN sayısı guide kompozisyonuna çok duyarlıdır.</td>
+              </tr>
+              <tr>
+                <td>Guide 9251</td>
+                <td>80 negatif</td>
+                <td>Negatiflerin yaklaşık %47.3'ünü tek başına taşır; rare-negative claim'leri kırılganlaştırır.</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="callout warning">
+            <strong>Önemli sonuç:</strong> AUPRC, MCC ve specificity aynı şeyi anlatmaz. AUPRC skor sıralamasının genel
+            kalitesini ölçer; MCC ve specificity ise validation-selected fixed threshold altında modelin nadir negatiflere
+            nasıl karar verdiğini gösterir.
+          </div>
+        </section>
+
+        <section id="auprc-primary">
+          <h2>4. AUPRC Neden Primary Metric?</h2>
+          <p>
+            AUPRC'nin primary metric olarak korunmasının nedeni yalnızca literatürde yaygın olması değildir. AUPRC threshold-free
+            bir ranking metriğidir; modelin test threshold'u ile oynanmadan, aynı skor evreninde karşılaştırılmasını sağlar.
+          </p>
+
+          <div class="cards">
+            <div class="card">
+              <h3>Threshold-Free</h3>
+              <p>AUPRC, test setinde bir karar eşiği seçmeyi gerektirmez. Bu nedenle no-test-tuning kontratıyla uyumludur.</p>
+            </div>
+            <div class="card">
+              <h3>Literatürle Uyumlu</h3>
+              <p>CRISPR off-target ve genel imbalanced classification literatüründe PR-AUC/AUPRC sıklıkla ana ranking ölçütüdür.</p>
+            </div>
+            <div class="card">
+              <h3>Güçlü Baseline'a Adil</h3>
+              <p>XGBoost F4 gibi güçlü bir baseline ile karşılaştırmada threshold seçimiyle sonradan avantaj yaratılmasını engeller.</p>
+            </div>
+          </div>
+
+          <div class="callout">
+            <strong>Bu projedeki sonuç:</strong> AUPRC'de XGBoost F4 en güçlü çizgidir. Historical F4 AUPRC
+            <code>0.992522</code>, Sprint 9 regenerated F4 AUPRC <code>0.992338</code>'dir. En yüksek single-seed GNN
+            AUPRC <code>0.986020</code> ile S8B_R2'den gelmiştir, fakat F4'ü geçmemiştir.
+          </div>
+        </section>
+
+        <section id="mcc-specificity">
+          <h2>5. MCC / Specificity Neden Önemli?</h2>
+          <p>
+            MCC ve specificity, AUPRC'nin alternatifi değildir; AUPRC'nin anlatmadığı operating-point hikayesini tamamlar.
+            Bu projede rare class, genome-wide literatürdeki tipik pozitif off-target sınıfı değil, measured-only testteki
+            negatif sınıftır. Bu nedenle "off-target olmayanı ayırma" davranışı ayrıca okunmalıdır.
+          </p>
+
+          <div class="two-col">
+            <div class="definition">
+              <strong>MCC neyi görünür kıldı?</strong>
+              Modelin sadece pozitifleri yakalayıp yakalamadığını değil, aynı anda negatifleri doğru ayırıp ayırmadığını
+              gösterdi. Bu nedenle all-positive threshold collapse davranışlarını cezalandırdı.
+            </div>
+            <div class="definition">
+              <strong>Specificity neyi görünür kıldı?</strong>
+              169 measured negative satırın ne kadarının gerçekten negatif tahmin edildiğini gösterdi. S8B_R2 için bu değer
+              <code>0.863905</code>, F4 historical için confusion matrix üzerinden çok daha düşüktür.
+            </div>
+            <div class="definition">
+              <strong>Neden primary yapılmadı?</strong>
+              MCC ve specificity validation-selected threshold'a bağlıdır. Threshold değişirse bu metrikler de değişir.
+              Bu nedenle model ranking metriği olarak AUPRC'nin yerine geçirilmemiştir.
+            </div>
+            <div class="definition">
+              <strong>Nerede daha açıklayıcı?</strong>
+              Soru "hangi model skor sıralamasında daha iyi?" değil de "bu sabit karar eşiğinde rare measured negatives
+              daha iyi ayrılıyor mu?" olduğunda MCC/specificity daha açıklayıcıdır.
+            </div>
+          </div>
+
+          <pre>XGBoost F4 historical confusion: 38/131/21/1512
+S8B_R2 sequence + context:       146/23/180/1353
+
+Yorum:
+S8B_R2 çok daha fazla true negative yakalar.
+Bunun karşılığında false negative sayısı artar.
+Bu nedenle sonuç "GNN daha iyi" değil, "GNN farklı bir operating point trade-off'u üretti" şeklinde okunmalıdır.</pre>
+        </section>
+
+        <section id="model-table">
+          <h2>6. Ana Model Karşılaştırması</h2>
+          <p>
+            Aşağıdaki tablo final leaderboard gibi değil, metrik hikayesini taşıyan anchor tablo olarak okunmalıdır.
+            AUPRC önce verilir; MCC, specificity ve confusion matrix operating-point yorumu olarak eklenir.
+          </p>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Model</th>
+                <th>AUPRC</th>
+                <th>AUROC</th>
+                <th>MCC</th>
+                <th>Specificity</th>
+                <th>TN/FP/FN/TP</th>
+                <th>Yorum</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>XGBoost F4 historical</td>
+                <td>0.992522</td>
+                <td>0.938416</td>
+                <td>0.345198</td>
+                <td>0.224852</td>
+                <td>38/131/21/1512</td>
+                <td>Primary AUPRC bar; en güçlü non-GNN baseline.</td>
+              </tr>
+              <tr>
+                <td>S7F_R2 family-aware</td>
+                <td>0.982062</td>
+                <td>0.906557</td>
+                <td>0.603489</td>
+                <td>0.650888</td>
+                <td>110/59/63/1470</td>
+                <td>En güçlü rare-negative MCC/macro-F1 profillerinden biri.</td>
+              </tr>
+              <tr>
+                <td>S7F_R3 experimental emphasis</td>
+                <td>0.984945</td>
+                <td>0.926551</td>
+                <td>0.568108</td>
+                <td>0.497041</td>
+                <td>84/85/31/1502</td>
+                <td>Güçlü GNN ranking ve dengeli operating-point adayı.</td>
+              </tr>
+              <tr>
+                <td>S8A_R2 context-edge FiLM</td>
+                <td>0.982757</td>
+                <td>0.910575</td>
+                <td>0.563656</td>
+                <td>0.520710</td>
+                <td>88/81/39/1494</td>
+                <td>Context-edge interaction çizgisinin validation-selected adayı.</td>
+              </tr>
+              <tr>
+                <td>S8B_R2 sequence + context</td>
+                <td>0.986020</td>
+                <td>0.903480</td>
+                <td>0.567309</td>
+                <td>0.863905</td>
+                <td>146/23/180/1353</td>
+                <td>En yüksek single-seed GNN AUPRC ve en yüksek TN recovery; FN trade-off'u yüksek.</td>
+              </tr>
+              <tr>
+                <td>Sprint 9 regenerated F4</td>
+                <td>0.992338</td>
+                <td>0.9364</td>
+                <td>0.3511</td>
+                <td>0.2367</td>
+                <td>40/129/23/1510</td>
+                <td>Paired Sprint 9 analizleri için yeniden üretilmiş F4; historical ile fark version drift.</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="callout warning">
+            <strong>Tablonun doğru okuması:</strong> F4 AUPRC'de en güçlüdür. GNN modelleri MCC/specificity ve TN sayısında
+            rare-negative recognition sinyali verir. Bu sinyal threshold-dependent, seed-fragile ve guide-composition-fragile
+            olduğu için AUPRC sıralamasının yerine geçmez.
+          </div>
+        </section>
+
+        <section id="why-negatives">
+          <h2>7. Neden GNN Daha Çok Negatif Yakaladı?</h2>
+          <p>
+            Bu soruya causal biyolojik mekanizma gibi değil, model temsili ve operating-point davranışı düzeyinde cevap
+            verilmelidir. GNN'lerin daha fazla true negative yakalaması, Graph C ve family-aware çizgisinin farklı bir
+            karar yüzeyi kurmuş olabileceğini gösterir.
+          </p>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Teknik Bileşen</th>
+                <th>Olası Etki</th>
+                <th>Dikkat Edilecek Sınır</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Graph C target-observation context</td>
+                <td>Target tarafı yalnızca fiziksel site olarak değil, satır düzeyi observation/context olarak temsil edilmiştir.</td>
+                <td>Bu temsil değişimi topology-only kazanç gibi sunulmamalıdır.</td>
+              </tr>
+              <tr>
+                <td>Family-aware encoder</td>
+                <td>Experimental epigenetic, sequence/context, nucleosome ve missingness aileleri ayrı işlenmiştir.</td>
+                <td>Feature family ayrımı model davranışıdır; biyolojik nedensellik kanıtı değildir.</td>
+              </tr>
+              <tr>
+                <td>Context-edge FiLM</td>
+                <td>Target context ile binding-energy edge sinyalinin classifier head içinde etkileşmesi sağlanmıştır.</td>
+                <td>FiLM parametreleri biyolojik açıklama olarak yorumlanmamalıdır.</td>
+              </tr>
+              <tr>
+                <td>Sequence/context fusion</td>
+                <td>Sequence embedding ile Graph C context representation birlikte kullanılmıştır.</td>
+                <td>En iyi single-seed GNN sonucu olsa da robust AUPRC superiority değildir.</td>
+              </tr>
+              <tr>
+                <td>Frozen threshold trade-off</td>
+                <td>GNN'ler daha agresif negatif ayıran bir operating point'e oturmuş olabilir.</td>
+                <td>Daha fazla TN ile birlikte daha fazla FN oluşabilir; bu trade-off açık verilmelidir.</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="callout risk">
+            <strong>Yanlış yorumdan kaçınma:</strong> Attention, gate, FiLM veya feature masking çıktıları "epigenetik
+            feature'lar off-target davranışını causal olarak belirliyor" sonucunu vermez. En fazla, bu frozen benchmark
+            altında predictive ve mechanistic-hypothesis-generating sinyal olarak sunulabilir.
+          </div>
+        </section>
+
+        <section id="literature-position">
+          <h2>8. Literatürle Ruhani / Kavramsal Konum</h2>
+          <p>
+            Bu proje literatürle aynı yönde ama daha temkinli bir yerde durur. Sequence-heavy modellerle aynı problemi
+            çözmeye çalışır, fakat iddiasını sequence encoder üstünlüğünden değil context representation ve evaluation
+            disiplini üzerinden kurar.
+          </p>
+
+          <div class="cards">
+            <div class="card">
+              <h3>Sequence Modellerine Göre</h3>
+              <p>Sequence bilgisini dışlamaz; Sprint 8B'de sequence/context fusion test edilmiştir. Ancak bu çalışmanın
+              ana farkı sequence-only mimari yarışı değil, context-aware graph temsilidir.</p>
+            </div>
+            <div class="card">
+              <h3>Epigenetic-Context Literatürüne Göre</h3>
+              <p>Mak et al. çizgisiyle uyumludur; chromatin/nucleosome context'in predictive sinyal taşıyabileceğini
+              kabul eder. Ancak CA regression veya SHAP reproduction iddiası kurmaz.</p>
+            </div>
+            <div class="card">
+              <h3>GNN Literatürüne Göre</h3>
+              <p>Graph link-prediction fikrini kullanır, fakat "graph her şeyi çözdü" demez. Graph semantiğini A/B/C
+              ile kontrollü test eder.</p>
+            </div>
+          </div>
+
+          <div class="callout">
+            <strong>Konumsal özet:</strong> Sonuçlar güçlü ama temkinlidir. XGBoost F4 gibi ciddi bir baseline'a karşı
+            AUPRC superiority gösterilememiştir; buna rağmen Graph C çizgisi rare-negative operating point açısından
+            literatürdeki context ve graph-learning motivasyonuyla uyumlu, raporlanmaya değer bir davranış üretmiştir.
+          </div>
+        </section>
+
+        <section id="claims">
+          <h2>9. Ne İddia Edilebilir, Ne Edilemez?</h2>
+          <div class="two-col">
+            <div class="definition">
+              <strong>İddia edilebilir</strong>
+              <ul>
+                <li>XGBoost F4 AUPRC'de en güçlü baseline'dır.</li>
+                <li>GNN modelleri rare measured negative recognition açısından ilginç threshold-dependent davranış göstermiştir.</li>
+                <li>Bu davranış Sprint 9'da robust AUPRC superiority'ye dönüşmemiştir.</li>
+                <li>MCC/specificity, AUPRC'nin yakalamadığı operating-point trade-off'u görünür kılar.</li>
+              </ul>
+            </div>
+            <div class="definition">
+              <strong>İddia edilemez</strong>
+              <ul>
+                <li>GNN XGBoost'u geçti.</li>
+                <li>MCC daha yüksek olduğu için GNN genel olarak daha iyidir.</li>
+                <li>AUPRC gereksizdir.</li>
+                <li>Bu sonuç state-of-the-art'tır.</li>
+                <li>Epigenetik feature'lar causal mekanizmayı kanıtladı.</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="callout neutral">
+            <strong>MCC dili nasıl kurulmalı?</strong> "MCC bu projede daha uygundur" ifadesi tek başına fazla güçlüdür.
+            Daha doğru ifade şudur: MCC, validation-selected fixed threshold altında pozitif ve negatif sınıfı birlikte
+            değerlendirdiği için rare-negative recognition davranışını AUPRC'den daha görünür kılar; ancak threshold-dependent
+            olduğu için primary ranking metric olan AUPRC'nin yerine geçirilmemelidir.
+          </div>
+        </section>
+
+        <section id="advisor">
+          <h2>10. Danışmana Anlatılacak Kısa Versiyon</h2>
+          <p>
+            Bu projede literatürle karşılaştırma yapılırken en önemli ayrım ranking başarımı ile karar eşiği davranışını
+            ayırmaktır. CRISPR off-target prediction literatüründe AUPRC/PR-AUC özellikle dengesiz veri nedeniyle önemli
+            bir metriktir; bu projede de primary metric olarak korunmuştur. Test evreni measured-only ve guide-disjointtir:
+            1702 satır, 29 guide, 1533 pozitif ve 169 negatif içerir. Pozitif prevalans <code>0.900705</code> olduğu için
+            AUPRC bu baseline ile birlikte okunmalıdır.
+          </p>
+          <p>
+            AUPRC açısından en güçlü ve en stabil model XGBoost F4 olmuştur. Historical F4 AUPRC <code>0.992522</code>,
+            Sprint 9 regenerated F4 AUPRC <code>0.992338</code>'dir. En iyi single-seed GNN olan S8B_R2 ise
+            <code>0.986020</code> AUPRC üretmiştir; yani GNN, F4'ü primary metric'te geçmemiştir. Sprint 9 bootstrap,
+            paired-difference ve multi-seed analizleri de bu farkların robust superiority olarak savunulamayacağını göstermiştir.
+          </p>
+          <p>
+            Buna rağmen GNN çizgisi başarısız değildir. Graph C target-observation context, family-aware GATv2,
+            context-edge FiLM ve sequence/context fusion modelleri validation-kilitli threshold altında rare measured
+            negative sınıfını daha iyi tanıma eğilimi göstermiştir. Örneğin S8B_R2, F4 historical modelinin 38 true
+            negative'ine karşı 146 true negative yakalamıştır; fakat bunun bedeli 180 false negative'tir. Bu nedenle ana
+            hikaye "GNN daha iyi" değil, "GNN farklı ve biyolojik olarak anlamlı olabilecek bir rare-negative operating-point
+            trade-off'u üretmiştir; bu etki threshold-dependent, seed-fragile ve guide-composition-fragile'dır" şeklinde
+            kurulmalıdır.
+          </p>
+        </section>
+
+        <section id="summary">
+          <h2>11. Final Özet</h2>
+          <div class="summary-box">
+            Bu rapor, CRISPR-Cas9 off-target prediction projesindeki sonuçları literatürdeki metrik kullanımı ve model
+            değerlendirme pratikleriyle karşılaştırarak AUPRC ile MCC/specificity arasındaki ayrımı netleştirmektedir.
+            Literatürde PR-AUC/AUPRC, özellikle dengesiz off-target benchmarklarında ROC-AUC ve accuracy'nin saklayabileceği
+            hataları görünür kıldığı için önemli bir ranking metriğidir; bu projede de AUPRC primary metric olarak kalmıştır.
+            Bununla birlikte yerel measured-only test evreni alışılmış genome-wide retrieval düzeninden farklıdır: 1702 test
+            satırının 1533'ü pozitif, 169'u negatif, pozitif prevalansı <code>0.900705</code>'tir ve negatifler yalnızca 9 guide
+            içinde, özellikle guide <code>9251</code>'de yoğunlaşmıştır. Bu geometri AUPRC'yi model sıralaması için gerekli,
+            fakat rare measured negative davranışını tek başına açıklamak için yetersiz kılar. XGBoost F4 historical AUPRC
+            <code>0.992522</code> ve Sprint 9 regenerated AUPRC <code>0.992338</code> ile en güçlü ve en stabil baseline olarak
+            kalmıştır; en iyi single-seed GNN olan <code>S8B_R2_sequence_plus_context</code> AUPRC <code>0.986020</code> üretmiş,
+            fakat F4'ü geçmemiştir. Sprint 9 paired-difference, guide-cluster bootstrap ve multi-seed sonuçları AUPRC
+            üstünlüğü iddiasını desteklememiş; farklar <em>compatible with no difference</em> olarak kalmıştır. Buna karşılık
+            MCC, specificity ve confusion matrix, Graph C target-observation context ve family-aware/sequence-context GNN
+            çizgisinin validation-selected fixed threshold altında daha fazla measured negative yakaladığını göstermiştir:
+            S8B_R2 <code>146</code> true negative ve specificity <code>0.863905</code> üretirken, historical F4 <code>38</code>
+            true negative üretmiştir. Bu bulgu literatürdeki epigenetic/chromatin context ve graph-learning motivasyonuyla
+            kavramsal olarak uyumludur, fakat causal biological mechanism veya state-of-the-art iddiası değildir. Tezde en
+            savunulabilir sonuç şudur: AUPRC model ranking'i için korunmalı; MCC/specificity ise rare-negative operating-point
+            katkısını açıklamak için güçlü secondary evidence olarak kullanılmalıdır. GNN'ler XGBoost F4'ü robust biçimde
+            geçmemiştir, ancak context-aware Graph C çizgisi threshold-dependent, seed-fragile ve guide-composition-fragile
+            bir rare measured negative recognition sinyali üretmiştir.
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+</body>
+</html>

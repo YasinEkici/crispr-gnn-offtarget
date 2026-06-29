@@ -1,0 +1,946 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Literatür Gap, Metodolojik Konum ve Proje Kararları</title>
+  <style>
+    :root {
+      --bg: #f6f8fb;
+      --paper: #ffffff;
+      --ink: #182230;
+      --muted: #667085;
+      --line: #d9e0ea;
+      --accent: #0f766e;
+      --accent-soft: #e5f5f2;
+      --blue: #1d4ed8;
+      --blue-soft: #e8f0ff;
+      --amber: #a15c07;
+      --amber-soft: #fff5df;
+      --red: #b42318;
+      --red-soft: #fff0ed;
+      --green: #147d4f;
+      --green-soft: #e7f7ef;
+      --slate: #26384f;
+      --slate-soft: #edf2f7;
+      --code-bg: #eef2f7;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.58;
+    }
+
+    a {
+      color: var(--blue);
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    .page {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 32px 24px 58px;
+    }
+
+    .hero {
+      border-radius: 8px;
+      padding: 38px;
+      color: #ffffff;
+      background:
+        linear-gradient(135deg, rgba(16, 42, 67, 0.98), rgba(15, 118, 110, 0.94)),
+        linear-gradient(45deg, #102a43, #0f766e);
+      box-shadow: 0 20px 44px rgba(16, 42, 67, 0.18);
+      margin-bottom: 24px;
+    }
+
+    .eyebrow {
+      margin: 0 0 12px;
+      font-size: 0.86rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.78);
+    }
+
+    h1 {
+      margin: 0;
+      max-width: 980px;
+      font-size: clamp(2rem, 4.2vw, 3.55rem);
+      line-height: 1.04;
+      letter-spacing: 0;
+    }
+
+    .hero p {
+      max-width: 960px;
+      margin: 18px 0 0;
+      color: rgba(255, 255, 255, 0.88);
+      font-size: 1.08rem;
+    }
+
+    .hero-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 24px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 32px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      color: #ffffff;
+      background: rgba(255, 255, 255, 0.14);
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      font-size: 0.88rem;
+      white-space: nowrap;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 286px minmax(0, 1fr);
+      gap: 24px;
+      align-items: start;
+    }
+
+    nav {
+      position: sticky;
+      top: 18px;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 18px;
+    }
+
+    nav h2 {
+      margin: 0 0 12px;
+      font-size: 1rem;
+    }
+
+    nav ol {
+      margin: 0;
+      padding-left: 18px;
+      color: var(--muted);
+    }
+
+    nav li {
+      margin: 8px 0;
+    }
+
+    section {
+      margin-bottom: 18px;
+      padding: 28px;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+    }
+
+    h2 {
+      margin: 0 0 16px;
+      font-size: 1.55rem;
+      line-height: 1.25;
+      letter-spacing: 0;
+    }
+
+    h3 {
+      margin: 24px 0 10px;
+      font-size: 1.08rem;
+      line-height: 1.3;
+      letter-spacing: 0;
+    }
+
+    p {
+      margin: 0 0 14px;
+    }
+
+    .lead {
+      color: #344054;
+      font-size: 1.06rem;
+    }
+
+    .callout {
+      margin: 18px 0;
+      padding: 16px 18px;
+      border-radius: 6px;
+      border-left: 5px solid var(--accent);
+      background: var(--accent-soft);
+    }
+
+    .callout.info {
+      border-left-color: var(--blue);
+      background: var(--blue-soft);
+    }
+
+    .callout.warning {
+      border-left-color: var(--amber);
+      background: var(--amber-soft);
+    }
+
+    .callout.risk {
+      border-left-color: var(--red);
+      background: var(--red-soft);
+    }
+
+    .callout.neutral {
+      border-left-color: var(--slate);
+      background: var(--slate-soft);
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+      margin: 20px 0 8px;
+    }
+
+    .stat {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 16px;
+      background: #fbfcfe;
+    }
+
+    .stat strong {
+      display: block;
+      font-size: 1.45rem;
+      line-height: 1.15;
+      color: var(--ink);
+    }
+
+    .stat span {
+      display: block;
+      margin-top: 6px;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      margin: 18px 0;
+    }
+
+    .card {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 18px;
+      background: #fbfcfe;
+    }
+
+    .card h3 {
+      margin-top: 0;
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+      margin: 16px 0;
+    }
+
+    .definition {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 15px;
+      background: #fbfcfe;
+    }
+
+    .definition strong {
+      display: block;
+      margin-bottom: 6px;
+      color: #111827;
+    }
+
+    ul {
+      margin: 10px 0 16px;
+      padding-left: 20px;
+    }
+
+    li {
+      margin: 7px 0;
+    }
+
+    code,
+    pre {
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+    }
+
+    code {
+      padding: 2px 5px;
+      border-radius: 4px;
+      background: var(--code-bg);
+      color: #111827;
+      font-size: 0.92em;
+    }
+
+    pre {
+      overflow-x: auto;
+      margin: 16px 0;
+      padding: 16px;
+      border-radius: 8px;
+      background: #111827;
+      color: #e5e7eb;
+      font-size: 0.92rem;
+      line-height: 1.5;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0 8px;
+      font-size: 0.94rem;
+    }
+
+    th,
+    td {
+      padding: 11px 12px;
+      border: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background: #f1f5f9;
+      color: #233044;
+      font-weight: 700;
+    }
+
+    tr:nth-child(even) td {
+      background: #fbfcfe;
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      min-height: 26px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      font-size: 0.82rem;
+      font-weight: 650;
+      background: var(--slate-soft);
+      color: var(--slate);
+      white-space: nowrap;
+    }
+
+    .tag.primary {
+      background: var(--accent-soft);
+      color: var(--accent);
+    }
+
+    .tag.control {
+      background: var(--blue-soft);
+      color: var(--blue);
+    }
+
+    .tag.warning {
+      background: var(--amber-soft);
+      color: var(--amber);
+    }
+
+    .tag.risk {
+      background: var(--red-soft);
+      color: var(--red);
+    }
+
+    .small {
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .summary-box {
+      border: 1px solid #b7dfd8;
+      border-radius: 8px;
+      padding: 20px;
+      background: #f0fbf8;
+      font-size: 1.02rem;
+    }
+
+    @media (max-width: 920px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+
+      nav {
+        position: static;
+      }
+
+      .stats,
+      .cards,
+      .two-col {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .page {
+        padding: 20px 14px 40px;
+      }
+
+      .hero,
+      section {
+        padding: 22px;
+      }
+
+      table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header class="hero">
+      <p class="eyebrow">CRISPR-GNN Tez Raporu</p>
+      <h1>Literatür Gap, Metodolojik Konum ve Proje Kararları</h1>
+      <p>
+        Bu rapor, CRISPR-Cas9 off-target prediction çalışmasının literatürdeki yerini açıklar. Ana fikir,
+        bir makaleyi birebir yeniden üretmek değil; Mak et al. veri ailesinden hareketle epigenetik/kromatin bağlamını,
+        guide-disjoint measured-only değerlendirme altında kontrollü bir graph-learning adaptasyonu olarak sınamaktır.
+      </p>
+      <div class="hero-meta">
+        <span class="pill">Sequence-only sınırı</span>
+        <span class="pill">Epigenetic context</span>
+        <span class="pill">Graph C target-observation</span>
+        <span class="pill">No overclaim</span>
+      </div>
+    </header>
+
+    <div class="layout">
+      <nav aria-label="İçindekiler">
+        <h2>İçindekiler</h2>
+        <ol>
+          <li><a href="#source-note">Kaynak Notu</a></li>
+          <li><a href="#literature-map">Literatür Haritası</a></li>
+          <li><a href="#gap">Literatürdeki Gap</a></li>
+          <li><a href="#position">Projenin Konumu</a></li>
+          <li><a href="#representations">Yeni Temsiller</a></li>
+          <li><a href="#not-reproduction">Neden Reproduction Değil?</a></li>
+          <li><a href="#decision-matrix">Karar Matrisi</a></li>
+          <li><a href="#answer">Gap'e Cevap</a></li>
+          <li><a href="#advisor">Danışman Versiyonu</a></li>
+          <li><a href="#summary">Final Özet</a></li>
+        </ol>
+      </nav>
+
+      <main>
+        <section id="source-note">
+          <h2>1. Kaynak Notu</h2>
+          <p class="lead">
+            Rapor, proje dokümanları, sprint çıktıları ve <code>docs/literature/axes/</code> altındaki literatür notları
+            temel alınarak hazırlanmıştır. Belirtilen tez PDF yolu doğrudan bulunamadığı için PDF içeriği ayrı bir kaynak
+            olarak okunamamıştır.
+          </p>
+
+          <div class="callout warning">
+            <strong>PDF erişim notu:</strong> <code>docs/thesis/latex/KasımDeliacı_YasinEkici_tez.pdf</code> yolu dosya
+            sisteminde mevcut değildir. Bu nedenle raporda <code>docs/thesis/notes/main_narrative_framing.md</code>,
+            <code>docs/thesis/notes/tez_yazim_meta_kurallari.md</code>, proje raporları ve literatür markdown notları
+            kullanılmıştır. <code>docs/literature/axes/</code> altında doğrudan okunabilir PDF yerine çoğunlukla
+            <code>paper.md</code> ve metadata notları bulunduğu için literatür değerlendirmesi bu notlar üzerinden
+            yapılmıştır.
+          </div>
+
+          <div class="stats">
+            <div class="stat">
+              <strong>310,142</strong>
+              <span>Mak/crisprSQL-derived veri satırı</span>
+            </div>
+            <div class="stat">
+              <strong>25,632</strong>
+              <span><code>measured=1</code> deneysel satır</span>
+            </div>
+            <div class="stat">
+              <strong>0.992522</strong>
+              <span>XGBoost F4 historical AUPRC</span>
+            </div>
+            <div class="stat">
+              <strong>0.986020</strong>
+              <span>S8B_R2 en yüksek single-seed GNN AUPRC</span>
+            </div>
+          </div>
+        </section>
+
+        <section id="literature-map">
+          <h2>2. Literatür Haritası</h2>
+          <p>
+            CRISPR off-target prediction literatürü tek bir çizgiden oluşmaz. Sequence tabanlı modeller, epigenetik/kromatin
+            bağlamı kullanan yaklaşımlar, graph-learning yaklaşımları ve dengesiz sınıflandırma metodolojisi birlikte
+            okunmalıdır. Bu çalışmanın konumu da bu dört hattın kesişimindedir.
+          </p>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Literatür Çizgisi</th>
+                <th>Genel Yaklaşım</th>
+                <th>Bu Projedeki Karşılığı</th>
+                <th>Claim Sınırı</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Sequence-only CRISPR modelleri</td>
+                <td>Guide ve target dizilimleri, mismatch pattern, CNN/RNN benzeri encoder'lar.</td>
+                <td><code>S1</code>, sequence CNN/BiLSTM ve Sprint 8B sequence/context fusion çizgisi.</td>
+                <td>Sequence tek başına bu splitte zayıf kalmıştır; tüm sequence literatürü genel olarak geçersiz değildir.</td>
+              </tr>
+              <tr>
+                <td>Epigenetik/kromatin bağlam kullanan modeller</td>
+                <td>DNA erişilebilirliği, histone mark, nucleosome veya deneysel epigenetik ölçümlerle tahmin.</td>
+                <td>F3 experimental epigenetic scalar, F4 computed nucleosome aggregate ve Graph C target-observation context.</td>
+                <td>Predictive association raporlanabilir; causal biyolojik mekanizma iddia edilemez.</td>
+              </tr>
+              <tr>
+                <td>Graph-based CRISPR ve biyolojik graph learning</td>
+                <td>Düğümler ve ilişkiler üzerinden sequence, target veya aday çift temsili kurma.</td>
+                <td>Graph A/B/C, GCN, GAT, GATv2, edge-aware ve family-aware encoder denemeleri.</td>
+                <td>Graph kullanımı tek başına üstünlük kanıtı değildir; schema semantiği ayrı test edilmelidir.</td>
+              </tr>
+              <tr>
+                <td>Imbalanced classification ve metrik literatürü</td>
+                <td>AUPRC, MCC, specificity, bootstrap, leakage-safe split ve no-test-tuning disiplini.</td>
+                <td>AUPRC primary metric; MCC/specificity operating-point yorumu; Sprint 9 robustness.</td>
+                <td>MCC/specificity bulgusu AUPRC sıralamasının yerine geçirilemez.</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="callout info">
+            <strong>Literatürle temel bağlantı:</strong> Mak et al. 2022 epigenetic-nucleosome veri ailesi, CnnCrispr ve
+            CRISPR-Net sequence encoder çizgisi, GCN-CRISPR benzeri graph-learning motivasyonu, GATv2/FiLM/SE literatürü
+            ve leakage/imbalance metodolojisi bu projenin tasarım kararlarına kaynaklık etmiştir. Ancak hiçbir yöntem
+            birebir reproduction olarak sunulmamıştır.
+          </div>
+        </section>
+
+        <section id="gap">
+          <h2>3. Literatürdeki Gap</h2>
+          <p>
+            Bu çalışmanın çıkış noktası, "off-target tahmini sequence eşleşmesiyle tamamen çözülür" iddiasını varsaymak
+            değildir. Daha dar ve savunulabilir soru şudur: Aynı guide-target sequence bilgisinin yanında epigenetik ve
+            kromatin bağlamı graph içinde nasıl temsil edilirse nadir negatifleri ayırma davranışı değişir?
+          </p>
+
+          <div class="cards">
+            <div class="card">
+              <h3>Sequence Sınırı</h3>
+              <p>Sequence-only modeller off-target biyolojisinin ana eksenini yakalar, fakat kromatin erişilebilirliği ve
+              assay bağlamı gibi satır düzeyi faktörleri doğal olarak içermez.</p>
+            </div>
+            <div class="card">
+              <h3>Context Temsili</h3>
+              <p>Epigenetik/kromatin bağlam literatürde çoğunlukla tabular feature veya correlation/importance düzeyinde
+              ele alınabilir. Graph içinde context semantiği daha az nettir.</p>
+            </div>
+            <div class="card">
+              <h3>Evaluation Disiplini</h3>
+              <p>Guide-level split, train-only preprocessing, measured-only test ve no-test-tuning aynı anda korunmadığında
+              model başarısı olduğundan yüksek görünebilir.</p>
+            </div>
+          </div>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Gap</th>
+                <th>Neden Önemli?</th>
+                <th>Bu Projedeki Cevap</th>
+                <th>Sınır</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Sequence uyumu her şeyi açıklamayabilir.</td>
+                <td>Cas9 etkinliği fiziksel DNA erişilebilirliği ve lokal bağlamdan etkilenebilir.</td>
+                <td>F3/F4 feature ladder ve Graph C context temsili kurulmuştur.</td>
+                <td>Biyolojik nedensellik değil, prediction davranışı test edilmiştir.</td>
+              </tr>
+              <tr>
+                <td>Epigenetik bağlam graph içinde nasıl temsil edilmeli?</td>
+                <td>Context sadece target koordinatına değil, row-level observation'a bağlı olabilir.</td>
+                <td>Graph C, physical target yerine target-observation düğümü kullanmıştır.</td>
+                <td>Graph C üstünlük değil, alternatif semantik temsil olarak sunulmalıdır.</td>
+              </tr>
+              <tr>
+                <td>Putative satırlar ground truth gibi kullanılabilir mi?</td>
+                <td><code>measured=0</code> satırlar deneysel negatif değildir.</td>
+                <td>Headline test measured-only yapılmış, putative satırlar test ground truth olmamıştır.</td>
+                <td>Daha küçük ama daha güvenilir test evreni kabul edilmiştir.</td>
+              </tr>
+              <tr>
+                <td>Küçük AUPRC farkları güvenilir mi?</td>
+                <td>Test 29 guide ve 169 negatif içerir; negatifler 9 guide içinde yoğunlaşmıştır.</td>
+                <td>Sprint 9 guide-cluster bootstrap, paired difference ve multi-seed robustness yapmıştır.</td>
+                <td>Robust AUPRC superiority gösterilememiştir.</td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+
+        <section id="position">
+          <h2>4. Bizim Projenin Konumu</h2>
+          <p>
+            Çalışma Mak et al. veri ailesinden başlamıştır, fakat Mak et al. 2022'deki continuous CA regression düzenini
+            birebir yeniden üretme iddiası kurmamıştır. Projenin ana sorusu binary off-target classification ve guide-level
+            generalization olarak sabitlenmiştir.
+          </p>
+
+          <div class="two-col">
+            <div class="definition">
+              <strong>Mak et al. çizgisiyle bağ</strong>
+              Veri ailesi epigenetic-nucleosome context içerir. 6 experimental epigenetic scalar, 13 computed nucleosome
+              array feature ve 5 binding-energy feature proje için ayrıştırılmıştır.
+            </div>
+            <div class="definition">
+              <strong>Mak et al. çizgisinden ayrım</strong>
+              <code>CA</code> hedefi hazır olmadığı ve çalışma binary measured-only guide-disjoint sınıflandırmaya
+              odaklandığı için CA regression reproduction iddiası kurulmamıştır.
+            </div>
+            <div class="definition">
+              <strong>Güçlü non-graph bar</strong>
+              Sprint 2, XGBoost F4'ü AUPRC <code>0.992522</code> ile ana baseline olarak belirlemiştir. GNN'ler bu çıtaya
+              karşı değerlendirilmiştir.
+            </div>
+            <div class="definition">
+              <strong>Graph semantiği</strong>
+              Graph A/B/C aynı problemi farklı graph temsilleriyle sınar. Graph C, target tarafını satır düzeyinde
+              target-observation olarak temsil ederek context bilgisini doğrudan düğüm semantiğine taşır.
+            </div>
+          </div>
+
+          <div class="callout">
+            <strong>Ana tez cümlesi:</strong> Bu çalışma, context-aware GNN yaklaşımının değerini primary AUPRC üstünlüğüyle
+            değil, validation-kilitli operating point altında rare measured negative sınıfını daha iyi tanıma eğilimiyle
+            tartışır. XGBoost F4 en güçlü ve en stabil AUPRC baseline olarak kalmıştır.
+          </div>
+        </section>
+
+        <section id="representations">
+          <h2>5. Yeni Tanıtılan veya Öne Çıkan Temsiller</h2>
+          <p>
+            Proje katkısı tek bir model isminden gelmez. Asıl katkı, feature ladder, graph schema, target-observation context
+            ve validation-locked değerlendirme disiplininin birlikte kurulmasıdır.
+          </p>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Temsil / Karar</th>
+                <th>Ne?</th>
+                <th>Neden Eklendi?</th>
+                <th>Literatürden Ayrışma</th>
+                <th>Overclaim Sınırı</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>F1/F2/F3/F4</code></td>
+                <td>Sequence/mismatch, binding-energy, experimental epigenetic ve computed nucleosome feature ladder.</td>
+                <td>Her feature ailesinin katkısını kademeli ölçmek için.</td>
+                <td>Tek bir feature havuzu yerine kontrollü ladder kurulmuştur.</td>
+                <td>F4 başarısı sadece nucleosome feature'lara bağlanamaz.</td>
+              </tr>
+              <tr>
+                <td><code>S1</code> sequence pair</td>
+                <td>Guide-target one-hot ve mismatch channel içeren sequence girişi.</td>
+                <td>Sequence-only neural baseline kurmak için.</td>
+                <td>CRISPR-Net/CnnCrispr çizgisinden esinlenmiş, fakat aynı mimari ve dataset değildir.</td>
+                <td>Bu splitte zayıf kalması sequence literatürünü çürütmez.</td>
+              </tr>
+              <tr>
+                <td><code>S5F2_energy</code></td>
+                <td>Graph A feature-family ablation içinde enerji ağırlıklı güçlü GCN sinyali.</td>
+                <td>GNN edge/context tarafında hangi feature ailesinin sinyal verdiğini görmek için.</td>
+                <td>Feature masking/ablation, mekanizma aracı değil model davranışı analizidir.</td>
+                <td>Binding energy causal mekanizma kanıtı değildir.</td>
+              </tr>
+              <tr>
+                <td>Graph A</td>
+                <td>sgRNA ve physical target site düğümleri, candidate_pair edge.</td>
+                <td>Minimal fiziksel target graph baseline kurmak için.</td>
+                <td>Graph etkisi en sade schema ile test edilmiştir.</td>
+                <td>Graph A'nın F4'ü geçememesi tüm GNN fikrini bitirmez.</td>
+              </tr>
+              <tr>
+                <td>Graph B</td>
+                <td>Graph A üzerine sequence_similar_to kontrol ilişkisi.</td>
+                <td>Guide sequence similarity edge etkisini sınırlı kontrol olarak ölçmek için.</td>
+                <td>Topoloji ekleme kontrollü tutulmuştur.</td>
+                <td>Ana biyolojik claim Graph B üzerinden kurulmaz.</td>
+              </tr>
+              <tr>
+                <td>Graph C</td>
+                <td>Target tarafı physical site yerine row-level target-observation düğümüyle temsil edilir.</td>
+                <td>Epigenetik/kromatin context'in satır düzeyi değişkenliğini graph semantiğine taşımak için.</td>
+                <td>Graph C, Graph A'nın sadece edge eklenmiş hali değildir; target düğümünün anlamı değişmiştir.</td>
+                <td>Graph C AUPRC üstünlüğü göstermemiştir; rare-negative signal ile sınırlıdır.</td>
+              </tr>
+              <tr>
+                <td>Strict-inductive visibility</td>
+                <td>Validation/test context bağlantıları sadece train referanslarına görünür şekilde kurulmuştur.</td>
+                <td>Test bilgisinin graph construction veya preprocessing'e sızmasını önlemek için.</td>
+                <td>Graph içinde leakage-safe evaluation özellikle vurgulanmıştır.</td>
+                <td>Bu disiplin daha zor bir benchmark üretir, performansı şişirmez.</td>
+              </tr>
+              <tr>
+                <td>Family-aware target-context encoder</td>
+                <td>Target-observation feature ailelerini ayrı dallarla kodlayan Graph C encoder çizgisi.</td>
+                <td>Experimental epigenetic, computed nucleosome, sequence/context ailelerini tek vektörde ezmemek için.</td>
+                <td>SE/gating literatüründen fikir alınmıştır, fakat CRISPR'e özel uyarlanmıştır.</td>
+                <td>Gate ağırlıkları biyolojik önem kanıtı değildir.</td>
+              </tr>
+              <tr>
+                <td>Context-edge FiLM</td>
+                <td>Edge özelliklerini target-context embedding ile feature-wise modüle eden etkileşim başlığı.</td>
+                <td>Edge sinyali ile target bağlamı arasında etkileşim kurmak için.</td>
+                <td>FiLM genel conditioning fikrinden uyarlanmıştır, paper reproduction değildir.</td>
+                <td>FiLM çıktıları biyolojik açıklama gibi okunmamalıdır.</td>
+              </tr>
+              <tr>
+                <td>Sequence/context fusion</td>
+                <td>S1 sequence encoder ile Graph C context embedding'in birlikte kullanılması.</td>
+                <td>Sequence bilgisini kaybetmeden context-aware graph sinyalini birleştirmek için.</td>
+                <td>Sequence-only ve context-only çizgileri tek kontrollü adayda birleştirilmiştir.</td>
+                <td>S8B_R2 yüksek single-seed GNN sonucudur; robust superiority değildir.</td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+
+        <section id="not-reproduction">
+          <h2>6. Neden Literatürü Birebir Takip Etmedik?</h2>
+          <p>
+            Paper reproduction iddiası için dataset, hedef değişken, split, metric, model mimarisi ve preprocessing
+            kararlarının birebir uyumlu olması gerekir. Bu koşullar sağlanmadığı için çalışma reproduction değil,
+            controlled adaptation olarak konumlandırılmıştır.
+          </p>
+
+          <div class="cards">
+            <div class="card">
+              <h3>Mak et al. CA Regression</h3>
+              <p><code>CA</code> veya Box-Cox transformed target doğrudan hazır olmadığı için ana hedef
+              <code>cleavage_freq &gt; 1e-5</code> ile Scheme A binary classification olarak kurulmuştur.</p>
+            </div>
+            <div class="card">
+              <h3>Random Split Yerine Guide Split</h3>
+              <p>Random split daha yüksek performans gösterebilir, fakat aynı guide'ın train ve testte görünmesi
+              generalization sorusunu zayıflatır. Bu nedenle guide-level split seçilmiştir.</p>
+            </div>
+            <div class="card">
+              <h3>Measured-Only Test</h3>
+              <p><code>measured=0</code> satırlar putative off-target olarak tutulmuş, deneysel negatif ground truth gibi
+              kullanılmamıştır. Bu daha küçük ama daha savunulabilir test evreni üretmiştir.</p>
+            </div>
+          </div>
+
+          <div class="callout risk">
+            <strong>Kaçınılacak ifade:</strong> "Mak et al. 2022 reproduce edildi" denmemelidir. Doğru ifade şudur:
+            Mak et al./crisprSQL-derived epigenetic-nucleosome veri ailesi kullanılarak, farklı bir binary classification
+            ve guide-level generalization sorusu için kontrollü adaptation gerçekleştirilmiştir.
+          </div>
+        </section>
+
+        <section id="decision-matrix">
+          <h2>7. Karar Matrisi</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Karar</th>
+                <th>Alternatif Neydi?</th>
+                <th>Neden Seçildi?</th>
+                <th>Belgeli Kaynak</th>
+                <th>Tezde Nasıl Savunulmalı?</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Scheme A</td>
+                <td>CA regression, Scheme B veya daha yüksek cutoff Scheme C.</td>
+                <td><code>cleavage_freq &gt; 1e-5</code> assay accuracy sınırıyla uyumlu, label üretimi açık ve binary off-target sorusuna uygun.</td>
+                <td><code>docs/LABEL_SCHEMES.md</code>, <code>docs/DECISIONS.md</code></td>
+                <td>Ana hedef binary classification olarak tanımlanmalı; CA reproduction iddiası kurulmadan açıklanmalı.</td>
+              </tr>
+              <tr>
+                <td>Measured-only test</td>
+                <td><code>measured=0</code> putative satırları negatif gibi kullanmak.</td>
+                <td>Putative satırlar deneysel negatif olmadığı için test ground truth olarak güvenilir değildir.</td>
+                <td><code>docs/DATASET_AUDIT.md</code>, <code>docs/EVALUATION_PROTOCOL.md</code></td>
+                <td>Test evreninin küçülmesi, güvenilirlik için bilinçli bir metodolojik bedel olarak anlatılmalı.</td>
+              </tr>
+              <tr>
+                <td><code>experiment_id=18</code> exclusion</td>
+                <td>Tüm experiment satırlarını headline evrene almak.</td>
+                <td>Cell-line/context eksiklikleri ve değerlendirme riski ana kontrattan ayrılmıştır.</td>
+                <td><code>docs/EVALUATION_PROTOCOL.md</code>, <code>docs/DECISIONS.md</code></td>
+                <td>Bu dışlama performans optimizasyonu değil, ana benchmark temizliği olarak sunulmalı.</td>
+              </tr>
+              <tr>
+                <td>Guide-level split</td>
+                <td>Row-level random split.</td>
+                <td>Guide leakage riskini azaltır ve unseen-guide generalization sorusunu test eder.</td>
+                <td><code>outputs/sprint2/baseline_report.md</code></td>
+                <td>Daha zor ama daha anlamlı generalization kontratı olarak savunulmalı.</td>
+              </tr>
+              <tr>
+                <td>Train-only preprocessing</td>
+                <td>Tüm veri üzerinden imputation/scaling.</td>
+                <td>Validation/test dağılımının preprocessing istatistiklerine sızmasını engeller.</td>
+                <td><code>docs/EVALUATION_PROTOCOL.md</code>, <code>docs/FEATURE_PARSING.md</code></td>
+                <td>Leakage-safe ML best practice olarak anlatılmalı.</td>
+              </tr>
+              <tr>
+                <td>XGBoost F4 baseline</td>
+                <td>Sadece Logistic Regression veya sequence CNN'e karşı kıyas.</td>
+                <td>F4 AUPRC <code>0.992522</code> ile en güçlü non-GNN bar olmuştur.</td>
+                <td><code>outputs/sprint2/baseline_report.md</code></td>
+                <td>GNN iddialarının zayıf baseline'a karşı kurulmadığını gösteren güçlü kontrol olarak sunulmalı.</td>
+              </tr>
+              <tr>
+                <td>Graph C target-observation</td>
+                <td>Sadece physical target site düğümü veya Graph A/B.</td>
+                <td>Epigenetik/kromatin context satır düzeyinde değiştiği için target-observation temsili gerekli görülmüştür.</td>
+                <td><code>outputs/sprint3/graph_schema_report.md</code></td>
+                <td>Graph C'nin edge eklemesi değil, target semantiği değişimi olduğu açıkça belirtilmeli.</td>
+              </tr>
+              <tr>
+                <td>Validation-selected threshold</td>
+                <td>Test setinde threshold tuning.</td>
+                <td>Operating-point metrikleri test üzerinde optimize edilmemiştir.</td>
+                <td><code>docs/EVALUATION_PROTOCOL.md</code>, <code>outputs/sprint9/robustness_report.md</code></td>
+                <td>MCC/specificity sonuçları frozen threshold altında yorumlanmalı.</td>
+              </tr>
+              <tr>
+                <td>Sprint 9 robustness</td>
+                <td>Tek seed sonucu nihai claim yapmak.</td>
+                <td>Guide-cluster bootstrap, paired difference ve multi-seed ile AUPRC superiority sınanmıştır.</td>
+                <td><code>outputs/sprint9/robustness_report.md</code></td>
+                <td>Robust superiority yoksa "compatible with no difference" dili kullanılmalı.</td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+
+        <section id="answer">
+          <h2>8. Literatür Gap'e Cevap</h2>
+          <p>
+            Proje, literatürdeki boşluğu "GNN her şeyi geçti" şeklinde doldurmamıştır. Daha dikkatli sonuç şudur:
+            güçlü tabular baseline altında bile target-observation context ve family-aware GATv2 çizgisi, nadir negatifleri
+            ayırma davranışında ölçülebilir ama kırılgan bir sinyal üretmiştir.
+          </p>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Bu Proje Neyi Gösterdi?</th>
+                <th>Kanıt / Sayı</th>
+                <th>Nasıl Yorumlanmalı?</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>XGBoost F4 çok güçlü ve stabil baseline'dır.</td>
+                <td>Historical AUPRC <code>0.992522</code>; Sprint 9 regenerated AUPRC <code>0.992338</code>.</td>
+                <td>Primary metric açısından ana non-GNN bar olarak kalır.</td>
+              </tr>
+              <tr>
+                <td>GNN AUPRC üstünlüğü gösterilmemiştir.</td>
+                <td>Sprint 9 paired AUPRC farklarının hiçbiri sıfırı dışlamamıştır.</td>
+                <td>Sonuçlar <em>compatible with no difference</em> diliyle raporlanmalıdır.</td>
+              </tr>
+              <tr>
+                <td>Graph C/family-aware/sequence-context çizgisi rare-negative sinyali vermiştir.</td>
+                <td>S8B_R2 specificity <code>0.863905</code>, TN <code>146</code>; S7F_R2 MCC <code>0.603489</code>.</td>
+                <td>Bu operating-point sinyalidir; AUPRC ranking'in yerine geçmez.</td>
+              </tr>
+              <tr>
+                <td>Etki kırılgandır.</td>
+                <td>Test 29 guide, 169 negatif ve 9 negative-bearing guide içerir; GNN seed oynaklığı candidate gain'lerden büyüktür.</td>
+                <td>Seed-fragile ve guide-composition-fragile olarak anlatılmalıdır.</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="callout risk">
+            <strong>Bu proje neyi göstermedi?</strong> State-of-the-art iddiası, causal biological mechanism kanıtı, Mak et al.
+            birebir reproduction iddiası veya attention/gate/FiLM çıktılarından biyolojik açıklama çıkarımı bu raporun
+            iddia alanına girmez.
+          </div>
+        </section>
+
+        <section id="advisor">
+          <h2>9. Danışmana Anlatılacak Kısa Versiyon</h2>
+          <p>
+            Bu çalışmada CRISPR-Cas9 off-target tahmininde yalnızca guide-target sequence uyumuna bakmanın ötesine geçilerek
+            epigenetik ve kromatin bağlamının graph temsili içinde nasıl kullanılabileceği test edilmiştir. Proje Mak et al.
+            epigenetic-nucleosome veri ailesinden yola çıkmıştır, fakat Mak et al. 2022'nin CA regression düzenini birebir
+            yeniden üretme iddiası kurmamıştır. Bunun yerine <code>cleavage_freq &gt; 1e-5</code> ile Scheme A binary label
+            tanımı, measured-only test evreni, guide-level split, train-only preprocessing ve validation-selected threshold
+            kontratı altında daha kontrollü bir classification problemi kurulmuştur.
+          </p>
+          <p>
+            Literatür gap açısından projenin temel katkısı, epigenetik/kromatin context'in sadece tabular feature olarak
+            değil, graph semantiği içinde nasıl temsil edileceğini sistematik biçimde sınamasıdır. Sprint 2'de XGBoost F4
+            AUPRC <code>0.992522</code> ile çok güçlü bir non-GNN baseline oluşturmuş, böylece GNN iddiaları zayıf bir
+            baseline'a karşı kurulmamıştır. Graph A/B/C denemeleri içinde Graph C, target tarafını physical site yerine
+            target-observation olarak temsil ettiği için context bilgisini satır düzeyinde modele taşımıştır. Family-aware
+            GATv2, context-edge FiLM ve sequence/context fusion çizgisi bu temsilin daha esnek kullanılmasını hedeflemiştir.
+          </p>
+          <p>
+            Nihai sonuç temkinlidir: GNN'ler primary metric olan AUPRC'de XGBoost F4'ü robust biçimde geçmemiştir. Sprint 9
+            bootstrap, paired-difference ve multi-seed analizleri, AUPRC farklarının <em>compatible with no difference</em>
+            olduğunu göstermiştir. Buna karşılık Graph C tabanlı family-aware ve sequence/context fusion çizgisi,
+            validation-kilitli operating point altında nadir ölçülmüş negatifleri daha iyi yakalama eğilimi göstermiştir.
+            Bu nedenle tezde ana iddia "GNN XGBoost'u geçti" değil; "context-aware graph temsili rare-negative recognition
+            davranışında kırılgan ama anlamlı bir sinyal üretmiştir" şeklinde kurulmalıdır.
+          </p>
+        </section>
+
+        <section id="summary">
+          <h2>10. Final Özet</h2>
+          <div class="summary-box">
+            Bu rapor, CRISPR-Cas9 off-target prediction projesinin literatürdeki konumunu sequence-only modeller, epigenetik
+            ve kromatin bağlamı kullanan yaklaşımlar, graph neural network temsilleri ve leakage-safe imbalanced evaluation
+            metodolojisi üzerinden açıklamaktadır. Çalışma Mak et al./crisprSQL-derived epigenetic-nucleosome veri ailesinden
+            başlamış, ancak Mak et al. 2022'yi birebir CA regression olarak reproduce etme iddiası kurmamıştır; bunun yerine
+            <code>cleavage_freq &gt; 1e-5</code> ile Scheme A binary classification, guide-disjoint measured-only test,
+            <code>experiment_id=18</code> exclusion, train-only preprocessing, validation-selected threshold ve AUPRC-primary
+            evaluation kontratı seçilmiştir. Sprint 2'de F1-F4 feature ladder ile sequence/mismatch, binding-energy,
+            experimental epigenetic scalar ve computed nucleosome aggregate katkıları ayrıştırılmış, XGBoost F4 AUPRC
+            <code>0.992522</code> ile en güçlü ve en stabil non-GNN baseline haline gelmiştir. Sprint 3'te Graph A/B/C
+            şemaları kurulmuş; Graph C, physical target site yerine row-level target-observation düğümü kullandığı için
+            epigenetik/kromatin context'i graph semantiğine taşıyan asıl temsil olarak öne çıkmıştır. Sonraki sprintlerde
+            GCN, GAT/GATv2, S5F2_energy, family-aware target-context encoder, context-edge FiLM ve sequence/context fusion
+            çizgisi test edilmiş, S8B_R2 single-seed GNN tarafında AUPRC <code>0.986020</code> ve specificity
+            <code>0.863905</code> ile güçlü bir rare-negative operating-point davranışı göstermiştir. Ancak Sprint 9
+            robustness analizleri, AUPRC farklarının guide-cluster bootstrap, paired-difference ve multi-seed pencerelerinde
+            robust superiority desteklemediğini ortaya koymuştur; bu nedenle sonuçlar "GNN XGBoost'u geçti" şeklinde değil,
+            "XGBoost F4 primary AUPRC bar olarak kalırken, Graph C target-observation context ve family-aware sequence/context
+            fusion çizgisi validation-kilitli eşikte rare measured negative sınıfını daha iyi tanıma eğilimi göstermiştir"
+            şeklinde savunulmalıdır. Bu sinyal threshold-dependent, seed-fragile ve guide-composition-fragile olarak
+            raporlanmalı; attention, gate, FiLM veya feature masking çıktıları causal biological evidence olarak
+            sunulmamalıdır.
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+</body>
+</html>

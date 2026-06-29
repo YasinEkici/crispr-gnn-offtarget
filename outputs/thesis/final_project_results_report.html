@@ -1,0 +1,1082 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Final Proje Sonuçları - Model Karşılaştırmaları ve Araştırma Soruları</title>
+  <style>
+    :root {
+      --bg: #f6f8fb;
+      --paper: #ffffff;
+      --ink: #182230;
+      --muted: #667085;
+      --line: #d9e0ea;
+      --accent: #0f766e;
+      --accent-soft: #e5f5f2;
+      --blue: #1d4ed8;
+      --blue-soft: #e8f0ff;
+      --amber: #a15c07;
+      --amber-soft: #fff5df;
+      --red: #b42318;
+      --red-soft: #fff0ed;
+      --green: #147d4f;
+      --green-soft: #e7f7ef;
+      --slate: #26384f;
+      --slate-soft: #edf2f7;
+      --code-bg: #eef2f7;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.58;
+    }
+
+    a { color: var(--blue); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    .page {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 32px 24px 58px;
+    }
+
+    .hero {
+      border-radius: 8px;
+      padding: 38px;
+      color: #ffffff;
+      background:
+        linear-gradient(135deg, rgba(16, 42, 67, 0.98), rgba(15, 118, 110, 0.94)),
+        linear-gradient(45deg, #102a43, #0f766e);
+      box-shadow: 0 20px 44px rgba(16, 42, 67, 0.18);
+      margin-bottom: 24px;
+    }
+
+    .eyebrow {
+      margin: 0 0 12px;
+      font-size: 0.86rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.78);
+    }
+
+    h1 {
+      margin: 0;
+      max-width: 980px;
+      font-size: clamp(2rem, 4.2vw, 3.55rem);
+      line-height: 1.04;
+      letter-spacing: 0;
+    }
+
+    .hero p {
+      max-width: 960px;
+      margin: 18px 0 0;
+      color: rgba(255, 255, 255, 0.88);
+      font-size: 1.08rem;
+    }
+
+    .hero-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 24px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 32px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      color: #ffffff;
+      background: rgba(255, 255, 255, 0.14);
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      font-size: 0.88rem;
+      white-space: nowrap;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 286px minmax(0, 1fr);
+      gap: 24px;
+      align-items: start;
+    }
+
+    nav {
+      position: sticky;
+      top: 18px;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 18px;
+    }
+
+    nav h2 { margin: 0 0 12px; font-size: 1rem; }
+    nav ol { margin: 0; padding-left: 18px; color: var(--muted); }
+    nav li { margin: 8px 0; }
+
+    section {
+      margin-bottom: 18px;
+      padding: 28px;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+    }
+
+    h2 {
+      margin: 0 0 16px;
+      font-size: 1.55rem;
+      line-height: 1.25;
+      letter-spacing: 0;
+    }
+
+    h3 {
+      margin: 24px 0 10px;
+      font-size: 1.08rem;
+      line-height: 1.3;
+      letter-spacing: 0;
+    }
+
+    p { margin: 0 0 14px; }
+    .lead { color: #344054; font-size: 1.06rem; }
+
+    .callout {
+      margin: 18px 0;
+      padding: 16px 18px;
+      border-radius: 6px;
+      border-left: 5px solid var(--accent);
+      background: var(--accent-soft);
+    }
+
+    .callout.info { border-left-color: var(--blue); background: var(--blue-soft); }
+    .callout.warning { border-left-color: var(--amber); background: var(--amber-soft); }
+    .callout.risk { border-left-color: var(--red); background: var(--red-soft); }
+    .callout.neutral { border-left-color: var(--slate); background: var(--slate-soft); }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+      margin: 20px 0 8px;
+    }
+
+    .stat {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 16px;
+      background: #fbfcfe;
+    }
+
+    .stat strong {
+      display: block;
+      font-size: 1.45rem;
+      line-height: 1.15;
+      color: var(--ink);
+    }
+
+    .stat span {
+      display: block;
+      margin-top: 6px;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      margin: 18px 0;
+    }
+
+    .card {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 18px;
+      background: #fbfcfe;
+    }
+
+    .card h3 { margin-top: 0; }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+      margin: 16px 0;
+    }
+
+    .definition {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 15px;
+      background: #fbfcfe;
+    }
+
+    .definition strong {
+      display: block;
+      margin-bottom: 6px;
+      color: #111827;
+    }
+
+    ul { margin: 10px 0 16px; padding-left: 20px; }
+    li { margin: 7px 0; }
+
+    code,
+    pre { font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace; }
+
+    code {
+      padding: 2px 5px;
+      border-radius: 4px;
+      background: var(--code-bg);
+      color: #111827;
+      font-size: 0.92em;
+    }
+
+    pre {
+      overflow-x: auto;
+      margin: 16px 0;
+      padding: 16px;
+      border-radius: 8px;
+      background: #111827;
+      color: #e5e7eb;
+      font-size: 0.92rem;
+      line-height: 1.5;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0 8px;
+      font-size: 0.94rem;
+    }
+
+    th,
+    td {
+      padding: 11px 12px;
+      border: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background: #f1f5f9;
+      color: #233044;
+      font-weight: 700;
+    }
+
+    tr:nth-child(even) td { background: #fbfcfe; }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      min-height: 26px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      font-size: 0.82rem;
+      font-weight: 650;
+      background: var(--slate-soft);
+      color: var(--slate);
+      white-space: nowrap;
+    }
+
+    .tag.primary { background: var(--accent-soft); color: var(--accent); }
+    .tag.control { background: var(--blue-soft); color: var(--blue); }
+    .tag.warning { background: var(--amber-soft); color: var(--amber); }
+    .tag.risk { background: var(--red-soft); color: var(--red); }
+    .small { color: var(--muted); font-size: 0.9rem; }
+
+    .summary-box {
+      border: 1px solid #b7dfd8;
+      border-radius: 8px;
+      padding: 20px;
+      background: #f0fbf8;
+      font-size: 1.02rem;
+    }
+
+    @media (max-width: 920px) {
+      .layout { grid-template-columns: 1fr; }
+      nav { position: static; }
+      .stats, .cards, .two-col { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 640px) {
+      .page { padding: 20px 14px 40px; }
+      .hero, section { padding: 22px; }
+      table { display: block; overflow-x: auto; white-space: nowrap; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header class="hero">
+      <p class="eyebrow">CRISPR-GNN Tez Raporu - Nihai Sonuçlar</p>
+      <h1>Proje Sonuçları, Model Karşılaştırmaları ve Araştırma Sorularının Cevapları</h1>
+      <p>
+        Bu rapor, CRISPR-Cas9 off-target prediction projesinin bütün deney zincirini, model ailelerini ve nihai bulgularını
+        tek yerde özetler. Ana sonuç, GNN'in XGBoost F4'ü AUPRC'de geçtiği değildir; XGBoost F4 primary metric altında en
+        güçlü ve en stabil bar olarak kalmış, Graph C target-observation çizgisi ise validation-kilitli threshold altında
+        rare measured negative sınıfını daha iyi ayırma davranışı göstermiştir.
+      </p>
+      <div class="hero-meta">
+        <span class="pill">XGBoost F4 AUPRC leader</span>
+        <span class="pill">Graph C rare-negative signal</span>
+        <span class="pill">No robust GNN superiority</span>
+        <span class="pill">Validation-locked evaluation</span>
+      </div>
+    </header>
+
+    <div class="layout">
+      <nav aria-label="İçindekiler">
+        <h2>İçindekiler</h2>
+        <ol>
+          <li><a href="#questions">Araştırma Soruları</a></li>
+          <li><a href="#contract">Veri ve Kontrat</a></li>
+          <li><a href="#families">Model Aileleri</a></li>
+          <li><a href="#results">Ana Model Sonuçları</a></li>
+          <li><a href="#auprc-ranking">AUPRC Ranking</a></li>
+          <li><a href="#operating-ranking">Rare-Negative Ranking</a></li>
+          <li><a href="#sprints">Sprintlere Göre Cevaplar</a></li>
+          <li><a href="#answers">Nihai Cevaplar</a></li>
+          <li><a href="#claims">Claim Sınırları</a></li>
+          <li><a href="#advisor">5 Dakikalık Anlatım</a></li>
+          <li><a href="#summary">Final Özet</a></li>
+        </ol>
+      </nav>
+
+      <main>
+        <section id="questions">
+          <h2>1. Projenin Ana Araştırma Soruları</h2>
+          <p class="lead">
+            Proje, tek bir model yarışı olarak değil, CRISPR-Cas9 off-target tahmininde sequence, epigenetik/kromatin
+            context ve graph temsilinin hangi koşullarda anlamlı sinyal taşıdığını ölçen kontrollü bir deney zinciri olarak
+            tasarlanmıştır.
+          </p>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Soru</th>
+                <th>Hangi sprintlerde test edildi?</th>
+                <th>Kısa cevap</th>
+                <th>Kanıt / metrik</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Sequence-only bilgi yeterli mi?</td>
+                <td>Sprint 2, Sprint 8B</td>
+                <td>Bu evaluation kontratında yeterli görünmemiştir.</td>
+                <td><code>sequence_cnn_unweighted S1</code> AUPRC 0.920075, MCC -0.019749, TN=0; <code>S8B_R1</code> AUPRC 0.856666, specificity 0.</td>
+              </tr>
+              <tr>
+                <td>Binding energy ek katkı sağlıyor mu?</td>
+                <td>Sprint 2, Sprint 5, Sprint 6, Sprint 7</td>
+                <td>Evet; özellikle GNN edge-level çizgisinde güçlü ve stabil bir sinyal vermiştir.</td>
+                <td><code>S5F2_energy</code> Graph A GCN AUPRC 0.976585; Sprint 6 WBCE AUPRC 0.976935, MCC 0.483719.</td>
+              </tr>
+              <tr>
+                <td>Experimental epigenetic context predictive signal taşıyor mu?</td>
+                <td>Sprint 2, Sprint 7E, Sprint 7F</td>
+                <td>Evet; predictive signal vardır, fakat causal biological evidence değildir.</td>
+                <td>XGBoost F3 AUPRC 0.985918; experimental epigenetic mask Graph C GATv2'yi AUPRC 0.885321 ve specificity 0'a düşürmüştür.</td>
+              </tr>
+              <tr>
+                <td>Computed nucleosome aggregate feature'ları ek katkı sağlıyor mu?</td>
+                <td>Sprint 2, Sprint 5, Sprint 7E</td>
+                <td>Küçük ve model-bağımlı katkı sağlamıştır; ana sıçrama F3'te gelmiştir.</td>
+                <td>XGBoost F3 AUPRC 0.985918, F4 historical AUPRC 0.992522; nucleosome mask AUPRC 0.955915 ile sınırlı düşüş üretmiştir.</td>
+              </tr>
+              <tr>
+                <td>Graph schema, tabular baseline'a göre ek değer sağlıyor mu?</td>
+                <td>Sprint 3, Sprint 4, Sprint 7-8</td>
+                <td>AUPRC superiority olarak hayır; rare-negative operating point davranışı olarak evet.</td>
+                <td>Graph C / family-aware / S8B çizgisi MCC ve specificity tarafında F4'ten daha güçlü görünmüştür, ancak F4 AUPRC lideridir.</td>
+              </tr>
+              <tr>
+                <td>Graph C target-observation context neden önemli?</td>
+                <td>Sprint 3, Sprint 4, Sprint 7D/7E</td>
+                <td>Target tarafını yalnızca fiziksel site değil, row-level context observation olarak temsil ettiği için önemlidir.</td>
+                <td>Direct target context mask AUPRC 0.893657 ve specificity 0'a düşmüştür; context edge kaldırımı daha sınırlı zarar vermiştir.</td>
+              </tr>
+              <tr>
+                <td>GAT/GATv2 attention tek başına çözüm mü?</td>
+                <td>Sprint 7</td>
+                <td>Hayır. Attention, doğru graph semantics ve context representation olmadan yeterli olmamıştır.</td>
+                <td>Graph A GAT AUPRC 0.950763, GATv2 AUPRC 0.965449; Graph A GCN WBCE AUPRC 0.976935 kalmıştır.</td>
+              </tr>
+              <tr>
+                <td>Family-aware encoder katkı sağladı mı?</td>
+                <td>Sprint 7F</td>
+                <td>Evet; feature ailelerini ayrı işlemek GNN çizgisini güçlendirmiştir.</td>
+                <td><code>S7F_R2</code> AUPRC 0.982062, MCC 0.603489, specificity 0.650888; <code>S7F_R3</code> AUPRC 0.984945.</td>
+              </tr>
+              <tr>
+                <td>Context-edge FiLM katkı sağladı mı?</td>
+                <td>Sprint 8A</td>
+                <td>Validation-selected aday olarak temiz bir single-seed improvement sinyali vermiştir.</td>
+                <td><code>S8A_R2</code> AUPRC 0.982757, MCC 0.563656, specificity 0.520710.</td>
+              </tr>
+              <tr>
+                <td>Sequence/context fusion katkı sağladı mı?</td>
+                <td>Sprint 8B</td>
+                <td>Evet, en yüksek single-seed GNN AUPRC'yi vermiştir; ancak F4'ü geçmemiştir.</td>
+                <td><code>S8B_R2</code> AUPRC 0.986020, MCC 0.567309, specificity 0.863905, TN=146.</td>
+              </tr>
+              <tr>
+                <td>GNN modelleri XGBoost F4'ü AUPRC'de geçti mi?</td>
+                <td>Sprint 4-9</td>
+                <td>Hayır.</td>
+                <td>Historical F4 AUPRC 0.992522; Sprint 9 regenerated F4 AUPRC 0.992338; en iyi single-seed GNN S8B_R2 AUPRC 0.986020.</td>
+              </tr>
+              <tr>
+                <td>GNN modelleri rare measured negative sınıfında farklı davrandı mı?</td>
+                <td>Sprint 7F, Sprint 8A/8B, Sprint 9</td>
+                <td>Evet, frozen threshold altında daha fazla true negative yakalama eğilimi gözlenmiştir.</td>
+                <td>F4 historical TN=38; S7F_R2 TN=110; S8B_R2 TN=146. Bu yorum threshold-dependent'tır.</td>
+              </tr>
+              <tr>
+                <td>Sprint 9 robust superiority gösterdi mi?</td>
+                <td>Sprint 9</td>
+                <td>AUPRC için hayır; sonuçlar compatible with no difference olarak raporlanmalıdır.</td>
+                <td>Predeclared paired AUPRC farklarının hiçbiri sıfırı dışlamamıştır; F4 en yüksek mean AUPRC ve en düşük seed spread ile kalmıştır.</td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+
+        <section id="contract">
+          <h2>2. Veri ve Evaluation Kontratı</h2>
+          <p>
+            Nihai sonuçların tamamı aynı veri, etiket, split ve no-test-tuning kontratı altında okunmalıdır. Bu kontrat,
+            özellikle putative satırların ground truth gibi kullanılmasını ve test setinin model/threshold seçimine sızmasını
+            engellemek için korunmuştur.
+          </p>
+
+          <div class="stats">
+            <div class="stat">
+              <strong>310,142</strong>
+              <span>Mak et al. 2022 / crisprSQL-derived epigenetic-nucleosome satırı</span>
+            </div>
+            <div class="stat">
+              <strong>25,632</strong>
+              <span><code>measured=1</code> deneysel ölçülmüş satır</span>
+            </div>
+            <div class="stat">
+              <strong>284,510</strong>
+              <span><code>measured=0</code> putative satır; test ground truth değil</span>
+            </div>
+            <div class="stat">
+              <strong>0.900705</strong>
+              <span>Test pozitif prevalansı ve no-skill PR baseline</span>
+            </div>
+          </div>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Alan</th>
+                <th>Nihai kontrat</th>
+                <th>Yorum</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Dataset</td>
+                <td>Mak et al. 2022 / crisprSQL-derived epigenetic-nucleosome dataset, 310,142 satır, 45 kolon</td>
+                <td>6 experimental epigenetic scalar, 13 computed nucleosome array ve 5 binding-energy feature içerir.</td>
+              </tr>
+              <tr>
+                <td>Label</td>
+                <td><code>Scheme A = cleavage_freq &gt; 1e-5</code></td>
+                <td>NaN <code>cleavage_freq</code> satırları supervised label üretiminden çıkarılmıştır.</td>
+              </tr>
+              <tr>
+                <td>Ana split</td>
+                <td><code>sprint2_main_seed42</code>, guide-disjoint</td>
+                <td>Aynı guide'ın train ve testte görünmesi engellenmiştir.</td>
+              </tr>
+              <tr>
+                <td>Test evreni</td>
+                <td>1702 satır, 29 guide, 1533 pozitif, 169 negatif</td>
+                <td>Measured-only ve <code>experiment_id=18</code> hariç ana test evrenidir.</td>
+              </tr>
+              <tr>
+                <td>Primary metric</td>
+                <td>AUPRC</td>
+                <td>Model ranking ve ana karşılaştırma metriği olarak korunmuştur.</td>
+              </tr>
+              <tr>
+                <td>Secondary metrics</td>
+                <td>AUROC, MCC, macro-F1, specificity, TN/FP/FN/TP</td>
+                <td>Operating-point ve rare-negative davranışı için kullanılmıştır.</td>
+              </tr>
+              <tr>
+                <td>Selection policy</td>
+                <td>Model ve threshold seçimi validation-only</td>
+                <td>Test tuning yapılmamıştır; preprocessing/imputation/scaling train-only uygulanmıştır.</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="callout warning">
+            <strong>Kaynak notu:</strong> İstenen <code>docs/thesis/latex/KasımDeliacı_YasinEkici_tez.pdf</code> dosyası
+            çalışma alanında bulunamamıştır. Bu rapor, erişilebilir markdown dokümanları, sprint raporları, CSV sonuçları ve
+            tamamlanmış execution planları üzerinden hazırlanmıştır.
+          </div>
+        </section>
+
+        <section id="families">
+          <h2>3. Model Aileleri</h2>
+          <p>
+            Proje boyunca modeller, aynı evaluation kontratı altında farklı bilgi kaynaklarını ve temsil biçimlerini test
+            edecek şekilde kademeli olarak genişletilmiştir.
+          </p>
+
+          <div class="cards">
+            <div class="card">
+              <h3>Dummy / Logistic Regression</h3>
+              <p>Prevalence baseline ve lineer wiring kontrolü olarak kullanılmıştır. Logistic Regression F4, negatif sınıfı ayırmada zayıf kalmıştır.</p>
+            </div>
+            <div class="card">
+              <h3>XGBoost F1-F4</h3>
+              <p>En güçlü non-GNN tabular baseline ailesidir. F4, AUPRC açısından nihai ana bar olarak kalmıştır.</p>
+            </div>
+            <div class="card">
+              <h3>Tabular MLP</h3>
+              <p>Neural non-graph tabular referans sağlamıştır; F3 ile anlamlı sonuç vermiş, fakat XGBoost'u geçmemiştir.</p>
+            </div>
+            <div class="card">
+              <h3>Sequence CNN/BiLSTM</h3>
+              <p>S1 guide-target sequence pair bilgisini tek başına test etmiştir. Bu split altında güçlü genelleme göstermemiştir.</p>
+            </div>
+            <div class="card">
+              <h3>Sequence Late Fusion</h3>
+              <p>Sprint 2'de sequence + F3/F4 fusion denemesi yapılmıştır; modest ranking lift üretmiş ama güçlü baseline olmamıştır.</p>
+            </div>
+            <div class="card">
+              <h3>Graph A/B/C GCN</h3>
+              <p>Graph schema değerini test eden ilk GNN baselines. F4 AUPRC barı geçilememiştir.</p>
+            </div>
+            <div class="card">
+              <h3>Feature-Family Ablation</h3>
+              <p>Sprint 5'te Graph A'da feature aileleri ayrılmış; <code>S5F2_energy</code> en güçlü GCN sinyali olmuştur.</p>
+            </div>
+            <div class="card">
+              <h3>GAT / GATv2</h3>
+              <p>Attention tek başına çözüm olmamıştır. Graph C target-observation context ile birlikte daha anlamlı hale gelmiştir.</p>
+            </div>
+            <div class="card">
+              <h3>Family-Aware GATv2</h3>
+              <p>Target context feature ailelerini ayrı encoder dallarında işlemiş ve rare-negative davranışını güçlendirmiştir.</p>
+            </div>
+            <div class="card">
+              <h3>Context-Edge FiLM</h3>
+              <p>Target context embedding ile <code>S5F2_energy</code> edge sinyalini classifier head içinde etkileştirmiştir.</p>
+            </div>
+            <div class="card">
+              <h3>Sequence/Context Fusion</h3>
+              <p>Sprint 8B'de en yüksek single-seed GNN AUPRC'yi vermiştir; F4'ü geçmemiştir.</p>
+            </div>
+            <div class="card">
+              <h3>Sprint 9 Robustness</h3>
+              <p>Guide-cluster bootstrap, paired-difference ve multi-seed analizleriyle AUPRC superiority sınırını çizmiştir.</p>
+            </div>
+          </div>
+        </section>
+
+        <section id="results">
+          <h2>4. Tüm Ana Model Sonuçları</h2>
+          <p>
+            Aşağıdaki tablo, raporun ana karşılaştırma tablosudur. AUPRC primary metric olarak önce verilmiştir. MCC,
+            specificity ve confusion matrix değerleri validation-selected threshold altındaki operating-point yorumu için
+            okunmalıdır.
+          </p>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Sprint</th>
+                <th>Model / Run</th>
+                <th>Representation / Feature</th>
+                <th>AUPRC</th>
+                <th>AUROC</th>
+                <th>MCC</th>
+                <th>Specificity</th>
+                <th>TN/FP/FN/TP</th>
+                <th>Ana yorum</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Sprint 2</td>
+                <td><code>dummy_prior</code></td>
+                <td>Prevalence baseline</td>
+                <td>0.900705</td>
+                <td>0.500000</td>
+                <td>0.000000</td>
+                <td>0.000000</td>
+                <td>0/169/0/1533</td>
+                <td>No-skill PR baseline; bu değer floor değil, test prevalence referansıdır.</td>
+              </tr>
+              <tr>
+                <td>Sprint 2</td>
+                <td><code>logistic_regression F4</code></td>
+                <td>F4 tabular</td>
+                <td>0.917126</td>
+                <td>0.522015</td>
+                <td>-0.011986</td>
+                <td>not reported in summary source</td>
+                <td>1/168/15/1518</td>
+                <td>Lineer baseline; negatifleri neredeyse ayıramamıştır.</td>
+              </tr>
+              <tr>
+                <td>Sprint 2</td>
+                <td><code>sequence_cnn_unweighted S1</code></td>
+                <td>Pure sequence pair</td>
+                <td>0.920075</td>
+                <td>0.535711</td>
+                <td>-0.019749</td>
+                <td>0.000000</td>
+                <td>0/169/6/1527</td>
+                <td>Sequence-only path, bu split altında rare-negative tanımada zayıf kalmıştır.</td>
+              </tr>
+              <tr>
+                <td>Sprint 2</td>
+                <td><code>tabular_mlp_unweighted F3</code></td>
+                <td>F3 tabular context</td>
+                <td>0.959889</td>
+                <td>0.735388</td>
+                <td>0.220770</td>
+                <td>not reported in summary source</td>
+                <td>31/138/46/1487</td>
+                <td>Neural tabular baseline; Logistic Regression'dan güçlü, XGBoost'tan zayıf.</td>
+              </tr>
+              <tr>
+                <td>Sprint 2</td>
+                <td><code>xgboost_unweighted F3</code></td>
+                <td>F3: sequence + energy + experimental epigenetic</td>
+                <td>0.985918</td>
+                <td>0.906893</td>
+                <td>0.320396</td>
+                <td>not reported in summary source</td>
+                <td>35/134/22/1511</td>
+                <td>Experimental epigenetic feature'larla büyük AUPRC sıçraması.</td>
+              </tr>
+              <tr>
+                <td>Sprint 2</td>
+                <td><code>xgboost_unweighted F4 historical</code></td>
+                <td>F4: F3 + computed nucleosome aggregates</td>
+                <td>0.992522</td>
+                <td>0.938416</td>
+                <td>0.345198</td>
+                <td>not reported in summary source</td>
+                <td>38/131/21/1512</td>
+                <td>Authoritative non-GNN bar; primary AUPRC lideri.</td>
+              </tr>
+              <tr>
+                <td>Sprint 6</td>
+                <td>Graph A GCN WBCE</td>
+                <td>Graph A + <code>S5F2_energy</code></td>
+                <td>0.976935</td>
+                <td>0.819972</td>
+                <td>0.483719</td>
+                <td>0.289941</td>
+                <td>49/120/6/1527</td>
+                <td>En güçlü Graph A GCN/loss sonucu; F4 AUPRC barını geçmemiştir.</td>
+              </tr>
+              <tr>
+                <td>Sprint 7B</td>
+                <td>Graph C GATv2</td>
+                <td>Target-observation context + edge-aware GATv2</td>
+                <td>0.969078</td>
+                <td>0.849705</td>
+                <td>0.531774</td>
+                <td>0.372781</td>
+                <td>63/106/12/1521</td>
+                <td>Graph C rare-negative sinyalinin ilk güçlü göstergesi.</td>
+              </tr>
+              <tr>
+                <td>Sprint 7F</td>
+                <td><code>S7F_R2 family-aware</code></td>
+                <td>Balanced family-aware target-context encoder</td>
+                <td>0.982062</td>
+                <td>0.906557</td>
+                <td>0.603489</td>
+                <td>0.650888</td>
+                <td>110/59/63/1470</td>
+                <td>En güçlü MCC/macro-F1 rare-negative reference; threshold-dependent.</td>
+              </tr>
+              <tr>
+                <td>Sprint 7F</td>
+                <td><code>S7F_R3 experimental emphasis</code></td>
+                <td>Family-aware experimental emphasis</td>
+                <td>0.984945</td>
+                <td>0.926551</td>
+                <td>0.568108</td>
+                <td>0.497041</td>
+                <td>84/85/31/1502</td>
+                <td>Strong GNN AUPRC/AUROC carry-forward adayı.</td>
+              </tr>
+              <tr>
+                <td>Sprint 8A</td>
+                <td><code>S8A_R2 context-edge FiLM</code></td>
+                <td>Family-aware Graph C + context-edge FiLM</td>
+                <td>0.982757</td>
+                <td>0.910575</td>
+                <td>0.563656</td>
+                <td>0.520710</td>
+                <td>88/81/39/1494</td>
+                <td>Target context ile edge-energy interaction için validation-selected aday.</td>
+              </tr>
+              <tr>
+                <td>Sprint 8B</td>
+                <td><code>S8B_R2 sequence plus context</code></td>
+                <td>Sequence/context late fusion</td>
+                <td>0.986020</td>
+                <td>0.903480</td>
+                <td>0.567309</td>
+                <td>0.863905</td>
+                <td>146/23/180/1353</td>
+                <td>En yüksek single-seed GNN AUPRC ve en yüksek TN recovery; F4'ü geçmemiştir.</td>
+              </tr>
+              <tr>
+                <td>Sprint 9</td>
+                <td><code>XGB_F4 regenerated</code></td>
+                <td>F4 regenerated for paired robustness</td>
+                <td>0.992338</td>
+                <td>0.936420</td>
+                <td>0.351146</td>
+                <td>0.236686</td>
+                <td>40/129/23/1510</td>
+                <td>Historical F4'e çok yakın; küçük fark XGBoost version drift olarak açıklanmıştır.</td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+
+        <section id="auprc-ranking">
+          <h2>5. AUPRC Ranking</h2>
+          <p>
+            Nihai model ranking, primary metric olan AUPRC ile yapılmalıdır. Bu eksende XGBoost F4 hem historical hem
+            regenerated değerleriyle ana bar olarak kalmıştır.
+          </p>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Sıra</th>
+                <th>Model</th>
+                <th>AUPRC</th>
+                <th>Yorum</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>1</td>
+                <td><code>xgboost_unweighted F4 historical</code></td>
+                <td>0.992522</td>
+                <td>Projenin historical primary AUPRC lideridir.</td>
+              </tr>
+              <tr>
+                <td>2</td>
+                <td><code>XGB_F4 regenerated</code></td>
+                <td>0.992338</td>
+                <td>Sprint 9 paired analysis için yeniden üretilmiş F4 barıdır.</td>
+              </tr>
+              <tr>
+                <td>3</td>
+                <td><code>xgboost_unweighted F3</code></td>
+                <td>0.985918</td>
+                <td>F3, experimental epigenetic scalar sinyalinin büyük katkısını gösterir.</td>
+              </tr>
+              <tr>
+                <td>4</td>
+                <td><code>S8B_R2 sequence plus context</code></td>
+                <td>0.986020</td>
+                <td>En iyi single-seed GNN AUPRC'dir; historical/regenerated F4'ü geçmemiştir.</td>
+              </tr>
+              <tr>
+                <td>5</td>
+                <td><code>S7F_R3 experimental emphasis</code></td>
+                <td>0.984945</td>
+                <td>Strong carry-forward GNN adayıdır.</td>
+              </tr>
+              <tr>
+                <td>6</td>
+                <td><code>S8A_R2 context-edge FiLM</code></td>
+                <td>0.982757</td>
+                <td>FiLM interaction adayının ranking sonucudur.</td>
+              </tr>
+              <tr>
+                <td>7</td>
+                <td><code>S7F_R2 family-aware</code></td>
+                <td>0.982062</td>
+                <td>Operating-point açısından güçlü, AUPRC açısından F4'ün gerisinde.</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="callout risk">
+            <strong>Ana sınır:</strong> Sprint 9 paired AUPRC farklarının hiçbiri sıfırı dışlamamıştır. Bu nedenle GNN
+            adayları için robust AUPRC superiority kurulamaz; sonuçlar <em>compatible with no difference</em> diliyle
+            raporlanmalıdır.
+          </div>
+        </section>
+
+        <section id="operating-ranking">
+          <h2>6. Operating-Point / Rare-Negative Ranking</h2>
+          <p>
+            MCC, specificity ve TN sayısı modelin validation-selected frozen threshold altında nasıl karar verdiğini gösterir.
+            Bu tablo primary AUPRC ranking'in yerine geçmez; rare measured negative sınıfını ayırma davranışını görünür kılar.
+          </p>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Model</th>
+                <th>MCC</th>
+                <th>Specificity</th>
+                <th>TN/FP/FN/TP</th>
+                <th>Operating-point yorumu</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>S7F_R2</code></td>
+                <td>0.603489</td>
+                <td>0.650888</td>
+                <td>110/59/63/1470</td>
+                <td>Rare-negative MCC/macro-F1 açısından en dengeli GNN referanslarından biridir.</td>
+              </tr>
+              <tr>
+                <td><code>S7F_R3</code></td>
+                <td>0.568108</td>
+                <td>0.497041</td>
+                <td>84/85/31/1502</td>
+                <td>AUPRC/AUROC güçlü, negatif tanıma F4'ten daha iyi görünür.</td>
+              </tr>
+              <tr>
+                <td><code>S8A_R2</code></td>
+                <td>0.563656</td>
+                <td>0.520710</td>
+                <td>88/81/39/1494</td>
+                <td>Context-edge FiLM rare-negative sinyalini korumuştur.</td>
+              </tr>
+              <tr>
+                <td><code>S8B_R2</code></td>
+                <td>0.567309</td>
+                <td>0.863905</td>
+                <td>146/23/180/1353</td>
+                <td>En yüksek TN ve specificity; ancak FN=180 ile daha agresif negatif trade-off üretir.</td>
+              </tr>
+              <tr>
+                <td><code>XGBoost F4 historical</code></td>
+                <td>0.345198</td>
+                <td>not reported in summary source</td>
+                <td>38/131/21/1512</td>
+                <td>AUPRC lideridir; frozen threshold altında daha az true negative yakalar.</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="callout warning">
+            <strong>Yorum sınırı:</strong> Bu ranking threshold-dependent'tır. Sprint 9, bazı F4'e karşı specificity/MCC
+            farklarını desteklemiş olsa da GNN operating-point etkisinin seed-fragile ve guide-composition-fragile olduğunu
+            göstermiştir. Bu nedenle MCC/specificity, AUPRC primary ranking'in yerine geçirilmemelidir.
+          </div>
+        </section>
+
+        <section id="sprints">
+          <h2>7. Sprintlere Göre Cevaplar</h2>
+          <div class="cards">
+            <div class="card">
+              <h3>Sprint 1</h3>
+              <p>Dataset audit, Scheme A label policy, measured-only test rule, <code>experiment_id=18</code> riski ve feature parsing politikası sabitlenmiştir.</p>
+            </div>
+            <div class="card">
+              <h3>Sprint 2</h3>
+              <p>Strong non-graph baseline kurulmuştur. XGBoost F4 AUPRC 0.992522 ile ana bar olmuştur.</p>
+            </div>
+            <div class="card">
+              <h3>Sprint 3</h3>
+              <p>Graph A/B/C artifact'ları ve strict-inductive visibility politikası oluşturulmuştur.</p>
+            </div>
+            <div class="card">
+              <h3>Sprint 4</h3>
+              <p>GCN baseline'ları çalıştırılmıştır. Graph A/C GCN'ler F4 AUPRC barını geçmemiştir.</p>
+            </div>
+            <div class="card">
+              <h3>Sprint 5</h3>
+              <p>Feature-family ablation yapılmıştır. <code>S5F2_energy</code> Graph A GCN için en güçlü feature sinyali olmuştur.</p>
+            </div>
+            <div class="card">
+              <h3>Sprint 6</h3>
+              <p>Loss/sampling karşılaştırması yapılmıştır. Weighted BCE en iyi kalmış, focal/Dice/Tversky çözüm olmamıştır.</p>
+            </div>
+            <div class="card">
+              <h3>Sprint 7</h3>
+              <p>GAT/GATv2 tek başına çözüm olmamıştır; Graph C target-observation context ve family-aware encoder çizgisi öne çıkmıştır.</p>
+            </div>
+            <div class="card">
+              <h3>Sprint 8</h3>
+              <p>Context-edge FiLM ve sequence/context fusion test edilmiştir. <code>S8B_R2</code> en iyi single-seed GNN AUPRC'yi vermiştir.</p>
+            </div>
+            <div class="card">
+              <h3>Sprint 9</h3>
+              <p>Bootstrap, paired-difference ve multi-seed robustness yapılmıştır. Robust AUPRC superiority gösterilmemiştir.</p>
+            </div>
+          </div>
+        </section>
+
+        <section id="answers">
+          <h2>8. Nihai Araştırma Sorusu Cevapları</h2>
+          <div class="two-col">
+            <div class="definition">
+              <strong>GNN XGBoost'u geçti mi?</strong>
+              Hayır. Primary metric AUPRC'de XGBoost F4 historical 0.992522 ve regenerated 0.992338 ile ana bar olarak
+              kalmıştır. En iyi single-seed GNN, <code>S8B_R2</code>, AUPRC 0.986020 üretmiştir.
+            </div>
+            <div class="definition">
+              <strong>Graph context işe yaradı mı?</strong>
+              AUPRC superiority olarak değil; validation-kilitli operating point altında rare measured negative tanıma
+              davranışı olarak evet. Bu etki Graph C target-observation context çizgisinde görülmüştür.
+            </div>
+            <div class="definition">
+              <strong>Epigenetik/kromatin context değerli mi?</strong>
+              Predictive signal olarak evet. XGBoost F3 sıçraması ve Graph C masking deneyleri bunu destekler. Ancak bu,
+              causal biological proof olarak sunulmamalıdır.
+            </div>
+            <div class="definition">
+              <strong>Sequence-only yeterli mi?</strong>
+              Bu guide-disjoint measured-only evaluation kontratında hayır. Sequence-only CNN ve 8B sequence-only path,
+              rare-negative tanımada zayıf kalmıştır.
+            </div>
+            <div class="definition">
+              <strong>Robust superiority var mı?</strong>
+              AUPRC için hayır. Sprint 9 paired AUPRC farkları sıfırı dışlamamıştır ve sonuçlar compatible with no difference
+              olarak raporlanmalıdır.
+            </div>
+            <div class="definition">
+              <strong>Tezin ana katkısı nedir?</strong>
+              Context-aware GNN yaklaşımının değerini primary AUPRC üstünlüğüyle değil, kontrollü target-observation context
+              temsili ve rare-negative operating-point davranışıyla göstermesidir.
+            </div>
+          </div>
+        </section>
+
+        <section id="claims">
+          <h2>9. Claim Sınırları</h2>
+          <p>
+            Tez savunmasında en güçlü duruş, sonuçları küçültmeden fakat overclaim yapmadan anlatmaktır. Aşağıdaki tablo bu
+            sınırı özetler.
+          </p>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Doğru claim</th>
+                <th>Yanlış claim</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>XGBoost F4, primary AUPRC'de en güçlü ve en stabil baseline olarak kalmıştır.</td>
+                <td>GNN XGBoost'u geçti.</td>
+              </tr>
+              <tr>
+                <td>Graph C target-observation context, validation-selected threshold altında rare-negative recognition sinyali vermiştir.</td>
+                <td>Model state-of-the-art'tır.</td>
+              </tr>
+              <tr>
+                <td>Family-aware GATv2 ve sequence/context fusion, GNN çizgisini rekabetçi hale getirmiştir.</td>
+                <td>Mak et al. 2022 birebir reproduced edilmiştir.</td>
+              </tr>
+              <tr>
+                <td>Experimental epigenetic feature'lar predictive signal taşımıştır.</td>
+                <td>Epigenetic features causal mekanizmayı kanıtlamıştır.</td>
+              </tr>
+              <tr>
+                <td>Attention, gate ve FiLM çıktıları model davranışını yorumlamak için kullanılabilir.</td>
+                <td>Attention/FiLM/gate causal biology kanıtlamıştır.</td>
+              </tr>
+              <tr>
+                <td>MCC/specificity, AUPRC'nin göstermediği threshold trade-off'unu görünür kılar.</td>
+                <td>MCC yüksek olduğu için AUPRC önemsizdir.</td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+
+        <section id="advisor">
+          <h2>10. Danışmana Söylenecek 5 Dakikalık Versiyon</h2>
+          <p>
+            Bu çalışmada CRISPR-Cas9 off-target tahmininde epigenetik ve kromatin bağlamının graph neural network içinde
+            nasıl temsil edilebileceği araştırılmıştır. Veri olarak Mak et al. 2022 / crisprSQL-derived epigenetic-nucleosome
+            veri seti kullanılmış, ana etiket Scheme A olarak <code>cleavage_freq &gt; 1e-5</code> biçiminde tanımlanmıştır.
+            Ana değerlendirme evreni measured-only, guide-disjoint ve <code>experiment_id=18</code> hariç tutulmuş test
+            evrenidir. Test seti 1702 satır, 29 guide, 1533 pozitif ve 169 negatiften oluşmaktadır. Model ve threshold
+            seçimi yalnızca validation setiyle yapılmış, test tuning uygulanmamıştır.
+          </p>
+
+          <p>
+            İlk olarak güçlü non-graph baseline'lar kurulmuştur. Bu aşamada XGBoost F4, AUPRC 0.992522 ile en güçlü baseline
+            olmuştur. Bu önemli bir sonuçtur; çünkü GNN modellerinin yalnızca zayıf linear veya sequence-only modellere karşı
+            değil, context-rich güçlü bir tabular modele karşı değerlendirilmesini zorunlu kılmıştır. Sequence-only modeller
+            bu split altında zayıf kalmış, experimental epigenetic feature'ların eklendiği F3 ise XGBoost'ta büyük performans
+            sıçraması üretmiştir.
+          </p>
+
+          <p>
+            GNN tarafında Graph A/B/C şemaları kurulmuş, özellikle Graph C ile target tarafı fiziksel koordinat yerine
+            row-level target-observation context olarak temsil edilmiştir. GCN baseline'ları F4'ü geçememiştir. Daha sonra
+            GAT/GATv2, feature-family ablation, family-aware target-context encoder, context-edge FiLM ve sequence/context
+            fusion çizgisi test edilmiştir. En iyi single-seed GNN AUPRC, <code>S8B_R2</code> ile 0.986020 olmuştur; bu değer
+            güçlüdür fakat XGBoost F4'ü geçmemiştir. Buna karşılık <code>S7F_R2</code>, <code>S8A_R2</code> ve
+            <code>S8B_R2</code> gibi Graph C tabanlı modeller, validation-selected threshold altında F4'e göre daha fazla
+            rare measured negative yakalamıştır.
+          </p>
+
+          <p>
+            Sprint 9 robustness analizi nihai iddia sınırını belirlemiştir. Guide-cluster bootstrap, paired-difference
+            bootstrap ve multi-seed retraining sonucunda hiçbir predeclared AUPRC farkı sıfırı dışlamamıştır. Bu nedenle
+            "GNN XGBoost'u geçti" denmemelidir. Daha savunulabilir sonuç şudur: XGBoost F4 primary AUPRC'de en güçlü ve en
+            stabil baseline olarak kalmıştır; Graph C target-observation context, family-aware GATv2 ve sequence/context
+            fusion çizgisi ise rare measured negative sınıfını ayırmada threshold-dependent, seed-fragile ve guide-composition
+            fragile fakat bilimsel olarak anlamlı bir operating-point sinyali vermiştir.
+          </p>
+        </section>
+
+        <section id="summary">
+          <h2>11. Final Özet</h2>
+          <div class="summary-box">
+            Bu proje, CRISPR-Cas9 off-target tahmininde epigenetik/kromatin bağlamının graph neural network temsili içinde
+            değer taşıyıp taşımadığını, guide-disjoint, measured-only ve no-test-tuning bir evaluation kontratı altında
+            incelemiştir. Sprint 1'de Mak et al. 2022 / crisprSQL-derived epigenetic-nucleosome veri seti denetlenmiş,
+            <code>cleavage_freq &gt; 1e-5</code> Scheme A etiketi, measured-only test kuralı, train-only preprocessing ve
+            leakage sınırları sabitlenmiştir. Sprint 2'de güçlü non-graph baseline'lar kurulmuş ve XGBoost F4, AUPRC
+            <code>0.992522</code> ile projenin authoritative primary-metric barı olmuştur. Sprint 3 ve 4'te Graph A/B/C
+            şemaları ve GCN baseline'ları test edilmiş, hiçbir GCN F4 AUPRC barını geçmemiştir. Sprint 5 ve 6, binding-energy
+            ağırlıklı <code>S5F2_energy</code> feature setinin Graph A GCN için güçlü olduğunu ve remaining limitation'ın loss
+            seçiminden çok feature/context representation ile ilişkili olduğunu göstermiştir. Sprint 7'de GAT/GATv2'nin tek
+            başına çözüm olmadığı, Graph C target-observation context ile family-aware target-context encoder'ın rare-negative
+            operating-point davranışını güçlendirdiği görülmüştür. Sprint 8'de context-edge FiLM ve sequence/context fusion
+            denenmiş, <code>S8B_R2</code> AUPRC <code>0.986020</code> ile en yüksek single-seed GNN sonucunu ve TN=146 ile en
+            güçlü negative recovery profilini üretmiştir. Sprint 9 ise bu kazanımların robust AUPRC superiority'ye dönüşmediğini
+            göstermiştir: paired AUPRC farkları sıfırı dışlamamış, multi-seed oynaklığı candidate gain'lerden büyük veya onlara
+            yakın kalmış ve F4 en yüksek ortalama AUPRC ile en stabil baseline olarak korunmuştur. Buna rağmen çalışma tamamen
+            negatif bir sonuç değildir; Graph C target-observation context, family-aware GATv2 ve sequence/context fusion çizgisi,
+            validation-selected frozen threshold altında rare measured negative sınıfını daha iyi tanıma davranışı göstermiştir.
+            Bu nedenle tezin nihai savunulabilir iddiası, GNN'in XGBoost F4'ü geçtiği değil, context-aware GNN yaklaşımının
+            primary AUPRC üstünlüğü oluşturmadan da nadir negatifleri ayırma davranışında mekanizma kontrollü, fakat
+            threshold-dependent, seed-fragile ve guide-composition-fragile bir katkı sunduğudur.
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+</body>
+</html>

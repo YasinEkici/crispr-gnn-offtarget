@@ -1,0 +1,1065 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sprint 9 Raporu - Robustness, Belirsizlik ve Claim Sınırları</title>
+  <style>
+    :root {
+      --bg: #f6f8fb;
+      --paper: #ffffff;
+      --ink: #182230;
+      --muted: #667085;
+      --line: #d9e0ea;
+      --accent: #0f766e;
+      --accent-soft: #e5f5f2;
+      --blue: #1d4ed8;
+      --blue-soft: #e8f0ff;
+      --amber: #a15c07;
+      --amber-soft: #fff5df;
+      --red: #b42318;
+      --red-soft: #fff0ed;
+      --green: #147d4f;
+      --green-soft: #e7f7ef;
+      --slate: #26384f;
+      --slate-soft: #edf2f7;
+      --code-bg: #eef2f7;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.58;
+    }
+
+    a {
+      color: var(--blue);
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    .page {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 32px 24px 58px;
+    }
+
+    .hero {
+      border-radius: 8px;
+      padding: 38px;
+      color: #ffffff;
+      background:
+        linear-gradient(135deg, rgba(16, 42, 67, 0.98), rgba(15, 118, 110, 0.94)),
+        linear-gradient(45deg, #102a43, #0f766e);
+      box-shadow: 0 20px 44px rgba(16, 42, 67, 0.18);
+      margin-bottom: 24px;
+    }
+
+    .eyebrow {
+      margin: 0 0 12px;
+      font-size: 0.86rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.78);
+    }
+
+    h1 {
+      margin: 0;
+      max-width: 980px;
+      font-size: clamp(2rem, 4.2vw, 3.55rem);
+      line-height: 1.04;
+      letter-spacing: 0;
+    }
+
+    .hero p {
+      max-width: 960px;
+      margin: 18px 0 0;
+      color: rgba(255, 255, 255, 0.88);
+      font-size: 1.08rem;
+    }
+
+    .hero-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 24px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 32px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      color: #ffffff;
+      background: rgba(255, 255, 255, 0.14);
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      font-size: 0.88rem;
+      white-space: nowrap;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 286px minmax(0, 1fr);
+      gap: 24px;
+      align-items: start;
+    }
+
+    nav {
+      position: sticky;
+      top: 18px;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 18px;
+    }
+
+    nav h2 {
+      margin: 0 0 12px;
+      font-size: 1rem;
+    }
+
+    nav ol {
+      margin: 0;
+      padding-left: 18px;
+      color: var(--muted);
+    }
+
+    nav li {
+      margin: 8px 0;
+    }
+
+    section {
+      margin-bottom: 18px;
+      padding: 28px;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+    }
+
+    h2 {
+      margin: 0 0 16px;
+      font-size: 1.55rem;
+      line-height: 1.25;
+      letter-spacing: 0;
+    }
+
+    h3 {
+      margin: 24px 0 10px;
+      font-size: 1.08rem;
+      line-height: 1.3;
+      letter-spacing: 0;
+    }
+
+    p {
+      margin: 0 0 14px;
+    }
+
+    .lead {
+      color: #344054;
+      font-size: 1.06rem;
+    }
+
+    .callout {
+      margin: 18px 0;
+      padding: 16px 18px;
+      border-radius: 6px;
+      border-left: 5px solid var(--accent);
+      background: var(--accent-soft);
+    }
+
+    .callout.info {
+      border-left-color: var(--blue);
+      background: var(--blue-soft);
+    }
+
+    .callout.warning {
+      border-left-color: var(--amber);
+      background: var(--amber-soft);
+    }
+
+    .callout.risk {
+      border-left-color: var(--red);
+      background: var(--red-soft);
+    }
+
+    .callout.neutral {
+      border-left-color: var(--slate);
+      background: var(--slate-soft);
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+      margin: 20px 0 8px;
+    }
+
+    .stat {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 16px;
+      background: #fbfcfe;
+    }
+
+    .stat strong {
+      display: block;
+      font-size: 1.45rem;
+      line-height: 1.15;
+      color: var(--ink);
+    }
+
+    .stat span {
+      display: block;
+      margin-top: 6px;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      margin: 18px 0;
+    }
+
+    .card {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 18px;
+      background: #fbfcfe;
+    }
+
+    .card h3 {
+      margin-top: 0;
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+      margin: 16px 0;
+    }
+
+    .definition {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 15px;
+      background: #fbfcfe;
+    }
+
+    .definition strong {
+      display: block;
+      margin-bottom: 6px;
+      color: #111827;
+    }
+
+    ul {
+      margin: 10px 0 16px;
+      padding-left: 20px;
+    }
+
+    li {
+      margin: 7px 0;
+    }
+
+    code,
+    pre {
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+    }
+
+    code {
+      padding: 2px 5px;
+      border-radius: 4px;
+      background: var(--code-bg);
+      color: #111827;
+      font-size: 0.92em;
+    }
+
+    pre {
+      overflow-x: auto;
+      margin: 16px 0;
+      padding: 16px;
+      border-radius: 8px;
+      background: #111827;
+      color: #e5e7eb;
+      font-size: 0.92rem;
+      line-height: 1.5;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0 8px;
+      font-size: 0.94rem;
+    }
+
+    th,
+    td {
+      padding: 11px 12px;
+      border: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background: #f1f5f9;
+      color: #233044;
+      font-weight: 700;
+    }
+
+    tr:nth-child(even) td {
+      background: #fbfcfe;
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      min-height: 26px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      font-size: 0.82rem;
+      font-weight: 650;
+      background: var(--slate-soft);
+      color: var(--slate);
+      white-space: nowrap;
+    }
+
+    .tag.primary {
+      background: var(--accent-soft);
+      color: var(--accent);
+    }
+
+    .tag.control {
+      background: var(--blue-soft);
+      color: var(--blue);
+    }
+
+    .tag.warning {
+      background: var(--amber-soft);
+      color: var(--amber);
+    }
+
+    .tag.risk {
+      background: var(--red-soft);
+      color: var(--red);
+    }
+
+    .small {
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .summary-box {
+      border: 1px solid #b7dfd8;
+      border-radius: 8px;
+      padding: 20px;
+      background: #f0fbf8;
+      font-size: 1.02rem;
+    }
+
+    @media (max-width: 920px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+
+      nav {
+        position: static;
+      }
+
+      .stats,
+      .cards,
+      .two-col {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .page {
+        padding: 20px 14px 40px;
+      }
+
+      .hero,
+      section {
+        padding: 22px;
+      }
+
+      table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header class="hero">
+      <p class="eyebrow">CRISPR-GNN Tez Raporu - Sprint 9</p>
+      <h1>Robustness, Belirsizlik ve Claim Sınırları Analizi</h1>
+      <p>
+        Sprint 9, yeni model geliştiren bir sprint değildir. Bu sprintin amacı, Sprint 8A ve Sprint 8B'de görülen
+        iyileşmelerin gerçekten güçlü bir üstünlük iddiası taşıyıp taşımadığını test etmektir. Sonuç netleşmiştir:
+        AUPRC açısından robust superiority yoktur; XGBoost F4 en güçlü ve en stabil baseline olarak kalır. Buna karşılık
+        GNN çizgisi, frozen threshold altında rare measured negative sınıfını daha iyi tanıma eğilimi göstermiştir.
+      </p>
+      <div class="hero-meta">
+        <span class="pill">AUPRC primary metric</span>
+        <span class="pill">Guide-cluster bootstrap</span>
+        <span class="pill">Paired-difference bootstrap</span>
+        <span class="pill">Multi-seed robustness</span>
+      </div>
+    </header>
+
+    <div class="layout">
+      <nav aria-label="İçindekiler">
+        <h2>İçindekiler</h2>
+        <ol>
+          <li><a href="#big-picture">Sprint 9 Nedir?</a></li>
+          <li><a href="#motivation">Neden Gerekti?</a></li>
+          <li><a href="#contract">Sabit Kontrat</a></li>
+          <li><a href="#concepts">Kavramlar</a></li>
+          <li><a href="#slice-a">A. F4 Replay</a></li>
+          <li><a href="#slice-b">B. Guide Bootstrap</a></li>
+          <li><a href="#slice-c">C. Paired Difference</a></li>
+          <li><a href="#slice-d">D. Multi-Seed</a></li>
+          <li><a href="#operating-point">Operating Point</a></li>
+          <li><a href="#synthesis">Sentez</a></li>
+          <li><a href="#literature">Literatürle İlişki</a></li>
+          <li><a href="#boundaries">Claim Sınırları</a></li>
+          <li><a href="#summary">Final Özet</a></li>
+        </ol>
+      </nav>
+
+      <main>
+        <section id="big-picture">
+          <h2>1. Sprint 9 Nedir?</h2>
+          <p class="lead">
+            Sprint 9, proje hikayesinin karar sprintidir. Sprint 8 sonunda Graph C, context-edge FiLM ve sequence/context
+            fusion çizgisi umut verici görünmüştü; fakat bu sonuçların tek bir seed, küçük bir test guide dağılımı veya
+            birkaç negatif taşıyan guide nedeniyle şişip şişmediği ayrıca sınanmalıydı.
+          </p>
+
+          <div class="callout">
+            <strong>En basit anlatım:</strong> Sprint 8'de "iyi görünen" modeller bulunmuştu. Sprint 9'da ise şu soru
+            soruldu: Bu iyi görünme hali gerçekten genellenebilir ve savunulabilir bir üstünlük mü, yoksa küçük ve kırılgan
+            bir deneysel sinyal mi? Cevap: AUPRC üstünlüğü robust değil; rare-negative operating-point sinyali var ama
+            kırılgan.
+          </div>
+
+          <div class="stats">
+            <div class="stat">
+              <strong>29</strong>
+              <span>Test setindeki guide sayısı</span>
+            </div>
+            <div class="stat">
+              <strong>169</strong>
+              <span>Test setindeki measured negative satır sayısı</span>
+            </div>
+            <div class="stat">
+              <strong>0.900705</strong>
+              <span>AUPRC için no-skill PR baseline</span>
+            </div>
+            <div class="stat">
+              <strong>0.992338</strong>
+              <span>Sprint 9 regenerated XGBoost F4 AUPRC</span>
+            </div>
+          </div>
+
+          <h3>Bu sprintte ne arandı?</h3>
+          <ul>
+            <li>Sprint 8B'nin Sprint 8A'ya göre AUPRC artışı robust mu?</li>
+            <li>GNN adayları XGBoost F4'e karşı AUPRC üstünlüğü iddia edebilir mi?</li>
+            <li>Tek seed üzerinde görülen farklar farklı random seed'lerde korunuyor mu?</li>
+            <li>Az sayıdaki negatif guide, specificity ve MCC gibi metrikleri ne kadar kırılgan yapıyor?</li>
+            <li>GNN'lerin rare measured negative sınıfını daha iyi tanıması gerçek bir operating-point davranışı mı?</li>
+          </ul>
+        </section>
+
+        <section id="motivation">
+          <h2>2. Neden Gerekti?</h2>
+          <p>
+            Sprint 8B_R2, test AUPRC <code>0.986020</code> ile en yüksek single-seed GNN sonucunu üretmişti. Ancak XGBoost
+            F4 historical AUPRC değeri <code>0.992522</code>, Sprint 9'da yeniden üretilen değeri ise <code>0.992338</code>
+            idi. Yani GNN çizgisi güçlenmişti, fakat primary metric açısından F4'ü geçmemişti.
+          </p>
+
+          <p>
+            Daha önemlisi, test setindeki negatif sınıf çok dar bir guide dağılımına sıkışmıştı. Test setinde 1702 satır
+            bulunmasına rağmen yalnızca 29 guide vardı; 169 negatif satır sadece 9 guide içinde yer alıyordu. Guide
+            <code>9251</code> tek başına 80 negatif taşıyordu, yani negatiflerin yaklaşık <code>%47.3</code>'ünü içeriyordu.
+            Bu yapı, özellikle specificity ve MCC gibi negatif sınıfa duyarlı metrikleri guide kompozisyonuna hassas yapar.
+          </p>
+
+          <div class="callout warning">
+            <strong>Önemli yorum:</strong> Burada sorun test satırı sayısının 1702 olması değildir; asıl kısıt, bağımsız
+            guide sayısının 29 olması ve negatiflerin çok az guide içinde yoğunlaşmasıdır. Sprint 9 bu yüzden row-level
+            değil, guide-cluster düzeyinde belirsizlik ölçmüştür.
+          </div>
+        </section>
+
+        <section id="contract">
+          <h2>3. Sabit Deney Kontratı</h2>
+          <p>
+            Sprint 9 yorum sprintidir; model, label, split, threshold, feature veya mimari değiştirilmemiştir. Bütün analizler
+            daha önce frozen hale gelmiş çıktılar üzerinden yapılmıştır.
+          </p>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Alan</th>
+                <th>Sabit Karar</th>
+                <th>Neden Önemli?</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Label</td>
+                <td><code>Scheme A = cleavage_freq &gt; 1e-5</code></td>
+                <td>Pozitif/negatif tanımı değiştirilmedi.</td>
+              </tr>
+              <tr>
+                <td>Split</td>
+                <td><code>sprint2_main_seed42</code>, guide-disjoint</td>
+                <td>Guide leakage engellendi; train ve test guide'ları ayrık kaldı.</td>
+              </tr>
+              <tr>
+                <td>Headline evren</td>
+                <td>Measured-only, <code>experiment_id=18</code> hariç</td>
+                <td>Putative satırlar test ground truth olarak kullanılmadı.</td>
+              </tr>
+              <tr>
+                <td>Threshold</td>
+                <td>Validation-selected frozen threshold</td>
+                <td>Test threshold tuning yapılmadı.</td>
+              </tr>
+              <tr>
+                <td>Primary metric</td>
+                <td>AUPRC</td>
+                <td>Ranking kalitesi ve nihai model karşılaştırması bu metrikle değerlendirildi.</td>
+              </tr>
+              <tr>
+                <td>Secondary metrics</td>
+                <td>AUROC, MCC, macro-F1, specificity, TN/FP/FN/TP</td>
+                <td>Operating-point davranışını anlamak için kullanıldı; AUPRC'nin yerine geçirilmedi.</td>
+              </tr>
+              <tr>
+                <td>Non-GNN bar</td>
+                <td>XGBoost unweighted F4</td>
+                <td>En güçlü ve en stabil tabular baseline olarak korunmuştur.</td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+
+        <section id="concepts">
+          <h2>4. Sprint 9 Kavramları</h2>
+          <p>
+            Sprint 9 teknik olarak istatistiksel bir robustness sprintidir. Ancak kavramlar sadeleştirildiğinde ana fikir
+            oldukça nettir: aynı sonuçlara farklı belirsizlik pencerelerinden bakılmıştır.
+          </p>
+
+          <div class="two-col">
+            <div class="definition">
+              <strong>Guide-cluster bootstrap</strong>
+              Satırları tek tek değil, guide'ları birlikte yeniden örnekleme yöntemidir. Aynı guide'a ait satırlar birlikte
+              taşınır; çünkü bu satırlar tamamen bağımsız kabul edilmez.
+            </div>
+            <div class="definition">
+              <strong>Paired-difference bootstrap</strong>
+              İki model aynı bootstrap guide örneği üzerinde karşılaştırılır. Böylece "A modeli B'den gerçekten daha iyi mi?"
+              sorusuna doğrudan fark aralığıyla bakılır.
+            </div>
+            <div class="definition">
+              <strong>Multi-seed robustness</strong>
+              Aynı model farklı random seed'lerle yeniden eğitilir. Amaç en iyi seed'i seçmek değil, eğitim oynaklığını
+              ölçmektir.
+            </div>
+            <div class="definition">
+              <strong>Compatible with no difference</strong>
+              Fark aralığı sıfırı içerdiğinde kullanılan temkinli dildir. Bu, modeller eşittir demek değildir; yalnızca
+              eldeki test geometrisiyle superiority gösterilemediğini söyler.
+            </div>
+            <div class="definition">
+              <strong>Threshold-dependent operating point</strong>
+              Modelin validation'dan seçilmiş sabit eşikteki sınıflandırma davranışıdır. MCC, specificity ve confusion
+              matrix burada anlam kazanır.
+            </div>
+            <div class="definition">
+              <strong>Guide-composition fragility</strong>
+              Sonucun testte hangi guide'ların bulunduğuna ve özellikle negatif taşıyan guide'ların dağılımına hassas
+              olmasıdır.
+            </div>
+          </div>
+        </section>
+
+        <section id="slice-a">
+          <h2>5. A. XGBoost F4 Replay ve Reproduction</h2>
+          <p>
+            Sprint 9'un ilk adımı XGBoost F4'ün paired analizlere dahil edilebilmesi için per-row prediction seviyesinde
+            yeniden üretilmesidir. Sprint 2'de F4 aggregate sonuçları vardı, fakat Sprint 9'da model farklarını satır/guide
+            düzeyinde karşılaştırmak için yeniden skor dosyası gerekiyordu.
+          </p>
+
+          <table>
+            <thead>
+              <tr>
+                <th>F4 Kaynağı</th>
+                <th>AUPRC</th>
+                <th>Threshold</th>
+                <th>Yorum</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Historical Sprint 2 F4</td>
+                <td>0.992522</td>
+                <td>0.605734</td>
+                <td>Projenin ana non-GNN referans barı.</td>
+              </tr>
+              <tr>
+                <td>Sprint 9 regenerated F4</td>
+                <td>0.992338</td>
+                <td>0.604756</td>
+                <td>Per-row paired analizler için kabul edilen yeniden üretim.</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="callout info">
+            <strong>Sonuç:</strong> Historical ve regenerated F4 arasındaki AUPRC farkı yalnızca <code>0.000184</code>'tür.
+            Bu fark XGBoost version drift olarak yorumlanmıştır ve Sprint 9 sonucunu değiştirecek büyüklükte değildir.
+          </div>
+        </section>
+
+        <section id="slice-b">
+          <h2>6. B. Guide-Cluster Bootstrap</h2>
+          <p>
+            Bu analizde her model için AUPRC güven aralıkları guide düzeyinde hesaplandı. Yani 1702 satır bağımsız örnek
+            gibi ele alınmadı; 29 guide bootstrap birimi olarak kullanıldı. Böylece test setindeki guide kompozisyonunun
+            sonucu ne kadar etkileyebileceği görüldü.
+          </p>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Model</th>
+                <th>AUPRC</th>
+                <th>95% Guide-Cluster Interval</th>
+                <th>Yorum</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>XGB_F4</code></td>
+                <td>0.992338</td>
+                <td>[0.950179, 0.999336]</td>
+                <td>En yüksek point estimate; interval yine geniş.</td>
+              </tr>
+              <tr>
+                <td><code>S8B_R2</code></td>
+                <td>0.986020</td>
+                <td>[0.929981, 0.998966]</td>
+                <td>En iyi single-seed GNN; F4 ile aralıklar yoğun biçimde çakışıyor.</td>
+              </tr>
+              <tr>
+                <td><code>S7F_R3</code></td>
+                <td>0.984945</td>
+                <td>[0.923532, 0.999913]</td>
+                <td>Strong carry-forward GNN; interval geniş.</td>
+              </tr>
+              <tr>
+                <td><code>S8A_R2</code></td>
+                <td>0.982757</td>
+                <td>[0.910478, 0.999892]</td>
+                <td>Context-edge FiLM adayı; guide belirsizliği yüksek.</td>
+              </tr>
+              <tr>
+                <td><code>S7F_R2</code></td>
+                <td>0.982062</td>
+                <td>[0.914690, 0.999242]</td>
+                <td>Rare-negative operating-point referansı.</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="callout warning">
+            <strong>Bulgu:</strong> AUPRC aralıkları geniştir ve modeller arasında yoğun biçimde üst üste biner. Bu tek
+            başına model farkı testi değildir; asıl fark sorusu paired bootstrap ile cevaplanmıştır. Ancak bu tablo, 29
+            guide'lık test geometrisinin AUPRC üstünlük iddiasını doğal olarak zorlaştırdığını gösterir.
+          </div>
+        </section>
+
+        <section id="slice-c">
+          <h2>7. C. Paired-Difference Bootstrap</h2>
+          <p>
+            Paired-difference bootstrap, Sprint 9'un en kritik analizidir. Burada her karşılaştırmada iki model aynı guide
+            örneği üzerinde değerlendirilmiştir. Böylece iki ayrı güven aralığının üst üste binmesine bakmak yerine,
+            doğrudan model farkının güven aralığı hesaplanmıştır.
+          </p>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Pair</th>
+                <th>Karşılaştırma</th>
+                <th>AUPRC Δ</th>
+                <th>95% Interval</th>
+                <th>Sıfırı Dışlıyor mu?</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>P1</td>
+                <td><code>S8B_R2 - S8A_R2</code></td>
+                <td>+0.00326</td>
+                <td>[-0.01484, +0.03706]</td>
+                <td>Hayır</td>
+              </tr>
+              <tr>
+                <td>P2</td>
+                <td><code>S8B_R2 - S7F_R3</code></td>
+                <td>+0.00107</td>
+                <td>[-0.02099, +0.02652]</td>
+                <td>Hayır</td>
+              </tr>
+              <tr>
+                <td>P3</td>
+                <td><code>S8A_R2 - S7F_R3</code></td>
+                <td>-0.00219</td>
+                <td>[-0.01932, +0.00124]</td>
+                <td>Hayır</td>
+              </tr>
+              <tr>
+                <td>P4</td>
+                <td><code>S8B_R2 - XGB_F4</code></td>
+                <td>-0.00632</td>
+                <td>[-0.03124, +0.00117]</td>
+                <td>Hayır</td>
+              </tr>
+              <tr>
+                <td>P5</td>
+                <td><code>S8A_R2 - XGB_F4</code></td>
+                <td>-0.00958</td>
+                <td>[-0.05788, +0.00541]</td>
+                <td>Hayır</td>
+              </tr>
+              <tr>
+                <td>P6</td>
+                <td><code>S7F_R3 - XGB_F4</code></td>
+                <td>-0.00739</td>
+                <td>[-0.04285, +0.00799]</td>
+                <td>Hayır</td>
+              </tr>
+              <tr>
+                <td>P7</td>
+                <td><code>S8B_R2 - S7F_R2</code></td>
+                <td>+0.00396</td>
+                <td>[-0.01800, +0.03707]</td>
+                <td>Hayır</td>
+              </tr>
+              <tr>
+                <td>P8</td>
+                <td><code>S8A_R2 - S7F_R2</code></td>
+                <td>+0.00070</td>
+                <td>[-0.01605, +0.00776]</td>
+                <td>Hayır</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="callout risk">
+            <strong>Ana Sprint 9 sonucu:</strong> AUPRC açısından hiçbir predeclared paired difference sıfırı dışlamamıştır.
+            Bu nedenle Sprint 8B'nin Sprint 8A'ya göre artışı, S8B_R2'nin S7F_R3'e göre artışı veya herhangi bir GNN'in
+            F4'e göre üstünlüğü robust superiority olarak raporlanamaz. Doğru ifade: <em>compatible with no difference</em>.
+          </div>
+        </section>
+
+        <section id="slice-d">
+          <h2>8. D. Multi-Seed Robustness</h2>
+          <p>
+            Multi-seed deneyinin amacı en iyi seed'i bulmak değildir. Amaç, aynı model aynı split üzerinde farklı random
+            seed'lerle eğitildiğinde sonuçların ne kadar oynadığını ölçmektir. Sprint 9'da seed seti önceden sabitlenmiştir:
+            <code>{42, 7, 13, 123, 2024}</code>.
+          </p>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Model</th>
+                <th>AUPRC Mean</th>
+                <th>Std</th>
+                <th>Min</th>
+                <th>Max</th>
+                <th>Yorum</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>XGB_F4</code></td>
+                <td>0.990649</td>
+                <td>0.001944</td>
+                <td>0.988110</td>
+                <td>0.992557</td>
+                <td>En yüksek ortalama ve en düşük seed spread.</td>
+              </tr>
+              <tr>
+                <td><code>S8B_R2</code></td>
+                <td>0.978963</td>
+                <td>0.011322</td>
+                <td>0.958963</td>
+                <td>0.986479</td>
+                <td>En iyi single-seed GNN çizgisi, fakat seed oynaklığı yüksek.</td>
+              </tr>
+              <tr>
+                <td><code>S8A_R2</code></td>
+                <td>0.975538</td>
+                <td>0.012187</td>
+                <td>0.954756</td>
+                <td>0.984490</td>
+                <td>Context-edge FiLM etkisi seed'e duyarlı.</td>
+              </tr>
+              <tr>
+                <td><code>S7F_R2</code></td>
+                <td>0.974810</td>
+                <td>0.003802</td>
+                <td>0.969181</td>
+                <td>0.979555</td>
+                <td>GNN içinde daha stabil, fakat F4 seviyesinde değil.</td>
+              </tr>
+              <tr>
+                <td><code>S7F_R3</code></td>
+                <td>0.968681</td>
+                <td>0.004643</td>
+                <td>0.963136</td>
+                <td>0.974476</td>
+                <td>Carry-forward güçlü aday, ama multi-seed ortalaması düşüyor.</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="callout">
+            <strong>Bulgu:</strong> GNN modellerinde AUPRC seed standard deviation yaklaşık <code>0.004-0.012</code>
+            aralığındadır. Sprint 8B'nin Sprint 8A'ya göre single-seed AUPRC kazanımı ise yalnızca yaklaşık
+            <code>+0.0033</code>'tür. Bu nedenle aday kazanımı seed oynaklığından daha küçük veya ona yakın büyüklüktedir.
+          </div>
+        </section>
+
+        <section id="operating-point">
+          <h2>9. Operating-Point Davranışı</h2>
+          <p>
+            Sprint 9'un tek olumlu GNN sinyali AUPRC'de değil, validation-selected frozen threshold altındaki operating-point
+            metriklerinde görülmüştür. Burada özellikle rare measured negative sınıfının tanınması önemlidir.
+          </p>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Model</th>
+                <th>MCC</th>
+                <th>Specificity</th>
+                <th>Macro-F1</th>
+                <th>Yorum</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>XGB_F4</code></td>
+                <td>0.3511</td>
+                <td>0.2367</td>
+                <td>0.6485</td>
+                <td>Yüksek AUPRC, fakat frozen threshold altında negatifleri sınırlı yakalıyor.</td>
+              </tr>
+              <tr>
+                <td><code>S8B_R2</code></td>
+                <td>0.5673</td>
+                <td>0.8639</td>
+                <td>0.7601</td>
+                <td>Çok daha fazla true negative yakalıyor, fakat false negative artıyor.</td>
+              </tr>
+              <tr>
+                <td><code>S8A_R2</code></td>
+                <td>0.5637</td>
+                <td>0.5207</td>
+                <td>0.7780</td>
+                <td>F4'e göre daha iyi negatif ayrımı; seed-fragile.</td>
+              </tr>
+              <tr>
+                <td><code>S7F_R3</code></td>
+                <td>0.5681</td>
+                <td>0.4970</td>
+                <td>0.7772</td>
+                <td>Strong GNN carry-forward; operating point güçlü.</td>
+              </tr>
+              <tr>
+                <td><code>S7F_R2</code></td>
+                <td>0.6035</td>
+                <td>0.6509</td>
+                <td>0.8017</td>
+                <td>Rare-negative operating point açısından en dengeli GNN referanslarından biri.</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <pre>XGB_F4 historical confusion: 38/131/21/1512
+S8B_R2 confusion:             146/23/180/1353
+
+Yorum:
+S8B_R2 çok daha fazla true negative yakalar.
+Ancak bunun karşılığında false negative sayısı artar.
+Bu yüzden bulgu AUPRC superiority değil, threshold-dependent operating-point davranışıdır.</pre>
+
+          <div class="callout warning">
+            <strong>Doğru yorum:</strong> GNN'ler F4'e göre rare measured negative sınıfını daha iyi ayırma eğilimi
+            göstermiştir. Fakat bu etki threshold-dependent, seed-fragile ve guide-composition-fragile olarak raporlanmalıdır.
+          </div>
+        </section>
+
+        <section id="synthesis">
+          <h2>10. Üç Belirsizlik Penceresinin Sentezi</h2>
+          <p>
+            Sprint 9'un gücü, tek bir istatistiksel tabloya dayanmamasıdır. Aynı sonuca üç farklı açıdan ulaşılmıştır:
+            guide-cluster bootstrap, paired-difference bootstrap ve multi-seed retraining.
+          </p>
+
+          <div class="cards">
+            <div class="card">
+              <h3>Guide-Cluster CI</h3>
+              <p>AUPRC aralıkları geniştir. Bu genişlik, test setinin 29 guide ve 9 negative-bearing guide ile sınırlı
+              olmasından gelir.</p>
+            </div>
+            <div class="card">
+              <h3>Paired Difference</h3>
+              <p>Hiçbir AUPRC farkı sıfırı dışlamaz. Bu, robust superiority iddiasını engelleyen ana bulgudur.</p>
+            </div>
+            <div class="card">
+              <h3>Multi-Seed</h3>
+              <p>GNN seed oynaklığı, Sprint 8'deki küçük candidate gain'lerden büyüktür. F4 daha stabil kalır.</p>
+            </div>
+          </div>
+
+          <div class="callout info">
+            <strong>Sentez:</strong> Sprint 9 bir pipeline başarısızlığı değildir. Bu, istatistiksel güç ve test geometrisi
+            sonucudur. Yaklaşık <code>0.003</code> büyüklüğündeki candidate effect, 29-guide test setindeki guide-cluster
+            belirsizliği ve GNN seed oynaklığı altında ayrıştırılamamıştır.
+          </div>
+        </section>
+
+        <section id="literature">
+          <h2>11. Literatürle İlişki</h2>
+          <p>
+            Sprint 9, literatürdeki birkaç metodolojik uyarıyı proje pratiğine çevirmiştir. Dengesiz sınıflarda AUPRC'nin
+            primary metric olarak kullanılması, guide-level genelleme disiplininin korunması, test threshold tuning'den
+            kaçınılması ve model farklarının paired bootstrap ile değerlendirilmesi bu sprintin literatürle uyumlu tarafıdır.
+          </p>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Literatür Fikri</th>
+                <th>Sprint 9'daki Karşılığı</th>
+                <th>Sonuç</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>AUPRC under imbalance</td>
+                <td>Pozitif prevalans <code>0.900705</code> olduğundan AUPRC primary metric olarak korundu.</td>
+                <td>Accuracy veya tek başına AUROC ile iddia kurulmadı.</td>
+              </tr>
+              <tr>
+                <td>Cluster bootstrap</td>
+                <td>Resampling birimi row değil <code>grna_target_id</code> guide cluster oldu.</td>
+                <td>Guide bağımlılığı ve az guide problemi görünür hale getirildi.</td>
+              </tr>
+              <tr>
+                <td>Paired comparison</td>
+                <td>Model farkları aynı guide resample üzerinde hesaplandı.</td>
+                <td>Overlapping marginal CI yorumuna düşülmedi.</td>
+              </tr>
+              <tr>
+                <td>Random seed sensitivity</td>
+                <td>Önceden belirlenmiş 5 seed ile retraining yapıldı.</td>
+                <td>Best-seed seçimi yapılmadı; oynaklık raporlandı.</td>
+              </tr>
+              <tr>
+                <td>Leakage / overtuning discipline</td>
+                <td>Threshold ve model seçimi validation-only kaldı; test tuning yapılmadı.</td>
+                <td>Sonuçlar daha temkinli ama daha savunulabilir hale geldi.</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="callout">
+            <strong>Literatürle ayrışan nokta:</strong> Bazı model makaleleri küçük farkları güçlü superiority diliyle sunabilir.
+            Bu sprint tam tersini yapmıştır: AUPRC üstünlüğü gösterilemediğinde bunu açıkça raporlamış, GNN katkısını
+            rare-negative operating-point davranışıyla sınırlamıştır.
+          </div>
+        </section>
+
+        <section id="boundaries">
+          <h2>12. Claim Sınırları</h2>
+          <p>
+            Sprint 9'un tezdeki en önemli değeri, hangi iddiaların kurulabileceğini ve hangilerinden kaçınılması gerektiğini
+            netleştirmesidir.
+          </p>
+
+          <ul>
+            <li><span class="tag primary">Doğru claim</span> XGBoost F4, AUPRC açısından en güçlü ve en stabil baseline olarak kalmıştır.</li>
+            <li><span class="tag primary">Doğru claim</span> Sprint 8 GNN adayları AUPRC açısından robust superiority göstermemiştir.</li>
+            <li><span class="tag control">Doğru claim</span> GNN çizgisi frozen threshold altında rare measured negative sınıfını daha iyi tanıma eğilimi göstermiştir.</li>
+            <li><span class="tag warning">Dikkat</span> Bu operating-point etkisi seed-fragile ve guide-composition-fragile olarak anlatılmalıdır.</li>
+            <li><span class="tag warning">Dikkat</span> <em>Compatible with no difference</em>, modeller eşittir anlamına gelmez.</li>
+            <li><span class="tag risk">Yanlış claim</span> "GNN XGBoost'u geçti" denemez.</li>
+            <li><span class="tag risk">Yanlış claim</span> "Sprint 8B robust state-of-the-art oldu" denemez.</li>
+            <li><span class="tag risk">Yanlış claim</span> "Specificity yüksek olduğu için AUPRC sıralaması önemsizdir" denemez.</li>
+            <li><span class="tag risk">Yanlış claim</span> "FiLM, gate veya attention biyolojik mekanizmayı kanıtladı" denemez.</li>
+          </ul>
+        </section>
+
+        <section id="summary">
+          <h2>13. Final Özet</h2>
+          <div class="summary-box">
+            Sprint 9, CRISPR-Cas9 off-target tahmin projesinde Sprint 8A ve Sprint 8B ile elde edilen context-aware GNN
+            iyileşmelerinin gerçekten robust bir üstünlük iddiası taşıyıp taşımadığını sınayan yorum ve belirsizlik sprintidir.
+            Bu sprintte hiçbir model, label, split, threshold, feature veya mimari değiştirilmemiş; bütün analizler frozen
+            validation-selected kararlar ve measured-only guide-disjoint test kontratı altında yürütülmüştür. İlk olarak
+            XGBoost F4 per-row karşılaştırmalara dahil edilebilmek için yeniden üretilmiş ve historical AUPRC
+            <code>0.992522</code> ile Sprint 9 regenerated AUPRC <code>0.992338</code> arasındaki çok küçük fark XGBoost
+            version drift olarak kabul edilmiştir. Ardından guide-cluster bootstrap, test setinin 1702 satırdan oluşmasına
+            rağmen yalnızca 29 guide ve 9 negative-bearing guide içerdiğini, bu nedenle AUPRC aralıklarının geniş ve
+            modeller arasında yoğun biçimde çakışan yapıda olduğunu göstermiştir. Paired-difference bootstrap, Sprint 9'un
+            ana sonucunu üretmiştir: S8B_R2, S8A_R2, S7F_R3, S7F_R2 ve XGB_F4 arasındaki hiçbir predeclared AUPRC farkı
+            sıfırı dışlamamıştır; bu nedenle GNN adayları için robust AUPRC superiority iddiası kurulamaz ve sonuçlar
+            <em>compatible with no difference</em> diliyle raporlanmalıdır. Multi-seed retraining de bu sınırı desteklemiş,
+            GNN modellerindeki AUPRC seed oynaklığının Sprint 8'deki küçük candidate gain'lerden daha büyük veya onlara
+            yakın olduğunu, buna karşılık XGBoost F4'ün en yüksek ortalama AUPRC ve en küçük seed spread ile en stabil bar
+            olarak kaldığını göstermiştir. Bununla birlikte Sprint 9 tamamen negatif bir sonuç değildir: frozen
+            validation-selected threshold altında GNN modelleri, özellikle Graph C target-observation context ve
+            sequence/context fusion çizgisi, rare measured negative sınıfını XGBoost F4'e göre daha iyi tanıma eğilimi
+            göstermiştir; bu durum MCC, specificity ve confusion matrix üzerinden görülmektedir. Ancak bu etki
+            threshold-dependent, seed-fragile ve guide-composition-fragile olduğu için AUPRC sıralamasının yerine
+            geçirilmemelidir. Sprint 9'un tezdeki nihai rolü, proje iddiasını doğru sınıra çekmesidir: çalışma GNN'in
+            XGBoost F4'ü geçtiğini değil, epigenetik/kromatin context kullanan Graph C GNN çizgisinin nadir negatifleri
+            tanımada anlamlı fakat kırılgan bir operating-point sinyali sunduğunu göstermektedir.
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+</body>
+</html>
