@@ -277,6 +277,60 @@ Sprint 7F'nin en önemli mimari mesajı şudur: raw capacity değil, feature-fam
 8. Family-aware target-context encoder validation-kilitli threshold metrics üzerinde rare-negative recognition ve macro-F1/MCC tarafında belirgin fakat seed/guide-fragile iyileştirme sağladı.
 9. Sprint 9 ile AUPRC superiority sınırı dürüstçe çizildi; operating-point rare-negative katkı ayrı bir eksen olarak raporlandı.
 
+## Araştırma Sorularının Nihai Cevapları
+
+Tezde bulgular yalnızca sprint sırası ile değil, araştırma sorusu-cevap eşleşmesiyle de verilebilir. Bu yapı danışman veya jüri için ana hikayeyi daha hızlı okunur hale getirir.
+
+| Araştırma sorusu | Nihai cevap | Ana kanıt |
+| --- | --- | --- |
+| Sequence-only bilgi yeterli mi? | Bu evaluation kontratında hayır. | Sprint 2 `sequence_cnn_unweighted / S1` AUPRC 0.920075, MCC -0.019749, TN=0; Sprint 8B sequence-only AUPRC 0.856666, specificity 0. |
+| Binding energy ek katkı sağlıyor mu? | Evet, özellikle GNN edge-level çizgisinde güçlü sinyal verdi. | Sprint 5 `S5F2_energy` AUPRC 0.976585; Sprint 6 Graph A GCN WBCE AUPRC 0.976935, MCC 0.483719. |
+| Experimental epigenetic context predictive signal taşıyor mu? | Evet, fakat causal biological evidence değildir. | XGBoost F3 AUPRC 0.985918; Sprint 7E experimental epigenetic mask AUPRC 0.885321 ve specificity 0. |
+| Computed nucleosome aggregates ek katkı sağlıyor mu? | Küçük ve model-bağımlı katkı sağladı; ana kırılma F3'te geldi. | XGBoost F3 AUPRC 0.985918, F4 AUPRC 0.992522; Sprint 7E nucleosome aggregate mask AUPRC 0.955915. |
+| Graph schema, tabular baseline'a göre ek değer sağladı mı? | AUPRC superiority olarak hayır; rare-negative operating point davranışı olarak evet. | XGBoost F4 AUPRC lider kaldı; Graph C/family-aware/S8B çizgisi MCC, specificity ve TN tarafında daha güçlü sinyal verdi. |
+| Graph C neden önemli? | Target tarafını physical site yerine row-level target-observation context olarak temsil ettiği için önemlidir. | Direct target context mask AUPRC 0.893657 ve specificity 0'a düşürdü; context edge kaldırımı çok daha sınırlı zarar verdi. |
+| GAT/GATv2 attention tek başına çözüm mü? | Hayır. | Graph A GAT/GATv2, Graph A GCN WBCE referansını geçmedi; attention ancak Graph C target-observation context ve edge-aware yapı ile anlamlı hale geldi. |
+| Family-aware encoder katkı sağladı mı? | Evet. | `S7F_R2` AUPRC 0.982062, MCC 0.603489, specificity 0.650888; `S7F_R3` AUPRC 0.984945. |
+| Context-edge FiLM katkı sağladı mı? | Validation-selected single-seed improvement sinyali verdi. | `S8A_R2` AUPRC 0.982757, MCC 0.563656, specificity 0.520710. |
+| Sequence/context fusion katkı sağladı mı? | En yüksek single-seed GNN AUPRC'yi verdi, fakat F4'ü geçmedi. | `S8B_R2` AUPRC 0.986020, MCC 0.567309, specificity 0.863905, TN=146. |
+| GNN, XGBoost F4'ü geçti mi? | Hayır. | Historical F4 AUPRC 0.992522; Sprint 9 regenerated F4 AUPRC 0.992338; en iyi single-seed GNN AUPRC 0.986020. |
+| Robust superiority var mı? | AUPRC için hayır; sonuçlar `compatible with no difference` olarak raporlanmalıdır. | Sprint 9 predeclared paired AUPRC farklarının hiçbiri sıfırı dışlamadı; F4 en yüksek mean AUPRC ve en düşük seed spread ile kaldı. |
+
+Bu tablo tezde "final leaderboard" gibi değil, araştırma sorularının cevap anahtarı gibi kullanılmalıdır. AUPRC primary metric olarak önce verilmeli; MCC, specificity ve confusion matrix karar eşiği davranışını açıklayan secondary evidence olarak sunulmalıdır.
+
+## Karar Matrisi ve Controlled Adaptation Savunması
+
+Son üç tez raporunda daha görünür hale gelen önemli savunma noktası şudur: Bu çalışma literatürdeki tek bir yöntemi birebir reproduce etmemiştir; Mak et al. veri ailesinden hareketle farklı bir soru, farklı label ve daha sıkı evaluation kontratı altında controlled adaptation yapmıştır.
+
+| Karar | Alternatif | Neden bu karar seçildi? | Tezde savunma dili |
+| --- | --- | --- | --- |
+| Scheme A binary label | Mak-style CA regression veya Scheme C | Raw dataset içinde CA kolonu hazır değildir; ana soru guide-disjoint binary off-target classification olarak kurulmuştur. | "Mak et al. veri/feature lineage'ı kullanılmıştır; Mak et al. CA regression birebir reproduce edilmemiştir." |
+| Measured-only validation/test | `measured=0` putative satırları test ground truth gibi kullanmak | `measured=0` satırlar deneysel doğrulanmış negatif değildir; test ground truth yapılmaları label-integrity riski taşır. | "Putative satırlar headline test/validation evrenine alınmamıştır." |
+| `experiment_id=18` exclusion | Eksik cell-line/high-missingness subset'i ana evrene karıştırmak | Cell-line ve computed nucleosome missingness bu subset'te yoğunlaşır; ana benchmark daha temiz tutulmuştur. | "Bu subset ana sonuçtan ayrılmış, gerekiyorsa sensitivity olarak düşünülmelidir." |
+| Guide-disjoint split | Random row/edge split | Aynı guide'ın train ve testte görünmesi leakage ve fazla iyimser sonuç riski oluşturur. | "Final evaluation guide-level generalization sorusunu cevaplar." |
+| Train-only preprocessing | Tüm veri üzerinde imputation/scaling | Validation/test dağılımının preprocessing istatistiklerine sızması engellenmiştir. | "Preprocessing leakage kontrolü kontratın parçasıdır." |
+| XGBoost F4 bar | Zayıf Logistic Regression veya sequence-only baseline'a karşı GNN iddiası | XGBoost F4 AUPRC 0.992522 ile güçlü non-GNN baseline kurmuştur. | "GNN iddiası zayıf baseline'a karşı kurulmamıştır." |
+| Graph A/B/C schema ayrımı | Tek graph şemasıyla ilerlemek | Physical target, guide similarity ve target-observation context etkileri ayrıştırılmıştır. | "Graph C, Graph A'nın edge eklenmiş hali değil; target semantiği değişimidir." |
+| Validation-selected threshold | Test threshold tuning | Test seti model/threshold seçimine sızmamıştır. | "MCC/specificity frozen validation threshold altında operating-point yorumu olarak verilmiştir." |
+| Sprint 9 robustness | Single-seed point estimate ile superiority iddiası | Guide-cluster bootstrap, paired difference ve multi-seed ile iddia sınırı test edilmiştir. | "AUPRC farkları compatible with no difference; operating-point katkı threshold/seed/guide-fragile." |
+
+## AUPRC-MCC Dilinin Son Hali
+
+Metrik anlatısında en güvenli formülasyon şu olmalıdır:
+
+> AUPRC, model ranking'i için primary metric olarak korunmuştur. MCC, specificity ve confusion matrix ise validation-selected fixed threshold altında modelin karar davranışını, özellikle rare measured negative sınıfını ayırma eğilimini görünür kılar. Bu nedenle MCC/specificity bu çalışmada çok değerlidir; ancak threshold-dependent oldukları için AUPRC'nin yerine geçirilmemelidir.
+
+Kaçınılması gereken kısa yollar:
+
+- "MCC daha uygun metrik" tek başına fazla güçlüdür.
+- "MCC yüksek olduğu için GNN daha iyi" denmemelidir.
+- "AUPRC gereksiz" denmemelidir.
+- "F4 yüksek AUPRC ama kötü model" denmemelidir.
+
+Doğru denge:
+
+> XGBoost F4 primary AUPRC'de en güçlü ve en stabil modeldir. Context-aware Graph C GNN çizgisi ise AUPRC superiority göstermeden, validation-kilitli operating point altında rare measured negative sınıfını daha iyi tanıma davranışı üretmiştir.
+
 ## Önerilen Tez Bölüm Kurgusu
 
 ### Giriş
