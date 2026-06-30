@@ -430,6 +430,7 @@
         <ol>
           <li><a href="#source-note">Kaynak Notu</a></li>
           <li><a href="#metrics">Literatürde Metrikler</a></li>
+          <li><a href="#literature-numbers">Sayısal Literatür Kıyas</a></li>
           <li><a href="#test-geometry">Zor Test Evreni</a></li>
           <li><a href="#auprc-primary">AUPRC Neden Primary?</a></li>
           <li><a href="#mcc-specificity">MCC ve Specificity</a></li>
@@ -541,6 +542,188 @@
             dağılımıyla değerlendirilmesi gerektiğini vurgular. Kapoor & Narayanan çizgisi ise leakage, metric mismatch ve
             test tuning risklerinin bilimsel claim'leri şişirebileceğini gösterir. Bu nedenle bu projede AUPRC-primary ve
             no-test-tuning disiplini birlikte korunmuştur.
+          </div>
+        </section>
+
+        <section id="literature-numbers">
+          <h2>2B. Literatürdeki Sayısal Değerlerle Kontrollü Karşılaştırma</h2>
+          <div class="callout warn">
+            <strong>Doğrudan leaderboard değildir.</strong> Aşağıdaki değerler projeyi literatürde konumlandırmak için verilmiştir;
+            dataset, label tanımı, split politikası, pozitif prevalansı, metrik ailesi ve test protokolü aynı olmadığı için bu
+            sayılar “bu çalışma ilgili paper’ı geçti” biçiminde yorumlanmamalıdır.
+          </div>
+
+          <div class="grid two">
+            <div class="card">
+              <h3>PR-AUC / AUPRC kıyasındaki kritik fark</h3>
+              <p>
+                Bu projede test setinin pozitif prevalansı <strong>0.900705</strong> olduğu için no-skill PR baseline zaten çok
+                yüksektir. CRISPR-IP gibi literatür benchmarklarında ise pozitif-negatif oranları 1:78 veya 1:57 gibi çok daha
+                düşük prevalanslı senaryolardır. Bu yüzden PR-AUC sayıları çıplak biçimde yan yana konduğunda yanıltıcı olabilir.
+              </p>
+            </div>
+            <div class="card">
+              <h3>AUROC kıyasındaki kritik fark</h3>
+              <p>
+                AUROC literatürde sık raporlanır; ancak dengesiz veri ve rare-negative davranışını tek başına yeterince görünür
+                kılmaz. Bu çalışmada AUPRC primary metric olarak korunmuş, MCC/specificity ise validation-selected sabit threshold
+                altında operating-point davranışı için ayrıca yorumlanmıştır.
+              </p>
+            </div>
+          </div>
+
+          <h3>Literatür Değerleri ve Bu Projedeki En Yakın Karşılıkları</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Çalışma / çizgi</th>
+                <th>Kurulum</th>
+                <th>Literatürde raporlanan sayı</th>
+                <th>Bu projedeki en yakın karşılık</th>
+                <th>Yorum</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Mak et al. 2022</strong></td>
+                <td>crisprSQL-derived epigenetic-nucleosome dataset; CA / Box-Cox hedef; epigenetik, nükleozom ve binding-energy bağlamı.</td>
+                <td>
+                  XGBoost için Spearman <strong>0.419</strong>, Pearson <strong>0.617</strong>; CNN için Spearman
+                  <strong>0.424</strong>, Pearson <strong>0.594</strong>. Nucleotide BDM Spearman/Pearson
+                  <strong>0.388/0.345</strong>; Strong-Weak BDM <strong>0.423/0.310</strong>.
+                </td>
+                <td>
+                  Bu projede Mak veri çizgisi binary Scheme A sınıflandırmaya çevrilmiştir. XGBoost F4 AUPRC
+                  <strong>0.992522</strong>; Sprint 9 regenerated F4 AUPRC <strong>0.992338</strong>.
+                </td>
+                <td>
+                  Mak et al. bu çalışma için veri ve bağlam motivasyonudur; birebir reproduction değildir. Hedef, split ve metrik
+                  farklı olduğu için korelasyon değerleriyle AUPRC doğrudan karşılaştırılamaz.
+                </td>
+              </tr>
+              <tr>
+                <td><strong>GCN-CRISPR / graph tabanlı off-target çizgisi</strong></td>
+                <td>Off-target prediction için graph convolutional network; farklı sequence tabanlı benchmark modellerle AUROC kıyası.</td>
+                <td>
+                  GCN-CRISPR AUROC <strong>0.987</strong>; CnnCrispr <strong>0.984</strong>; AttnToMismatch_CNN
+                  <strong>0.970</strong>; DeepCrispr <strong>0.857</strong>. Nucleotide-occurrence feature ile k=1 balanced
+                  <strong>0.954</strong>, imbalanced_NOT <strong>0.987</strong>, imbalanced_OT <strong>0.976</strong>.
+                </td>
+                <td>
+                  Graph C GATv2 AUROC <strong>0.849705</strong>, S8B_R2 AUROC <strong>0.903480</strong>, XGBoost F4 AUROC
+                  <strong>0.938416</strong>.
+                </td>
+                <td>
+                  Graph fikri literatürle uyumludur; fakat bu projedeki guide-disjoint measured-only test çok farklı bir
+                  değerlendirme kontratıdır. Bu nedenle AUROC farkı doğrudan model üstünlüğü olarak okunmamalıdır.
+                </td>
+              </tr>
+              <tr>
+                <td><strong>CRISPR-IP, CIRCLE benchmark</strong></td>
+                <td>Sequence-pair encoding ve CNN; LOGOCV benzeri guide ayrımı; pozitif-negatif oranı yaklaşık <strong>1:78</strong>.</td>
+                <td>
+                  En iyi encoding için PR-AUC <strong>0.494</strong>, ROC-AUC <strong>0.968</strong>, F1 <strong>0.383</strong>,
+                  accuracy <strong>0.989</strong>, recall <strong>0.320</strong>, precision <strong>0.675</strong>.
+                </td>
+                <td>
+                  Bu projede sequence-only CNN S1 AUPRC <strong>0.920075</strong>, AUROC <strong>0.535711</strong>; XGBoost F4
+                  AUPRC <strong>0.992522</strong>.
+                </td>
+                <td>
+                  CIRCLE tarafındaki PR-AUC çok daha düşük prevalanslı bir probleme karşılık gelir. Bu projedeki yüksek AUPRC,
+                  no-skill baseline <strong>0.900705</strong> ile birlikte okunmalıdır.
+                </td>
+              </tr>
+              <tr>
+                <td><strong>CRISPR-IP, SITE benchmark</strong></td>
+                <td>Sequence-pair off-target benchmark; pozitif-negatif oranı yaklaşık <strong>1:57</strong>.</td>
+                <td>
+                  PR-AUC <strong>0.751</strong>, ROC-AUC <strong>0.982</strong>, F1 <strong>0.644</strong>, accuracy
+                  <strong>0.990</strong>, precision <strong>0.791</strong>, recall <strong>0.593</strong>.
+                </td>
+                <td>
+                  S8B_R2 sequence/context fusion AUPRC <strong>0.986020</strong>, AUROC <strong>0.903480</strong>, MCC
+                  <strong>0.567309</strong>, specificity <strong>0.863905</strong>.
+                </td>
+                <td>
+                  Literatürde sequence encoder’ların güçlü olduğu görülür; bu projede sequence-only arm tek başına yeterli olmamış,
+                  bağlam feature’ları ve tabular F4 daha güçlü kalmıştır.
+                </td>
+              </tr>
+              <tr>
+                <td><strong>CRISPR-IP + epigenetik feature transferi</strong></td>
+                <td>HEK293T’den K562’ye transfer; dört epigenetik feature ile context-aware sequence modeli.</td>
+                <td>K562 epigenetik transfer senaryosunda PR-AUC <strong>0.444</strong>, ROC-AUC <strong>0.980</strong> raporlanmıştır.</td>
+                <td>
+                  Bu projede F3/F4 feature ladder experimental epigenetic scalar ve computed nucleosome bağlamını eklemiştir;
+                  XGBoost F3 AUPRC <strong>0.985918</strong>, F4 AUPRC <strong>0.992522</strong>.
+                </td>
+                <td>
+                  Epigenetik bağlamın predictive signal taşıyabileceği literatürle uyumludur. Ancak bu çalışmada epigenetik
+                  feature’lar causal biological mechanism kanıtı olarak sunulmamıştır.
+                </td>
+              </tr>
+              <tr>
+                <td><strong>Graph-CRISPR / editing efficiency graph learning</strong></td>
+                <td>CRISPR editing efficiency için graph neural network; off-target binary classification değildir.</td>
+                <td>
+                  Validation tarafında Spearman <strong>0.94</strong>, Pearson <strong>0.95</strong>; farklı test setlerinde
+                  Graph-CRISPR Spearman yaklaşık <strong>0.859-0.945</strong>, Pearson yaklaşık <strong>0.904-0.947</strong>
+                  aralığında raporlanmıştır.
+                </td>
+                <td>
+                  Bu projede Graph A/B/C off-target prediction için kurulmuştur; Graph C GATv2 AUPRC <strong>0.969078</strong>,
+                  S7F_R2 AUPRC <strong>0.982062</strong>.
+                </td>
+                <td>
+                  Graph learning biyolojik sequence problemlerinde anlamlı bir temsil ailesidir; fakat editing efficiency korelasyon
+                  değerleri off-target AUPRC/MCC ile doğrudan kıyaslanamaz.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h3>PR Baseline Farkı: Neden Çıplak PR-AUC Kıyaslanamaz?</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Senaryo</th>
+                <th>Pozitif-negatif yapısı</th>
+                <th>Yaklaşık no-skill PR baseline</th>
+                <th>Raporlanan / bizim AUPRC</th>
+                <th>Okuma biçimi</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Bu proje ana test seti</td>
+                <td>1533 pozitif, 169 negatif</td>
+                <td><strong>0.900705</strong></td>
+                <td>F4 <strong>0.992522</strong>; S8B_R2 <strong>0.986020</strong></td>
+                <td>AUPRC yüksek ama baseline da yüksektir; bu yüzden MCC/specificity operating-point yorumu ayrıca gereklidir.</td>
+              </tr>
+              <tr>
+                <td>CRISPR-IP CIRCLE</td>
+                <td>Yaklaşık 1:78</td>
+                <td>Yaklaşık <strong>0.0127</strong></td>
+                <td>PR-AUC <strong>0.494</strong></td>
+                <td>Düşük prevalanslı benchmarkta 0.494 PR-AUC oldukça farklı bir zorluk düzeyine karşılık gelir.</td>
+              </tr>
+              <tr>
+                <td>CRISPR-IP SITE</td>
+                <td>Yaklaşık 1:57</td>
+                <td>Yaklaşık <strong>0.0172</strong></td>
+                <td>PR-AUC <strong>0.751</strong></td>
+                <td>Bu değer, doğrudan bu projenin 0.98-0.99 AUPRC aralığıyla yarıştırılmamalıdır.</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="callout info">
+            <strong>Bu bölümün ana sonucu:</strong> literatürde AUROC veya PR-AUC değerleri yüksek görünse bile, bu çalışmanın
+            ayırt edici tarafı daha yüksek bir leaderboard sayısı üretmek değildir. Asıl konum, Mak et al. veri ailesinden gelen
+            epigenetic-nucleosome bağlamını guide-disjoint, measured-only, no-test-tuning evaluation kontratı altında test etmek
+            ve Graph C çizgisinin rare measured negative operating-point davranışını temkinli biçimde raporlamaktır.
           </div>
         </section>
 
