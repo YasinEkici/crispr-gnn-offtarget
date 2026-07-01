@@ -116,6 +116,7 @@ XGBoost & Extreme gradient boosting\\
 \(g_i\) & \(i\). rehber RNA düğümü\\
 \(\Gamma\) & Gating veya feature recalibration vektörü\\
 \(h_g, h_o\) & Rehber ve hedef-gözlem gizil durumları\\
+\(\kappa\) & Cohen kappa; şansa göre düzeltilmiş uyum katsayısı\\
 \(M\) & Bir değerlendirme metriği fonksiyoneli\\
 \(\mathcal{N}(i)\) & \(i\) düğümünün komşuluk kümesi\\
 \(o_{ij}\) & \(g_i\) rehberiyle ilişkili hedef-gözlem düğümü\\
@@ -124,8 +125,6 @@ XGBoost & Extreme gradient boosting\\
 \(\hat{p}_{ij}\) & \(i,j\) adayı için tahmin edilen pozitif sınıf olasılığı\\
 \(\pi\) & Pozitif sınıf prevalansı; no-skill PR taban çizgisi\\
 \(\mathrm{Pre}, \mathrm{Rec}\) & Kesinlik ve duyarlılık (precision, recall)\\
-\(\mathrm{Sensitivity}\) & Pozitif sınıf geri çağırımı (duyarlılık)\\
-\(\mathrm{Specificity}\) & Negatif sınıf geri çağırımı; doğru negatif oranı (özgüllük)\\
 \(\phi_{\cdot}\) & Özellik alt-ailesi encoder fonksiyonu\\
 \(\sigma\) & Sigmoid aktivasyon fonksiyonu\\
 \(S\) & Çoklu tohum analizindeki eğitim tohumu sayısı\\
@@ -149,7 +148,7 @@ XGBoost & Extreme gradient boosting\\
 \begin{BTUabstractTR}
 CRISPR-Cas9 sistemlerinde hedef dışı kesimlerin güvenilir biçimde tahmin edilmesi, genom düzenleme uygulamalarının güvenliği açısından temel bir problemdir. Bu çalışmada, hedef dışı tahminde epigenetik ve kromatin bağlamının çizge tabanlı modeller içinde nasıl temsil edilmesi gerektiği incelenmiştir. Amaç, bağlam bilgisinin güçlü bir tabular referans karşısında koşulsuz üstünlük sağlayıp sağlamadığını göstermek değil, ölçülmüş ve rehber düzeyinde ayrık bir değerlendirme sözleşmesi altında hangi temsil kararlarının model davranışını değiştirdiğini belirlemektir.
 
-Çalışma, epigenetik ve nükleozom açıklamalı CRISPR-Cas9 hedef dışı veri seti üzerinde yürütülmüştür. Ana etiket, kesim frekansı \(10^{-5}\) eşiğine göre ikili sınıflandırma olarak tanımlanmıştır. Validation ve test değerlendirmeleri yalnızca deneysel olarak ölçülmüş satırlarda yapılmış, doğrulanmamış putative adaylar test doğruluğu olarak kullanılmamıştır. Eğitim, validation ve test kümeleri rehber RNA düzeyinde ayrık tutulmuş; ön işleme, eşik seçimi ve model seçimi test verisine bakmadan gerçekleştirilmiştir. Tabular XGBoost referansları, sequence tabanlı modeller, Graph A/B/C çizge şemaları, GCN, GAT, GATv2 ve Graph C üzerinde family-aware target-context encoder ile context interaction varyantları karşılaştırılmıştır. Birincil metrik AUPRC olarak korunmuş; MCC, macro-F1, specificity ve karışıklık matrisi değerleri validation üzerinde seçilmiş karar eşiğindeki operating-point davranışını yorumlamak için kullanılmıştır.
+Çalışma, epigenetik ve nükleozom açıklamalı CRISPR-Cas9 hedef dışı veri seti üzerinde yürütülmüştür. Ana etiket, kesim frekansı \(10^{-5}\) eşiğine göre ikili sınıflandırma olarak tanımlanmıştır. Validation ve test değerlendirmeleri yalnızca deneysel olarak ölçülmüş satırlarda yapılmış, doğrulanmamış putative adaylar test doğruluğu olarak kullanılmamıştır. Eğitim, validation ve test kümeleri rehber RNA düzeyinde ayrık tutulmuş; ön işleme, eşik seçimi ve model seçimi test verisine bakmadan gerçekleştirilmiştir. Tabular XGBoost referansları, sequence tabanlı modeller, Graph A/B/C çizge şemaları, GCN, GAT, GATv2 ve Graph C üzerinde family-aware target-context encoder ile context interaction varyantları karşılaştırılmıştır. Birincil metrik AUPRC olarak korunmuş; MCC, Cohen kappa, macro-F1, specificity ve karışıklık matrisi değerleri validation üzerinde seçilmiş karar eşiğindeki operating-point davranışını yorumlamak için kullanılmıştır.
 
 Bulgular, XGBoost F4 referansının AUPRC bakımından en güçlü ve en istikrarlı model olarak kaldığını göstermiştir. Yeniden üretilen XGBoost F4 AUPRC değeri 0.992338 iken, en yüksek tekil GNN sonucu sequence + context fusion modelinde 0.986020 düzeyinde kalmıştır. Paired bootstrap analizleri, GNN varyantlarının XGBoost F4'e karşı sağlam bir AUPRC üstünlüğü kurmadığını göstermiştir. Buna karşılık Graph C target-observation temsili, GATv2 mesajlaşması ve family-aware context encoder yapısı, validation-kilitli karar eşiğinde nadir ölçülmüş negatifleri tanıma davranışını güçlendirmiştir. Özellikle target context feature'larının ve deneysel epigenetik alt ailenin maskelenmesi model davranışını belirgin biçimde bozmuştur.
 
@@ -159,7 +158,7 @@ Sonuç olarak bu tez, bağlam duyarlı çizge temsillerinin değerini genel sır
 \begin{BTUabstractEN}
 Reliable prediction of off-target cleavage is a central requirement for the safe use of CRISPR-Cas9 genome editing. This thesis investigates how epigenetic and chromatin context should be represented in graph-based models for CRISPR-Cas9 off-target prediction. The goal is not to claim unconditional superiority over a strong tabular baseline, but to determine which context-aware representation choices change model behavior under a measured-only and guide-disjoint evaluation protocol.
 
-The study uses an epigenetic and nucleosome-annotated CRISPR-Cas9 off-target data set. The main label is formulated as a binary classification target using a cleavage-frequency threshold of \(10^{-5}\). Validation and test evaluation are restricted to experimentally measured rows, while unverified putative candidates are not treated as test ground truth. Training, validation, and test partitions are kept disjoint at the guide RNA level. Preprocessing, model selection, and threshold selection are performed without using test-set information. The experimental comparison includes tabular XGBoost references, sequence-based neural baselines, Graph A/B/C schemas, GCN, GAT, GATv2, and several Graph C variants using family-aware target-context encoders and context interaction modules. AUPRC is kept as the primary ranking metric, while MCC, macro-F1, specificity, and confusion-matrix counts are used to interpret the operating point selected on validation data.
+The study uses an epigenetic and nucleosome-annotated CRISPR-Cas9 off-target data set. The main label is formulated as a binary classification target using a cleavage-frequency threshold of \(10^{-5}\). Validation and test evaluation are restricted to experimentally measured rows, while unverified putative candidates are not treated as test ground truth. Training, validation, and test partitions are kept disjoint at the guide RNA level. Preprocessing, model selection, and threshold selection are performed without using test-set information. The experimental comparison includes tabular XGBoost references, sequence-based neural baselines, Graph A/B/C schemas, GCN, GAT, GATv2, and several Graph C variants using family-aware target-context encoders and context interaction modules. AUPRC is kept as the primary ranking metric, while MCC, Cohen's kappa, macro-F1, specificity, and confusion-matrix counts are used to interpret the operating point selected on validation data.
 
 The results show that XGBoost F4 remains the strongest and most stable model in terms of AUPRC. The regenerated XGBoost F4 result reaches an AUPRC of 0.992338, whereas the highest single GNN result, obtained by the sequence + context fusion model, reaches 0.986020. Paired bootstrap analyses do not support a robust AUPRC advantage of the GNN variants over XGBoost F4. However, the Graph C target-observation representation, GATv2 message passing, and family-aware context encoder improve rare measured negative recognition at the validation-locked operating point. In particular, masking the target context features and the experimental epigenetic feature family substantially degrades model behavior, indicating that these features carry discriminative information under the fixed evaluation contract.
 
@@ -180,9 +179,25 @@ This thesis therefore positions context-aware graph representations as a bounded
 
 \begin{BTUcv}
 \begin{tabular}{@{}p{4.3cm}@{ : }p{9cm}@{}}
-Ad-Soyad & \\
-Doğum Tarihi ve Yeri & \\
-E-posta & \\
+Ad-Soyad & Kasım Deliacı\\
+Doğum Tarihi ve Yeri & 26 Eylül 2003, Zonguldak\\
+E-posta & kasimdeliaci067@gmail.com\\
+\end{tabular}
+
+\vspace{1cm}
+\textbf{BİTİRME ÇALIŞMASINDAN TÜRETİLEN MAKALE, BİLDİRİ VEYA SUNUMLAR:}
+
+\begin{itemize}
+\item \ldots
+\item \ldots
+\end{itemize}
+
+\clearpage
+
+\begin{tabular}{@{}p{4.3cm}@{ : }p{9cm}@{}}
+Ad-Soyad & Yasin Ekici\\
+Doğum Tarihi ve Yeri & 30 Ağustos 2002, İstanbul\\
+E-posta & yasinekici021@outlook.com\\
 \end{tabular}
 
 \vspace{1cm}

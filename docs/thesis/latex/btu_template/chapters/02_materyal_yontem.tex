@@ -241,7 +241,7 @@ Bu üç şema, graph schema seçiminin model davranışı üzerindeki etkisini a
 
 Bu çalışmada karşılaştırılan model aileleri tabular referans, dizi tabanlı baseline, çizge sinir ağları ve aile-duyarlı hedef-bağlam encoder olmak üzere dört grupta ele alınmıştır.
 
-Model ailelerinin tekrarlanabilir biçimde okunabilmesi için temel mimari ve eğitim ayarları Çizelge~\ref{tab:model-architecture-summary}'de özetlenmiştir. Çizelge, performans yorumu yapmak için değil, Bölüm~3'te raporlanan karşılaştırmaların hangi model ve seçim politikaları altında üretildiğini açık göstermek için verilmiştir. Tüm satırlarda Scheme A etiketi, Sprint 2 ana guide-disjoint split'i, measured-only validation/test evreni ve test seti üzerinde ayar yapmama kuralı korunmuştur.
+Model ailelerinin tekrarlanabilir biçimde okunabilmesi için temel mimari ve eğitim ayarları Çizelge~\ref{tab:model-architecture-summary}'de özetlenmiştir. Çizelge, performans yorumu yapmak için değil, Bölüm~3'te raporlanan karşılaştırmaların hangi model ve seçim politikaları altında üretildiğini açık göstermek için verilmiştir. Tüm satırlarda Scheme A etiketi, ana guide-disjoint veri ayrımı, measured-only validation/test evreni ve test seti üzerinde ayar yapmama kuralı korunmuştur.
 
 \begin{table}[htbp]
 \caption{Model ailelerinin temel mimari ve eğitim ayarları.}
@@ -253,11 +253,11 @@ Model ailelerinin tekrarlanabilir biçimde okunabilmesi için temel mimari ve e�
 Model hattı & Temsil & Katman ve hiperparametre özeti & Eğitim ve seçim politikası\\
 \midrule
 XGBoost tabular referans & F1--F4 tabular ladder; ana referans F4. & 400 ağaç, \texttt{max\_depth}=3, öğrenme oranı 0.05, \texttt{subsample}=0.9, \texttt{colsample\_bytree}=0.9, \texttt{min\_child\_weight}=5, \texttt{eval\_metric=aucpr}. & Validation üzerinde erken durdurma turu 30; karar eşiği validation max-F1 ile seçilmiştir. Unweighted F4 ana non-GNN referans olarak tutulmuştur.\\
-Dizi tabanlı Sprint 2 baseline & S1 sequence pair; 23 pozisyon ve 11 kanal. & CNN: iki 1B konvolüsyon (\(k=3\), \(k=5\)), 32 kanal, adaptive max pooling. BiLSTM: 1 katman, gizli boyut 32, çift yönlü çıktı. Dropout 0.2. & Batch 1024, öğrenme oranı 0.001, weight decay \(10^{-4}\), en çok 50 epoch, patience 8. Karar eşiği validation max-F1 ile seçilmiştir.\\
+Dizi tabanlı baseline & S1 sequence pair; 23 pozisyon ve 11 kanal. & CNN: iki 1B konvolüsyon (\(k=3\), \(k=5\)), 32 kanal, adaptive max pooling. BiLSTM: 1 katman, gizli boyut 32, çift yönlü çıktı. Dropout 0.2. & Batch 1024, öğrenme oranı 0.001, weight decay \(10^{-4}\), en çok 50 epoch, patience 8. Karar eşiği validation max-F1 ile seçilmiştir.\\
 GCN çizge modelleri & Graph A/B/C; candidate edge üzerinde seçilen feature setleri. & 2 GCN katmanı, gizli boyut 128, LayerNorm ve dropout 0.2. Edge classifier girdisi kaynak, hedef, çarpım, mutlak fark ve candidate-edge özelliklerinin birleşimidir. & Weighted BCE, AdamW, öğrenme oranı 0.001, weight decay \(10^{-4}\), gradient clipping 1.0, ReduceLROnPlateau, en çok 300 epoch, patience 15. Checkpoint validation AUPRC ile seçilmiştir.\\
 GAT/GATv2 çizge modelleri & Graph A/B/C; S5F2 enerji kenar özellikleri ve Graph C target-observation düğümleri. & 2 attention katmanı, gizli boyut 128, 4 attention head, concat açık, dropout 0.2. Edge-aware attention kullanıldığında candidate-edge özellikleri \texttt{edge\_attr} olarak attention katmanına da verilmiştir; self-loop edge değeri 0.0'dır. & GCN hattıyla aynı weighted BCE ve AdamW politikası kullanılmıştır. Test metrikleri model veya eşik seçimi için kullanılmamıştır.\\
-Graph C family-aware context encoder & 212 boyutlu target-observation bağlamı; hedef dizisi, deneysel epigenetik, hesaplanmış nükleozom ve missingness aileleri. & Family-aware encoder'da dal boyutları 32/32/48/16; experimental-emphasis varyantında 24/48/40/16'dır. Birleşik temsil LayerNorm, ReLU, dropout ve lineer katmanla 128 boyuta taşınmıştır. & Sprint 7F ve 8A'da encoder türü, aile kapısı, deneysel dal düzenlemesi ve context-edge FiLM, validation sözleşmesiyle seçilen adaylar olarak ele alınmıştır.\\
-Context-edge ve sequence/context fusion adayları & Graph C GATv2 üzerine S1 sequence encoder veya context-edge etkileşimi. & Context-edge FiLM etkileşim boyutu 64'tür. Sprint 8B sequence encoder, \(k=3\) konvolüsyon, 32 kanal, BiLSTM gizli boyut 32 ve 64 boyutlu sequence embedding kullanmıştır; dış ön-eğitim ağırlığı kullanılmamıştır. & Aynı split ve training politikası korunmuştur. Sprint 8A/8B adayları validation AUPRC ile seçilmiş, Sprint 9'da çoklu tohum ve bootstrap sağlamlık analizine taşınmıştır.\\
+Graph C family-aware context encoder & 212 boyutlu target-observation bağlamı; hedef dizisi, deneysel epigenetik, hesaplanmış nükleozom ve missingness aileleri. & Family-aware encoder'da dal boyutları 32/32/48/16; experimental-emphasis varyantında 24/48/40/16'dır. Birleşik temsil LayerNorm, ReLU, dropout ve lineer katmanla 128 boyuta taşınmıştır. & Aile-duyarlı encoder hattında encoder türü, aile kapısı, deneysel dal düzenlemesi ve context-edge FiLM etkileşimi, validation sözleşmesiyle seçilen adaylar olarak ele alınmıştır.\\
+Context-edge ve sequence/context fusion adayları & Graph C GATv2 üzerine S1 sequence encoder veya context-edge etkileşimi. & Context-edge FiLM etkileşim boyutu 64'tür. Sequence encoder, \(k=3\) konvolüsyon, 32 kanal, BiLSTM gizli boyut 32 ve 64 boyutlu sequence embedding kullanmıştır; dış ön-eğitim ağırlığı kullanılmamıştır. & Aynı split ve training politikası korunmuştur. Bağlam duyarlı GNN adayları validation AUPRC ile seçilmiş, çoklu tohum ve bootstrap sağlamlık analizine taşınmıştır.\\
 \bottomrule
 \end{tabularx}
 \end{table}
@@ -396,7 +396,7 @@ Bu karşılaştırmada weighted BCE, ikili çapraz entropi hedefinde sınıf kat
 
 Altıncı grup, GAT/GATv2 mimarilerinin Graph A, Graph B ve Graph C üzerinde denenmesini içerir. Bu grup, attention tabanlı katmana geçmenin kendi başına yeterli olup olmadığını ve Graph C target-observation semantiğinin attention temelli mesajlaşma altında nasıl davrandığını sınar. Yedinci grup, Graph C mekanizma ablationlarıdır. Bu grupta context-similarity kenarlarının kaldırılması, edge-aware attention'ın kapatılması ve target-observation context feature'larının maskelenmesi gibi kontrollü değişiklikler yapılmıştır. Sekizinci grup, target-context alt ailelerinin maskeleme analizidir; deneysel epigenetik, hesaplanmış nükleozom, missingness ve hedef dizisi bileşenleri ayrı ayrı sınanmıştır.
 
-Dokuzuncu grup, family-aware target-context encoder, context-edge interaction ve sequence/context fusion varyantlarını içerir. Sprint 8A ve Sprint 8B modelleri bu grupta validation AUPRC'ye göre aday olarak seçilmiş, test metrikleri ise aday seçimi için kullanılmamıştır. Bu modeller final kazanan olarak değil, Sprint 9 sağlamlık analizine taşınan validation-selected adaylar olarak ele alınmıştır. Son deney grubu ise sonuç iddialarını sınırlamak için guide-cluster bootstrap, paired-difference bootstrap ve çoklu eğitim tohumu analizlerinden oluşan sağlamlık değerlendirmesidir. Bu yapı, tekil eğitim koşulunda görülen küçük AUPRC farklarının guide kompozisyonu ve eğitim stokastisitesi altında ayrışıp ayrışmadığını incelemek için kullanılmıştır.
+Dokuzuncu grup, family-aware target-context encoder, context-edge interaction ve sequence/context fusion varyantlarını içerir. Bu gruptaki bağlam duyarlı GNN adayları validation AUPRC'ye göre aday olarak seçilmiş, test metrikleri ise aday seçimi için kullanılmamıştır. Bu modeller final kazanan olarak değil, sağlamlık analizine taşınan validation-selected adaylar olarak ele alınmıştır. Son deney grubu ise sonuç iddialarını sınırlamak için guide-cluster bootstrap, paired-difference bootstrap ve çoklu eğitim tohumu analizlerinden oluşan sağlamlık değerlendirmesidir. Bu yapı, tekil eğitim koşulunda görülen küçük AUPRC farklarının guide kompozisyonu ve eğitim stokastisitesi altında ayrışıp ayrışmadığını incelemek için kullanılmıştır.
 
 \section{Değerlendirme Metrikleri}
 
@@ -419,7 +419,7 @@ AUPRC, karar eşiği taranarak elde edilen precision--recall eğrisinin altında
 \label{eq:auprc-baseline}
 \end{equation}
 
-İkincil ve yorumlayıcı metrikler AUROC, F1, macro-F1, MCC, sensitivity, specificity ve TN/FP/FN/TP karışıklık matrisi değerleridir. Bu metrikler, validation üzerinde seçilmiş karar eşiğindeki operating-point davranışını gösterir. Test evreninde negatif sınıf nadir olduğu için specificity ve MCC özellikle değerlidir. Buna karşılık threshold-dependent metriklerde görülen iyileşmeler AUPRC üstünlüğü olarak yorumlanmamıştır.
+İkincil ve yorumlayıcı metrikler AUROC, F1, macro-F1, MCC, Cohen kappa, sensitivity, specificity ve TN/FP/FN/TP karışıklık matrisi değerleridir. Bu metrikler, validation üzerinde seçilmiş karar eşiğindeki operating-point davranışını gösterir. Test evreninde negatif sınıf nadir olduğu için specificity ve MCC özellikle değerlidir. Buna karşılık threshold-dependent metriklerde görülen iyileşmeler AUPRC üstünlüğü olarak yorumlanmamıştır.
 
 Sensitivity, pozitif sınıf geri çağırımıdır; specificity ise negatif sınıf geri çağırımı veya doğru negatif oranı olarak kullanılmıştır. Bu tezde measured-only test evreni pozitif ağırlıklı olduğu ve nadir sınıf negatif olduğu için specificity, nadir negatif tanıma davranışını yorumlamak açısından özellikle önemlidir. Bu iki metrik Denklem~\ref{eq:sensitivity-specificity} ile tanımlanmıştır.
 
@@ -439,6 +439,18 @@ MCC, Denklem~\ref{eq:mcc} ile hesaplanmıştır.
 \end{equation}
 
 Denklemde \(TP\) doğru pozitif, \(TN\) doğru negatif, \(FP\) yanlış pozitif ve \(FN\) yanlış negatif sayısını ifade eder. Paydadaki terimlerden herhangi biri sıfır olduğunda MCC hesaplaması uygulama düzeyinde tanımlı güvenli kuralla ele alınmıştır. Bu durum özellikle tüm örneklerin pozitif sınıfa atandığı threshold collapse senaryolarında önemlidir.
+
+Cohen kappa, sınıflandırma kararının şansa göre düzeltilmiş uyumunu ölçen bir başka eşik bağımlı metriktir \btucitep{cohen1960kappa}. Gözlenen uyum \(p_o\) ve şansa bağlı beklenen uyum \(p_e\), karışıklık matrisi marjinallerinden hesaplanır; kappa Denklem~\ref{eq:cohen-kappa} ile tanımlanır.
+
+\begin{equation}
+\begin{gathered}
+p_o = \frac{TP+TN}{N}, \qquad \kappa = \frac{p_o - p_e}{1 - p_e}, \\[4pt]
+p_e = \frac{(TP+FN)(TP+FP) + (TN+FP)(TN+FN)}{N^2}.
+\end{gathered}
+\label{eq:cohen-kappa}
+\end{equation}
+
+Burada \(N = TP+FP+TN+FN\) toplam örnek sayısıdır. \(p_e = 1\) olduğunda kappa tanımsızdır; bu durum, MCC'de olduğu gibi, tüm örneklerin tek sınıfa atandığı threshold collapse senaryolarında ortaya çıkabilir ve uygulama düzeyinde tanımlı güvenli kuralla ele alınmıştır. Cohen kappa da AUPRC üstünlüğünün yerine geçmez; validation üzerinde seçilmiş karar eşiğindeki operating-point davranışını yorumlamak için kullanılır. Test evrenindeki uç pozitif prevalans nedeniyle kappa da MCC ve specificity gibi prevalansa ve guide kompozisyonuna duyarlıdır.
 
 \section{Sağlamlık ve Belirsizlik Analizi}
 

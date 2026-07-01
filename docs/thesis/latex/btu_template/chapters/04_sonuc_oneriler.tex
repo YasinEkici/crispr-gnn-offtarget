@@ -1,11 +1,13 @@
 \chapter{SONUÇ VE ÖNERİLER}
 \label{chap:sonuc}
 
+Bu bölümde, önceki bölümlerde sunulan deneysel bulgular ve sağlamlık analizi, tezin nihai çıkarımlarına ve gelecek çalışmalara yönelik önerilere dönüştürülmüştür. Sonuçlar iki ayrı eksende değerlendirilir: eşikten bağımsız sıralama başarımı (AUPRC) ve karar eşiğindeki nadir negatif tanıma davranışı. Bölüm; genel değerlendirme, sonuçların literatürle ilişkilendirilmesi ve hipotezlerin bulgularla karşılaştırılmasıyla başlar; ardından çalışmanın katkıları, sınırlılıkları ve gelecek çalışmalar için öneriler ele alınır ve kapanış değerlendirmesiyle tamamlanır. Buradaki çıkarımlar veri tekrarı değil, measured-only ve guide-disjoint sözleşmesi altında elde edilen bulguların yorumudur; bu yorum, bağlam duyarlı çizge temsillerinin katkısını bir AUPRC üstünlüğü olarak değil, sınırlı ve kontrollü bir nadir negatif operating-point katkısı olarak konumlandıran iddia sınırını korur.
+
 \section{Genel Değerlendirme}
 
 Bu tezde CRISPR-Cas9 hedef dışı tahmini için ölçüm bütünlüğü korunmuş, rehber ayrık ve test üzerinde ayar yapılmayan bir context-aware GNN iş akışı geliştirilmiştir. Çalışma, \btutextcite{mak2022epigenetic} veri çizgisinden türetilen epigenetik ve nükleozom açıklamalı veri üzerinde yürütülmüş; ana değerlendirme Scheme A etiketi, measured-only validation/test evreni, \texttt{experiment\_id = 18} dışlama kuralı ve AUPRC birincil metriği altında sınırlandırılmıştır. Putative \texttt{measured=0} satırları doğrulanmış validation veya test etiketi olarak kullanılmamıştır.
 
-Tezin nihai sonucu iki ayrı eksen üzerinden değerlendirilmiştir. Birinci eksen ranking başarımıdır. Bu eksende XGBoost F4 en güçlü ve en sağlam AUPRC referansı olarak kalmıştır. Sprint 9 sonuçları, Sprint 8A ve Sprint 8B adaylarının XGBoost F4'e karşı sağlam AUPRC üstünlüğü gösterdiğini desteklememiştir. İkinci eksen validation-kilitli karar eşiğindeki operating-point davranışıdır. Bu eksende context-aware Graph C/GATv2 varyantları, bazı koşullarda nadir ölçülmüş negatifleri tanıma davranışını güçlendirmiştir. Bu katkı AUPRC üstünlüğünün yerine geçmez; threshold-dependent, seed/guide duyarlı ve sabit test evreniyle sınırlı bir model davranışı olarak değerlendirilmelidir.
+Tezin nihai sonucu iki ayrı eksen üzerinden değerlendirilmiştir. Birinci eksen ranking başarımıdır. Bu eksende XGBoost F4 en güçlü ve en sağlam AUPRC referansı olarak kalmıştır. Sağlamlık analizi sonuçları, bağlam duyarlı GNN adaylarının XGBoost F4'e karşı sağlam AUPRC üstünlüğü gösterdiğini desteklememiştir. İkinci eksen validation-kilitli karar eşiğindeki operating-point davranışıdır. Bu eksende context-aware Graph C/GATv2 varyantları, bazı koşullarda nadir ölçülmüş negatifleri tanıma davranışını güçlendirmiştir. Bu katkı AUPRC üstünlüğünün yerine geçmez; threshold-dependent, seed/guide duyarlı ve sabit test evreniyle sınırlı bir model davranışı olarak değerlendirilmelidir.
 
 \section{Literatürle İlişkilendirilen Sonuç}
 
@@ -19,7 +21,7 @@ Değerlendirme literatürü, sonuçların iddia sınırını belirlemiştir. PR 
 
 \section{Hipotezlere Göre Sonuçlar}
 
-Bu bölümde tezde kurulan hipotezler, deneysel bulgular ve Sprint 9 sağlamlık analizi birlikte değerlendirilmiştir. Değerlendirme, Graph C'nin nadir negatif tanıma davranışı, XGBoost F4 karşısındaki AUPRC sağlamlık sınırı ve target-observation bağlamının model davranışındaki rolü olmak üzere üç eksende yapılmıştır.
+Bu bölümde tezde kurulan hipotezler, deneysel bulgular ve sağlamlık analizi birlikte değerlendirilmiştir. Değerlendirme, Graph C'nin nadir negatif tanıma davranışı, XGBoost F4 karşısındaki AUPRC sağlamlık sınırı ve target-observation bağlamının model davranışındaki rolü olmak üzere üç eksende yapılmıştır.
 
 \subsection{Graph C ve nadir negatif tanıma}
 
@@ -27,7 +29,7 @@ Birinci hipotez, Graph C hedef-gözlem temsili ve aile-duyarlı GATv2 hattının
 
 \subsection{AUPRC sağlamlığı ve XGBoost F4 sınırı}
 
-İkinci hipotez, bu kazanımın XGBoost F4'e karşı sağlam AUPRC üstünlüğü oluşturmayacağını öngörmüştür. Sprint 9 sağlamlık analizi bu hipotezi desteklemiştir. Yeniden üretilen XGBoost F4 sonucu 0.992338 AUPRC, [0.950179, 0.999336] guide-cluster aralığı ve 0.990649 $\pm$ 0.001944 çoklu tohum ortalaması üretmiştir. En yüksek tekil Sprint 8 GNN adayı olan S8B\_R2 0.986020 AUPRC, [0.929981, 0.998966] aralığı ve 0.978963 $\pm$ 0.011322 çoklu tohum ortalamasıyla kalmıştır. S8B\_R2 ile XGBoost F4 arasındaki paired AUPRC farkı yaklaşık -0.00632 olup [-0.03124, +0.00117] aralığı sıfırı içermektedir. Bu nedenle sonuç, üstünlük veya eşdeğerlik olarak değil, AUPRC farklarının guide-kompozisyonu ve tohum belirsizliğiyle uyumlu kalması olarak yorumlanmıştır.
+İkinci hipotez, bu kazanımın XGBoost F4'e karşı sağlam AUPRC üstünlüğü oluşturmayacağını öngörmüştür. Sağlamlık analizi bu hipotezi desteklemiştir. Yeniden üretilen XGBoost F4 sonucu 0.992338 AUPRC, [0.950179, 0.999336] guide-cluster aralığı ve 0.990649 $\pm$ 0.001944 çoklu tohum ortalaması üretmiştir. En yüksek tekil GNN adayı olan sequence + context fusion modeli 0.986020 AUPRC, [0.929981, 0.998966] aralığı ve 0.978963 $\pm$ 0.011322 çoklu tohum ortalamasıyla kalmıştır. Sequence + context fusion modeli ile XGBoost F4 arasındaki paired AUPRC farkı yaklaşık -0.00632 olup [-0.03124, +0.00117] aralığı sıfırı içermektedir. Bu nedenle sonuç, üstünlük veya eşdeğerlik olarak değil, AUPRC farklarının guide-kompozisyonu ve tohum belirsizliğiyle uyumlu kalması olarak yorumlanmıştır.
 
 \subsection{Target-observation bağlamının rolü}
 
@@ -41,7 +43,7 @@ Bu tezin ilk katkısı, CRISPR-Cas9 hedef dışı tahmini için kontrollü bir d
 
 Üçüncü katkı, Graph C/GATv2 hattındaki model davranışının mekanizma ablationlarıyla sınanmasıdır. Bağlam benzerliği kenarları, kenar-duyarlı attention, hedef-gözlem bağlam özellikleri ve context alt aileleri ayrı ayrı değerlendirilmiştir. Bu analizler, nadir negatif karar noktası davranışının hedef-gözlem bağlam özelliklerine ve aday kenar bilgisinin attention ile mesajlaşma hattında kullanılmasına duyarlı olduğunu göstermiştir.
 
-Dördüncü katkı, family-aware target context encoder, context-edge FiLM etkileşimi ve sequence + context fusion varyantlarının kontrollü adaylar olarak değerlendirilmesidir. Bu modeller, tekil validation-seçili koşullarda nadir negatif tanıma davranışını güçlendirmiştir. Ancak Sprint 9, bu adayların AUPRC kazanımlarının seed ve guide-kompozisyonu belirsizliği içinde kaldığını göstermiştir. Bu nedenle katkı, alanın en iyi tahmin sistemi iddiası değil, temsil tasarımı ve iddia sınırı açık bir değerlendirme sonucu olarak ele alınmalıdır.
+Dördüncü katkı, family-aware target context encoder, context-edge FiLM etkileşimi ve sequence + context fusion varyantlarının kontrollü adaylar olarak değerlendirilmesidir. Bu modeller, tekil validation-seçili koşullarda nadir negatif tanıma davranışını güçlendirmiştir. Ancak sağlamlık analizi, bu adayların AUPRC kazanımlarının seed ve guide-kompozisyonu belirsizliği içinde kaldığını göstermiştir. Bu nedenle katkı, alanın en iyi tahmin sistemi iddiası değil, temsil tasarımı ve iddia sınırı açık bir değerlendirme sonucu olarak ele alınmalıdır.
 
 \section{Sınırlılıklar}
 
@@ -57,7 +59,7 @@ Bu çalışmanın sınırlılıkları, sonuçların hangi koşullar altında ge�
 
 \subsection{Metrik yorumu ve operating-point kırılganlığı}
 
-Üçüncü sınırlılık, AUPRC ve operating-point metriklerinin farklı kanıt türleri üretmesidir. AUPRC ranking kalitesini ölçen birincil metrik olarak tutulmuştur. MCC, specificity, macro-F1 ve karışıklık matrisi ise validation-selected threshold altındaki karar davranışını göstermektedir. Sprint 9'da bazı operating-point farkları XGBoost F4'e göre daha iyi görünse de bu farklar seed-fragile ve guide-fragile olarak raporlanmalıdır. Bu metrikler AUPRC sıralamasının yerine geçmez.
+Üçüncü sınırlılık, AUPRC ve operating-point metriklerinin farklı kanıt türleri üretmesidir. AUPRC ranking kalitesini ölçen birincil metrik olarak tutulmuştur. MCC, specificity, macro-F1 ve karışıklık matrisi ise validation-selected threshold altındaki karar davranışını göstermektedir. Sağlamlık analizinde bazı operating-point farkları XGBoost F4'e göre daha iyi görünse de bu farklar seed-fragile ve guide-fragile olarak raporlanmalıdır. Bu metrikler AUPRC sıralamasının yerine geçmez.
 
 \subsection{Model içi yorumların biyolojik sınırı}
 
@@ -87,6 +89,6 @@ Beşinci öneri, deneysel epigenetik feature ailesinin biyolojik yorumu için mo
 
 \section{Kapanış Değerlendirmesi}
 
-Bu tez, CRISPR-Cas9 hedef dışı tahmininde bağlam duyarlı çizge sinir ağlarının değerini sınırları açık bir bilimsel iddia içinde göstermiştir. Geliştirilen iş akışı, guide-disjoint ve measured-only değerlendirme altında Graph C hedef-gözlem temsili, edge-aware GATv2, family-aware context encoding ve sequence/context fusion bileşenlerini sistematik olarak incelemiştir. XGBoost F4, AUPRC bakımından en güçlü sağlam referans olarak kalmıştır. Sprint 9, hiçbir Sprint 8 GNN adayının XGBoost F4'e karşı sağlam AUPRC üstünlüğü gösterdiğini desteklememiştir.
+Bu tez, CRISPR-Cas9 hedef dışı tahmininde bağlam duyarlı çizge sinir ağlarının değerini sınırları açık bir bilimsel iddia içinde göstermiştir. Geliştirilen iş akışı, guide-disjoint ve measured-only değerlendirme altında Graph C hedef-gözlem temsili, edge-aware GATv2, family-aware context encoding ve sequence/context fusion bileşenlerini sistematik olarak incelemiştir. XGBoost F4, AUPRC bakımından en güçlü sağlam referans olarak kalmıştır. Sağlamlık analizi, hiçbir bağlam duyarlı GNN adayının XGBoost F4'e karşı sağlam AUPRC üstünlüğü gösterdiğini desteklememiştir.
 
 Buna karşılık Graph C/GATv2 çizgisi, bazı validation-kilitli koşullarda nadir ölçülmüş negatifleri tanıma davranışını güçlendirmiştir. Bu sonuç GNN'lerin başarısız olduğu veya üstün olduğu şeklinde genellenmemelidir. Daha doğru sonuç, context-aware GNN'lerin bu veri sözleşmesi altında ranking üstünlüğünden çok, sınırlı ve belirsizlikleri açık bir rare-negative operating-point katkısı sunduğudur. Gelecek çalışmalarda bu katkının daha geniş guide popülasyonlarında, daha fazla negatif-bearing guide içeren dış doğrulama setlerinde ve önceden tanımlanmış robustness protokolleriyle sınanması gerekmektedir.

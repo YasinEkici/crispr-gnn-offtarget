@@ -1,7 +1,7 @@
 \chapter{DENEYSEL ÇALIŞMALAR}
 \label{chap:deneysel}
 
-Bu bölümde, Bölüm~2'de tanımlanan measured-only, guide-disjoint ve leakage-aware değerlendirme protokolü altında elde edilen deneysel bulgular sunulmuştur. Bulgular tek bir modelin en yüksek skorunu raporlamak amacıyla değil, temsil seçimi, özellik ailesi, çizge semantiği, attention mekanizması ve karar eşiğine bağlı nadir negatif tanıma davranışının birlikte nasıl değiştiğini göstermek amacıyla düzenlenmiştir. Bu nedenle AUPRC birincil metrik olarak korunmuş; MCC, macro-F1, specificity ve karışıklık matrisi değerleri ise validation üzerinde seçilmiş karar eşiğindeki operating-point davranışının ikincil tanılayıcı metrikleri olarak değerlendirilmiştir. Sprint 9 sağlamlık analizi, bu bölümdeki tekil eğitim sonuçlarının nihai iddia sınırını belirleyen kanıttır. Şekil~\ref{fig:evidence-ladder}, bu bölümdeki deney gruplarını tekil sonuç listesi yerine kontrollü bir kanıt zinciri olarak konumlandırmaktadır.
+Bu bölümde, Bölüm~2'de tanımlanan measured-only, guide-disjoint ve leakage-aware değerlendirme protokolü altında elde edilen deneysel bulgular sunulmuştur. Bulgular tek bir modelin en yüksek skorunu raporlamak amacıyla değil, temsil seçimi, özellik ailesi, çizge semantiği, attention mekanizması ve karar eşiğine bağlı nadir negatif tanıma davranışının birlikte nasıl değiştiğini göstermek amacıyla düzenlenmiştir. Bu nedenle AUPRC birincil metrik olarak korunmuş; MCC, macro-F1, specificity ve karışıklık matrisi değerleri ise validation üzerinde seçilmiş karar eşiğindeki operating-point davranışının ikincil tanılayıcı metrikleri olarak değerlendirilmiştir. Sağlamlık analizi, bu bölümdeki tekil eğitim sonuçlarının nihai iddia sınırını belirleyen kanıttır. Şekil~\ref{fig:evidence-ladder}, bu bölümdeki deney gruplarını tekil sonuç listesi yerine kontrollü bir kanıt zinciri olarak konumlandırmaktadır.
 
 \begin{figure}[htbp]
 \centering
@@ -50,7 +50,7 @@ Deney sırası, Bölüm~1'de özetlenen literatür eksenlerini bu bölümdeki ka
 
 Dördüncü adımda attention, Graph C mekanizma çıkarma, target-context maskeleme, family-aware encoder, context-edge FiLM ve sequence/context fusion deneyleri yürütülmüştür. Bu sıra, önce modelin hangi girdiye duyarlı olduğunu belirleyip daha sonra bu girdiyi aile-duyarlı ve koşullamalı mimarilerle işlemeyi amaçlamıştır. SE, FiLM ve GNN-FiLM kaynakları feature recalibration ve koşullama için mimari dayanak sağlasa da, attention, gate, FiLM ve masking çıktıları biyolojik nedensellik kanıtı olarak yorumlanmamıştır \btucitep{hu2018squeeze,perez2018film,brockschmidt2020gnnfilm,jain2019attention,serrano2019attention}.
 
-Son adımda sağlamlık analizi yapılmıştır. Bu tercih, validation-seçili adaylar arasındaki küçük AUPRC farklarının guide kompozisyonu, bootstrap örneklemesi ve eğitim tohumu değişkenliği altında korunup korunmadığını değerlendirmek için gereklidir \btucitep{field2007bootstrapping,boyd2013auprc,bengio2004unbiased,bethard2022randomseeds}. Bu nedenle Sprint 9 sonuçları, Bölüm~3'teki önceki deneyleri yeniden seçmek için değil, iddia sınırını belirlemek için kullanılmıştır.
+Son adımda sağlamlık analizi yapılmıştır. Bu tercih, validation-seçili adaylar arasındaki küçük AUPRC farklarının guide kompozisyonu, bootstrap örneklemesi ve eğitim tohumu değişkenliği altında korunup korunmadığını değerlendirmek için gereklidir \btucitep{field2007bootstrapping,boyd2013auprc,bengio2004unbiased,bethard2022randomseeds}. Bu nedenle sağlamlık analizi sonuçları, Bölüm~3'teki önceki deneyleri yeniden seçmek için değil, iddia sınırını belirlemek için kullanılmıştır.
 
 Test evreni 1702 measured-only satırdan oluşmaktadır. Bu evrende 1533 pozitif ve 169 negatif örnek bulunmaktadır; pozitif prevalans 0.900705'tir. Bu değer precision--recall eğrisi için no-skill referans düzeyidir; matematiksel bir alt sınır olarak yorumlanmamıştır. Satır sayısına rağmen test evreni yalnızca 29 guide içermekte, negatifler 9 guide üzerinde yoğunlaşmakta ve guide 9251 tek başına 169 negatifin 80'ini taşımaktadır. Dolayısıyla AUPRC değerleri yorumlanırken hem prevalans hem de negatif sınıfın guide düzeyindeki yoğunlaşması dikkate alınmıştır. Precision--recall eğrilerinin dengesiz sınıf dağılımlarındaki yorumu, ROC eğrilerinden farklı bilgi taşıması ve sınıf prevalansına duyarlı olması literatürde ayrıca vurgulanmıştır \btucitep{davis2006precisionrecall,saito2015pr,williams2021classimbalance}.
 
@@ -63,15 +63,15 @@ Test evreni 1702 measured-only satırdan oluşmaktadır. Bu evrende 1533 pozitif
 \label{tab:non-graph-referanslar}
 \centering
 \scriptsize
-\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}X r r r r l}
+\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}X r r r r r l}
 \toprule\toprule
-Model & AUPRC & AUROC & MCC & Spec. & TN/FP/FN/TP\\
+Model & AUPRC & AUROC & MCC & $\kappa$ & Spec. & TN/FP/FN/TP\\
 \midrule
-XGBoost F3 & 0.985918 & 0.906893 & 0.320396 & 0.207101 & 35/134/22/1511\\
-XGBoost F4, tarihsel rapor & 0.992522 & 0.938416 & 0.345198 & 0.224852 & 38/131/21/1512\\
-Sequence CNN & 0.920075 & 0.535711 & -0.019749 & 0.000000 & 0/169/6/1527\\
-Sequence BiLSTM & 0.886870 & 0.340957 & 0.000000 & 0.000000 & 0/169/0/1533\\
-CNN + F4 geç birleştirme & 0.928996 & 0.579449 & 0.000000 & 0.000000 & 0/169/0/1533\\
+XGBoost F3 & 0.985918 & 0.906893 & 0.320396 & 0.273338 & 0.207101 & 35/134/22/1511\\
+XGBoost F4, tarihsel rapor & 0.992522 & 0.938416 & 0.345198 & 0.297218 & 0.224852 & 38/131/21/1512\\
+Sequence CNN & 0.920075 & 0.535711 & -0.019749 & -0.006855 & 0.000000 & 0/169/6/1527\\
+Sequence BiLSTM & 0.886870 & 0.340957 & 0.000000 & 0.000000 & 0.000000 & 0/169/0/1533\\
+CNN + F4 geç birleştirme & 0.928996 & 0.579449 & 0.000000 & 0.000000 & 0.000000 & 0/169/0/1533\\
 \bottomrule
 \end{tabularx}
 \end{table}
@@ -98,14 +98,14 @@ XGBoost feature ladder içindeki AUPRC değişimi Şekil~\ref{fig:non-graph-xgbo
 \label{tab:gcn-sema-karsilastirma}
 \centering
 \scriptsize
-\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}X r r r r l}
+\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}X r r r r r l}
 \toprule\toprule
-Şema ve model & AUPRC & AUROC & MCC & Spec. & TN/FP/FN/TP\\
+Şema ve model & AUPRC & AUROC & MCC & $\kappa$ & Spec. & TN/FP/FN/TP\\
 \midrule
-Graph A GCN & 0.966287 & 0.745076 & 0.300781 & 0.153846 & 26/143/11/1522\\
-Graph B GCN & 0.966570 & 0.743586 & 0.126559 & 0.017751 & 3/166/0/1533\\
-Graph C GCN & 0.961586 & 0.759886 & 0.453738 & 0.254438 & 43/126/5/1528\\
-Graph C GCN, enerji kenar özellikleri & 0.972481 & 0.836219 & 0.274287 & 0.082840 & 14/155/0/1533\\
+Graph A GCN & 0.966287 & 0.745076 & 0.300781 & 0.224776 & 0.153846 & 26/143/11/1522\\
+Graph B GCN & 0.966570 & 0.743586 & 0.126559 & 0.031529 & 0.017751 & 3/166/0/1533\\
+Graph C GCN & 0.961586 & 0.759886 & 0.453738 & 0.368576 & 0.254438 & 43/126/5/1528\\
+Graph C GCN, enerji kenar özellikleri & 0.972481 & 0.836219 & 0.274287 & 0.139939 & 0.082840 & 14/155/0/1533\\
 \bottomrule
 \end{tabularx}
 \end{table}
@@ -132,16 +132,16 @@ Graph C GCN, enerji kenar özellikleri & 0.972481 & 0.836219 & 0.274287 & 0.0828
 \label{tab:feature-family-ablation}
 \centering
 \scriptsize
-\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}X r r r r l}
+\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}X r r r r r l}
 \toprule\toprule
-Özellik ailesi & AUPRC & AUROC & MCC & Spec. & TN/FP/FN/TP\\
+Özellik ailesi & AUPRC & AUROC & MCC & $\kappa$ & Spec. & TN/FP/FN/TP\\
 \midrule
-Sequence/mismatch & 0.960432 & 0.723843 & 0.360493 & 0.295858 & 50/119/40/1493\\
-Mismatch özellikleri & 0.968203 & 0.745651 & 0.000000 & 0.000000 & 0/169/0/1533\\
-Enerji özellikleri & 0.976585 & 0.817765 & 0.477933 & 0.284024 & 48/121/6/1527\\
-Deneysel epigenetik özellikler & 0.967214 & 0.761677 & 0.314439 & 0.171598 & 29/140/13/1520\\
-Hesaplanmış nükleozom özetleri & 0.910866 & 0.544960 & 0.000000 & 0.000000 & 0/169/0/1533\\
-Pozisyonel hesaplanmış özellikler & 0.909031 & 0.506268 & 0.000000 & 0.000000 & 0/169/0/1533\\
+Sequence/mismatch & 0.960432 & 0.723843 & 0.360493 & 0.340596 & 0.295858 & 50/119/40/1493\\
+Mismatch özellikleri & 0.968203 & 0.745651 & 0.000000 & 0.000000 & 0.000000 & 0/169/0/1533\\
+Enerji özellikleri & 0.976585 & 0.817765 & 0.477933 & 0.401723 & 0.284024 & 48/121/6/1527\\
+Deneysel epigenetik özellikler & 0.967214 & 0.761677 & 0.314439 & 0.245038 & 0.171598 & 29/140/13/1520\\
+Hesaplanmış nükleozom özetleri & 0.910866 & 0.544960 & 0.000000 & 0.000000 & 0.000000 & 0/169/0/1533\\
+Pozisyonel hesaplanmış özellikler & 0.909031 & 0.506268 & 0.000000 & 0.000000 & 0.000000 & 0/169/0/1533\\
 \bottomrule
 \end{tabularx}
 \end{table}
@@ -155,16 +155,16 @@ Dördüncü deney grubu, aynı Graph A enerji temsili altında sınıf dengesizl
 \label{tab:loss-sampling}
 \centering
 \scriptsize
-\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}X r r r r l}
+\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}X r r r r r l}
 \toprule\toprule
-Kayıp/örnekleme politikası & AUPRC & AUROC & MCC & Spec. & TN/FP/FN/TP\\
+Kayıp/örnekleme politikası & AUPRC & AUROC & MCC & $\kappa$ & Spec. & TN/FP/FN/TP\\
 \midrule
-Weighted BCE & 0.976935 & 0.819972 & 0.483719 & 0.289941 & 49/120/6/1527\\
-Unweighted BCE & 0.949280 & 0.685090 & 0.234557 & 0.082840 & 14/155/4/1529\\
-Focal loss, $\gamma=2$, $\alpha=0.25$ & 0.963497 & 0.805436 & 0.205834 & 0.053254 & 9/160/1/1532\\
-Generalized Dice & 0.871174 & 0.382662 & 0.000000 & 0.000000 & 0/169/0/1533\\
-Tversky, $\alpha=0.70$, $\beta=0.30$ & 0.955804 & 0.710071 & 0.262978 & 0.082840 & 14/155/1/1532\\
-Balanced measured-only sampling & 0.976205 & 0.815167 & 0.447602 & 0.248521 & 42/127/5/1528\\
+Weighted BCE & 0.976935 & 0.819972 & 0.483719 & 0.408666 & 0.289941 & 49/120/6/1527\\
+Unweighted BCE & 0.949280 & 0.685090 & 0.234557 & 0.133162 & 0.082840 & 14/155/4/1529\\
+Focal loss, $\gamma=2$, $\alpha=0.25$ & 0.963497 & 0.805436 & 0.205834 & 0.090468 & 0.053254 & 9/160/1/1532\\
+Generalized Dice & 0.871174 & 0.382662 & 0.000000 & 0.000000 & 0.000000 & 0/169/0/1533\\
+Tversky, $\alpha=0.70$, $\beta=0.30$ & 0.955804 & 0.710071 & 0.262978 & 0.138222 & 0.082840 & 14/155/1/1532\\
+Balanced measured-only sampling & 0.976205 & 0.815167 & 0.447602 & 0.361289 & 0.248521 & 42/127/5/1528\\
 \bottomrule
 \end{tabularx}
 \end{table}
@@ -180,15 +180,15 @@ Beşinci deney grubu, attention tabanlı GNN mimarilerinin etkisini incelemişti
 \label{tab:attention-sonuclari}
 \centering
 \scriptsize
-\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}X r r r r l}
+\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}X r r r r r l}
 \toprule\toprule
-Model & AUPRC & AUROC & MCC & Spec. & TN/FP/FN/TP\\
+Model & AUPRC & AUROC & MCC & $\kappa$ & Spec. & TN/FP/FN/TP\\
 \midrule
-Graph A GCN, enerji & 0.976935 & 0.819972 & 0.483719 & 0.289941 & 49/120/6/1527\\
-Graph A GAT, edge-aware & 0.950763 & 0.673950 & -0.016850 & 0.183432 & 31/138/316/1217\\
-Graph A GATv2, edge-aware & 0.965449 & 0.818282 & 0.291367 & 0.218935 & 37/132/35/1498\\
-Graph B GATv2, enerji & 0.979139 & 0.832397 & 0.272970 & 0.094675 & 16/153/2/1531\\
-Graph C GATv2, enerji & 0.969078 & 0.849705 & 0.531774 & 0.372781 & 63/106/12/1521\\
+Graph A GCN, enerji & 0.976935 & 0.819972 & 0.483719 & 0.408666 & 0.289941 & 49/120/6/1527\\
+Graph A GAT, edge-aware & 0.950763 & 0.673950 & -0.016850 & -0.015457 & 0.183432 & 31/138/316/1217\\
+Graph A GATv2, edge-aware & 0.965449 & 0.818282 & 0.291367 & 0.263349 & 0.218935 & 37/132/35/1498\\
+Graph B GATv2, enerji & 0.979139 & 0.832397 & 0.272970 & 0.154970 & 0.094675 & 16/153/2/1531\\
+Graph C GATv2, enerji & 0.969078 & 0.849705 & 0.531774 & 0.484954 & 0.372781 & 63/106/12/1521\\
 \bottomrule
 \end{tabularx}
 \end{table}
@@ -210,14 +210,14 @@ Altıncı deney grubu, Graph C GATv2 davranışının hangi bileşenlerden kayna
 \label{tab:graphc-mekanizma}
 \centering
 \scriptsize
-\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}X r r r r l}
+\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}X r r r r r l}
 \toprule\toprule
-Model varyantı & AUPRC & AUROC & MCC & Spec. & TN/FP/FN/TP\\
+Model varyantı & AUPRC & AUROC & MCC & $\kappa$ & Spec. & TN/FP/FN/TP\\
 \midrule
-Tam Graph C GATv2 & 0.969078 & 0.849705 & 0.531774 & 0.372781 & 63/106/12/1521\\
-Context-similarity kenarları kaldırılmış & 0.965598 & 0.850137 & 0.517970 & 0.366864 & 62/107/14/1519\\
-Edge-blind attention & 0.945691 & 0.686298 & 0.182915 & 0.248521 & 42/127/112/1421\\
-Target context feature'ları maskelenmiş & 0.893657 & 0.407817 & -0.013952 & 0.000000 & 0/169/3/1530\\
+Tam Graph C GATv2 & 0.969078 & 0.849705 & 0.531774 & 0.484954 & 0.372781 & 63/106/12/1521\\
+Context-similarity kenarları kaldırılmış & 0.965598 & 0.850137 & 0.517970 & 0.473701 & 0.366864 & 62/107/14/1519\\
+Edge-blind attention & 0.945691 & 0.686298 & 0.182915 & 0.182674 & 0.248521 & 42/127/112/1421\\
+Target context feature'ları maskelenmiş & 0.893657 & 0.407817 & -0.013952 & -0.003476 & 0.000000 & 0/169/3/1530\\
 \bottomrule
 \end{tabularx}
 \end{table}
@@ -242,16 +242,16 @@ Yedinci deney grubu, target context vektörünün alt ailelerini ayrı ayrı mas
 \label{tab:target-context-mask}
 \centering
 \scriptsize
-\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}X r r r r l}
+\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}X r r r r r l}
 \toprule\toprule
-Maskeleme koşulu & AUPRC & AUROC & MCC & Spec. & TN/FP/FN/TP\\
+Maskeleme koşulu & AUPRC & AUROC & MCC & $\kappa$ & Spec. & TN/FP/FN/TP\\
 \midrule
-Context-edge kaldırılmış referans & 0.965598 & 0.850137 & 0.517970 & 0.366864 & 62/107/14/1519\\
-Hedef dizisi maskelenmiş & 0.970151 & 0.900134 & 0.489597 & 0.331361 & 56/113/13/1520\\
-Deneysel epigenetik özellikler maskelenmiş & 0.885321 & 0.350896 & -0.011388 & 0.000000 & 0/169/2/1531\\
-Hesaplanmış nükleozom özetleri maskelenmiş & 0.955915 & 0.728243 & 0.511808 & 0.319527 & 54/115/6/1527\\
-Missingness göstergeleri maskelenmiş & 0.949947 & 0.746975 & 0.447562 & 0.230769 & 39/130/2/1531\\
-Tüm non-sequence context maskelenmiş & 0.890660 & 0.389521 & -0.011388 & 0.000000 & 0/169/2/1531\\
+Context-edge kaldırılmış referans & 0.965598 & 0.850137 & 0.517970 & 0.473701 & 0.366864 & 62/107/14/1519\\
+Hedef dizisi maskelenmiş & 0.970151 & 0.900134 & 0.489597 & 0.438246 & 0.331361 & 56/113/13/1520\\
+Deneysel epigenetik özellikler maskelenmiş & 0.885321 & 0.350896 & -0.011388 & -0.002328 & 0.000000 & 0/169/2/1531\\
+Hesaplanmış nükleozom özetleri maskelenmiş & 0.955915 & 0.728243 & 0.511808 & 0.442614 & 0.319527 & 54/115/6/1527\\
+Missingness göstergeleri maskelenmiş & 0.949947 & 0.746975 & 0.447562 & 0.346074 & 0.230769 & 39/130/2/1531\\
+Tüm non-sequence context maskelenmiş & 0.890660 & 0.389521 & -0.011388 & -0.002328 & 0.000000 & 0/169/2/1531\\
 \bottomrule
 \end{tabularx}
 \end{table}
@@ -276,16 +276,16 @@ Sekizinci deney grubu, target context vektörünü tek bir yoğun katmanda işle
 \label{tab:family-aware-context}
 \centering
 \scriptsize
-\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}X r r r r l}
+\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}X r r r r r l}
 \toprule\toprule
-Model & AUPRC & AUROC & MCC & Spec. & TN/FP/FN/TP\\
+Model & AUPRC & AUROC & MCC & $\kappa$ & Spec. & TN/FP/FN/TP\\
 \midrule
-Graph C GATv2, context-edge kaldırılmış referans & 0.965598 & 0.850137 & 0.517970 & 0.366864 & 62/107/14/1519\\
-Birleşik derin context encoder & 0.969201 & 0.848765 & 0.500460 & 0.301775 & 51/118/5/1528\\
-Family-aware encoder & 0.982062 & 0.906557 & 0.603489 & 0.650888 & 110/59/63/1470\\
-Family-aware deneysel vurgu & 0.984945 & 0.926551 & 0.568108 & 0.497041 & 84/85/31/1502\\
-Context-edge FiLM & 0.982757 & 0.910575 & 0.563656 & 0.520710 & 88/81/39/1494\\
-Sequence + context fusion & 0.986020 & 0.903480 & 0.567309 & 0.863905 & 146/23/180/1353\\
+Graph C GATv2, context-edge kaldırılmış referans & 0.965598 & 0.850137 & 0.517970 & 0.473701 & 0.366864 & 62/107/14/1519\\
+Birleşik derin context encoder & 0.969201 & 0.848765 & 0.500460 & 0.424908 & 0.301775 & 51/118/5/1528\\
+Family-aware encoder & 0.982062 & 0.906557 & 0.603489 & 0.603438 & 0.650888 & 110/59/63/1470\\
+Family-aware deneysel vurgu & 0.984945 & 0.926551 & 0.568108 & 0.555832 & 0.497041 & 84/85/31/1502\\
+Context-edge FiLM & 0.982757 & 0.910575 & 0.563656 & 0.556834 & 0.520710 & 88/81/39/1494\\
+Sequence + context fusion & 0.986020 & 0.903480 & 0.567309 & 0.528192 & 0.863905 & 146/23/180/1353\\
 \bottomrule
 \end{tabularx}
 \end{table}
@@ -355,7 +355,7 @@ AUPRC aralıkları Şekil~\ref{fig:saglamlik-auprc-araliklari}'de verilmiştir. 
 \label{fig:paired-difference-distributions}
 \end{figure}
 
-Şekil~\ref{fig:paired-difference-distributions}'deki paired AUPRC farkları, GNN varyantlarının XGBoost F4'e karşı sağlam bir AUPRC üstünlüğü kurmadığını göstermiştir. Sequence + context fusion ile context-edge FiLM arasındaki paired fark +0.003263 olup aralık [-0.01484, +0.03706] biçimindedir. Sequence + context fusion ile yeniden üretilen XGBoost F4 arasındaki paired fark -0.00632 olup aralık [-0.03124, +0.00117] biçimindedir. Context-edge FiLM ile XGBoost F4 arasındaki fark -0.00958 olup aralık [-0.05788, +0.00541] biçimindedir. Family-aware deneysel vurgu ile XGBoost F4 arasındaki fark -0.00739 olup aralık [-0.04285, +0.00799] biçimindedir. Bu aralıkların tamamı sıfırı içerdiği için AUPRC bakımından Sprint 8 GNN adaylarının XGBoost F4'e veya birbirlerine karşı sağlam üstünlüğü iddia edilmemiştir.
+Şekil~\ref{fig:paired-difference-distributions}'deki paired AUPRC farkları, GNN varyantlarının XGBoost F4'e karşı sağlam bir AUPRC üstünlüğü kurmadığını göstermiştir. Sequence + context fusion ile context-edge FiLM arasındaki paired fark +0.003263 olup aralık [-0.01484, +0.03706] biçimindedir. Sequence + context fusion ile yeniden üretilen XGBoost F4 arasındaki paired fark -0.00632 olup aralık [-0.03124, +0.00117] biçimindedir. Context-edge FiLM ile XGBoost F4 arasındaki fark -0.00958 olup aralık [-0.05788, +0.00541] biçimindedir. Family-aware deneysel vurgu ile XGBoost F4 arasındaki fark -0.00739 olup aralık [-0.04285, +0.00799] biçimindedir. Bu aralıkların tamamı sıfırı içerdiği için AUPRC bakımından bağlam duyarlı GNN adaylarının XGBoost F4'e veya birbirlerine karşı sağlam üstünlüğü iddia edilmemiştir.
 
 \subsection{Operating-point farkları}
 
@@ -367,7 +367,7 @@ Bu bulgular, ilgili eğitilmiş modellerin validation-kilitli eşikleri altında
 
 Çizelge~\ref{tab:operating-point-tohum}'da verilen çoklu tohum analizi, bu operating-point katkısının eğitim stokastisitesine duyarlı olduğunu da göstermiştir. XGBoost F4 için MCC 0.360 $\pm$ 0.033 ve specificity 0.234 $\pm$ 0.050 düzeyindeyken, Sequence + context fusion modeli için MCC 0.464 $\pm$ 0.165 ve specificity 0.466 $\pm$ 0.224 olarak bulunmuştur. Family-aware encoder için MCC 0.463 $\pm$ 0.134 ve specificity 0.402 $\pm$ 0.153 düzeyindedir. Standart sapmalar, GNN modellerinde operating-point davranışının tohum ve guide kompozisyonuna daha duyarlı olabileceğini göstermektedir.
 
-Aynı analizde AUPRC için XGBoost F4 ortalaması 0.990649 $\pm$ 0.001944, Sequence + context fusion ortalaması 0.978963 $\pm$ 0.011322 ve context-edge FiLM ortalaması 0.975538 $\pm$ 0.012187 olarak bulunmuştur. Bu yayılım, Sprint 8 adayları arasındaki tekil AUPRC farklarından daha büyüktür. Rastgele tohum değişkenliğinin model iddialarında nasıl raporlanacağı ayrıca dikkat gerektirdiğinden, bu sonuçlar model seçimi için değil iddia sınırını belirlemek için kullanılmıştır \btucitep{bethard2022randomseeds}. Bu nedenle rare-negative katkısı savunulabilir olmakla birlikte, seed/guide-fragile bir sınırla birlikte raporlanmıştır.
+Aynı analizde AUPRC için XGBoost F4 ortalaması 0.990649 $\pm$ 0.001944, Sequence + context fusion ortalaması 0.978963 $\pm$ 0.011322 ve context-edge FiLM ortalaması 0.975538 $\pm$ 0.012187 olarak bulunmuştur. Bu yayılım, bağlam duyarlı GNN adayları arasındaki tekil AUPRC farklarından daha büyüktür. Rastgele tohum değişkenliğinin model iddialarında nasıl raporlanacağı ayrıca dikkat gerektirdiğinden, bu sonuçlar model seçimi için değil iddia sınırını belirlemek için kullanılmıştır \btucitep{bethard2022randomseeds}. Bu nedenle rare-negative katkısı savunulabilir olmakla birlikte, seed/guide-fragile bir sınırla birlikte raporlanmıştır.
 
 \begin{table}[htbp]
 \caption{Seçilmiş modeller için çoklu tohum operating-point sonuçları.}
@@ -389,7 +389,7 @@ Family-aware encoder & 0.463 $\pm$ 0.134 & 0.402 $\pm$ 0.153\\
 
 Deneysel bulgular üç ana sonuç üretmiştir. İlk olarak, XGBoost F4 güçlü ve en yüksek sağlamlık destekli AUPRC referansıdır (Çizelge~\ref{tab:non-graph-referanslar}; Çizelge~\ref{tab:auprc-saglamlik}). Graph C / GATv2 çizgisindeki modeller bu referansa karşı sağlam AUPRC üstünlüğü göstermemiştir (Çizelge~\ref{tab:auprc-saglamlik}; Şekil~\ref{fig:paired-difference-distributions}). Bu nedenle bu tezde ana iddia, AUPRC bakımından en güçlü referansın geçildiği yönünde kurulmamıştır.
 
-İkinci olarak, Graph C hedef-gözlem temsili ve family-aware GATv2 hattı, validation üzerinde kilitlenen karar eşiğinde nadir ölçülmüş negatifleri tanıma davranışını güçlendirmiştir. Bu katkı özellikle MCC, macro-F1, specificity ve karışıklık matrisi üzerinden görünür hale gelmiştir. Graph C GATv2'nin Graph C GCN'ye göre doğru negatif sayısını artırması, target context feature'larının maskelenmesiyle model davranışının bozulması ve family-aware encoder varyantlarının daha yüksek specificity üretmesi bu model-davranışı kanıt zincirini oluşturmuştur (Çizelge~\ref{tab:attention-sonuclari}; Çizelge~\ref{tab:graphc-mekanizma}; Çizelge~\ref{tab:family-aware-context}). Bu zincir biyolojik mekanizma kanıtı olarak değil, aynı değerlendirme sözleşmesi altında gözlenen model davranışı olarak yorumlanmıştır.
+İkinci olarak, Graph C hedef-gözlem temsili ve family-aware GATv2 hattı, validation üzerinde kilitlenen karar eşiğinde nadir ölçülmüş negatifleri tanıma davranışını güçlendirmiştir. Bu katkı özellikle MCC, Cohen kappa, macro-F1, specificity ve karışıklık matrisi üzerinden görünür hale gelmiştir. Cohen kappa değerleri, aynı şansa göre düzeltilmiş yapıya sahip MCC ile aynı yönde hareket ederek bu operating-point yorumunu desteklemiştir. Graph C GATv2'nin Graph C GCN'ye göre doğru negatif sayısını artırması, target context feature'larının maskelenmesiyle model davranışının bozulması ve family-aware encoder varyantlarının daha yüksek specificity üretmesi bu model-davranışı kanıt zincirini oluşturmuştur (Çizelge~\ref{tab:attention-sonuclari}; Çizelge~\ref{tab:graphc-mekanizma}; Çizelge~\ref{tab:family-aware-context}). Bu zincir biyolojik mekanizma kanıtı olarak değil, aynı değerlendirme sözleşmesi altında gözlenen model davranışı olarak yorumlanmıştır.
 
 Üçüncü olarak, context bilgisinin nasıl temsil edildiği sonuçları belirgin biçimde etkilemiştir. Deneysel epigenetik özellikler Graph A candidate-edge düzeyinde tek başına en güçlü feature-family olmamış, ancak Graph C target-observation düğümünde maskelendiğinde model davranışı ciddi biçimde bozulmuştur (Çizelge~\ref{tab:feature-family-ablation}; Çizelge~\ref{tab:target-context-mask}). Bu ayrım, epigenetik context'in değerinin feature varlığı ve çizge semantiği birlikte dikkate alınarak değerlendirilmesi gerektiğini göstermektedir.
 

@@ -170,9 +170,12 @@
 \renewcommand{\cftloftitlefont}{\bfseries\normalsize}
 \renewcommand{\cftlottitlefont}{\bfseries\normalsize}
 \renewcommand{\cfttoctitlefont}{\bfseries\normalsize}
+% ÇİZELGE ve ŞEKİL listelerinde sayfa numaraları koyu (BTÜ şablon biçimi).
+\renewcommand{\cftfigpagefont}{\bfseries}
+\renewcommand{\cfttabpagefont}{\bfseries}
 \renewcommand{\cftaftertoctitle}{\hfill\mbox{}\par\vspace{18pt}\hfill\underline{Sayfa}\par\vspace{6pt}}
-\renewcommand{\cftafterloftitle}{\hfill\mbox{}\par\vspace{18pt}\hfill\underline{Sayfa}\par\vspace{6pt}}
-\renewcommand{\cftafterlottitle}{\hfill\mbox{}\par\vspace{18pt}\hfill\underline{Sayfa}\par\vspace{6pt}}
+\renewcommand{\cftafterloftitle}{\hfill\mbox{}\par\vspace{18pt}\hfill\underline{\textbf{Sayfa}}\par\vspace{6pt}}
+\renewcommand{\cftafterlottitle}{\hfill\mbox{}\par\vspace{18pt}\hfill\underline{\textbf{Sayfa}}\par\vspace{6pt}}
 
 % Keep list entries single-spaced.
 \pretocmd{\tableofcontents}{\begingroup\singlespacing\sloppy\setlength{\emergencystretch}{2em}\setlength{\parskip}{0pt}}{}{}
@@ -196,7 +199,7 @@
 \newenvironment{BTUabbr}[1]{%
   \BTUfrontheading{#1}\addcontentsline{toc}{chapter}{#1}%
   \singlespacing\setlength{\parskip}{0pt}%
-  \begin{tabular}{@{}>{\bfseries}p{3.2cm}@{ {\bfseries :} }p{10.8cm}@{}}%
+  \begin{tabular}{@{}>{\bfseries\boldmath}p{3.2cm}@{ {\bfseries :} }p{10.8cm}@{}}%
 }{\end{tabular}\onehalfspacing}
 
 % --- Title metadata defaults. Override in metadata.tex. ---
