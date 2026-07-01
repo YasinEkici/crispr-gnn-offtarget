@@ -1,21 +1,30 @@
 # Poster Print and Accessibility Review
 
-This document is the Slice 8 print and accessibility pass for the current thesis-poster working draft. It reviews the LaTeX fit-check source and SVG assets for print legibility, text density, contrast, grayscale/colorblind resilience, Turkish rendering risk, and caveat visibility.
+This document is the Slice 8 print and accessibility pass for the thesis-poster working draft. It originally reviewed the legacy LaTeX fit-check source and SVG assets for print legibility, text density, contrast, grayscale/colorblind resilience, Turkish rendering risk, and caveat visibility.
 
-This is not a final design approval. The LaTeX fit-check has not been compiled in the current environment, so this review is source-based rather than a measured PDF/print inspection.
+Status note after the BTÜ template transfer: the active school-template draft is now `docs/poster/drafts/btu_school_template/poster.tex`, with proof PDF at `docs/poster/drafts/btu_school_template/poster.pdf`. The active draft has been compiled with Tectonic and visually previewed as a 70x100 cm one-page PDF, but this is still not a final design approval or physical print proof.
 
 Status values:
 
-- `pass` - acceptable for the current working draft.
+- `pass` - acceptable for the active BTÜ working draft.
 - `watch` - acceptable for fit-checking, but must be checked after compilation/export.
 - `fix-needed` - should be changed before final export or a higher-fidelity draft.
 
 ## 1. Scope
 
-Reviewed files:
+Current active draft:
+
+- `docs/poster/drafts/btu_school_template/poster.tex`
+- `docs/poster/drafts/btu_school_template/poster.pdf`
+- `docs/poster/drafts/btu_school_template/README.md`
+
+Legacy fit-check reference:
 
 - `docs/poster/drafts/latex_fit_check/poster_fit_check.tex`
 - `docs/poster/drafts/latex_fit_check/README.md`
+
+Shared figure/source assets:
+
 - `docs/poster/assets/fig01_measured_only_funnel.svg`
 - `docs/poster/assets/fig02_graph_abc_semantic_comparison.svg`
 - `docs/poster/assets/fig03_two_axis_results.svg`
@@ -36,19 +45,20 @@ Out of scope:
 
 Overall status: `watch`
 
-The current draft follows the intended Apple-like / keynote-inspired discipline: clean off-white surface, restrained palette, large visual anchors, low body-text density, and visible section hierarchy. It is suitable as a planning fit-check.
+The active BTÜ draft now follows the school-provided header/footer and boxed-section structure while preserving the locked poster content. It is suitable as a planning and layout-working draft, but not yet print-approved.
 
-Before a higher-fidelity poster or final export, three items need attention:
+Before a higher-fidelity poster or final export, these items need attention:
 
-1. The exact honesty caveat is duplicated between `fig03_two_axis_results.svg` and `poster_fit_check.tex`; keep one visible occurrence inside the results band.
-2. The SVG assets must be checked after actual import/compilation because text inside SVGs may shrink or render differently.
-3. Turkish characters must be verified in the final production environment, especially if the draft is compiled through LaTeX/SVG conversion.
+1. The SVG assets must be checked after any redraw/import/compilation because text inside SVGs may shrink or render differently.
+2. Turkish characters must be verified in the final production environment, especially if the draft is compiled through LaTeX/SVG conversion.
+3. Student number and email placeholders must be filled before final export.
+4. The exact honesty caveat must remain visually present once inside the results band if the results block is redrawn.
 
 ## 3. Print legibility
 
 | Item | Status | Review note |
 | --- | --- | --- |
-| 70x100 cm portrait canvas | `pass` | `poster_fit_check.tex` uses `paperwidth=70cm,paperheight=100cm`. |
+| 70x100 cm portrait canvas | `pass` | `btu_school_template/poster.tex` uses `paperwidth=70cm,paperheight=100cm`; compiled proof is one page. |
 | Main title hierarchy | `watch` | The title is large in source, but it is long and may become a three-line block after real compilation. Final title remains deferred. |
 | Section headings | `pass` | Source uses large section commands and short headings. |
 | Body text density | `pass` | Body text is mostly short and visual-led; no thesis paragraphs dominate the draft. |
@@ -113,19 +123,14 @@ Final check:
 
 ## 7. Caveat visibility
 
-Status: `fix-needed`
+Status: `watch`
 
-The caveats are visible, but the exact honesty caveat currently appears twice:
+The active BTÜ draft keeps the exact honesty caveat visually in the results block as the layout-owned `Okuma.` line. The older legacy fit-check had a duplicate LaTeX-level caveat; that should not be reintroduced.
 
-- inside `fig03_two_axis_results.svg`;
-- as a LaTeX-level `\Caveat{...}` block under the results band in `poster_fit_check.tex`.
-
-Required fix before a higher-fidelity integrated draft:
+Required check before a higher-fidelity integrated draft:
 
 - Keep the exact honesty caveat once, inside the results band.
-- Prefer one of these approaches:
-  - keep it in `fig03` and remove the LaTeX-level duplicate;
-  - remove it from `fig03` and keep the LaTeX-level callout directly under the result visuals.
+- If the results block is redrawn, preserve the exact wording in a single layout-owned result callout.
 
 Other caveats:
 
@@ -160,27 +165,25 @@ Final check:
 | --- | --- | --- |
 | `fig01_measured_only_funnel.svg` | `watch` | Large numbers and labels are strong. Check whether the bottom measured-only caveat remains readable after scaling. |
 | `fig02_graph_abc_semantic_comparison.svg` | `watch` | Good visual hierarchy. Check Graph A/B/C captions after scaling; they carry important semantic and no-causality boundaries. |
-| `fig03_two_axis_results.svg` | `fix-needed` | Strong axis split, but exact honesty caveat duplication must be resolved at the integrated-draft level. Check no-skill baseline line does not read as a real PR curve unless intentionally styled that way. |
+| `fig03_two_axis_results.svg` | `watch` | Strong axis split. Active draft should keep the exact honesty caveat once. Check no-skill baseline line does not read as a real PR curve unless intentionally styled that way. |
 | `fig04_tn169_rare_negative_recognition.svg` | `watch` | Strong shared-denominator visual. Check bar labels and seed/guide caveat at final scale. |
 | `fig05_literature_ab_positioning.svg` | `watch` | Qualitative panel is claim-safe. Check lower caveat and small axis labels after scaling. |
 
-## 10. Apple-like / keynote-inspired discipline
+## 10. BTÜ template discipline
 
 Status: `pass`
 
-The draft follows the intended design discipline:
+The active draft follows the school-template discipline:
 
-- spacious 70x100 portrait composition;
-- large hero and result visuals;
-- restrained palette;
-- low text density;
-- no many-box academic grid;
-- caveats shown as calm scientific boundaries rather than alarm boxes;
-- figures carry most of the explanation.
+- fixed 70x100 portrait composition;
+- BTÜ header and footer;
+- bordered section containers with blue title bars;
+- identifiable academic sections;
+- numbered figure captions.
 
 Watch item:
 
-- If later edits add more text, the design can quickly slide back into a dense academic poster. Cut text before shrinking caveats.
+- If later edits add more text, the design can quickly become too dense. Cut text before shrinking caveats or footers.
 
 ## 11. BTU section visibility
 
@@ -200,23 +203,22 @@ Watch item:
 
 ## 12. Final export risks to carry forward
 
-Carry these risks into Slice 9:
+Carry these risks into final export work:
 
-- No compiled PDF was available in this environment.
 - No physical print proof was inspected.
-- SVG-to-LaTeX rendering may alter fonts, line breaks, and caveat size.
-- The exact honesty caveat is duplicated and must be reduced to one visual occurrence.
+- Any later SVG import or external figure replacement may alter fonts, line breaks, and caveat size.
 - Candidate title is used for fit-checking but remains deferred.
 - Grayscale and colorblind checks still require an actual export.
 - Footer/reference readability is not verified.
+- Student number and email placeholders remain unfilled.
 
 ## 13. Pre-export checklist
 
 Before final export or handoff:
 
-- [ ] Compile or export one full 70x100 cm proof.
+- [x] Compile or export one full 70x100 cm proof for the active BTÜ draft.
 - [ ] Verify Turkish character rendering.
-- [ ] Ensure the exact honesty caveat appears once, inside results.
+- [x] Ensure the exact honesty caveat appears once, inside results, in the active BTÜ draft.
 - [ ] Confirm `0.900705` reads as no-skill PR baseline, not floor.
 - [ ] Confirm TN/169 bars remain readable and do not imply a global model win.
 - [ ] Confirm seed/guide caveat is readable near the operating-point visual.
@@ -226,8 +228,8 @@ Before final export or handoff:
 - [ ] Check colorblind distinguishability.
 - [ ] Check title, section heads, figure labels, metric labels, captions, and caveats at print scale.
 - [ ] Cut text before shrinking caveats.
-- [ ] Keep production-tool decision documented separately from this fit-check.
+- [ ] Keep final production-tool confirmation documented separately from this working draft.
 
 ## 14. Recommended next action
 
-Before Slice 9 final export handoff, fix the duplicated honesty caveat in the integrated draft and produce a real exported proof from whichever tool is used next. If LaTeX remains only a fit-check, the same review checklist should be applied to the Canva or slides version.
+Before final export handoff, continue from `docs/poster/drafts/btu_school_template/poster.tex`, fill footer placeholders, tune figure scale/text density, and run a print-scale proof review.

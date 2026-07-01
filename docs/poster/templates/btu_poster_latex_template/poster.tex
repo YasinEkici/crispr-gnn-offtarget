@@ -1,0 +1,231 @@
+% Bursa Teknik Üniversitesi - Bilgisayar Mühendisliği Bitirme Projesi Poster Şablonu
+% Tectonic/XeLaTeX uyumlu 70 x 100 cm LaTeX poster template
+% Kaynak PPTX'teki tasarım, 70x100 cm fiziksel poster ölçüsüne ölçeklenerek yeniden kurulmuştur.
+
+\documentclass{article}
+\usepackage[paperwidth=70cm,paperheight=100cm,margin=0cm]{geometry}
+\usepackage{fontspec}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{xfp}
+\usepackage{tikz}
+\usepackage{array}
+\usepackage{ragged2e}
+\usetikzlibrary{calc}
+\pagestyle{empty}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.35em}
+
+% -----------------------------------------------------------------------------
+% Font ayarları
+% PPTX'te üst başlık Arimo Bold; gövde/başlıklar Aptos/Calibri ailesi görünüyor.
+% Calibri lisanslı bir Microsoft fontudur; sistemde yoksa Calibri'ye metrik olarak yakın
+% Carlito kullanılır. Aptos yoksa Noto Sans/TeX Gyre Heros'a düşer.
+% -----------------------------------------------------------------------------
+\IfFontExistsTF{Arimo}{%
+  \newfontfamily\HeaderFamily{Arimo}[BoldFont={Arimo Bold},Ligatures=TeX]
+}{%
+  \IfFontExistsTF{Arial}{\newfontfamily\HeaderFamily{Arial}[Ligatures=TeX]}{\newfontfamily\HeaderFamily{TeX Gyre Heros}[Ligatures=TeX]}
+}
+\IfFontExistsTF{Aptos}{%
+  \newfontfamily\AptosFamily{Aptos}[Ligatures=TeX]
+}{%
+  \IfFontExistsTF{Noto Sans}{\newfontfamily\AptosFamily{Noto Sans}[Ligatures=TeX]}{\newfontfamily\AptosFamily{TeX Gyre Heros}[Ligatures=TeX]}
+}
+\IfFontExistsTF{Calibri}{%
+  \newfontfamily\CalibriFamily{Calibri}[Ligatures=TeX]
+}{%
+  \IfFontExistsTF{Carlito}{\newfontfamily\CalibriFamily{Carlito}[Ligatures=TeX]}{\newfontfamily\CalibriFamily{TeX Gyre Heros}[Ligatures=TeX]}
+}
+\IfFontExistsTF{Aptos}{\setmainfont{Aptos}[Ligatures=TeX]}{%
+  \IfFontExistsTF{Noto Sans}{\setmainfont{Noto Sans}[Ligatures=TeX]}{\setmainfont{TeX Gyre Heros}[Ligatures=TeX]}
+}
+
+% -----------------------------------------------------------------------------
+% Kullanıcı bilgileri - burayı değiştirmen yeterli.
+% -----------------------------------------------------------------------------
+\newcommand{\UniversityName}{Bursa Teknik Üniversitesi}
+\newcommand{\DepartmentName}{Bilgisayar Mühendisliği}
+\newcommand{\ProjectTitle}{Projenizin İsmini Giriniz}
+\newcommand{\ProjectSubtitle}{Proje ismi 50-60 punto arasında yazılabilir.}
+
+\newcommand{\StudentName}{Öğrenci Ad Soyad}
+\newcommand{\StudentNumber}{Öğrenci Numara}
+\newcommand{\StudentEmail}{xxx@yyy.com}
+\newcommand{\AdvisorName}{Danışman Ünvan Ad Soyad}
+\newcommand{\AdvisorEmail}{xxx@yyy.com}
+\newcommand{\EventText}{BİLGİSAYAR MÜHENDİSLİĞİ BÖLÜMÜ BİTİRME PROJESİ SERGİSİ -- Temmuz 2026}
+
+% -----------------------------------------------------------------------------
+% Renkler ve tipografi
+% -----------------------------------------------------------------------------
+\definecolor{BTUBlue}{HTML}{003066}
+\definecolor{PlaceholderGray}{HTML}{F3F3F3}
+\definecolor{PlaceholderLine}{HTML}{B7B7B7}
+
+\newcommand{\TitleBarHeight}{2.85} % cm
+\newcommand{\HeaderHeight}{13.34}  % cm
+
+% Kaynak PPTX A1 ölçeğinde duruyor; 70x100 cm fiziksel postere birebir görünüm için
+% fontlar varsayılan olarak aynı oranla büyütülür. Tam PPT nokta değerlerini kullanmak
+% istersen: \renewcommand{\PosterFontScale}{1.0}
+\newcommand{\PosterFontScale}{1.185}
+\newcommand{\ScaledPt}[1]{\fpeval{round((#1)*\PosterFontScale,2)}pt}
+
+\newcommand{\UniversityFont}{\HeaderFamily\bfseries\fontsize{\ScaledPt{38.65}}{\ScaledPt{43}}\selectfont}
+\newcommand{\DepartmentFont}{\HeaderFamily\bfseries\fontsize{\ScaledPt{35.65}}{\ScaledPt{40}}\selectfont}
+\newcommand{\ProjectTitleFont}{\HeaderFamily\bfseries\fontsize{\ScaledPt{60}}{\ScaledPt{66}}\selectfont}
+\newcommand{\ProjectSubtitleFont}{\HeaderFamily\bfseries\fontsize{\ScaledPt{50}}{\ScaledPt{56}}\selectfont}
+\newcommand{\BlockTitleFont}{\AptosFamily\bfseries\fontsize{\ScaledPt{38.14}}{\ScaledPt{42}}\selectfont}
+\newcommand{\BodyFont}{\CalibriFamily\fontsize{\ScaledPt{20}}{\ScaledPt{22.6}}\selectfont}
+\newcommand{\CaptionFont}{\CalibriFamily\fontsize{\ScaledPt{16.95}}{\ScaledPt{18.6}}\selectfont}
+\newcommand{\FooterInfoFont}{\AptosFamily\fontsize{\ScaledPt{25.45}}{\ScaledPt{29}}\selectfont}
+\newcommand{\FooterEventFont}{\AptosFamily\fontsize{\ScaledPt{21.45}}{\ScaledPt{25}}\selectfont}
+\newcommand{\TinyPlaceholderFont}{\AptosFamily\fontsize{\ScaledPt{18}}{\ScaledPt{21}}\selectfont}
+
+% -----------------------------------------------------------------------------
+% Poster yerleşim yardımcıları
+% Koordinat sistemi: sol üst köşe (0,0), sağ alt köşe (70,100), birim cm.
+% -----------------------------------------------------------------------------
+
+\newcommand{\Coord}[2]{([xshift=#1cm,yshift=-#2cm]current page.north west)}
+
+\newcommand{\PosterBlock}[7][\centering]{%
+  % #1 hizalama komutu: \centering, \raggedright, \justifying vb.
+  % #2 x, #3 y, #4 genişlik, #5 gövde yüksekliği, #6 başlık, #7 içerik
+  \pgfmathsetmacro{\rightX}{#2 + #4}%
+  \pgfmathsetmacro{\midX}{#2 + #4/2}%
+  \pgfmathsetmacro{\barBottomY}{#3 + \TitleBarHeight}%
+  \pgfmathsetmacro{\barMidY}{#3 + \TitleBarHeight/2}%
+  \pgfmathsetmacro{\bodyBottomY}{\barBottomY + #5}%
+  \pgfmathsetmacro{\bodyX}{#2 + 0.55}%
+  \pgfmathsetmacro{\bodyY}{\barBottomY + 0.45}%
+  \pgfmathsetmacro{\bodyW}{#4 - 1.10}%
+  \pgfmathsetmacro{\bodyH}{#5 - 0.80}%
+  \fill[BTUBlue] \Coord{#2}{#3} rectangle \Coord{\rightX}{\barBottomY};
+  \node[anchor=center,text=white,align=center] at \Coord{\midX}{\barMidY} {\BlockTitleFont #6};
+  \draw[black,line width=0.55pt] \Coord{#2}{\barBottomY} rectangle \Coord{\rightX}{\bodyBottomY};
+  \node[anchor=north west,inner sep=0pt] at \Coord{\bodyX}{\bodyY} {%
+    \begin{minipage}[t][\bodyH cm][t]{\bodyW cm}
+      #1\BodyFont
+      #7
+    \end{minipage}%
+  };
+}
+
+\newcommand{\FigureSlot}[6]{%
+  % #1 x, #2 y, #3 genişlik, #4 yükseklik, #5 şekil no, #6 açıklama
+  \pgfmathsetmacro{\rightX}{#1 + #3}%
+  \pgfmathsetmacro{\bottomY}{#2 + #4}%
+  \pgfmathsetmacro{\midX}{#1 + #3/2}%
+  \pgfmathsetmacro{\midY}{#2 + #4/2}%
+  \pgfmathsetmacro{\capY}{#2 + #4 + 0.30}%
+  \fill[PlaceholderGray] \Coord{#1}{#2} rectangle \Coord{\rightX}{\bottomY};
+  \draw[PlaceholderLine,line width=0.55pt] \Coord{#1}{#2} rectangle \Coord{\rightX}{\bottomY};
+  \node[anchor=center,align=center,text=black!45] at \Coord{\midX}{\midY} {\TinyPlaceholderFont Şekil / grafik alanı};
+  \node[anchor=north west,inner sep=0pt,text width=#3 cm,align=center] at \Coord{#1}{\capY} {\CaptionFont\textbf{Şekil #5.} #6};
+}
+
+\newcommand{\ImageWithCaption}[7]{%
+  % #1 x, #2 y, #3 genişlik, #4 yükseklik, #5 dosya yolu, #6 şekil no, #7 açıklama
+  \node[anchor=north west,inner sep=0pt] at \Coord{#1}{#2} {\includegraphics[width=#3 cm,height=#4 cm,keepaspectratio]{#5}};
+  \pgfmathsetmacro{\capY}{#2 + #4 + 0.30}%
+  \node[anchor=north west,inner sep=0pt,text width=#3 cm,align=center] at \Coord{#1}{\capY} {\CaptionFont\textbf{Şekil #6.} #7};
+}
+
+\newcommand{\TableCaption}[5]{%
+  % #1 x, #2 y, #3 genişlik, #4 tablo no, #5 açıklama
+  \node[anchor=north west,inner sep=0pt,text width=#3 cm,align=center] at \Coord{#1}{#2} {\CaptionFont\textbf{Tablo #4.} #5};
+}
+
+\newcommand{\TablePlaceholder}[4]{%
+  % #1 x, #2 y, #3 genişlik, #4 yükseklik
+  \pgfmathsetmacro{\rightX}{#1 + #3}%
+  \pgfmathsetmacro{\bottomY}{#2 + #4}%
+  \pgfmathsetmacro{\rowH}{#4/6}%
+  \pgfmathsetmacro{\colW}{#3/4}%
+  \pgfmathsetmacro{\headerY}{#2 + \rowH}%
+  \fill[BTUBlue] \Coord{#1}{#2} rectangle \Coord{\rightX}{\headerY};
+  \draw[black!45,line width=0.55pt] \Coord{#1}{#2} rectangle \Coord{\rightX}{\bottomY};
+  \foreach \i in {1,2,3} {\pgfmathsetmacro{\xline}{#1 + \i*\colW}\draw[black!45,line width=0.45pt] \Coord{\xline}{#2} -- \Coord{\xline}{\bottomY};}
+  \foreach \j in {1,2,3,4,5} {\pgfmathsetmacro{\yline}{#2 + \j*\rowH}\draw[black!45,line width=0.45pt] \Coord{#1}{\yline} -- \Coord{\rightX}{\yline};}
+  \pgfmathsetmacro{\headMidY}{#2 + 0.5*\rowH}%
+  \foreach \c/\txt in {1/Başlık,2/Başlık,3/Başlık} {\pgfmathsetmacro{\xmid}{#1 + (\c + 0.5)*\colW}\node[anchor=center,text=white] at \Coord{\xmid}{\headMidY} {\BodyFont \txt};}
+  \foreach \r in {1,...,5} {\pgfmathsetmacro{\ymid}{#2 + (\r+0.5)*\rowH}\pgfmathsetmacro{\xmid}{#1 + 0.5*\colW}\node[anchor=center,text=black] at \Coord{\xmid}{\ymid} {\BodyFont Değer};}
+}
+
+\begin{document}
+\begin{tikzpicture}[remember picture,overlay]
+  % ---------------------------------------------------------------------------
+  % Üst başlık alanı
+  % ---------------------------------------------------------------------------
+  \fill[BTUBlue] \Coord{0}{0} rectangle \Coord{70}{\HeaderHeight};
+  \node[anchor=north west,inner sep=0pt] at \Coord{1.65}{1.30} {\includegraphics[width=10.70cm,height=10.70cm,keepaspectratio]{assets/btu-symbol.png}};
+  \node[anchor=north east,inner sep=0pt] at \Coord{68.35}{1.30} {\includegraphics[width=10.70cm,height=10.70cm,keepaspectratio]{assets/btu-symbol.png}};
+  \node[anchor=north,align=center,text=white] at \Coord{35}{0.56} {{\UniversityFont \UniversityName}\\[0.18cm]{\DepartmentFont \DepartmentName}};
+  \node[anchor=north,align=center,text=white] at \Coord{35}{6.10} {{\ProjectTitleFont \ProjectTitle}\\[0.25cm]{\ProjectSubtitleFont \ProjectSubtitle}};
+
+  % ---------------------------------------------------------------------------
+  % Ana poster kutuları
+  % İçerikleri burada doldurabilirsin. Boş bırakınca sadece şablon kutusu görünür.
+  % Hizalama için örnek: \PosterBlock[\raggedright]{...}{...}
+  % ---------------------------------------------------------------------------
+  \PosterBlock{3.83}{14.33}{19.54}{22.18}{Özet}{%
+    % Özet metni buraya.
+  }
+
+  \PosterBlock{25.28}{14.33}{19.54}{22.18}{Metot}{%
+    % Metot metni buraya.
+  }
+
+  \FigureSlot{47.05}{14.55}{19.50}{23.50}{3}{Grafik adı. 17 pt Calibri.}
+
+  \PosterBlock{3.83}{40.25}{19.51}{38.29}{Giriş ve Amaç}{%
+    % Giriş ve amaç metni buraya.
+  }
+
+  \PosterBlock{25.44}{40.29}{19.57}{29.99}{Sonuçlar}{%
+    % Sonuçlar metni buraya.
+  }
+
+  \PosterBlock{47.05}{40.25}{19.57}{25.03}{Tartışma}{%
+    % Tartışma metni buraya.
+  }
+
+  \PosterBlock{47.10}{69.74}{19.45}{20.25}{Referanslar}{%
+    % Örnek kullanım:
+    % [1] Kaynak bilgisi.\\[0.4em]
+    % [2] Kaynak bilgisi.
+  }
+
+  % ---------------------------------------------------------------------------
+  % Şekil ve tablo alanları - istersen silip/kopyalayıp taşıyabilirsin.
+  % Gerçek görsel kullanmak için FigureSlot yerine ImageWithCaption komutunu kullan:
+  % \ImageWithCaption{3.95}{82.55}{9.00}{8.90}{assets/dosyan.png}{1}{Şekil yazısı.}
+  % ---------------------------------------------------------------------------
+  \FigureSlot{3.95}{82.55}{9.00}{8.75}{1}{Şekil yazısı. 17pt Calibri}
+  \FigureSlot{13.55}{82.55}{9.00}{8.75}{2}{Şekil yazısı. 17pt-Calibri.}
+
+  \TableCaption{25.75}{73.35}{18.70}{1}{Tablo adı. 17pt Calibri.}
+  \TablePlaceholder{25.45}{76.00}{19.55}{16.85}
+
+  % ---------------------------------------------------------------------------
+  % Alt bilgi alanı
+  % ---------------------------------------------------------------------------
+  \draw[BTUBlue,line width=2.1pt] \Coord{0}{94.22} -- \Coord{70}{94.22};
+  \node[anchor=north west,align=left,text=black] at \Coord{4.54}{94.90} {%
+    \begin{tabular}{@{}l@{}}
+      {\FooterInfoFont \StudentName}\\
+      {\FooterInfoFont \StudentNumber}\\
+      {\FooterInfoFont Email: \StudentEmail}
+    \end{tabular}%
+  };
+  \node[anchor=north west,align=left,text=black] at \Coord{54.35}{94.83} {%
+    \begin{tabular}{@{}l@{}}
+      {\FooterInfoFont \AdvisorName}\\[1.05cm]
+      {\FooterInfoFont Email: \AdvisorEmail}
+    \end{tabular}%
+  };
+  \node[anchor=north,align=center,text=black] at \Coord{35}{98.52} {\FooterEventFont \EventText};
+\end{tikzpicture}
+\end{document}

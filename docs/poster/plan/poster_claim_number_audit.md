@@ -1,19 +1,29 @@
 # Poster Claim and Number Audit
 
-This document is the Slice 7 claim-boundary and number audit for the current poster working draft. It audits the low-fidelity LaTeX fit-check and SVG assets, not a final production poster.
+This document is the Slice 7 claim-boundary and number audit. It originally audited the legacy low-fidelity LaTeX fit-check and SVG assets, not a final production poster.
+
+Status note after the BTÜ template transfer: the active school-template draft is now `docs/poster/drafts/btu_school_template/poster.tex`. The legacy `docs/poster/drafts/latex_fit_check/poster_fit_check.tex` remains a historical content-fit reference. Current design/layout work should continue from the BTÜ draft and use `docs/poster/plan/poster_copy_deck.md` as the Turkish text source of truth.
 
 Status values:
 
-- `pass` - acceptable for the current working draft.
+- `pass` - acceptable for the active BTÜ working draft.
 - `watch` - acceptable for fit-checking, but should be revisited before final production.
 - `fix-needed` - should be changed before any higher-fidelity poster draft.
 
 ## 1. Scope
 
-Audited files:
+Current active draft:
+
+- `docs/poster/drafts/btu_school_template/poster.tex`
+- `docs/poster/drafts/btu_school_template/README.md`
+
+Legacy fit-check reference:
 
 - `docs/poster/drafts/latex_fit_check/poster_fit_check.tex`
 - `docs/poster/drafts/latex_fit_check/README.md`
+
+Shared figure/source assets:
+
 - `docs/poster/assets/fig01_measured_only_funnel.svg`
 - `docs/poster/assets/fig02_graph_abc_semantic_comparison.svg`
 - `docs/poster/assets/fig03_two_axis_results.svg`
@@ -42,20 +52,20 @@ Out of scope:
 
 Overall status: `watch`
 
-The current fit-check is scientifically usable as a working draft: the main claim boundary is preserved, AUPRC and operating-point evidence are separated, numbers come from the approved anchor pool, and literature positioning avoids a raw-score leaderboard.
+The active BTÜ school-template draft is scientifically usable as a working draft: the main claim boundary is preserved, AUPRC and operating-point evidence are separated, numbers come from the approved anchor pool, and literature positioning avoids a raw-score leaderboard.
 
-The main issue is not a scientific claim violation but a production-readiness issue: the exact honesty caveat appears both inside `fig03_two_axis_results.svg` and again as a separate LaTeX caveat in `poster_fit_check.tex`. Before a higher-fidelity draft, keep the caveat visually present once inside the results band.
+The legacy fit-check duplicated the exact honesty caveat between `fig03_two_axis_results.svg` and `poster_fit_check.tex`. The active BTÜ draft keeps the exact honesty caveat visually present once, inside the results band, currently as the layout-owned `Okuma.` line.
 
 ## 3. Claim-boundary checklist
 
 | Check | Status | Audit note |
 | --- | --- | --- |
 | No robust AUPRC superiority over XGBoost F4 | `pass` | The draft says XGBoost F4 remains the AUPRC bar and includes `"AUPRC üstünlüğü iddia edilmedi."` |
-| Exact honesty caveat inside results | `watch` | Present in the result area, but duplicated between `fig03_two_axis_results.svg` and `poster_fit_check.tex`. Keep one visual occurrence later. |
+| Exact honesty caveat inside results | `pass` | Active BTÜ draft keeps the exact caveat once as the layout-owned `Okuma.` line. Re-check after any results redraw or cleanup. |
 | AUPRC remains primary ranking metric | `pass` | `fig03` labels `"Sıralama (AUPRC)"` as the primary ranking metric. |
-| MCC/specificity framed as operating-point evidence | `pass` | `poster_fit_check.tex`, `fig03`, `fig04`, and `figure_sources.md` frame MCC/specificity as decision-threshold / operating-point evidence. |
+| MCC/specificity framed as operating-point evidence | `pass` | Active BTÜ draft, `fig03`, `fig04`, and `figure_sources.md` frame MCC/specificity as decision-threshold / operating-point evidence. |
 | Operating-point gains marked seed/guide-fragile | `pass` | `fig04` and the LaTeX limits block state validation-locked and seed/guide sensitivity. |
-| `0.900705` labeled no-skill PR baseline, not floor | `pass` | `fig03`, `poster_fit_check.tex`, README, and `figure_sources.md` use no-skill baseline wording and explicitly avoid floor wording. |
+| `0.900705` labeled no-skill PR baseline, not floor | `pass` | Active BTÜ draft, legacy `fig03`, README, and `figure_sources.md` use no-skill baseline wording and explicitly avoid floor wording. |
 | `measured=0` not treated as validation/test ground truth | `pass` | `fig01` states `"Doğrulanmamış adaylar (measured=0) test etiketi yapılmadı."` |
 | No biological-causality claim from model internals or graph arrows | `pass` | `fig02` and the limits block state representation/model behavior only, not biological causality. |
 | No "sequence models fail" generalization | `pass` | No such phrasing appears in the audited draft/assets. |
@@ -70,11 +80,11 @@ The following scientific poster numbers appear in the audited files and are in t
 | --- | --- | --- | --- |
 | `310142 -> 25632 -> 1702` | `fig01`, `figure_sources.md` | Universe -> measured-only -> test | `pass` |
 | `29` guides | `fig01`, `figure_sources.md` | Test composition | `pass` |
-| `1533` positives | `fig01`, `poster_fit_check.tex`, `figure_sources.md` | Test composition | `pass` |
-| `169` negatives | `fig01`, `fig03`, `fig04`, `poster_fit_check.tex`, `figure_sources.md` | Test composition / TN denominator | `pass` |
-| `9` guides with negatives | `poster_fit_check.tex` | Negative concentration | `pass` |
-| `80` in guide `9251` | `poster_fit_check.tex` | Negative concentration | `pass` |
-| `0.900705` | `fig03`, `poster_fit_check.tex`, README, `figure_sources.md` | No-skill PR baseline | `pass` |
+| `1533` positives | `fig01`, active BTÜ draft via `fig01`, `figure_sources.md` | Test composition | `pass` |
+| `169` negatives | `fig01`, `fig03`, `fig04`, active BTÜ draft, `figure_sources.md` | Test composition / TN denominator | `pass` |
+| `9` guides with negatives | active BTÜ draft | Negative concentration | `pass` |
+| `80` in guide `9251` | active BTÜ draft | Negative concentration | `pass` |
+| `0.900705` | active BTÜ draft, legacy `fig03`, README, `figure_sources.md` | No-skill PR baseline | `pass` |
 | `0.992338` | `fig03`, `figure_sources.md` | XGBoost F4 regenerated AUPRC | `pass` |
 | `[0.950179, 0.999336]` | `fig03`, `figure_sources.md` | XGBoost F4 guide-cluster interval | `pass` |
 | `0.986020` | `fig03`, `figure_sources.md` | S8B_R2 AUPRC | `pass` |
@@ -87,14 +97,14 @@ Numbers that appear only as layout, SVG, LaTeX, typography, dimensions, colors, 
 
 ## 5. File-by-file audit
 
-### `poster_fit_check.tex`
+### `docs/poster/drafts/btu_school_template/poster.tex`
 
 Status: `watch`
 
 Passes:
 
 - Uses 70x100 cm portrait as a fit-check canvas.
-- Keeps production tool non-binding in the footer.
+- Uses the BTÜ header/footer and school-template section boxes.
 - Places Graph C, measured-only funnel, two-axis results, TN/169 visual, literature panel, contribution chips, and limits in one integrated surface.
 - Separates AUPRC from MCC/specificity.
 - Labels `0.900705` as no-skill PR baseline, not a floor.
@@ -102,9 +112,15 @@ Passes:
 
 Watch items:
 
-- The exact honesty caveat is repeated because `fig03_two_axis_results.svg` already contains it. Keep only one occurrence in the final integrated design.
+- The exact honesty caveat currently lives in the results block's `Okuma.` line; keep it visually present once if the results block is redrawn.
 - The title currently uses a candidate title as if selected. This is acceptable for fit-checking, but the final title remains deferred.
-- LaTeX was not compiled in the current environment; visual overlap and print legibility remain for Slice 8.
+- Student number and email footer fields remain placeholders.
+
+### `poster_fit_check.tex` legacy reference
+
+Status: `watch` (legacy reference only)
+
+The earlier fit-check remains useful only as a content-fit reference. It is no longer the active draft path.
 
 ### `fig01_measured_only_funnel.svg`
 
@@ -197,7 +213,7 @@ Watch items:
 
 Fix-needed:
 
-1. Keep the exact honesty caveat visually present once inside the results band. Current fit-check repeats it in `fig03_two_axis_results.svg` and `poster_fit_check.tex`.
+1. Keep the exact honesty caveat visually present once inside the results band if `fig03` is redrawn or the results block is rebuilt.
 
 No scientific-number fixes are required based on this audit.
 
@@ -224,6 +240,6 @@ These are not claim failures, but they should be checked in the print/accessibil
 - [x] Literature positioning is qualitative only.
 - [x] No biological-causality claim appears.
 - [x] Seed/guide fragility appears near operating-point evidence.
-- [ ] Exact honesty caveat appears only once visually in the integrated draft.
+- [x] Exact honesty caveat appears only once visually in the active BTÜ integrated draft.
 
-Current recommendation: proceed to Slice 8 only after deciding whether the caveat should live inside `fig03` or as a LaTeX-level results-band callout. Do not keep both in the next integrated draft.
+Current recommendation: continue from `docs/poster/drafts/btu_school_template/poster.tex`; if the results block is redrawn, preserve the exact honesty caveat once inside the results band.

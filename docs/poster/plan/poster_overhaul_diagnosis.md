@@ -1,6 +1,8 @@
 # Poster Overhaul Diagnosis
 
-Read-only diagnostic pass on the current CRISPR-Cas9 thesis-poster fit-check. It names concrete formatting and figure problems and diagnoses their causes, judged against (a) the official BTÜ poster template's rigidly gridded formatting and (b) standard academic-poster composition. It proposes no full solutions; findings feed a later overhaul phase.
+Read-only diagnostic pass on the legacy CRISPR-Cas9 thesis-poster fit-check at `docs/poster/drafts/latex_fit_check/`. It names concrete formatting and figure problems and diagnoses their causes, judged against (a) the official BTÜ poster template's rigidly gridded formatting and (b) standard academic-poster composition. It proposes no full solutions; findings feed a later overhaul phase.
+
+Status note after the BTÜ template transfer: the active school-template draft is now `docs/poster/drafts/btu_school_template/poster.tex`. That newer draft already adopts the BTÜ header/footer and boxed section structure, so the global layout findings below explain what was wrong with the older fit-check and should be used as carry-forward design guidance, not as a literal diagnosis of the active school-template draft. The figure-level findings, especially fig02, fig03, and shared visual-system issues, still apply.
 
 This is an English planning note; poster-bound phrases are quoted in Turkish. No poster, figure, SVG, rendered PDF, or `.tex` was modified.
 
@@ -19,7 +21,7 @@ This is an English planning note; poster-bound phrases are quoted in Turkish. No
 
 **Observation.** Most content sits either inside a figure's own soft-panel background or as bare text directly on the poster background; there is no consistent section container.
 
-**Diagnosis.** Unlike the BTÜ template's uniform bordered section boxes with colored header bars, the current poster mixes framed (figure) and unframed (text) blocks, so sections have uneven visual weight and blur into each other. Severity: **Major**.
+**Diagnosis.** Unlike the BTÜ template's uniform bordered section boxes with colored header bars, the legacy fit-check mixes framed (figure) and unframed (text) blocks, so sections have uneven visual weight and blur into each other. Severity: **Major**.
 
 ## 3. Typography and text-placement diagnosis
 
@@ -79,9 +81,9 @@ This is an English planning note; poster-bound phrases are quoted in Turkish. No
 - fig03 caption uses first-person-free wording; fine. No first-person violations were seen in the figures.
 Severity: **Minor** (wording alignment only; no hard breach).
 
-## 7. Comparison table — BTÜ template vs current poster
+## 7. Comparison table — BTÜ template vs legacy fit-check
 
-| Formatting quality | BTÜ template | Current poster | Verdict |
+| Formatting quality | BTÜ template | Legacy fit-check | Verdict |
 | --- | --- | --- | --- |
 | Shared multi-column grid | rigid, everything snaps | figures self-place; columns unaligned | **fail** |
 | Section containers | uniform boxes + header bars | mixed framed/unframed | **weak** |

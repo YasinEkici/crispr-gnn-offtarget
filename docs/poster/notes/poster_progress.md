@@ -17,12 +17,13 @@ This is not poster copy, a layout plan, or a figure-production file.
 ## 2. Current status snapshot
 
 - Poster planning documents now exist under `docs/poster/`.
-- No poster production artifact has been created yet.
-- The production tool is not fixed; Canva, LaTeX/tikzposter, slides, or another tool remain possible.
+- A BTU school-template LaTeX working draft now exists at `docs/poster/drafts/btu_school_template/poster.tex`.
+- The production tool is still not finally fixed; the school-template LaTeX draft is the current working direction, not a print-approved export.
 - The thesis is finished and must not be edited for poster planning.
 - Planning documents are written in English.
 - The poster itself will be written in Turkish.
 - Poster-bound Turkish phrases stay quoted inside planning documents.
+- Turkish poster copy source of truth: `docs/poster/plan/poster_copy_deck.md`.
 
 ## 3. Planning files written
 
@@ -38,8 +39,14 @@ This is not poster copy, a layout plan, or a figure-production file.
 - `docs/poster/plan/poster_content_plan.md`
   The section-by-section content and figure plan. It maps the narrative into poster sections, figure priorities, numeric-anchor placement, claim-boundary placement, literature panel structure, text budgets, open decisions, and pre-production checklist.
 
+- `docs/poster/plan/poster_copy_deck.md`
+  The canonical Turkish copy reservoir. Future draft edits should pull from its full/short variants instead of rewriting claims inside the LaTeX file.
+
 - `docs/poster/plan/poster_execution_plan.md`
   The slice-by-slice execution tracker. It turns the planning baseline into reviewable next steps: content shortlist, figure production plan, layout brief, Turkish microcopy, figure adaptation, first draft, audit, print pass, and final handoff.
+
+- `docs/poster/drafts/btu_school_template/poster.tex`
+  The first transfer of the poster content into the BTU school-provided LaTeX poster template. It is now the active school-template draft path. It preserves the BTU header/footer and main poster sections while leaving box sizes and figure placement adjustable.
 
 ## 4. Locked narrative decisions
 
@@ -105,7 +112,7 @@ Still unresolved:
 - final title,
 - exact hero visual,
 - palette and accent colors,
-- final production tool,
+- final production tool / final confirmation that the BTU LaTeX template will be used,
 - final figure styling,
 - whether thesis figures are recolored,
 - exact placement of the literature A+B panel,
@@ -114,14 +121,15 @@ Still unresolved:
 
 ## 8. Recommended next step
 
-Recommended next step: create a focused figure-production plan for the must-have visuals.
+Recommended next step: review the BTU school-template LaTeX draft visually, then tune box sizes, figure sizes, and text density.
 
 Pragmatic sequence:
 
-1. Prepare a figure-production plan for the must-have visuals.
-2. Use that to write a low-fidelity layout draft brief with the Apple-like / keynote-inspired visual direction.
-3. Optionally create a LaTeX low-fidelity working draft only for fit-checking.
-4. Choose the production tool after the figure/content fit is clearer.
+1. Fill missing student number and email placeholders if available.
+2. Decide whether to keep the school-template LaTeX draft as the production direction.
+3. Tune section box heights and figure placements while preserving the BTU header/footer.
+4. Re-run compile and visual proof checks after every layout pass.
+5. Run claim/number and print/accessibility checks before final export.
 
 ## 9. Update rules
 
