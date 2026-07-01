@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="860" viewBox="0 0 1500 860" role="img" aria-labelledby="title desc">
+  <title id="title">Literature A+B qualitative positioning</title>
+  <desc id="desc">Qualitative literature positioning panel without raw score leaderboard.</desc>
+  <defs>
+    <style>
+      .bg { fill: #f8fafc; }
+      .ink { fill: #0f172a; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+      .muted { fill: #64748b; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+      .title { font-size: 54px; font-weight: 760; }
+      .panelTitle { font-size: 37px; font-weight: 730; }
+      .body { font-size: 28px; }
+      .caption { font-size: 25px; }
+      .panel { fill: #ffffff; stroke: #e2e8f0; stroke-width: 2; }
+      .chip { fill: #eef6ff; }
+      .chip2 { fill: #ecfeff; }
+      .line { stroke: #cbd5e1; stroke-width: 3; stroke-linecap: round; }
+      .dot { fill: #2563eb; }
+      .dot2 { fill: #0f766e; }
+      .warn { fill: #fff7ed; stroke: #fed7aa; stroke-width: 2; }
+    </style>
+  </defs>
+
+  <rect class="bg" width="1500" height="860"/>
+  <text x="80" y="92" class="ink title">Literatürde nereye oturuyor?</text>
+  <text x="80" y="138" class="muted body">Ham skor yarışı değil; soru ve sözleşme karşılaştırması.</text>
+
+  <g transform="translate(80 210)">
+    <rect x="0" y="0" width="630" height="410" rx="36" class="panel"/>
+    <text x="38" y="62" class="ink panelTitle">A: Neden doğrudan kıyaslanamaz?</text>
+    <text x="38" y="112" class="muted body">Veri, split, negatif üretimi ve prevalans farklı.</text>
+
+    <g transform="translate(42 170)">
+      <circle cx="18" cy="18" r="18" class="dot"/>
+      <text x="58" y="28" class="ink body">sızıntı kontrolü</text>
+    </g>
+    <g transform="translate(42 230)">
+      <circle cx="18" cy="18" r="18" class="dot"/>
+      <text x="58" y="28" class="ink body">rehber ayrık değerlendirme</text>
+    </g>
+    <g transform="translate(42 290)">
+      <circle cx="18" cy="18" r="18" class="dot"/>
+      <text x="58" y="28" class="ink body">prevalans farkındalığı</text>
+    </g>
+    <g transform="translate(42 350)">
+      <circle cx="18" cy="18" r="18" class="dot"/>
+      <text x="58" y="28" class="ink body">ölçülmüş veri evreni</text>
+    </g>
+  </g>
+
+  <g transform="translate(790 210)">
+    <rect x="0" y="0" width="630" height="410" rx="36" class="panel"/>
+    <text x="38" y="62" class="ink panelTitle">B: Hangi soru soruluyor?</text>
+    <text x="38" y="112" class="muted body">Literatürdeki soru ile bu posterin sorusu ayrılır.</text>
+
+    <rect x="42" y="175" width="230" height="105" rx="28" class="chip"/>
+    <text x="70" y="220" class="ink body">sıralama /</text>
+    <text x="70" y="255" class="ink body">retrieval</text>
+
+    <line x1="295" y1="226" x2="370" y2="226" class="line"/>
+    <path d="M370 226 L350 212 M370 226 L350 240" class="line"/>
+
+    <rect x="395" y="175" width="190" height="105" rx="28" class="chip2"/>
+    <text x="423" y="220" class="ink body">ölçülmüş</text>
+    <text x="423" y="255" class="ink body">ikili karar</text>
+
+    <text x="42" y="352" class="muted caption">Bizim soru: ölçülmüş evrende bağlam,</text>
+    <text x="42" y="388" class="muted caption">karar davranışını nerede değiştirir?</text>
+  </g>
+
+  <g transform="translate(80 700)">
+    <rect x="0" y="0" width="1340" height="84" rx="28" class="warn"/>
+    <text x="34" y="37" class="ink caption">Kıyas, skor yarışı değil; soru ve sözleşme karşılaştırmasıdır.</text>
+    <text x="34" y="69" class="muted caption">Bu panel nitel konumlandırmadır; diğer çalışmalarla ham AUPRC leaderboard kurulmaz.</text>
+  </g>
+</svg>

@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="940" viewBox="0 0 1600 940" role="img" aria-labelledby="title desc">
+  <title id="title">Two-axis results panel</title>
+  <desc id="desc">AUPRC ranking axis and operating-point axis separated for the poster.</desc>
+  <defs>
+    <style>
+      .bg { fill: #f8fafc; }
+      .ink { fill: #0f172a; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+      .muted { fill: #64748b; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+      .title { font-size: 54px; font-weight: 760; }
+      .axisTitle { font-size: 40px; font-weight: 730; }
+      .metric { font-size: 34px; font-weight: 680; }
+      .body { font-size: 27px; }
+      .caption { font-size: 24px; }
+      .panel { fill: #ffffff; stroke: #e2e8f0; stroke-width: 2; }
+      .blue { fill: #2563eb; }
+      .teal { fill: #0f766e; }
+      .orange { fill: #f97316; }
+      .line { stroke: #94a3b8; stroke-width: 4; stroke-linecap: round; }
+      .lineBlue { stroke: #2563eb; stroke-width: 5; stroke-linecap: round; }
+      .lineTeal { stroke: #0f766e; stroke-width: 5; stroke-linecap: round; }
+      .thin { stroke: #cbd5e1; stroke-width: 2; }
+      .callout { fill: #eef6ff; }
+    </style>
+  </defs>
+
+  <rect class="bg" width="1600" height="940"/>
+  <text x="80" y="92" class="ink title">Bulgular: iki ayrı eksen</text>
+  <text x="80" y="138" class="muted body">AUPRC sıralamayı, karar eşiği ise negatif tanıma davranışını gösterir.</text>
+
+  <g transform="translate(80 200)">
+    <rect x="0" y="0" width="680" height="485" rx="36" class="panel"/>
+    <text x="42" y="66" class="ink axisTitle">Sıralama (AUPRC)</text>
+    <text x="42" y="110" class="muted body">Birincil sıralama metriği</text>
+
+    <line x1="70" y1="245" x2="610" y2="245" class="thin"/>
+    <text x="70" y="222" class="muted caption">0.900705 no-skill PR baseline</text>
+    <circle cx="575" cy="245" r="13" class="blue"/>
+    <text x="70" y="305" class="ink metric">XGBoost F4</text>
+    <text x="360" y="305" class="ink metric">0.992338</text>
+    <line x1="360" y1="330" x2="615" y2="330" class="lineBlue"/>
+    <text x="360" y="365" class="muted caption">[0.950179, 0.999336]</text>
+
+    <text x="70" y="425" class="ink metric">S8B_R2</text>
+    <text x="360" y="425" class="ink metric">0.986020</text>
+    <line x1="340" y1="450" x2="610" y2="450" class="lineTeal"/>
+    <text x="360" y="485" class="muted caption">[0.929981, 0.998966]</text>
+  </g>
+
+  <g transform="translate(840 200)">
+    <rect x="0" y="0" width="680" height="485" rx="36" class="panel"/>
+    <text x="42" y="66" class="ink axisTitle">Karar Eşiği</text>
+    <text x="42" y="110" class="muted body">MCC / specificity ile işletim noktası</text>
+
+    <rect x="42" y="165" width="260" height="130" rx="28" class="callout"/>
+    <text x="72" y="216" class="muted caption">Aile-duyarlı encoder</text>
+    <text x="72" y="266" class="ink metric">MCC 0.603489</text>
+
+    <text x="42" y="365" class="ink metric">Nadir negatif davranışı</text>
+    <text x="42" y="410" class="muted body">Doğru negatifler aynı paydada okunur: 40, 14, 63, 110 / 169.</text>
+    <text x="42" y="460" class="muted caption">MCC/specificity operating-point evidence olarak yorumlanır.</text>
+  </g>
+
+  <g transform="translate(80 760)">
+    <rect x="0" y="0" width="1440" height="105" rx="28" fill="#fff7ed" stroke="#fed7aa" stroke-width="2"/>
+    <text x="34" y="42" class="ink caption">Sıralamada (AUPRC) güçlü tablo temelli referans XGBoost F4 en sağlam çıta olarak kaldı;</text>
+    <text x="34" y="78" class="ink caption">bağlamın katkısı sıralamada değil, karar eşiğinde ortaya çıkıyor.</text>
+  </g>
+</svg>

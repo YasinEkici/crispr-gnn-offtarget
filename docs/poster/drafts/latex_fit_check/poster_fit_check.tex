@@ -1,0 +1,226 @@
+\documentclass[final]{article}
+
+\usepackage[paperwidth=70cm,paperheight=100cm,margin=2.0cm]{geometry}
+\usepackage{xcolor}
+\usepackage{fontspec}
+\usepackage{polyglossia}
+\usepackage{graphicx}
+\usepackage{tikz}
+\usepackage{tabularx}
+\usepackage{enumitem}
+\usepackage{ragged2e}
+\usepackage[hidelinks]{hyperref}
+
+\setmainlanguage{turkish}
+\setmainfont{Arial}
+\pagestyle{empty}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0pt}
+\renewcommand{\baselinestretch}{1.02}
+
+\definecolor{PosterBg}{HTML}{F8FAFC}
+\definecolor{Ink}{HTML}{0F172A}
+\definecolor{Muted}{HTML}{475569}
+\definecolor{Line}{HTML}{CBD5E1}
+\definecolor{Blue}{HTML}{2563EB}
+\definecolor{Teal}{HTML}{0F766E}
+\definecolor{Orange}{HTML}{F97316}
+\definecolor{SoftBlue}{HTML}{EFF6FF}
+\definecolor{SoftTeal}{HTML}{ECFEFF}
+\definecolor{SoftOrange}{HTML}{FFF7ED}
+\definecolor{SoftSlate}{HTML}{EEF2F7}
+
+% Numbered reading-path kicker: step badge + uppercase category label + rule.
+\newcommand{\Kicker}[2]{%
+  \noindent
+  \tikz[baseline=(b.base)]{\node[circle,fill=Blue,text=white,inner sep=0pt,minimum size=0.82cm,font=\bfseries](b){\fontsize{18}{18}\selectfont #1};}%
+  \hspace{0.26cm}%
+  \raisebox{0.10cm}{\fontsize{19}{22}\selectfont\bfseries\color{Ink}#2}\par
+  \vspace{0.10cm}
+  {\color{Blue}\rule{\linewidth}{2.0pt}}\par
+  \vspace{0.26cm}
+}
+
+% Justified academic body paragraph.
+\newcommand{\Para}[1]{%
+  {\fontsize{18}{24}\selectfont\color{Ink}\justifying #1\par}
+  \vspace{0.20cm}
+}
+
+\newcommand{\MutedText}[1]{%
+  {\fontsize{16}{21}\selectfont\color{Muted}\justifying #1\par}
+}
+
+\newcommand{\SmallHead}[1]{%
+  {\fontsize{20}{24}\selectfont\bfseries\color{Ink}#1}\par\vspace{0.12cm}
+}
+
+\newcommand{\Caveat}[1]{%
+  \colorbox{SoftOrange}{%
+    \begin{minipage}{0.955\linewidth}
+      \vspace{0.15cm}\hspace{0.1cm}%
+      {\fontsize{16}{21}\selectfont\color{Ink}#1}
+      \vspace{0.15cm}
+    \end{minipage}%
+  }\par
+}
+
+\newcommand{\Chip}[1]{%
+  \tikz[baseline=(x.base)] \node[rounded corners=9pt, fill=SoftBlue, inner xsep=10pt, inner ysep=6pt] (x) {\fontsize{16}{19}\selectfont\color{Ink}#1};%
+}
+\newcommand{\ChipT}[1]{%
+  \tikz[baseline=(x.base)] \node[rounded corners=9pt, fill=SoftTeal, inner xsep=10pt, inner ysep=6pt] (x) {\fontsize{16}{19}\selectfont\color{Ink}#1};%
+}
+\newcommand{\Arrow}{\;{\fontsize{18}{18}\selectfont\color{Muted}$\rightarrow$}\;}
+
+\newcommand{\Fig}[1]{%
+  \begin{center}\includegraphics[width=0.92\linewidth]{#1}\end{center}%
+}
+
+\begin{document}
+\pagecolor{PosterBg}
+\color{Ink}
+
+% ===================== HEADER =====================
+\begin{minipage}[b]{0.71\linewidth}
+  \RaggedRight
+  \hyphenpenalty=10000\exhyphenpenalty=10000\tolerance=9999\relax
+  {\fontsize{47}{53}\selectfont\bfseries\color{Ink}
+  Aynı dizi, farklı bağlam: CRISPR-Cas9 hedef dışı tahmininde bağlam-duyarlı çizge temsili\par}
+  \vspace{0.40cm}
+  {\fontsize{22}{27}\selectfont\color{Muted}
+  Graph C, aynı fiziksel hedefi farklı hedef-gözlem bağlamlarıyla temsil eder.\par}
+\end{minipage}
+\hfill
+\begin{minipage}[b]{0.26\linewidth}
+  \RaggedLeft
+  {\fontsize{20}{24}\selectfont\bfseries\color{Ink}Kasım Deliacı \& Yasin Ekici\par}
+  \vspace{0.18cm}
+  {\fontsize{16}{20}\selectfont\color{Muted}Danışman: Doç. Dr. Mustafa Özgür Cingiz\par}
+  \vspace{0.12cm}
+  {\fontsize{16}{20}\selectfont\color{Muted}Bursa Teknik Üniversitesi\\Bilgisayar Mühendisliği Bölümü\par}
+\end{minipage}
+
+\vspace{0.5cm}
+{\color{Ink}\rule{\linewidth}{2.6pt}}\par
+\vspace{0.5cm}
+
+% ===================== ABSTRACT =====================
+\colorbox{SoftSlate}{%
+\begin{minipage}{\dimexpr\linewidth-0.7cm\relax}
+  \vspace{0.30cm}\hspace{0.3cm}%
+  \begin{minipage}{\dimexpr\linewidth-0.6cm\relax}
+    {\fontsize{21}{25}\selectfont\bfseries\color{Blue}ÖZET\par}
+    \vspace{0.16cm}
+    {\fontsize{18}{24}\selectfont\color{Ink}\justifying
+    CRISPR-Cas9 gen düzenlemesinde hedef dışı kesim, güvenli tasarımın önündeki temel engeldir. Bu çalışma, hedef dışı aktiviteyi tahmin etmek için bağlam-duyarlı çizge sinir ağlarını (GNN); sızıntıya karşı denetlenmiş ve yalnızca ölçülmüş (measured-only) veriden kurulmuş katı bir değerlendirme sözleşmesi altında inceler. Aynı fiziksel hedefi farklı hedef-gözlem bağlamlarıyla temsil eden özgün bir çizge şeması (Graph C) ile özellik ailelerini yapısal olarak işleyen aile-duyarlı bir GATv2 kodlayıcı önerilir. Rehber-ayrık bölünme ve test üzerinde ayar yapmama ilkesi altında; sıralama ekseninde (AUPRC) güçlü tablo temelli referans XGBoost F4 en sağlam çıta olarak kalırken, bağlamın katkısı karar eşiğinde nadir negatifleri tanıma davranışında görünür olmuştur. Bu kazanım seed/guide duyarlıdır ve bir üstünlük iddiası olarak sunulmaz. Çalışmanın katkısı, bağlamın hangi eksende sinyal verdiğini dürüst ve sınırları açık bir çerçevede konumlandırmasıdır.\par}
+    \vspace{0.18cm}
+    {\fontsize{16}{20}\selectfont\color{Muted}\textbf{Anahtar kelimeler:} CRISPR-Cas9, hedef dışı tahmin, çizge sinir ağları, hedef-gözlem bağlamı, ölçülmüş veri, sızıntısız değerlendirme.\par}
+  \end{minipage}
+  \vspace{0.32cm}
+\end{minipage}}
+
+\vspace{0.6cm}
+
+% ===================== TWO-COLUMN BODY =====================
+\begin{minipage}[t]{0.485\linewidth}
+  %% ---- 1 GİRİŞ ----
+  \Kicker{1}{GİRİŞ VE AMAÇ}
+  \Para{CRISPR-Cas9, hedef DNA'yı rehber RNA ile eşleştirerek bulur; ancak diziye benzeyen istem dışı bölgelerde de kesim (hedef dışı aktivite) gerçekleşebilir. Bu riski önceden kestirmek, güvenli kılavuz tasarımının önkoşuludur. Literatürdeki birçok yaklaşım dizi benzerliğine odaklanır; oysa aynı hedef, farklı deneysel ve epigenetik bağlamlarda farklı sonuçlar verebilir.}
+  \Para{\textbf{Amaç:} bağlamı çizge içinde doğru temsil etmenin model davranışını \emph{nerede} değiştirdiğini, sızıntıya karşı denetlenmiş ve ölçülmüş bir değerlendirme altında sınamak. Bu poster bir ``en iyi model'' iddiası değil; bağlamın hangi eksende sinyal verdiğinin analizidir.}
+  \vspace{0.30cm}
+
+  %% ---- 2 YÖNTEM · VERİ ----
+  \Kicker{2}{YÖNTEM · VERİ SÖZLEŞMESİ}
+  \Para{İkili etiket \textbf{Scheme A} ile tanımlanır: \texttt{cleavage\_freq > 1e-5}. Test ve doğrulama iddiaları yalnızca ölçülmüş veri evreninden kurulur; doğrulanmamış adaylar (\texttt{measured=0}) test etiketi yapılmaz. 310142 aday satırdan ölçülmüş 25632 satıra, oradan rehber-ayrık 1702 satırlık test evrenine inilir. Model ve eşik seçimi yalnızca doğrulama ile kilitlenir; test üzerinde hiçbir ayar yapılmaz.}
+  \Fig{../../assets/rendered/fig01_measured_only_funnel.pdf}
+  \vspace{0.30cm}
+
+  %% ---- 3 YÖNTEM · TEMSİL ----
+  \Kicker{3}{YÖNTEM · ÇİZGE TEMSİLİ}
+  \Para{Üç şema karşılaştırılır. \textbf{Graph A} fiziksel hedefi tek düğümle; \textbf{Graph B} rehber benzerliğini ayrı bir kontrol sinyaliyle temsil eder. \textbf{Graph C} ise her satırı bir hedef-gözlem düğümü olarak ele alır: aynı fiziksel hedef, farklı bağlamlarda farklı gözlemler taşır (``aynı adres, farklı ziyaretler''). Graph C'nin katkısı salt topoloji değil, düğüm semantiğinin değişmesidir.}
+  \Fig{../../assets/rendered/fig02_graph_abc_semantic_comparison.pdf}
+\end{minipage}
+\hfill
+\begin{minipage}[t]{0.485\linewidth}
+  %% ---- 4 YÖNTEM · MODEL ----
+  \Kicker{4}{YÖNTEM · MODEL VE MEKANİZMA}
+  \Para{Bağlam sinyali hedef-gözlem düğümünde taşınır ve GATv2 tabanlı dikkat mekanizmasıyla işlenir. \textbf{Aile-duyarlı kodlayıcı}, özellik ailelerini düz bir vektör yerine yapısal olarak ayrı işler: 6 deneysel epigenetik, 13 hesaplanmış nükleozom ve 5 bağlanma enerjisi özelliği. Kazanım deneysel-epigenetik bağlama yerelleştirilerek mekanizma izole edilir.}
+  \Para{Model içi çıktılar (dikkat, maskeleme, FiLM) yalnızca model davranışını gösterir; biyolojik nedensellik kanıtı değildir.}
+  \vspace{0.06cm}
+  \noindent\Chip{Veri sözleşmesi}\Arrow\Chip{Graph C}\Arrow\Chip{GATv2}\Arrow\ChipT{Aile-duyarlı kodlayıcı}\Arrow\ChipT{İki eksenli sonuç}\par
+  \vspace{0.40cm}
+
+  %% ---- 5 BULGULAR · İKİ EKSEN ----
+  \Kicker{5}{BULGULAR · İKİ AYRI EKSEN}
+  \Para{Sonuçlar iki ayrı soruyu yanıtlar. \textbf{Sıralama} ekseninde AUPRC ölçülür: XGBoost F4 en sağlam referans olarak kalır (0.992338); en iyi tekil GNN olan S8B\_R2 yaklaşır (0.986020), ancak aralıklar fark yokluğu ile uyumludur ve bu bir eşdeğerlik iddiası değildir. \textbf{Karar eşiği} ekseninde MCC/özgüllük, nadir negatifleri tanıma davranışını görünür kılar.}
+  \Fig{../../assets/rendered/fig03_two_axis_results.pdf}
+  \vspace{0.26cm}
+
+  %% ---- 6 BULGULAR · NADİR NEGATİF ----
+  \Kicker{6}{BULGULAR · NADİR NEGATİF TANIMA}
+  \Para{Bu dengesiz test evreninde nadir sınıf negatiftir (169 negatif). Doğru negatifler aynı payda üzerinden okunur: XGBoost F4 40, Graph C GCN 14, Graph C GATv2 63, aile-duyarlı kodlayıcı 110 / 169. GATv2 ve aile-duyarlı kodlayıcı daha fazla nadir negatifi tanır; ancak Graph C GCN düşük kalır, dolayısıyla sonuç monoton bir ``çizge kazanımı'' değildir ve seed/guide duyarlıdır.}
+  \Fig{../../assets/rendered/fig04_tn169_rare_negative_recognition.pdf}
+\end{minipage}
+
+\vspace{0.55cm}
+{\color{Line}\rule{\linewidth}{1.6pt}}\par
+\vspace{0.45cm}
+
+% ===================== LOWER TRI-COLUMN =====================
+\begin{minipage}[t]{0.315\linewidth}
+  \Kicker{7}{TARTIŞMA · NEDEN İKİ EKSEN}
+  \Para{Sıralama bol sayıda pozitifle (prevalans 0.900705) doyuma ulaşır ve güçlü modeller yüksek AUPRC'de kümelenir; karar eşiği ise az sayıdaki negatife bakar. 169 negatif 9 rehberde yoğunlaşır, 80'i tek bir rehberdedir (guide 9251). Farkın da, kırılganlığın da kaynağı bu kıtlıktır.}
+  \Caveat{0.900705 no-skill PR baseline'dır; performans alt sınırı değildir.}
+\end{minipage}
+\hfill
+\begin{minipage}[t]{0.375\linewidth}
+  \Kicker{8}{LİTERATÜRDE KONUMLANDIRMA}
+  \Para{Farklı veri, bölünme, negatif üretimi ve prevalans nedeniyle diğer çalışmalarla ham skor kıyası yapılmaz. Konumlandırma niteldir; kıyas skor yarışı değil, soru ve sözleşme karşılaştırmasıdır.}
+  \Fig{../../assets/rendered/fig05_literature_ab_positioning.pdf}
+\end{minipage}
+\hfill
+\begin{minipage}[t]{0.265\linewidth}
+  \Kicker{9}{SONUÇ VE KATKI}
+  \Para{Bağlamı hedef-gözlem düzeyinde temsil eden, putatif adayları test doğrusu yapmayan, sızıntıya karşı denetlenmiş bir çerçeve kurduk. Bağlamın katkısını bir AUPRC zaferi olarak değil, karar eşiğinde nadir negatif davranışı olarak konumlandırdık.}
+  \Chip{Graph C hedef-gözlem temsili}\par\vspace{0.20cm}
+  \Chip{Scheme A · ölçülmüş veri}\par\vspace{0.20cm}
+  \ChipT{Rehber ayrık değerlendirme}\par\vspace{0.20cm}
+  \ChipT{Nadir negatif karar davranışı}\par
+  \vspace{0.34cm}
+  \SmallHead{Sınırlar}
+  \begin{itemize}[leftmargin=0.65cm,itemsep=0.14cm,topsep=0pt]
+    \item {\fontsize{15}{19}\selectfont AUPRC üstünlüğü iddia edilmedi.}
+    \item {\fontsize{15}{19}\selectfont Nadir negatif kazanım seed/guide duyarlıdır.}
+    \item {\fontsize{15}{19}\selectfont Model içi açıklamalar biyolojik nedensellik kanıtı değildir.}
+    \item {\fontsize{15}{19}\selectfont Daha fazla ölçülmüş negatif ve dış doğrulama gerekir.}
+  \end{itemize}
+\end{minipage}
+
+\vspace{0.5cm}
+{\color{Line}\rule{\linewidth}{1.6pt}}\par
+\vspace{0.35cm}
+
+% ===================== REFERENCES + FOOTER =====================
+\begin{minipage}[t]{0.72\linewidth}
+  {\fontsize{17}{21}\selectfont\bfseries\color{Ink}Kaynaklar\par}
+  \vspace{0.14cm}
+  {\fontsize{14}{18}\selectfont\color{Muted}
+  [1] Kipf \& Welling. Semi-Supervised Classification with Graph Convolutional Networks. 2017.\quad
+  [2] Vinodkumar vd. Prediction of sgRNA Off-Target Activity Using Graph Neural Networks. 2021.\quad
+  [3] Liu vd. Graph-CRISPR: Gene Editing Efficiency Prediction with GNN. 2025.\\[0.10cm]
+  [4] Chuai vd. DeepCRISPR: Optimized Guide RNA Design by Deep Learning. 2018.\quad
+  [5] Lin vd. CRISPR-Net: Recurrent Convolutional Network for Off-Target Quantification. 2020.\quad
+  [6] Gao vd. Data Imbalance in CRISPR Off-Target Prediction. 2020.\quad
+  [7] Guan vd. Solving Data Imbalance in CRISPR Off-Target Prediction. 2024.\par}
+\end{minipage}
+\hfill
+\begin{minipage}[t]{0.25\linewidth}
+  \RaggedLeft
+  {\fontsize{15}{19}\selectfont\color{Muted}
+  Kasım Deliacı \& Yasin Ekici\\
+  Bursa Teknik Üniversitesi, Bilgisayar Mühendisliği\\
+  \textit{70x100 cm portre · LaTeX fit-check taslağı}\par}
+\end{minipage}
+
+\end{document}

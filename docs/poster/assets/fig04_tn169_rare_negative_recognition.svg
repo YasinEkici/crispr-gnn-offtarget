@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="920" viewBox="0 0 1500 920" role="img" aria-labelledby="title desc">
+  <title id="title">TN over 169 rare-negative recognition</title>
+  <desc id="desc">True negatives over 169 for XGBoost F4, Graph C GCN, Graph C GATv2, and family-aware encoder.</desc>
+  <defs>
+    <style>
+      .bg { fill: #fbfdff; }
+      .ink { fill: #0f172a; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+      .muted { fill: #64748b; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+      .title { font-size: 54px; font-weight: 760; }
+      .body { font-size: 29px; }
+      .label { font-size: 31px; font-weight: 650; }
+      .metric { font-size: 38px; font-weight: 730; }
+      .caption { font-size: 25px; }
+      .track { fill: #e2e8f0; }
+      .blue { fill: #2563eb; }
+      .teal { fill: #0f766e; }
+      .orange { fill: #f97316; }
+      .purple { fill: #7c3aed; }
+      .note { fill: #f8fafc; stroke: #cbd5e1; stroke-width: 2; }
+    </style>
+  </defs>
+
+  <rect class="bg" width="1500" height="920"/>
+  <text x="80" y="92" class="ink title">Karar eşiğinde nadir negatif tanıma</text>
+  <text x="80" y="138" class="muted body">Tüm çubuklar aynı paydayı gösterir: doğru negatif / 169.</text>
+
+  <g transform="translate(90 230)">
+    <text x="0" y="34" class="ink label">XGBoost F4</text>
+    <rect x="330" y="0" width="850" height="56" rx="28" class="track"/>
+    <rect x="330" y="0" width="201" height="56" rx="28" class="blue"/>
+    <text x="1215" y="40" class="ink metric">40/169</text>
+    <text x="330" y="96" class="muted caption">specificity 0.236</text>
+  </g>
+
+  <g transform="translate(90 360)">
+    <text x="0" y="34" class="ink label">Graph C GCN</text>
+    <rect x="330" y="0" width="850" height="56" rx="28" class="track"/>
+    <rect x="330" y="0" width="70" height="56" rx="28" class="orange"/>
+    <text x="1215" y="40" class="ink metric">14/169</text>
+    <text x="330" y="96" class="muted caption">specificity 0.083</text>
+  </g>
+
+  <g transform="translate(90 490)">
+    <text x="0" y="34" class="ink label">Graph C GATv2</text>
+    <rect x="330" y="0" width="850" height="56" rx="28" class="track"/>
+    <rect x="330" y="0" width="317" height="56" rx="28" class="teal"/>
+    <text x="1215" y="40" class="ink metric">63/169</text>
+    <text x="330" y="96" class="muted caption">specificity 0.373</text>
+  </g>
+
+  <g transform="translate(90 620)">
+    <text x="0" y="34" class="ink label">Aile-duyarlı encoder</text>
+    <rect x="330" y="0" width="850" height="56" rx="28" class="track"/>
+    <rect x="330" y="0" width="553" height="56" rx="28" class="purple"/>
+    <text x="1215" y="40" class="ink metric">110/169</text>
+    <text x="330" y="96" class="muted caption">specificity 0.651; MCC 0.603489</text>
+  </g>
+
+  <g transform="translate(80 790)">
+    <rect x="0" y="0" width="1340" height="82" rx="28" class="note"/>
+    <text x="34" y="36" class="ink caption">Karar eşiği sonuçları validation-kilitlidir ve seed/guide duyarlıdır.</text>
+    <text x="34" y="68" class="muted caption">Graph C GCN düşük kalır; sonuç monoton bir graph kazanımı değildir.</text>
+  </g>
+</svg>
