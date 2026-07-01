@@ -406,14 +406,16 @@
   \resizebox{0.98\linewidth}{!}{%
     \begin{tikzpicture}[
       x=1cm,y=1cm,
-      arrow/.style={-{Latex[length=2.2mm]},line width=0.75pt},
+      arrow/.style={-{Latex[length=2.1mm]},line width=0.72pt},
       dataarrow/.style={-{Latex[length=2.0mm]},line width=0.62pt,color=black!60},
-      gnode/.style={circle,draw=AccentBlue,line width=0.75pt,fill=white,minimum size=0.52cm,inner sep=0pt,font=\CalibriFamily\bfseries\fontsize{8.6}{10}\selectfont},
-      onode/.style={circle,draw=AccentTeal,line width=0.75pt,fill=white,minimum size=0.56cm,inner sep=0pt,font=\CalibriFamily\bfseries\fontsize{8.2}{9.5}\selectfont},
-      plainnode/.style={circle,draw=black!70,line width=0.65pt,fill=white,minimum size=0.42cm,inner sep=0pt},
-      layer/.style={rectangle,draw=black!78,line width=0.65pt,fill=gray!7,minimum height=0.52cm,minimum width=2.55cm,align=center,font=\CalibriFamily\fontsize{8.2}{9.5}\selectfont},
+      gnode/.style={circle,draw=AccentBlue,line width=0.75pt,fill=white,minimum size=0.52cm,inner sep=0pt,font=\CalibriFamily\bfseries\fontsize{8.4}{9.8}\selectfont},
+      onode/.style={circle,draw=AccentTeal,line width=0.75pt,fill=white,minimum size=0.56cm,inner sep=0pt,font=\CalibriFamily\bfseries\fontsize{8.0}{9.3}\selectfont},
+      plainnode/.style={circle,draw=black!70,line width=0.62pt,fill=white,minimum size=0.40cm,inner sep=0pt},
+      layer/.style={rectangle,draw=black!78,line width=0.62pt,fill=gray!7,minimum height=0.50cm,minimum width=2.18cm,align=center,font=\CalibriFamily\fontsize{7.7}{8.9}\selectfont},
+      layerwide/.style={rectangle,draw=black!78,line width=0.62pt,fill=gray!7,minimum height=0.55cm,minimum width=2.55cm,align=center,font=\CalibriFamily\fontsize{7.8}{9.0}\selectfont},
       small/.style={font=\CalibriFamily\fontsize{8.2}{9.5}\selectfont},
-      tiny/.style={font=\CalibriFamily\fontsize{8.0}{9.2}\selectfont,text=MutedInk}
+      tiny/.style={font=\CalibriFamily\fontsize{7.5}{8.7}\selectfont,text=MutedInk},
+      tinyblack/.style={font=\CalibriFamily\fontsize{7.5}{8.7}\selectfont,text=black}
     ]
       \draw[black!45,line width=0.55pt] (0.75,6.75) -- (17.85,6.75);
       \foreach \x/\n/\lab in {1.45/310142/aday,7.05/25632/ölçülmüş,12.65/1702/test} {
@@ -428,56 +430,65 @@
 
       \draw[black!45,line width=0.45pt] (0.75,5.55) -- (17.85,5.55);
 
-      \node[gnode] (g) at (1.35,3.72) {$g$};
-      \node[onode] (oi) at (3.35,3.28) {$o_i$};
-      \node[onode] (oj) at (3.30,4.44) {$o_j$};
-      \node[onode] (ok) at (2.30,2.13) {$o_k$};
-      \draw[arrow,color=AccentBlue] (g) -- node[above,sloped,tiny,black] {$e_{g,i}$} (oi);
-      \draw[densely dashed,line width=0.65pt,color=AccentTeal] (oi) -- (oj);
-      \draw[densely dashed,line width=0.65pt,color=AccentTeal] (oi) -- (ok);
-      \node[anchor=west,tiny] at (3.82,2.78) {$x_{o_i}\in R^{212}$};
-      \node[anchor=west,tiny] at (1.00,1.22) {$g$: rehber RNA,\quad $o$: hedef-gözlem};
+      \node[anchor=west,font=\AptosFamily\bfseries\fontsize{10.5}{12}\selectfont] at (0.75,5.18) {Önerilen mimari: family-aware Graph C GATv2};
+      \node[anchor=east,tiny] at (17.85,5.18) {L=2,\ H=4,\ hidden=128,\ edge-aware,\ context-sim edges dropped};
 
-      \node[layer] (f1) at (6.45,4.52) {target one-hot\\115};
-      \node[layer] (f2) at (6.45,3.78) {epigenetik\\6};
-      \node[layer] (f3) at (6.45,3.04) {nükleozom özet\\78};
-      \node[layer] (f4) at (6.45,2.30) {missingness\\13};
-      \draw[black!78,line width=0.55pt] (5.02,1.92) rectangle (7.88,4.91);
-      \node[layer,fill=white,minimum width=1.20cm] (concat) at (8.82,3.41) {$h_o$};
-      \draw[arrow] (7.88,3.41) -- (concat.west);
-      \draw[arrow] (3.92,3.28) -- (5.02,3.41);
+      \node[gnode] (g) at (1.05,3.80) {$g$};
+      \node[onode] (oi) at (2.35,3.18) {$o_i$};
+      \node[onode] (oj) at (2.35,4.35) {$o_j$};
+      \draw[arrow,color=AccentBlue] (g) -- node[above,sloped,tinyblack] {$e_{g,i}$} (oi);
+      \draw[densely dashed,line width=0.62pt,color=black!45] (oi) -- node[right,tiny] {dropped} (oj);
+      \node[anchor=west,tiny] at (0.72,1.78) {$g$: rehber RNA};
+      \node[anchor=west,tiny] at (0.72,1.48) {$o_i=(T,\mathrm{context}_i)$};
 
-      \node[plainnode] (c0) at (11.00,3.42) {};
-      \node[plainnode] (c1) at (10.20,4.35) {};
-      \node[plainnode] (c2) at (10.15,2.50) {};
-      \node[plainnode] (c3) at (11.92,4.18) {};
-      \draw[arrow,color=AccentTeal,line width=0.95pt] (c1) -- node[above,sloped,tiny] {$\alpha_{1i}$} (c0);
-      \draw[arrow,color=AccentBlue,line width=0.95pt] (c2) -- node[below,sloped,tiny] {$\alpha_{2i}$} (c0);
-      \draw[arrow,color=black!55] (c3) -- (c0);
-      \node[layer,minimum width=2.05cm] (gat1) at (11.20,1.56) {GATv2};
-      \node[layer,minimum width=2.05cm] (gat2) at (13.10,1.56) {GATv2};
+      \node[layerwide] (genc) at (4.18,4.35) {$x_g$\\Linear + ReLU};
+      \node[layerwide,fill=white] (hg) at (6.25,4.35) {$h_g\in R^{128}$};
+      \draw[arrow] (g.east) -- (genc.west);
+      \draw[arrow] (genc.east) -- (hg.west);
+
+      \node[layer] (b1) at (4.18,3.35) {target seq\\115 $\to$ 24};
+      \node[layer] (b2) at (4.18,2.65) {exp. epi.\\6 $\to$ 48};
+      \node[layer] (b3) at (4.18,1.95) {nük. özet\\78 $\to$ 40};
+      \node[layer] (b4) at (4.18,1.25) {missing\\13 $\to$ 16};
+      \draw[black!78,line width=0.52pt] (2.95,0.92) rectangle (5.42,3.72);
+      \node[layer,fill=white,minimum width=1.18cm] (cat) at (6.25,2.30) {concat\\128};
+      \node[layer,fill=white,minimum width=1.35cm] (ho) at (7.55,2.30) {$h_o$};
+      \draw[arrow] (oi.east) -- (2.95,2.30);
+      \coordinate (busTop) at (5.62,3.35);
+      \coordinate (busMid) at (5.62,2.30);
+      \coordinate (busBot) at (5.62,1.25);
+      \draw[black!48,line width=0.46pt] (busBot) -- (busTop);
+      \foreach \src/\yy in {b1/3.35,b2/2.65,b3/1.95,b4/1.25} {
+        \draw[black!48,line width=0.46pt] (\src.east) -- (5.62,\yy);
+      }
+      \draw[arrow] (busMid) -- (cat.west);
+      \draw[arrow] (cat.east) -- (ho.west);
+
+      \node[layer,minimum width=1.65cm] (gat1) at (9.75,3.55) {GATv2\\layer 1};
+      \node[layer,minimum width=1.65cm] (gat2) at (11.45,3.55) {GATv2\\layer 2};
+      \draw[arrow] (hg.east) -- ++(0.45,0) |- (gat1.west);
+      \draw[arrow] (ho.east) -- ++(0.45,0) |- (gat1.west);
       \draw[arrow] (gat1.east) -- (gat2.west);
-      \draw[arrow] (concat.east) -- (9.78,3.42);
-      \draw[arrow] (11.18,2.96) -- (11.20,1.84);
 
-      \foreach \y/\name in {4.50/m1,3.82/m2,3.14/m3} {
-        \node[plainnode] (\name) at (14.40,\y) {};
-      }
-      \foreach \y/\name in {4.18/n1,3.48/n2,2.78/n3} {
-        \node[plainnode] (\name) at (15.45,\y) {};
-      }
-      \node[plainnode,minimum size=0.50cm] (out) at (16.62,3.48) {};
-      \foreach \a in {m1,m2,m3} {
-        \foreach \b in {n1,n2,n3} {
-          \draw[black!45,line width=0.38pt] (\a) -- (\b);
-        }
-      }
-      \foreach \b in {n1,n2,n3} {
-        \draw[arrow,color=black!55,line width=0.45pt] (\b) -- (out);
-      }
-      \node[small] at (15.00,2.05) {MLP};
-      \node[small] at (17.15,3.48) {$\hat{p}_{g,i}$};
-      \draw[arrow] (gat2.east) -- ++(0.45,0) |- (m3.west);
+      \node[plainnode] (a0) at (10.60,2.15) {};
+      \node[plainnode] (a1) at (9.75,2.82) {};
+      \node[plainnode] (a2) at (9.80,1.45) {};
+      \node[plainnode] (a3) at (11.45,2.65) {};
+      \draw[arrow,color=AccentTeal,line width=0.90pt] (a1) -- node[above,sloped,tiny] {$\alpha_{1i}$} (a0);
+      \draw[arrow,color=AccentBlue,line width=0.90pt] (a2) -- node[below,sloped,tiny] {$\alpha_{2i}$} (a0);
+      \draw[arrow,color=black!55] (a3) -- (a0);
+      \node[anchor=west,tiny] at (11.78,2.00) {edge attr: S5F2};
+
+      \node[layer,fill=white,minimum width=2.15cm] (pair) at (13.30,3.55) {$[h'_g,h'_o,$\\$h'_g\odot h'_o,|h'_g-h'_o|]$};
+      \node[layer,fill=white,minimum width=2.15cm] (edge) at (13.30,2.55) {edge vec\\energy/mismatch};
+      \node[layer,fill=white,minimum width=2.15cm] (film) at (13.30,1.55) {FiLM / S1\\late fusion};
+      \node[layerwide,fill=white,minimum width=1.70cm] (mlp) at (15.60,2.55) {edge MLP};
+      \node[layer,fill=white,minimum width=0.92cm] (out) at (16.88,2.55) {$\hat{p}_{g,i}$};
+      \draw[arrow] (gat2.east) -- (pair.west);
+      \draw[arrow] (edge.east) -- (mlp.west);
+      \draw[arrow] (film.east) -- (mlp.west);
+      \draw[arrow] (pair.east) -- (mlp.west);
+      \draw[arrow] (mlp.east) -- (out.west);
     \end{tikzpicture}%
   }
   \end{center}
@@ -758,7 +769,7 @@
     \InlineCaption{2}{Graph A/B/C semantik karşılaştırması. Graph C, aynı fiziksel hedefi farklı hedef-gözlem bağlamlarıyla temsil eder; oklar biyolojik nedensellik göstermez.}
   }
 
-  \PosterBlock{3.83}{50.00}{26.10}{24.00}{Yöntem}{%
+  \PosterBlock{3.83}{50.00}{26.10}{24.00}{Önerilen Yaklaşım ve Mimari}{%
     \MiniHead{Veri sözleşmesi}
     İkili etiket Scheme A ile tanımlanır: \texttt{cleavage\_freq > 1e-5}. Doğrulanmamış adaylar (\texttt{measured=0}) test doğrusu yapılmaz.
 
@@ -766,14 +777,17 @@
     Değerlendirme yalnızca ölçülmüş veri evreninde, rehber RNA'ya göre ayrık bölünmeyle ve test üzerinde ayar yapılmadan yürütülür. Model ve karar eşiği seçimi validation kümesinde kilitlenir.
 
     \vspace{0.12cm}
-    \MiniHead{Model}
-    Graph C bağlamı hedef-gözlem düğümünde taşır. Hedef-gözlem vektörü 212 kolondur: hedef one-hot, deneysel epigenetik, hesaplanmış nükleozom özetleri ve missingness göstergeleri ayrı dallarda işlenir. Aday kenarı mismatch ve bağlanma enerjisi özelliklerini taşır.
+    \MiniHead{Family-aware Graph C GATv2}
+    Ana çözüm Graph C üzerinde, özellik ailelerini ayrı kodlayan family-aware hedef bağlam encoder'ı ve edge-aware GATv2 katmanlarıdır. Graph C aynı fiziksel hedefi hedef-gözlem düğümlerine ayırır; 212 kolonluk hedef-gözlem vektörü hedef dizi one-hot, deneysel epigenetik, nükleozom özetleri ve missingness ailelerinde kodlanır.
+
+    \vspace{0.10cm}
+    Rehber RNA ve hedef-gözlem temsilleri iki GATv2 katmanından geçer. S5F2 mismatch/enerji özellikleri hem attention kenar özniteliği hem de son edge classifier girdisi olarak korunur; FiLM ve S1 late-fusion dalları Sprint 8 uzantılarıdır.
 
     \vspace{0.16cm}
-    \Chip{Scheme A}\quad\Chip{Graph C}\quad\ChipT{GATv2}\quad\ChipT{Özellik grubu encoder'ı}
+    \Chip{Family-aware Graph C GATv2}\quad\ChipT{S5F2 edge-aware attention}\quad\Chip{FiLM/S1 late fusion}
 
     \DataFunnelTikZ
-    \InlineCaption{1}{Ölçülmüş veri sözleşmesi ve kodla uyumlu Graph C/GATv2 akışı: hedef-gözlem düğümü 212 kolonluk bağlamı, candidate edge ise mismatch ve bağlanma enerjisi özelliklerini taşır.}
+    \InlineCaption{1}{Önerilen yaklaşımın kodla uyumlu mimarisi: family-aware Graph C GATv2, hedef-gözlem bağlamını dört özellik ailesinde kodlar; S5F2 edge özellikleri GATv2 attention ve edge classifier hattında korunur.}
   }
 
   \PosterBlock{31.25}{28.20}{35.37}{30.00}{Bulgular}{%
