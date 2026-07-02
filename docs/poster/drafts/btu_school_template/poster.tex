@@ -45,14 +45,17 @@
 % -----------------------------------------------------------------------------
 \newcommand{\UniversityName}{Bursa Teknik Üniversitesi}
 \newcommand{\DepartmentName}{Bilgisayar Mühendisliği}
-\newcommand{\ProjectTitle}{Aynı dizi, farklı bağlam: CRISPR-Cas9 hedef dışı tahmininde bağlam-duyarlı çizge temsili}
-\newcommand{\ProjectSubtitle}{Graph C, aynı fiziksel hedefi farklı hedef-gözlem bağlamlarıyla temsil eder.}
+\newcommand{\ProjectTitle}{CRISPR-CAS9 HEDEF DIŞI TAHMİNİNDE\\BAĞLAM DUYARLI ÇİZGE SİNİR AĞLARININ\\DEĞERLENDİRİLMESİ}
+\newcommand{\ProjectSubtitle}{}
 
-\newcommand{\StudentName}{Kasım Deliacı \& Yasin Ekici}
-\newcommand{\StudentNumber}{Öğrenci No: [xxxxx]}
-\newcommand{\StudentEmail}{[xxx@yyy.com]}
+\newcommand{\StudentOneName}{Kasım Deliacı}
+\newcommand{\StudentOneNumber}{21360859021}
+\newcommand{\StudentOneEmail}{21360859021@ogr.btu.edu.tr}
+\newcommand{\StudentTwoName}{Yasin Ekici}
+\newcommand{\StudentTwoNumber}{21360859029}
+\newcommand{\StudentTwoEmail}{21360859029@ogr.btu.edu.tr}
 \newcommand{\AdvisorName}{Doç. Dr. Mustafa Özgür Cingiz}
-\newcommand{\AdvisorEmail}{[xxx@yyy.com]}
+\newcommand{\AdvisorEmail}{mustafa.cingiz@btu.edu.tr}
 \newcommand{\EventText}{BİLGİSAYAR MÜHENDİSLİĞİ BÖLÜMÜ BİTİRME PROJESİ SERGİSİ -- Temmuz 2026}
 
 % -----------------------------------------------------------------------------
@@ -78,20 +81,20 @@
 \definecolor{FigInk}{HTML}{1F2933}
 
 % Figure helper macros -------------------------------------------------------
-% AUPRC value -> x (axis 0.88..1.00 over x=4.4..21)
-\newcommand{\auprcx}[1]{\fpeval{6.15 + (#1-0.88)/(1.00-0.88)*17.6}}
-% TN count -> x (0..169 over x=6.0..22.5)
-\newcommand{\tnx}[1]{\fpeval{7.20 + (#1)/169*18.0}}
+% AUPRC value -> x (axis 0.90..1.00 over x=7.0..15.0)
+\newcommand{\auprcx}[1]{\fpeval{7.0 + (#1-0.90)/(1.00-0.90)*8.0}}
+% TN count -> x (0..169 over x=7.2..15.0)
+\newcommand{\tnx}[1]{\fpeval{7.20 + (#1)/169*7.8}}
 % orange "differs" diamond and teal check for the literature panel
 \newcommand{\FigDiamond}[2]{\fill[FigOrange] (#1,#2) ++(0,0.16) -- ++(0.16,-0.16) -- ++(-0.16,-0.16) -- ++(-0.16,0.16) -- cycle;}
 \newcommand{\FigCheck}[2]{\draw[FigTeal,line width=1.7pt,line cap=round] (#1-0.16,#2) -- (#1-0.02,#2-0.16) -- (#1+0.22,#2+0.2);}
 % one TN/169 bar row: #1 y, #2 label, #3 value, #4 spec, #5 color
 \newcommand{\TnBar}[5]{%
-  \node[font=\sffamily\bfseries\fontsize{13.5pt}{15.5pt}\selectfont,text=FigInk,anchor=east] at (6.82,#1) {#2};
-  \fill[FigGray!13,rounded corners=2.5pt] (7.20,#1-0.44) rectangle (25.20,#1+0.44);
-  \fill[#5,rounded corners=2.5pt] (7.20,#1-0.44) rectangle (\tnx{#3},#1+0.44);
-  \node[font=\sffamily\fontsize{13.0pt}{15.0pt}\selectfont,text=FigInk,anchor=west] at (\tnx{#3}+0.22,#1)
-     {\textbf{#3}/169\,\textcolor{FigGray}{\,·\, özgüllük #4}};
+  \node[font=\sffamily\bfseries\fontsize{15pt}{17pt}\selectfont,text=FigInk,anchor=east] at (6.85,#1) {#2};
+  \fill[FigGray!13,rounded corners=3pt] (7.20,#1-0.60) rectangle (\tnx{169},#1+0.60);
+  \fill[#5,rounded corners=3pt] (7.20,#1-0.60) rectangle (\tnx{#3},#1+0.60);
+  \node[font=\sffamily\fontsize{13.5pt}{15.5pt}\selectfont,text=FigInk,anchor=west] at (\tnx{#3}+0.25,#1)
+     {\textbf{#3}/169\,\textcolor{FigGray}{\,·\, specificity #4}};
 }
 
 \newcommand{\TitleBarHeight}{1.95} % cm
@@ -100,7 +103,7 @@
 \newcommand{\PosterFontScale}{1.0}
 \newcommand{\ScaledPt}[1]{\fpeval{round((#1)*\PosterFontScale,2)}pt}
 
-\newcommand{\UniversityFont}{\HeaderFamily\bfseries\fontsize{\ScaledPt{38.65}}{\ScaledPt{43}}\selectfont}
+\newcommand{\UniversityFont}{\HeaderFamily\bfseries\fontsize{\ScaledPt{43.2}}{\ScaledPt{48}}\selectfont}
 \newcommand{\DepartmentFont}{\HeaderFamily\bfseries\fontsize{\ScaledPt{35.65}}{\ScaledPt{40}}\selectfont}
 \newcommand{\ProjectTitleFont}{\HeaderFamily\bfseries\fontsize{\ScaledPt{44}}{\ScaledPt{49}}\selectfont}
 \newcommand{\ProjectSubtitleFont}{\HeaderFamily\bfseries\fontsize{\ScaledPt{27}}{\ScaledPt{32}}\selectfont}
@@ -108,7 +111,14 @@
 \newcommand{\BodyFont}{\CalibriFamily\fontsize{\ScaledPt{18.5}}{\ScaledPt{21.7}}\selectfont}
 \newcommand{\SmallBodyFont}{\CalibriFamily\fontsize{\ScaledPt{15.8}}{\ScaledPt{18.6}}\selectfont}
 \newcommand{\ResultNoteFont}{\CalibriFamily\fontsize{\ScaledPt{20.0}}{\ScaledPt{23.4}}\selectfont}
-\newcommand{\CaptionFont}{\CalibriFamily\fontsize{\ScaledPt{14.9}}{\ScaledPt{17.4}}\selectfont}
+\newcommand{\ResultsTextFont}{\CalibriFamily\fontsize{\ScaledPt{28}}{\ScaledPt{31.5}}\selectfont}
+\newcommand{\ResultsMiniHead}[1]{{\centering\AptosFamily\bfseries\fontsize{\ScaledPt{28}}{\ScaledPt{31.5}}\selectfont #1\par}}
+\newcommand{\CaptionFont}{\CalibriFamily\fontsize{\ScaledPt{24}}{\ScaledPt{27.5}}\selectfont}
+\newcommand{\PosterFigureCaption}[3]{%
+  \begin{minipage}{#1}%
+    \CaptionFont\justifying\noindent\textbf{Şekil #2.} #3%
+  \end{minipage}%
+}
 \newcommand{\MetricNumberFont}{\AptosFamily\bfseries\fontsize{\ScaledPt{30}}{\ScaledPt{33}}\selectfont}
 \newcommand{\MetricLabelFont}{\AptosFamily\bfseries\fontsize{\ScaledPt{15.2}}{\ScaledPt{17.4}}\selectfont}
 \newcommand{\TakeawayFont}{\AptosFamily\bfseries\fontsize{\ScaledPt{23}}{\ScaledPt{27}}\selectfont}
@@ -201,6 +211,7 @@
 }
 \newcommand{\MiniHead}[1]{{\AptosFamily\bfseries\fontsize{\ScaledPt{18.5}}{\ScaledPt{21}}\selectfont #1}\par}
 \newcommand{\TightListStart}{\begin{itemize}\setlength{\itemsep}{0.10cm}\setlength{\parskip}{0pt}\setlength{\leftmargin}{0.55cm}}
+\newcommand{\LargeTightListStart}{\begin{itemize}\setlength{\itemsep}{0.00cm}\setlength{\topsep}{0.02cm}\setlength{\partopsep}{0pt}\setlength{\parsep}{0pt}\setlength{\parskip}{0pt}\setlength{\leftmargin}{0.55cm}}
 \newcommand{\TightListEnd}{\end{itemize}}
 
 % =============================================================================
@@ -210,228 +221,114 @@
 % --- Şekil 1: Graph A / B / C semantic comparison ---------------------------
 \newcommand{\GraphFig}{%
 \begin{tikzpicture}[x=1cm,y=1cm,
-  panel/.style={rounded corners=7pt,fill=FigInk!3,draw=FigGray!26,line width=0.65pt},
-  guide/.style={circle,draw=FigBlue,fill=FigBlue!12,line width=1.2pt,minimum size=0.92cm,inner sep=0pt,font=\TikzTextFont\bfseries,text=FigInk},
-  target/.style={circle,draw=FigGray,fill=FigGray!15,line width=1.1pt,minimum size=0.92cm,inner sep=0pt,font=\TikzTextFont\bfseries,text=FigInk},
-  obs/.style={rounded corners=3pt,draw=FigTeal,fill=FigTeal!13,line width=1.1pt,minimum width=1.25cm,minimum height=0.82cm,align=center,font=\TikzSmallFont\bfseries,text=FigInk},
-  edgebox/.style={rounded corners=3pt,draw=FigOrange!80,fill=FigOrange!10,line width=0.85pt,minimum width=2.45cm,minimum height=0.70cm,align=center,font=\TikzTinyFont,text=FigInk},
-  arr/.style={-{Latex[length=2.7mm,width=1.9mm]},line width=1.2pt,draw=FigInk!82},
-  link/.style={line width=1.05pt,draw=FigGray!78},
-  sim/.style={line width=1.15pt,draw=FigTeal,dash pattern=on 4pt off 3pt},
-  title/.style={font=\TikzTitleFont,text=FigBlue,anchor=west},
-  note/.style={font=\TikzTinyFont,text=FigGray,align=center},
-  titleNote/.style={font=\TikzTinyFont,text=FigGray,anchor=west},
-  typeLbl/.style={font=\TikzTinyFont\bfseries,text=FigTeal!75!black,align=center},
-  lab/.style={font=\TikzTinyFont,text=FigInk,fill=white,inner sep=1.4pt}]
-  \path[use as bounding box] (0,0.92) rectangle (23.95,5.95);
+  guide/.style={circle,draw=FigBlue,fill=FigBlue!10,line width=1.3pt,minimum size=1.25cm,inner sep=0pt,font=\sffamily\bfseries\fontsize{14.5pt}{16pt}\selectfont,text=FigInk},
+  target/.style={circle,draw=FigGray,fill=FigGray!12,line width=1.2pt,minimum size=1.25cm,inner sep=0pt,font=\sffamily\bfseries\fontsize{14.5pt}{16pt}\selectfont,text=FigInk},
+  obs/.style={rounded corners=5pt,draw=FigTeal,fill=FigTeal!10,line width=1.2pt,minimum width=1.58cm,minimum height=1.08cm,align=center,font=\sffamily\bfseries\fontsize{13pt}{14.5pt}\selectfont,text=FigInk},
+  edgebox/.style={rounded corners=4pt,draw=FigOrange!85,fill=FigOrange!8,line width=0.95pt,minimum width=3.0cm,minimum height=1.0cm,align=center,font=\sffamily\fontsize{11.8pt}{13.2pt}\selectfont,text=FigInk},
+  arr/.style={-{Latex[length=3.3mm,width=2.3mm]},line width=1.4pt,draw=FigInk!82},
+  link/.style={line width=1.25pt,draw=FigGray!78},
+  sim/.style={line width=1.3pt,draw=FigTeal,dash pattern=on 4pt off 3pt},
+  titleBox/.style={draw=none,fill=white,align=center,anchor=center,font=\sffamily\bfseries\fontsize{16.5pt}{18pt}\selectfont,text=FigBlue},
+  typeLbl/.style={font=\sffamily\bfseries\fontsize{12pt}{13.5pt}\selectfont,text=FigTeal!75!black,align=center},
+  lab/.style={font=\sffamily\fontsize{11.5pt}{13pt}\selectfont,text=FigInk,fill=white,inner sep=1.7pt}]
+  \path[use as bounding box] (0,0.45) rectangle (23.95,7.55);
 
-  \def\pw{7.45}\def\top{5.78}\def\bottom{1.08}
+  \def\pw{7.45}\def\titley{6.98}
   \begin{scope}[xshift=0cm]
-    \fill[panel] (0,\bottom) rectangle (\pw,\top);
-    \node[title] at (0.42,\top-0.50) {Graph A};
-    \node[titleNote] at (3.15,\top-0.55) {fiziksel hedef düğümü};
-    \node[guide] (Ag) at (1.70,4.20) {$g$};
-    \node[target] (At) at (5.82,4.20) {$T$};
-    \node[typeLbl,anchor=north] at ($(Ag.south)+(0,-0.12)$) {rehber RNA};
-    \node[typeLbl,anchor=south] at ($(At.north)+(0,0.12)$) {fiziksel hedef};
+    \node[titleBox] at (4.05,\titley) {Graph A\\[-1pt]{\mdseries\fontsize{10.4pt}{11.8pt}\selectfont\textcolor{FigGray}{Fiziksel hedef düğümü}}};
+    \node[guide] (Ag) at (1.60,5.05) {$g$};
+    \node[target] (At) at (5.92,5.05) {$T$};
+    \node[typeLbl,anchor=north] at ($(Ag.south)+(0,-0.18)$) {rehber RNA};
+    \node[typeLbl,anchor=south] at ($(At.north)+(0,0.17)$) {fiziksel hedef};
     \draw[arr] (Ag) -- node[lab,above] {$e_{gT}$} (At);
-    \node[edgebox] (Ae) at (3.76,2.70) {aday kenar\\özellikleri};
-    \draw[draw=FigOrange!85,line width=0.95pt,dash pattern=on 3pt off 2pt] (Ae.north) -- (3.76,4.03);
+    \node[edgebox] (Ae) at (3.76,2.30) {aday kenar\\özellikleri};
+    \draw[draw=FigOrange!85,line width=1.1pt,dash pattern=on 3pt off 2pt] (Ae.north) -- (3.76,4.80);
   \end{scope}
 
   \begin{scope}[xshift=8.15cm]
-    \fill[panel] (0,\bottom) rectangle (\pw,\top);
-    \node[title] at (0.42,\top-0.50) {Graph B};
-    \node[titleNote] at (3.15,\top-0.55) {rehber benzerliği kontrolü};
-    \node[guide] (Bg1) at (1.58,4.28) {$g_1$};
-    \node[guide] (Bg2) at (5.88,4.28) {$g_2$};
-    \node[target] (Bt) at (3.73,2.62) {$T$};
-    \node[typeLbl,anchor=north] at ($(Bg1.south)+(-0.40,-0.10)$) {rehber RNA};
-    \node[typeLbl,anchor=north] at ($(Bg2.south)+(0.40,-0.10)$) {rehber RNA};
-    \node[typeLbl,anchor=north] at ($(Bt.south)+(0,-0.12)$) {fiziksel hedef};
+    \node[titleBox] at (4.05,\titley) {Graph B\\[-1pt]{\mdseries\fontsize{10.4pt}{11.8pt}\selectfont\textcolor{FigGray}{Rehber benzerliği kontrolü}}};
+    \node[guide] (Bg1) at (1.50,5.55) {$g_1$};
+    \node[guide] (Bg2) at (5.98,5.55) {$g_2$};
+    \node[target] (Bt) at (3.73,2.15) {$T$};
+    \node[typeLbl,anchor=north] at ($(Bg1.south)+(-0.36,-0.16)$) {rehber RNA};
+    \node[typeLbl,anchor=north] at ($(Bg2.south)+(0.36,-0.16)$) {rehber RNA};
+    \node[typeLbl,anchor=north] at ($(Bt.south)+(0,-0.16)$) {fiziksel hedef};
     \draw[arr] (Bg1) -- (Bt);
     \draw[arr] (Bg2) -- (Bt);
     \draw[sim] (Bg1) -- node[lab,above] {$s_g$} (Bg2);
   \end{scope}
 
   \begin{scope}[xshift=16.30cm]
-    \fill[panel] (0,\bottom) rectangle (\pw,\top);
-    \node[title] at (0.42,\top-0.50) {Graph C};
-    \node[titleNote] at (3.15,\top-0.55) {hedef-gözlem şeması};
-    \node[guide] (Cg) at (1.32,4.38) {$g$};
-    \node[obs] (Coi) at (3.28,3.64) {$o_i$};
-    \node[obs] (Coj) at (5.86,3.64) {$o_j$};
-    \node[target] (Ct) at (4.57,2.34) {$T$};
-    \node[typeLbl,anchor=north] at ($(Cg.south)+(-0.15,-0.10)$) {rehber RNA};
-    \node[typeLbl,anchor=south] at ($(Coi.north)!0.5!(Coj.north)+(0,0.13)$) {hedef-gözlem};
-    \node[typeLbl,anchor=north] at ($(Ct.south)+(0,-0.12)$) {fiziksel hedef};
+    \node[titleBox] at (5.0,\titley) {Graph C\\[-1pt]{\mdseries\fontsize{10.4pt}{11.8pt}\selectfont\textcolor{FigGray}{Hedef-gözlem şeması}}};
+    \node[guide] (Cg) at (1.20,5.55) {$g$};
+    \node[obs] (Coi) at (3.28,4.72) {$o_i$};
+    \node[obs] (Coj) at (6.16,4.72) {$o_j$};
+    \node[target] (Ct) at (4.74,2.05) {$T$};
+    \node[typeLbl,anchor=north] at ($(Cg.south)+(-0.10,-0.16)$) {rehber RNA};
+    \node[typeLbl,anchor=south] at ($(Coi.north)!0.5!(Coj.north)+(0,0.16)$) {hedef-gözlem};
+    \node[typeLbl,anchor=north] at ($(Ct.south)+(0,-0.16)$) {fiziksel hedef};
     \draw[arr] (Cg) -- node[lab,above,sloped] {$e_{g,i}$} (Coi);
-    \draw[sim] (Coi) -- node[lab,above] {$s_o$} (Coj);
+    \draw[sim] (Coi) -- node[lab,above] {$s_{ij}$} (Coj);
     \draw[link] (Coi) -- (Ct);
     \draw[link] (Coj) -- (Ct);
   \end{scope}
 \end{tikzpicture}%
 }
 
-% --- Şekil 2: feature-group-aware Graph C GATv2 architecture ----------------
-\newcommand{\ArchFig}{%
-\begin{tikzpicture}[x=1cm,y=1cm,
-  panel/.style={rounded corners=7pt,fill=FigInk!3,draw=FigGray!25,line width=0.75pt},
-  input/.style={rounded corners=3pt,draw=FigTeal,fill=FigTeal!10,line width=1.05pt,minimum width=1.85cm,minimum height=0.92cm,align=center,font=\TikzSmallFont,text=FigInk},
-  branch/.style={rounded corners=3pt,draw=FigOrange!85,fill=FigOrange!10,line width=0.95pt,minimum width=3.05cm,minimum height=1.00cm,align=center,font=\TikzSmallFont,text=FigInk},
-  moduleB/.style={rounded corners=4pt,draw=FigBlue,fill=FigBlue!8,line width=1.05pt,minimum width=2.95cm,minimum height=0.95cm,align=center,font=\TikzSmallFont,text=FigInk},
-  moduleT/.style={rounded corners=4pt,draw=FigTeal,fill=FigTeal!8,line width=1.05pt,minimum width=2.45cm,minimum height=0.92cm,align=center,font=\TikzSmallFont,text=FigInk},
-  encoderbox/.style={rounded corners=6pt,draw=FigTeal!55,line width=0.75pt,dash pattern=on 3pt off 2pt},
-  fusion/.style={rounded corners=5pt,draw=FigBlue!60,fill=FigBlue!3,line width=0.95pt,minimum width=3.05cm,minimum height=2.82cm,align=center},
-  fop/.style={rounded corners=2pt,draw=FigBlue!62,fill=white,line width=0.75pt,minimum width=2.30cm,minimum height=0.38cm,align=center,font=\TikzTinyFont,text=FigInk},
-  rep/.style={rounded corners=4pt,draw=FigInk!55,fill=FigInk!4,line width=0.90pt,minimum width=2.05cm,minimum height=0.82cm,align=center,font=\TikzSmallFont\bfseries,text=FigInk},
-  guide/.style={circle,draw=FigBlue,fill=FigBlue!12,line width=1.10pt,minimum size=0.78cm,inner sep=0pt,font=\TikzSmallFont\bfseries,text=FigInk},
-  target/.style={circle,draw=FigGray,fill=FigGray!15,line width=1.05pt,minimum size=0.72cm,inner sep=0pt,font=\TikzTinyFont\bfseries,text=FigInk},
-  obs/.style={rounded corners=3pt,draw=FigTeal,fill=FigTeal!13,line width=1.05pt,minimum width=0.98cm,minimum height=0.68cm,align=center,font=\TikzSmallFont\bfseries,text=FigInk},
-  edgebox/.style={rounded corners=3pt,draw=FigOrange!85,fill=FigOrange!10,line width=0.95pt,minimum width=2.70cm,minimum height=0.82cm,align=center,font=\TikzTinyFont,text=FigInk},
-  outnode/.style={rounded corners=5pt,draw=FigBlue,fill=FigBlue!12,line width=1.05pt,minimum width=2.30cm,minimum height=0.95cm,align=center,font=\TikzSmallFont\bfseries,text=FigInk},
-  arr/.style={-{Latex[length=2.6mm,width=1.8mm]},line width=1.05pt,draw=FigInk!82},
-  miniarr/.style={-{Latex[length=1.8mm,width=1.2mm]},line width=0.78pt,draw=FigInk!70},
-  edgearr/.style={-{Latex[length=2.4mm,width=1.6mm]},line width=0.98pt,draw=FigOrange!90,dash pattern=on 3pt off 2pt},
-  sim/.style={line width=1.0pt,draw=FigTeal,dash pattern=on 3pt off 2pt},
-  title/.style={font=\TikzTitleFont,text=FigBlue,anchor=west},
-  note/.style={font=\TikzTinyFont,text=FigGray,align=center},
-  lab/.style={font=\TikzTinyFont,text=FigGray,align=center}]
-  \path[use as bounding box] (0,0) rectangle (27.65,27.85);
 
-  % 1) Encoders --------------------------------------------------------------
-  \fill[panel] (0.35,18.35) rectangle (27.30,27.55);
-  \node[title] at (0.82,26.88) {1. Rehber RNA ve hedef-gözlem encoder çıkışları};
-
-  \node[input] (xg) at (1.85,25.35) {$x_g$};
-  \node[moduleB] (genc) at (5.35,25.35) {sgRNA\\encoder};
-  \node[rep] (hg) at (9.05,25.35) {$h_g$\\\scriptsize 128};
-  \draw[arr] (xg) -- (genc); \draw[arr] (genc) -- (hg);
-  \node[lab,anchor=south,text=FigInk] at ($(hg.north)+(0,0.12)$) {rehber RNA temsili};
-
-  \node[input] (xo) at (1.85,21.50) {$x_o$\\\scriptsize 212};
-  \node[branch] (seq) at (5.10,23.45) {hedef dizi\\115};
-  \node[branch] (epi) at (5.10,22.15) {deneysel epigenetik\\6};
-  \node[branch] (nuc) at (5.10,20.85) {nükleozom özet\\78};
-  \node[branch] (mis) at (5.10,19.55) {eksiklik göstergesi\\13};
-  \node[moduleT,minimum width=2.05cm] (pseq) at (9.05,23.45) {$\phi_{seq}$\\\scriptsize 32};
-  \node[moduleT,minimum width=2.05cm] (pepi) at (9.05,22.15) {$\phi_{epi}$\\\scriptsize 32};
-  \node[moduleT,minimum width=2.05cm] (pnuc) at (9.05,20.85) {$\phi_{nuc}$\\\scriptsize 48};
-  \node[moduleT,minimum width=2.05cm] (pmis) at (9.05,19.55) {$\phi_{miss}$\\\scriptsize 16};
-  \node[rep,minimum width=0.95cm] (cat) at (12.15,21.50) {$\oplus$};
-  \node[fusion] (fusion) at (15.55,21.50) {};
-  \node[fop] (ln) at (15.55,22.38) {LayerNorm};
-  \node[fop] (relu1) at (15.55,21.94) {ReLU};
-  \node[fop] (drop) at (15.55,21.50) {Dropout};
-  \node[fop] (linear) at (15.55,21.06) {Linear};
-  \node[fop] (relu2) at (15.55,20.62) {ReLU};
-  \node[rep] (ho) at (19.05,21.50) {$h_o$\\\scriptsize 128};
-  \draw[encoderbox] ($(seq.north west)+(-0.28,0.34)$) rectangle ($(fusion.south east |- mis.south east)+(0.34,-0.32)$);
-  \node[font=\TikzTinyFont\bfseries,text=FigTeal,anchor=east,fill=FigInk!3,inner xsep=2pt,inner ysep=1pt]
-    at ($(fusion.north east |- seq.north east)+(0.22,0.56)$) {özellik grubu encoder};
-  \foreach \n in {seq,epi,nuc,mis}{\draw[arr] (xo.east) -- (\n.west);}
-  \draw[arr] (seq) -- (pseq); \draw[arr] (epi) -- (pepi); \draw[arr] (nuc) -- (pnuc); \draw[arr] (mis) -- (pmis);
-  \foreach \n in {pseq,pepi,pnuc,pmis}{\draw[arr] (\n.east) -- ++(0.45,0) |- (cat.west);}
-  \draw[arr] (cat.east) -- ++(0.58,0) |- (ln.west);
-  \draw[miniarr] (ln) -- (relu1); \draw[miniarr] (relu1) -- (drop); \draw[miniarr] (drop) -- (linear); \draw[miniarr] (linear) -- (relu2);
-  \draw[arr] (relu2.east) -- ++(0.70,0) |- (ho.west);
-
-  % 2) Graph C + GATv2 -------------------------------------------------------
-  \fill[panel] (0.35,9.45) rectangle (27.30,17.70);
-  \node[title] at (0.82,17.05) {2. Graph C mesajlaşması: kenar-duyarlı GATv2};
-  \node[guide] (gg) at (2.00,14.40) {$g$};
-  \node[obs] (oi) at (4.50,13.35) {$o_i$};
-  \node[obs] (oj) at (4.50,15.45) {$o_j$};
-  \node[target] (tt) at (4.50,11.55) {$T$};
-  \draw[arr,draw=FigBlue] (gg) -- node[font=\TikzTinyFont,text=FigInk,above,sloped] {$e_{g,i}$} (oi);
-  \draw[sim] ($(oi.east)+(0.08,0.04)$) .. controls +(0.95,0.42) and +(0.95,-0.42) ..
-    node[font=\TikzTinyFont,text=FigTeal,fill=white,inner sep=1pt,right,pos=0.54] {$s_o$}
-    ($(oj.east)+(0.08,-0.04)$);
-  \draw[draw=FigGray!70,line width=0.95pt] (oi) -- (tt);
-  \draw[draw=FigGray!70,line width=0.95pt] (oj) -- (tt);
-  \node[note,align=center] at (4.50,10.15) {aynı fiziksel hedef $T$\\farklı hedef-gözlem düğümleri\\\scriptsize context-similarity Graph C referansıdır};
-
-  \node[moduleB,minimum width=3.55cm,minimum height=1.15cm] (gat1) at (10.20,14.35) {GATv2 katman 1\\\scriptsize 4 head · dropout 0.2};
-  \node[moduleB,minimum width=3.55cm,minimum height=1.15cm] (gat2) at (15.25,14.35) {GATv2 katman 2\\\scriptsize hidden 128};
-  \node[rep,minimum width=2.55cm] (hprime) at (20.10,14.35) {$h'_g,\ h'_o$\\\scriptsize güncellenmiş temsil};
-  \node[edgebox,minimum width=4.30cm] (edge) at (12.75,11.35) {S5F2 kenar öznitelikleri\\uyumsuzluk + bağlanma enerjisi · 268};
-  \draw[arr] (oi.east) -- (gat1.west);
-  \draw[arr] (gat1) -- (gat2); \draw[arr] (gat2) -- (hprime);
-  \draw[edgearr] (edge.north) -- node[font=\TikzTinyFont,text=FigOrange,fill=white,inner sep=1pt,right] {edge\_attr} ($(gat1.south)!0.5!(gat2.south)$);
-  \node[edgebox,draw=FigBlue!65,fill=FigBlue!6,minimum width=3.15cm] (init) at (7.55,16.05) {düğüm başlangıçları\\$h_g$ ve $h_o$};
-  \draw[arr,draw=FigBlue!75] (init.south) -- ++(0,-0.55) -| (gat1.north);
-  \node[note,anchor=west,align=left] at (22.00,12.40) {S5F2 hem attention\\katmanına hem de son\\kenar sınıflandırıcısına gider.};
-
-  % 3) Classifier ------------------------------------------------------------
-  \fill[panel] (0.35,0.90) rectangle (27.30,8.75);
-  \node[title] at (0.82,8.10) {3. Kenar sınıflandırıcı ve karar olasılığı};
-  \node[rep,minimum width=1.70cm] (cg) at (1.70,6.35) {$h'_g$};
-  \node[rep,minimum width=1.70cm] (co) at (4.00,6.35) {$h'_o$};
-  \node[rep,minimum width=2.15cm] (mul) at (6.65,6.35) {$h'_g\odot h'_o$};
-  \node[rep,minimum width=2.15cm] (dif) at (9.70,6.35) {$|h'_g-h'_o|$};
-  \node[edgebox,minimum width=1.85cm] (ce) at (12.65,6.35) {$e_{ij}$};
-  \node[moduleB,minimum width=2.55cm] (concat) at (15.75,6.35) {birleştir};
-  \node[moduleB,minimum width=3.25cm] (mlp) at (19.55,6.35) {kenar MLP};
-  \node[outnode] (prob) at (23.45,6.35) {$p(y=1)$};
-  \node[lab,anchor=west,align=left] at (25.00,6.35) {hedef dışı\\kesim};
-  \foreach \n in {cg,co,mul,dif,ce}{\draw[arr] (\n.east) -- (concat.west);}
-  \draw[arr] (concat) -- (mlp); \draw[arr] (mlp) -- (prob);
-  \node[note,anchor=west,align=left] at (4.45,3.45) {Sunulan run: özellik grubu encoder + Graph C GATv2.\\Karar eşiği bulgusu Graph C hedef-gözlem temsili üzerinde okunur.};
-  \node[note,anchor=west,align=left] at (0.95,1.70) {Model ve karar eşiği doğrulama kümesinde kilitlenir; test üzerinde ayar yapılmaz.};
-\end{tikzpicture}%
-}
+% --- Şekil 2 alternative: wide poster architecture layout ----------------------
+% --- Sekil 2: wide poster architecture figure ------------------------------
+% Rendered from assets/arch_figure.tex to assets/arch_figure.pdf and included
+% below via \includegraphics. Edit assets/arch_figure.tex and rebuild it with
+% "tectonic assets/arch_figure.tex --outdir assets" to regenerate the figure.
 
 % --- Şekil 3: AUPRC ranking (point + 95% CI) --------------------------------
 \newcommand{\AuprcFig}{%
 \begin{tikzpicture}[x=1cm,y=1cm,
-  rowlab/.style={font=\sffamily\bfseries\fontsize{13.2pt}{15pt}\selectfont,text=FigInk,anchor=east},
-  val/.style={font=\sffamily\bfseries\fontsize{13.2pt}{15pt}\selectfont,text=FigInk,anchor=west},
-  tick/.style={font=\sffamily\fontsize{10.5pt}{12pt}\selectfont,text=FigGray},
-  capn/.style={font=\sffamily\fontsize{11.2pt}{13pt}\selectfont,text=FigGray}]
-  \path[use as bounding box] (0,0) rectangle (26.35,8.30);
-  \def\ytop{7.55}\def\ybot{1.55}
+  rowlab/.style={font=\sffamily\bfseries\fontsize{15.5pt}{17.5pt}\selectfont,text=FigInk,anchor=east},
+  val/.style={font=\sffamily\bfseries\fontsize{15.5pt}{17.5pt}\selectfont,text=FigInk,anchor=west},
+  tick/.style={font=\sffamily\fontsize{12.5pt}{14pt}\selectfont,text=FigGray}]
+  \path[use as bounding box] (0,0) rectangle (18.0,10.6);
+  \def\ytop{9.5}\def\ybot{1.7}
   \foreach \v in {0.90,0.92,0.94,0.96,0.98,1.00}{
-     \draw[FigGray!22,line width=0.6pt] (\auprcx{\v},\ybot) -- (\auprcx{\v},\ytop);
-     \node[tick] at (\auprcx{\v},\ybot-0.38) {\v};
+     \draw[FigGray!22,line width=0.7pt] (\auprcx{\v},\ybot) -- (\auprcx{\v},\ytop);
+     \node[tick] at (\auprcx{\v},\ybot-0.50) {\v};
   }
-  \draw[-{Latex[length=2.4mm]},FigGray!70,line width=0.8pt] (6.00,\ybot) -- (24.10,\ybot);
-  \draw[FigOrange,line width=1.25pt,dash pattern=on 5pt off 3pt] (\auprcx{0.900705},\ybot-0.05) -- (\auprcx{0.900705},\ytop+0.22);
-  \node[font=\sffamily\fontsize{10.6pt}{12pt}\selectfont,text=FigOrange,anchor=south,align=center] at (\auprcx{0.900705},\ytop+0.32) {no-skill PR\\0.9007};
-  \def\yA{5.85}
-  \node[rowlab] at (5.78,\yA) {XGBoost F4};
-  \draw[FigBlue,line width=2.1pt] (\auprcx{0.950179},\yA) -- (\auprcx{0.999336},\yA);
-  \draw[FigBlue,line width=2.1pt] (\auprcx{0.950179},\yA-0.25) -- (\auprcx{0.950179},\yA+0.25);
-  \draw[FigBlue,line width=2.1pt] (\auprcx{0.999336},\yA-0.25) -- (\auprcx{0.999336},\yA+0.25);
-  \fill[FigBlue] (\auprcx{0.992338},\yA) circle (0.20);
-  \node[val] at (24.35,\yA) {0.9923};
-  \def\yB{3.35}
-  \node[rowlab] at (5.78,\yB) {Dizi+bağlam GATv2};
-  \draw[FigTeal,line width=2.1pt] (\auprcx{0.929981},\yB) -- (\auprcx{0.998966},\yB);
-  \draw[FigTeal,line width=2.1pt] (\auprcx{0.929981},\yB-0.25) -- (\auprcx{0.929981},\yB+0.25);
-  \draw[FigTeal,line width=2.1pt] (\auprcx{0.998966},\yB-0.25) -- (\auprcx{0.998966},\yB+0.25);
-  \fill[FigTeal] (\auprcx{0.986020},\yB) circle (0.20);
-  \node[val] at (24.35,\yB) {0.9860};
-  \node[capn,anchor=west] at (6.15,0.48) {\%95 rehber-kümesi bootstrap güven aralığı; aralıkların örtüşmesi fark yokluğuyla uyumludur.};
+  \draw[-{Latex[length=2.8mm]},FigGray!70,line width=1.0pt] (7.00,\ybot) -- (15.5,\ybot);
+  \draw[FigOrange,line width=1.6pt,dash pattern=on 5pt off 3pt] (\auprcx{0.900705},\ybot-0.05) -- (\auprcx{0.900705},\ytop+0.30);
+  \node[font=\sffamily\fontsize{12.5pt}{14pt}\selectfont,text=FigOrange,anchor=south,align=center] at (\auprcx{0.900705},\ytop+0.40) {no-skill PR\\0.9007};
+  \def\yA{7.2}
+  \node[rowlab] at (6.75,\yA) {XGBoost F4};
+  \draw[FigBlue,line width=3.0pt] (\auprcx{0.950179},\yA) -- (\auprcx{0.999336},\yA);
+  \draw[FigBlue,line width=3.0pt] (\auprcx{0.950179},\yA-0.36) -- (\auprcx{0.950179},\yA+0.36);
+  \draw[FigBlue,line width=3.0pt] (\auprcx{0.999336},\yA-0.36) -- (\auprcx{0.999336},\yA+0.36);
+  \fill[FigBlue] (\auprcx{0.992338},\yA) circle (0.30);
+  \node[val] at (15.25,\yA) {0.9923};
+  \def\yB{4.0}
+  \node[rowlab,align=right] at (6.75,\yB) {Graph C GATv2\\özellik grubu encoder};
+  \draw[FigTeal,line width=3.0pt] (\auprcx{0.914690},\yB) -- (\auprcx{0.999242},\yB);
+  \draw[FigTeal,line width=3.0pt] (\auprcx{0.914690},\yB-0.36) -- (\auprcx{0.914690},\yB+0.36);
+  \draw[FigTeal,line width=3.0pt] (\auprcx{0.999242},\yB-0.36) -- (\auprcx{0.999242},\yB+0.36);
+  \fill[FigTeal] (\auprcx{0.982062},\yB) circle (0.30);
+  \node[val] at (15.25,\yB) {0.9821};
 \end{tikzpicture}%
 }
 
 % --- Şekil 4: TN / 169 operating-point bars ---------------------------------
 \newcommand{\TnFig}{%
 \begin{tikzpicture}[x=1cm,y=1cm,
-  tick/.style={font=\sffamily\fontsize{10.5pt}{12pt}\selectfont,text=FigGray},
-  capn/.style={font=\sffamily\fontsize{11.2pt}{13pt}\selectfont,text=FigGray}]
-  \path[use as bounding box] (0,0) rectangle (26.20,8.90);
-  \def\ytop{8.55}\def\ybot{1.40}
+  tick/.style={font=\sffamily\fontsize{12.5pt}{14pt}\selectfont,text=FigGray}]
+  \path[use as bounding box] (0,0) rectangle (18.0,10.6);
+  \def\ytop{10.1}\def\ybot{1.7}
   \foreach \v in {0,40,80,120,169}{
-     \draw[FigGray!22,line width=0.6pt] (\tnx{\v},\ybot) -- (\tnx{\v},\ytop);
-     \node[tick] at (\tnx{\v},\ybot-0.38) {\v};
+     \draw[FigGray!22,line width=0.7pt] (\tnx{\v},\ybot) -- (\tnx{\v},\ytop);
+     \node[tick] at (\tnx{\v},\ybot-0.50) {\v};
   }
-  \draw[-{Latex[length=2.4mm]},FigGray!70,line width=0.8pt] (7.20,\ybot) -- (25.65,\ybot);
-  \node[capn] at (16.25,0.25) {doğru negatif sayısı; payda aynı 169 ölçülmüş negatif};
-  \TnBar{7.55}{XGBoost F4}{40}{0.236}{FigGray}
-  \TnBar{6.00}{Graph C GCN}{14}{0.083}{FigOrange}
-  \TnBar{4.45}{Graph C GATv2}{63}{0.373}{FigTeal}
-  \TnBar{2.90}{Özellik grubu encoder}{110}{0.651}{FigBlue}
+  \draw[-{Latex[length=2.8mm]},FigGray!70,line width=1.0pt] (7.20,\ybot) -- (15.5,\ybot);
+  \TnBar{9.4}{XGBoost F4}{40}{0.236}{FigGray}
+  \TnBar{7.1}{Graph C GCN}{14}{0.083}{FigOrange}
+  \TnBar{4.8}{Graph C GATv2}{63}{0.373}{FigTeal}
+  \TnBar{2.5}{Özellik grubu encoder}{110}{0.651}{FigBlue}
 \end{tikzpicture}%
 }
 
@@ -456,7 +353,7 @@
   \fill[FigTeal!12,rounded corners=7pt] (15.9,\ct-1.5) rectangle (30.1,\ct);
   \node[head,anchor=west,text=FigTeal] at (16.3,\ct-0.75) {Bu çalışmanın sözleşmesi};
   \node[sub] at (16.3,\ct-2.05) {Değerlendirme şu eksenlerde daha katıdır:};
-  \foreach \y/\t in {8.7/Sızıntıya karşı denetim,7.4/Rehber ayrık (guide-disjoint) test,6.1/Prevalans farkındalığı,4.8/Yalnızca ölçülmüş veri evreni}{
+  \foreach \y/\t in {8.7/Sızıntıya karşı denetim,7.4/Rehber ayrık (guide-disjoint) test,6.1/Prevalans farkındalığı,4.8/Ölçülmüş veri evreni}{
      \FigCheck{16.9}{\y} \node[item] at (17.4,\y) {\t};}
   \node[arrownote] at (16.4,3.45) {ölçülmüş evrende ikili karar sorusu};
   % takeaway bar
@@ -474,100 +371,97 @@
   \fill[BTUBlue] \Coord{0}{0} rectangle \Coord{70}{\HeaderHeight};
   \node[anchor=north west,inner sep=0pt] at \Coord{1.65}{1.30} {\BTUSymbolLogo};
   \node[anchor=north east,inner sep=0pt] at \Coord{68.35}{1.30} {\BTUSymbolLogo};
-  \node[anchor=north,align=center,text=white] at \Coord{35}{0.56} {{\UniversityFont \UniversityName}\\[0.18cm]{\DepartmentFont \DepartmentName}};
+  \node[anchor=north,align=center,text=white] at \Coord{35}{0.56} {{\UniversityFont \UniversityName}\\[1.25cm]{\DepartmentFont \DepartmentName}};
   \node[anchor=north,text=white] at \Coord{35}{5.70} {%
     \begin{minipage}{45cm}
       \centering
       {\ProjectTitleFont \ProjectTitle\par}
-      \vspace{0.25cm}
-      {\ProjectSubtitleFont \ProjectSubtitle\par}
     \end{minipage}%
   };
 
   % ---------------------------------------------------------------------------
   % Main poster sections. Text is pulled from docs/poster/plan/poster_copy_deck.md.
   % ---------------------------------------------------------------------------
-  \PosterBlock{3.83}{14.30}{62.79}{7.00}{Özet}{%
+  \PosterBlock[\centering]{3.83}{14.30}{62.79}{7.00}{Özet}{%
     {\CalibriFamily\fontsize{\ScaledPt{30}}{\ScaledPt{34.5}}\selectfont
-    CRISPR-Cas9, hedef DNA'yı rehber RNA (sgRNA) ile eşleştirerek keser; ancak benzer dizilerde görülen hedef dışı aktivite güvenli rehber RNA tasarımını sınırlar. Bu çalışma, hedef dışı tahmini yalnızca dizi benzerliği problemi olarak değil, aynı fiziksel hedefin farklı hedef-gözlem bağlamlarında farklı karar davranışları üretip üretmediği sorusu olarak ele alır. Değerlendirme sızıntıya karşı denetlenmiş, rehber RNA'ya göre ayrık ve yalnızca ölçülmüş test evreninde yapılır; Graph C, bağlam sinyalinin özellikle doğrulama-kilitli karar eşiğinde nadir ölçülmüş negatifleri tanıma davranışında belirginleştiğini gösterir.\par
+    CRISPR-Cas9, hedef DNA'yı rehber RNA (sgRNA) ile eşleştirerek keser; ancak benzer dizilerde görülen hedef dışı aktivite güvenli rehber RNA tasarımını sınırlar. Bu çalışma, hedef dışı tahmini dizi benzerliği yanında hedef-gözlem bağlamının karar davranışına etkisi üzerinden ele alır. Değerlendirme, veri sızıntısını sınırlayan rehber ayrık (guide-disjoint) ve ölçülmüş (measured-only) test evreninde yürütülür. Sonuçlar, Graph C tabanlı hattın bağlam sinyalini özellikle validation-kilitli karar eşiğinde, nadir ölçülmüş negatifleri tanıma davranışı olarak belirginleştirdiğini gösterir.\par
     }
     \vspace{0.22cm}
     {\CalibriFamily\fontsize{\ScaledPt{21.5}}{\ScaledPt{25}}\selectfont
-    \textbf{Anahtar kelimeler:} CRISPR-Cas9; rehber RNA; hedef dışı tahmin; Graph C; çizge sinir ağları; hedef-gözlem bağlamı.\par
+    \textbf{Anahtar kelimeler:} CRISPR-Cas9, rehber RNA, hedef dışı tahmin, Graph C, çizge sinir ağları, hedef-gözlem bağlamı.\par
     }
   }
 
-  \PosterBlock{3.83}{25.00}{29.65}{15.20}{Giriş ve Amaç}{%
+  \PosterBlock[\centering]{3.83}{24.85}{27.80}{10.00}{Giriş ve Amaç}{%
     {\CalibriFamily\fontsize{\ScaledPt{28}}{\ScaledPt{32.2}}\selectfont
-    CRISPR-Cas9 hedef dışı kesim riski, rehber RNA'nın güvenli kullanımını sınırlar. Dizi benzerliği güçlü bir sinyaldir; ancak aynı fiziksel hedef, farklı deneysel ve epigenetik bağlamlarda farklı ölçüm davranışları taşıyabilir.
+    CRISPR-Cas9 hedef dışı aktivite riski, rehber RNA'nın güvenli kullanımını sınırlar. Dizi benzerliği güçlü bir sinyaldir; ancak aynı fiziksel hedef, farklı deneysel ve epigenetik bağlamlarda farklı ölçüm davranışları taşıyabilir.
 
-    Bu çalışma, hedef dışı tahmini yalnızca dizi benzerliği problemi olarak değil, ölçüm bağlamının model kararını nasıl değiştirdiği sorusu olarak sınar.
+    Bu çalışma, dizi benzerliğine ek olarak ölçüm bağlamının model kararını nasıl değiştirdiğini rehber ayrık ve ölçülmüş test evreninde sınar.
     \par}
-
-    \vfill
-    \begin{center}
-      \resizebox{25.6cm}{!}{\GraphFig}\\[0.12cm]
-      \begin{minipage}{25.6cm}\CaptionFont\centering \textbf{Şekil 1.} Graph A/B/C karşılaştırması.\end{minipage}
-    \end{center}
   }
+  \node[anchor=north west,inner sep=0pt] at \Coord{31.95}{24.65} {%
+    \begin{minipage}{34.00cm}
+      \centering
+      \resizebox{34.00cm}{!}{\GraphFig}\\[0.55cm]
+      \PosterFigureCaption{34.00cm}{1}{Graph A/B/C şemalarında rehber RNA, fiziksel hedef ve hedef-gözlem düğümlerinin nasıl temsil edildiği gösterilmektedir.}
+    \end{minipage}%
+  };
 
-  \PosterBlock{3.83}{43.45}{29.65}{40.65}{Önerilen Yaklaşım ve Mimari}{%
-    \MiniHead{Veri sözleşmesi}
-    İkili etiket Scheme A ile tanımlanır (\texttt{cleavage\_freq > 1e-5}); doğrulanmamış adaylar (\texttt{measured=0}) test doğrusu yapılmaz. Aday havuzu 310142 satırdan ölçülmüş 25632 satıra, oradan rehber RNA'ya göre ayrık 1702 satırlık test evrenine iner. Model ve karar eşiği seçimi yalnızca doğrulama kümesinde kilitlenir.
-
-    \vspace{0.10cm}
-    \MiniHead{Özellik grubu bazlı Graph C GATv2}
-    Ana çözüm, Graph C hedef-gözlem şeması üzerinde özellik gruplarını ayrı işleyen hedef-gözlem encoder'ı ve kenar-duyarlı GATv2 katmanlarıdır. Context-similarity Graph C referans hattında raporlanır; 110/169 sonucu, aynı şema üzerinde özellik grubu encoder eklenen hattır. 212 boyutlu hedef-gözlem vektörü dört grupta encoder'dan geçirilir; S5F2 kenar öznitelikleri (268 boyut) hem GATv2 dikkatine hem de son kenar sınıflandırıcısına verilir.
-
-    \vspace{0.10cm}
-    \FigCC{28.35}{\ArchFig}{\textbf{Şekil 2.} Önerilen Graph C GATv2 mimarisi. Rehber RNA ve hedef-gözlem temsilleri iki GATv2 katmanından geçer; aday kenar, çift vektörü ve S5F2 öznitelikleriyle sınıflandırılır.}
-  }
-
-  \PosterBlock{35.13}{25.00}{31.49}{30.10}{Sonuçlar}{%
-    Sonuçlar iki ayrı soruyu yanıtlar: sıralama ekseninde AUPRC, karar eşiği ekseninde özgüllük ölçülür.
-
-    \vspace{0.10cm}
-    \FigCC{28.8}{\AuprcFig}{\textbf{Şekil 3.} Sıralama ekseni: AUPRC ve \%95 rehber kümesi bootstrap aralığı. 0.9007 no-skill PR temelidir, performans alt sınırı değildir.}
-
-    \vspace{0.22cm}
-    \FigCC{28.6}{\TnFig}{\textbf{Şekil 4.} Karar eşiği ekseni: Graph C GATv2 context-similarity referansı ve özellik grubu encoder hattı; sonuçlar doğrulama-kilitli ve tohum/rehber RNA duyarlıdır.}
-
-    \vspace{0.18cm}
-    {\ResultNoteFont\textbf{Sıralama.} XGBoost F4 en sağlam çıta olarak kalır (AUPRC 0.992338); dizi+bağlam Graph C GATv2 bu eksende yaklaşır (0.986020), ancak sunulan model seçimi karar eşiğindeki MCC/özgüllük davranışına dayanır.}
-
-    \vspace{0.08cm}
-    {\ResultNoteFont\textbf{Karar eşiği.} Aynı 169 payda üzerinden doğru negatifler 40, 14, 63, 110; özellik grubu encoder + Graph C GATv2, MCC 0.603489 ile sunulan mimaridir. Graph C GCN düşük kaldığından sonuç monoton çizge kazanımı değildir.}
-  }
-
-  \PosterBlock{35.13}{58.35}{31.49}{25.75}{Tartışma}{%
-    Sıralama, bol sayıda pozitifle (prevalans 0.900705) doyuma ulaşır; karar eşiği ise az sayıdaki negatife bakar. 169 negatif yalnızca 9 rehber RNA'da yoğunlaşır ve 80'i tek bir rehber RNA'dadır. Farkın da, kırılganlığın da kaynağı bu kıtlıktır.
-
-    \vspace{0.10cm}
-    \Caveat{\textbf{Okuma.} Sıralamada (AUPRC) güçlü tablo temelli referans XGBoost F4 en sağlam çıta olarak kaldı; bağlamın katkısı sıralamada değil, karar eşiğinde ortaya çıkıyor.}
-
-    \vspace{0.12cm}
+  \PosterBlock{3.83}{37.30}{62.79}{32.10}{Yöntem ve Mimari}{%
     \begin{minipage}[t]{0.48\linewidth}
-      \MiniHead{Katkılar}
-      \TightListStart
-        \item Ölçülmüş evren + rehber RNA ayrık test.
-        \item Graph C hedef-gözlem temsili.
-        \item Sıralama / karar eşiği ayrımı.
-      \TightListEnd
+      {\centering\hyphenpenalty=10000\exhyphenpenalty=10000\CalibriFamily\fontsize{\ScaledPt{28}}{\ScaledPt{32.2}}\selectfont
+      Önerilen mimaride rehber RNA ve hedef-gözlem temsilleri ayrı encoder katmanlarıyla üretilir. Hedef-gözlem tarafında hedef dizisi, deneysel epigenetik ölçümler, nükleozom özetleri ve eksiklik göstergeleri ayrı özellik grupları olarak işlenir.\par}
     \end{minipage}\hfill
     \begin{minipage}[t]{0.48\linewidth}
-      \MiniHead{Sınırlar}
-      \TightListStart
-        \item AUPRC üstünlüğü iddia edilmez.
-        \item Karar eşiği doğrulama-kilitli ve tohum/rehber RNA duyarlı.
-        \item Daha fazla negatif ve dış doğrulama gerekir.
-      \TightListEnd
+      {\centering\hyphenpenalty=10000\exhyphenpenalty=10000\CalibriFamily\fontsize{\ScaledPt{28}}{\ScaledPt{32.2}}\selectfont
+      Graph C şeması, aynı fiziksel hedefe bağlı ölçüm bağlamlarını ayrı hedef-gözlem düğümleri olarak korur. Seçilen model hattında GATv2 mesaj geçişi bu düğüm temsilleri ve aday kenar öznitelikleri üzerinden yürür; bağlam benzerliği kenarları bu koşuda mesaj geçişine dahil edilmez.\par}
     \end{minipage}
 
-    \vspace{0.12cm}
-    \FigCC{25.8}{\LitFig}{\textbf{Şekil 5.} Literatürde nitel konumlandırma. Ham skor tablosu (leaderboard) kurulmaz; kıyas soru ve veri sözleşmesi karşılaştırmasıdır.}
+    \vspace{0.48cm}
+    \centering
+    \includegraphics[width=61.00cm]{assets/arch_figure.pdf}\\[0.18cm]
+    \PosterFigureCaption{61.00cm}{2}{Seçilen Graph C GATv2 hattı, rehber RNA temsili, hedef-gözlem temsili ve aday kenar özniteliklerini birlikte kullanır.}
   }
 
-  \PosterBlock{3.83}{87.35}{62.79}{3.70}{Referanslar}{%
+  \PosterBlock{3.83}{72.70}{37.00}{14.20}{Sonuçlar}{%
+    \vspace{0.22cm}
+    \begin{minipage}[t]{17.75cm}
+      \centering
+      \resizebox{17.75cm}{!}{\AuprcFig}\\[-0.02cm]
+      \PosterFigureCaption{17.75cm}{3}{AUPRC ve \%95 bootstrap aralığı.}
+    \end{minipage}\hfill
+    \begin{minipage}[t]{17.75cm}
+      \centering
+      \resizebox{17.75cm}{!}{\TnFig}\\[-0.02cm]
+      \PosterFigureCaption{17.75cm}{4}{Doğru negatif sayısı ve specificity değeri.}
+    \end{minipage}
+  }
+
+  \PosterBlock{42.05}{72.70}{24.57}{14.20}{Tartışma}{%
+    {\centering\ResultsTextFont AUPRC, pozitif ağırlıklı test evreninde güçlü modeller arasındaki farkı küçültür. Karar eşiği 169 ölçülmüş negatifte ayrışır; sonuç genel üstünlükten çok rehber kompozisyonuna duyarlı operating-point davranışı olarak okunur.\par}
+
+    \vspace{0.12cm}
+    \begin{minipage}[t]{0.48\linewidth}
+      \ResultsMiniHead{Katkılar}
+      {\ResultsTextFont\raggedright
+      \LargeTightListStart
+        \item Graph C hedef-gözlem bağlamını korur.
+        \item Encoder feature ailelerini ayrı işler.
+      \TightListEnd
+      }
+    \end{minipage}\hfill
+    \begin{minipage}[t]{0.48\linewidth}
+      \ResultsMiniHead{Sınırlar}
+      {\ResultsTextFont\raggedright
+      \LargeTightListStart
+        \item AUPRC üstünlüğü iddia edilmez.
+        \item Eşik davranışı seed ve rehbere duyarlıdır; dış doğrulama gerekir.
+      \TightListEnd
+      }
+    \end{minipage}
+  }
+
+  \PosterBlock{3.83}{87.70}{62.79}{3.55}{Referanslar}{%
     {\SmallBodyFont
     \begin{minipage}[t]{0.49\linewidth}
       [1] Kipf, T. N., Welling, M. Semi-Supervised Classification with Graph Convolutional Networks. 2017.\\[0.10cm]
@@ -578,7 +472,8 @@
     \begin{minipage}[t]{0.49\linewidth}
       [5] Chuai vd. DeepCRISPR: Optimized CRISPR Guide RNA Design by Deep Learning. 2018.\\[0.10cm]
       [6] Lin vd. CRISPR-Net: Quantifying CRISPR Off-Target Activities. 2020.\\[0.10cm]
-      [7] Guan vd. A Systematic Method for Solving Data Imbalance in CRISPR Off-Target Prediction. 2024.
+      [7] Guan vd. A Systematic Method for Solving Data Imbalance in CRISPR Off-Target Prediction. 2024.\\[0.10cm]
+      [8] Chen, T., Guestrin, C. XGBoost: A Scalable Tree Boosting System. 2016.
     \end{minipage}
     }
   }
@@ -587,17 +482,24 @@
   % Footer
   % ---------------------------------------------------------------------------
   \draw[BTUBlue,line width=2.1pt] \Coord{0}{94.22} -- \Coord{70}{94.22};
-  \node[anchor=north west,align=left,text=black] at \Coord{4.54}{94.90} {%
-    \begin{tabular}{@{}l@{}}
-      {\FooterInfoFont \StudentName}\\
-      {\FooterInfoFont \StudentNumber}\\
-      {\FooterInfoFont E-posta: \StudentEmail}
+  \node[anchor=north,align=center,text=black] at \Coord{8.55}{94.90} {%
+    \begin{tabular}{@{}c@{}}
+      {\FooterInfoFont \StudentOneName}\\
+      {\FooterInfoFont \StudentOneNumber}\\
+      {\FooterInfoFont \StudentOneEmail}
     \end{tabular}%
   };
-  \node[anchor=north west,align=left,text=black] at \Coord{54.35}{94.83} {%
-    \begin{tabular}{@{}l@{}}
-      {\FooterInfoFont \AdvisorName}\\[1.05cm]
-      {\FooterInfoFont E-posta: \AdvisorEmail}
+  \node[anchor=north,align=center,text=black] at \Coord{19.35}{94.90} {%
+    \begin{tabular}{@{}c@{}}
+      {\FooterInfoFont \StudentTwoName}\\
+      {\FooterInfoFont \StudentTwoNumber}\\
+      {\FooterInfoFont \StudentTwoEmail}
+    \end{tabular}%
+  };
+  \node[anchor=north,align=center,text=black] at \Coord{58.75}{94.83} {%
+    \begin{tabular}{@{}c@{}}
+      {\FooterInfoFont \AdvisorName}\\
+      {\FooterInfoFont \AdvisorEmail}
     \end{tabular}%
   };
   \node[anchor=north,align=center,text=black] at \Coord{35}{98.52} {\FooterEventFont \EventText};

@@ -1,0 +1,228 @@
+% Standalone source for the Method & Architecture figure (Şekil 2).
+% Rendered to arch_figure.pdf and included in ../poster.tex via \includegraphics.
+% Kept standalone on purpose: the TikZ node layout is sensitive to the poster's
+% ambient font/minipage state, so it is rendered here (clean) and embedded as a
+% vector PDF. Rebuild with:  tectonic arch_figure.tex
+\documentclass[border=3pt]{standalone}
+\usepackage{fontspec}
+\usepackage{amsmath}\usepackage{amssymb}\usepackage{tikz}\usepackage{xcolor}
+\usetikzlibrary{calc,arrows.meta,positioning,fit,backgrounds,decorations.pathreplacing}
+\IfFontExistsTF{Noto Sans}{\setmainfont{Noto Sans}[Ligatures=TeX]}{}
+\definecolor{FigBlue}{HTML}{1F4E79}
+\definecolor{FigTeal}{HTML}{1B7F79}
+\definecolor{FigOrange}{HTML}{B7651B}
+\definecolor{FigGray}{HTML}{6B7280}
+\definecolor{FigInk}{HTML}{1F2933}
+
+% Centered panel header: badge + title centered on panel-center x (#1).
+% The title is centered at #1 + 0.49cm (half of badge 0.82cm + gap 0.16cm) and the
+% badge hangs off its left edge, so the whole group is centered at #1 for any title
+% width -- no manual width measurement needed.
+\newcommand{\PanelHead}[3]{% #1 = panel center x (cm), #2 = number, #3 = title
+  \node[font=\sffamily\bfseries\fontsize{18pt}{20pt}\selectfont,text=FigBlue] (pht)
+    at ($(#1,24.68)+(0.49cm,0)$) {#3};%
+  \node[phase,anchor=east] at ($(pht.west)-(0.16cm,0)$) {#2};%
+}
+
+\newcommand{\ArchFigWide}{%
+\begingroup
+\setlength{\parskip}{0pt}\setlength{\parindent}{0pt}%
+\normalfont\fontsize{10pt}{12pt}\selectfont%
+\begin{tikzpicture}[x=1cm,y=1cm,
+  phase/.style={circle,fill=FigBlue,draw=FigBlue,inner sep=0pt,minimum size=0.82cm,font=\sffamily\bfseries\fontsize{16pt}{18pt}\selectfont,text=white},
+  phaseTitle/.style={font=\sffamily\bfseries\fontsize{18pt}{20pt}\selectfont,text=FigBlue,anchor=west},
+  subTitle/.style={font=\sffamily\fontsize{13.5pt}{15.5pt}\selectfont,text=FigInk,anchor=south},
+  pnote/.style={font=\sffamily\fontsize{11.0pt}{12.6pt}\selectfont,text=FigGray,align=center},
+  plabel/.style={font=\sffamily\fontsize{11.6pt}{13.2pt}\selectfont,text=FigInk,align=center},
+  nlabel/.style={font=\sffamily\fontsize{11.6pt}{13.2pt}\selectfont,text=FigGray,anchor=west},
+  input/.style={rounded corners=3pt,draw=FigTeal,fill=FigTeal!9,line width=1.0pt,minimum width=2.7cm,minimum height=1.2cm,align=center,font=\sffamily\fontsize{12.0pt}{13.6pt}\selectfont,text=FigInk},
+  family/.style={rounded corners=3pt,draw=FigOrange!85,fill=FigOrange!9,line width=1.0pt,minimum width=3.7cm,minimum height=1.18cm,align=center,font=\sffamily\fontsize{11.8pt}{13.4pt}\selectfont,text=FigInk},
+  embed/.style={rounded corners=3pt,draw=FigTeal,fill=FigTeal!7,line width=0.95pt,minimum width=2.1cm,minimum height=1.02cm,align=center,font=\sffamily\fontsize{11.8pt}{13.4pt}\selectfont,text=FigInk},
+  module/.style={rounded corners=4pt,draw=FigBlue,fill=FigBlue!7,line width=1.1pt,align=center,font=\sffamily\fontsize{11.8pt}{13.4pt}\selectfont,text=FigInk},
+  latent/.style={rounded corners=4pt,draw=FigInk!55,fill=FigInk!4,line width=0.95pt,minimum width=1.9cm,minimum height=1.05cm,align=center,font=\sffamily\bfseries\fontsize{12.0pt}{13.6pt}\selectfont,text=FigInk},
+  oplabel/.style={font=\sffamily\fontsize{10.6pt}{12.0pt}\selectfont,text=FigInk,text height=1.55ex,text depth=0.32ex},
+  guide/.style={circle,draw=FigBlue,fill=FigBlue!16,line width=1.15pt,minimum size=1.02cm,inner sep=0pt,font=\sffamily\bfseries\fontsize{13.6pt}{15.2pt}\selectfont,text=FigInk},
+  target/.style={circle,draw=FigGray,fill=FigGray!16,line width=1.05pt,minimum size=1.00cm,inner sep=0pt,font=\sffamily\bfseries\fontsize{13.2pt}{14.8pt}\selectfont,text=FigInk},
+  obs/.style={circle,draw=FigTeal,fill=FigTeal!12,line width=1.1pt,minimum size=1.00cm,inner sep=0pt,font=\sffamily\bfseries\fontsize{13.2pt}{14.8pt}\selectfont,text=FigInk},
+  edgebox/.style={rounded corners=3pt,draw=FigOrange!85,fill=FigOrange!8,line width=1.0pt,align=center,font=\sffamily\fontsize{11.0pt}{12.6pt}\selectfont,text=FigInk},
+  pairrow/.style={rounded corners=3pt,draw=FigInk!35,fill=white,line width=0.72pt,minimum width=7.8cm,minimum height=0.72cm},
+  rowtext/.style={font=\sffamily\fontsize{10.8pt}{12.2pt}\selectfont,text=FigInk,anchor=west},
+  rowdim/.style={font=\sffamily\bfseries\fontsize{10.6pt}{12.0pt}\selectfont,text=FigGray,anchor=east},
+  edgelab/.style={font=\sffamily\bfseries\fontsize{10.8pt}{12.2pt}\selectfont,text=FigOrange,fill=white,inner sep=1.1pt},
+  arr/.style={-{Latex[length=2.6mm,width=1.7mm]},line width=1.0pt,draw=FigInk!85},
+  thinarr/.style={-{Latex[length=2.1mm,width=1.4mm]},line width=0.8pt,draw=FigInk!75},
+  struct/.style={line width=0.9pt,draw=FigInk!62},
+  opt/.style={line width=0.85pt,draw=FigGray!70,dash pattern=on 3pt off 2pt},
+  edgearr/.style={-{Latex[length=2.4mm,width=1.6mm]},line width=0.9pt,draw=FigOrange!90,dash pattern=on 3pt off 2pt},
+  simedge/.style={line width=1.15pt,draw=FigTeal,dash pattern=on 4pt off 3pt}]
+  \path[use as bounding box] (0,3.2) rectangle (58,25.7);
+
+  % column dividers
+  \draw[opt] (23.9,4.0) -- (23.9,25.2);
+  \draw[opt] (41.6,4.0) -- (41.6,25.2);
+
+  % =========================================================================
+  % 1) REPRESENTATION ENCODERS
+  % =========================================================================
+  \PanelHead{12.0}{1}{Temsil encoder katmanları}
+
+  % guide path
+  \node[input] (xg) at (7.0,22.5) {$x_g$\\rehber RNA\\{\footnotesize($d=d_g$)}};
+  \node[module,minimum width=4.2cm,minimum height=1.3cm] (genc) at (12.0,22.5) {sgRNA\\encoder};
+  \node[latent] (hg) at (17.0,22.5) {$h_g$\\128};
+  \draw[arr] (xg.east) -- (genc.west);
+  \draw[arr] (genc.east) -- (hg.west);
+  \node[pnote,text=FigTeal,anchor=north] at (hg.south) {rehber temsili};
+
+  \draw[opt] (0.5,20.5) -- (23.4,20.5);
+
+  % target-observation path
+  \node[input] (xo) at (2.3,14.6) {$x_o$\\hedef-gözlem\\212};
+  \node[family] (fseq) at (7.4,17.3) {hedef dizi\\115};
+  \node[family] (fepi) at (7.4,15.5) {deneysel\\epigenetik $\cdot$ 6};
+  \node[family] (fnuc) at (7.4,13.7) {nükleozom\\özeti $\cdot$ 78};
+  \node[family] (fmis) at (7.4,11.9) {eksiklik\\göstergeleri $\cdot$ 13};
+  \node[embed] (pseq) at (12.9,17.3) {$\phi_{seq}$\\32};
+  \node[embed] (pepi) at (12.9,15.5) {$\phi_{epi}$\\32};
+  \node[embed] (pnuc) at (12.9,13.7) {$\phi_{nuc}$\\48};
+  \node[embed] (pmis) at (12.9,11.9) {$\phi_{miss}$\\16};
+  \node[module,minimum width=3.2cm,minimum height=3.5cm] (fus) at (16.7,14.6) {};
+  \node[font=\sffamily\bfseries\fontsize{11.6pt}{13pt}\selectfont,text=FigBlue] at (16.7,15.9) {fusion MLP};
+  \foreach \ry/\rt in {15.2/LayerNorm,14.75/ReLU,14.3/Dropout,13.85/Linear,13.4/ReLU}{%
+    \draw[rounded corners=2pt,draw=FigBlue!62,fill=white,line width=0.7pt] (15.35,\ry-0.21) rectangle (18.05,\ry+0.21);
+    \node[oplabel] at (16.7,\ry) {\rt};}
+  \node[latent] (ho) at (20.6,14.6) {$h_o$\\128};
+  \node[pnote,text=FigTeal,anchor=north] at (ho.south) {hedef-gözlem temsili};
+
+  % family-aware encoder dashed box
+  \begin{scope}[on background layer]
+    \node[rounded corners=6pt,draw=FigOrange!70,fill=FigOrange!2,line width=0.8pt,
+      fit=(fseq)(fmis)(pseq)(pmis)(fus),inner xsep=0.30cm,inner ysep=0.34cm] (fambox) {};
+  \end{scope}
+  \node[font=\sffamily\bfseries\fontsize{10.8pt}{12pt}\selectfont,text=FigOrange!95,fill=white,inner sep=1.2pt]
+    at (fambox.south) {özellik grubu hedef-gözlem encoder};
+
+  % xo -> families bus
+  \coordinate (xobus) at (5.0,14.6);
+  \draw[struct] (xo.east) -- (xobus);
+  \draw[struct] (5.0,11.9) -- (5.0,17.3);
+  \foreach \n/\y in {fseq/17.3,fepi/15.5,fnuc/13.7,fmis/11.9}{\draw[arr] (5.0,\y) -- (\n.west);}
+  % families -> embeds
+  \foreach \a/\b in {fseq/pseq,fepi/pepi,fnuc/pnuc,fmis/pmis}{\draw[arr] (\a.east) -- (\b.west);}
+  % embeds -> fuse bus -> fusion MLP
+  \coordinate (phibus) at (14.3,14.6);
+  \draw[struct] (14.3,11.9) -- (14.3,17.3);
+  \foreach \y in {17.3,15.5,13.7,11.9}{\draw[struct] (13.95,\y) -- (14.3,\y);}
+  \draw[arr] (phibus) -- (fus.west);
+  \node[font=\sffamily\fontsize{10.6pt}{12pt}\selectfont,text=FigInk,fill=white,inner sep=1pt] at (14.65,15.15) {birleştir};
+  \draw[arr] (fus.east) -- (ho.west);
+
+  % =========================================================================
+  % 2) GRAPH C GATv2 MESSAGE PASSING
+  % =========================================================================
+  \PanelHead{32.6}{2}{Graph C GATv2 mesaj geçişi}
+  \node[subTitle] at (32.6,23.35) {Seçilen model hattı: hedef-gözlem düğümleri ve aday kenarları};
+
+  \node[guide] (gg) at (31.0,21.4) {$g$};
+  \node[obs] (oi) at (28.0,19.0) {$o_i$};
+  \node[obs] (oj) at (34.0,19.0) {$o_j$};
+  \node[target] (tt) at (31.0,16.6) {$T$};
+  \node[nlabel] at (gg.east) {rehber düğüm};
+  \node[nlabel,align=left] at ([xshift=0.1cm]oj.east) {hedef-gözlem\\düğümleri};
+  \node[nlabel,align=left] at ([xshift=0.1cm]tt.east) {fiziksel hedef\\(paylaşılan)};
+
+  % candidate edges g -> o carry the e_ij edge features; o -- T marks the shared physical target
+  \draw[arr,draw=FigBlue] (gg) -- node[edgelab,above,sloped,pos=0.55] {$e_{g,i}$} (oi);
+  \draw[arr,draw=FigBlue] (gg) -- node[edgelab,above,sloped,pos=0.55] {$e_{g,j}$} (oj);
+  \draw[struct] (oi) -- (tt);
+  \draw[struct] (oj) -- (tt);
+  \node[edgebox,minimum width=4.25cm,minimum height=1.00cm] (edgefeat) at (38.2,20.55)
+    {aday kenar öznitelikleri\\[-1pt]{\footnotesize mismatch + binding energy}};
+  \draw[edgearr] (edgefeat.west) -- (35.35,20.05);
+
+  % GATv2 block
+  \node[module,minimum width=8.8cm,minimum height=2.6cm] (gat) at (31.0,13.3) {};
+  \draw[draw=FigBlue,line width=0.7pt] (gat.west) -- (gat.east);
+  \node[plabel] at ($(gat.center)+(0,0.62)$) {GATv2 katman 1\\(4 head $\cdot$ dropout 0.2)};
+  \node[plabel] at ($(gat.center)+(0,-0.63)$) {GATv2 katman 2\\(hidden 128)};
+  % arrows nodes -> GATv2
+  \draw[arr] (oi.south) -- (oi |- gat.north);
+  \draw[arr] (tt.south) -- (tt |- gat.north);
+  \draw[arr] (oj.south) -- (oj |- gat.north);
+
+  % GATv2 outputs
+  \node[latent] (hgp) at (28.8,10.0) {$h'_g$\\128};
+  \node[latent] (hop) at (33.2,10.0) {$h'_o$\\128};
+  \draw[arr] (gat.south -| hgp) -- (hgp.north);
+  \draw[arr] (gat.south -| hop) -- (hop.north);
+  \node[pnote,text=FigBlue,anchor=north] at (hgp.south) {güncellenmiş\\rehber temsili};
+  \node[pnote,text=FigTeal,anchor=north] at (hop.south) {güncellenmiş\\hedef-gözlem temsili};
+
+  % =========================================================================
+  % 3) EDGE CLASSIFIER AND DECISION
+  % =========================================================================
+  \PanelHead{49.6}{3}{Kenar sınıflandırıcı ve karar}
+  \node[subTitle] at (49.6,23.35) {Çift özelliklerle kenar tahmini};
+
+  \begin{scope}[xshift=0.9cm]
+  \node[latent] (fhg) at (44.3,21.3) {$h'_g$\\128};
+  \node[latent] (fho) at (47.9,21.3) {$h'_o$\\128};
+  \node[edgebox,minimum width=3.0cm,minimum height=1.15cm] (fe) at (51.2,21.3) {$e_{g,o}$\\kenar öznitelikleri};
+
+  % pair feature construction box
+  \node[rounded corners=5pt,draw=FigBlue!65,dash pattern=on 3pt off 2pt,fill=FigBlue!2,
+    minimum width=8.8cm,minimum height=5.4cm] (pairbox) at (46.6,16.5) {};
+  \node[font=\sffamily\bfseries\fontsize{11.2pt}{12.8pt}\selectfont,text=FigBlue,anchor=west]
+    at ($(pairbox.north west)+(0.3,-0.42)$) {çift özellik oluşturma};
+  % rows
+  \foreach \i/\y in {1/18.0,2/17.1,3/16.2,4/15.3,5/14.4}{\node[pairrow] (pr\i) at (46.6,\y) {};}
+  \node[rowtext] at ([xshift=0.28cm]pr1.west) {$h'_g$};                        \node[rowdim] at ([xshift=-0.28cm]pr1.east) {128};
+  \node[rowtext] at ([xshift=0.28cm]pr2.west) {$h'_o$};                        \node[rowdim] at ([xshift=-0.28cm]pr2.east) {128};
+  \node[rowtext] at ([xshift=0.28cm]pr3.west) {$h'_g \odot h'_o$~~{\footnotesize (eleman bazlı çarpım)}}; \node[rowdim] at ([xshift=-0.28cm]pr3.east) {128};
+  \node[rowtext] at ([xshift=0.28cm]pr4.west) {$|h'_g - h'_o|$~~{\footnotesize (mutlak fark)}};           \node[rowdim] at ([xshift=-0.28cm]pr4.east) {128};
+  \node[rowtext] at ([xshift=0.28cm]pr5.west) {$e_{g,o}$~~{\footnotesize (mismatch + binding energy)}};      \node[rowdim] at ([xshift=-0.28cm]pr5.east) {$d_e$};
+  % inputs into pair box
+  \draw[arr] (fhg.south) -- (fhg |- pairbox.north);
+  \draw[arr] (fho.south) -- (fho |- pairbox.north);
+  \draw[edgearr] (fe.south) -- (51.2,19.85) -- (50.0,19.85) -- (50.0,19.2);
+  % concatenate -> z_ij
+  \draw[decorate,decoration={brace,amplitude=6pt,mirror}] (50.7,18.36) -- (50.7,14.04);
+  \node[latent,minimum width=1.55cm] (fzij) at (53.7,16.2) {$z_{ij}$\\$d_z$};
+  \draw[arr] (51.05,16.2) -- (fzij.west);
+  \node[font=\sffamily\fontsize{10.4pt}{11.8pt}\selectfont,text=FigInk] at (51.95,16.62) {birleştir};
+
+  % edge MLP classifier
+  \node[module,minimum width=5.0cm,minimum height=3.0cm] (mlp) at (48.0,10.4) {};
+  \node[font=\sffamily\bfseries\fontsize{11.2pt}{12.8pt}\selectfont,text=FigBlue] at ($(mlp.north)+(0,-0.34)$) {kenar MLP sınıflandırıcı};
+  \foreach \ry/\rt in {11.0/Linear,10.55/ReLU,10.1/Dropout,9.65/Linear}{%
+    \draw[rounded corners=2pt,draw=FigBlue!62,fill=white,line width=0.7pt] (45.9,\ry-0.21) rectangle (50.1,\ry+0.21);
+    \node[oplabel] at (48.0,\ry) {\rt};}
+  \draw[arr] (fzij.south) -- (53.7,10.4) -- (mlp.east);
+
+  \node[latent,minimum width=2.6cm,minimum height=1.0cm] (prob) at (48.0,7.6) {$p(y=1)$};
+  \draw[arr] (mlp.south) -- (prob.north);
+  \node[pnote,anchor=north] at (prob.south) {hedef dışı\\kesim olasılığı};
+  \end{scope}
+
+  % =========================================================================
+  % LEGEND
+  % =========================================================================
+  \draw[FigGray!35,line width=0.7pt] (0.5,5.5) -- (57.5,5.5);
+  \def\ly{4.5}
+  \newcommand{\legsw}[3]{\node[rounded corners=2pt,draw=##2,fill=##2!14,line width=0.9pt,minimum width=0.55cm,minimum height=0.4cm] at (##1,\ly) {}; \node[font=\sffamily\fontsize{10.8pt}{12.2pt}\selectfont,text=FigInk,anchor=west] at (##1+0.42,\ly) {##3};}
+  \legsw{1.5}{FigTeal}{Girdiler}
+  \legsw{8.5}{FigOrange}{Özellik grupları}
+  \legsw{17.5}{FigTeal}{Temsil}
+  \legsw{23.5}{FigBlue}{Modül / katman}
+  \node[rounded corners=2pt,draw=FigInk!55,fill=FigInk!6,line width=0.9pt,minimum width=0.55cm,minimum height=0.4cm] at (32.0,\ly) {};
+  \node[font=\sffamily\fontsize{10.8pt}{12.2pt}\selectfont,text=FigInk,anchor=west] at (32.42,\ly) {Gizli vektör};
+  \draw[arr] (39.0,\ly) -- (39.8,\ly); \node[font=\sffamily\fontsize{10.8pt}{12.2pt}\selectfont,text=FigInk,anchor=west] at (39.95,\ly) {Veri akışı};
+  \draw[struct] (45.0,\ly) -- (45.8,\ly); \node[font=\sffamily\fontsize{10.8pt}{12.2pt}\selectfont,text=FigInk,anchor=west] at (45.95,\ly) {Yapısal bağlantı};
+  \draw[opt] (52.0,\ly) -- (52.8,\ly); \node[font=\sffamily\fontsize{10.8pt}{12.2pt}\selectfont,text=FigInk,anchor=west] at (52.95,\ly) {Grup sınırı};
+\end{tikzpicture}%
+\endgroup
+}
+
+\begin{document}
+\ArchFigWide
+\end{document}

@@ -27,9 +27,9 @@ All numbers trace to the thesis anchor pool (§11). No number here is invented.
 
 ## 3. Başlık bölgesi (title / identity)
 
-**Title candidates** (final title deferred; A is the working title). *(hazır)*
+**Title candidates** (A is the selected working title). *(hazır)*
 
-- A — `"Aynı dizi, farklı bağlam: CRISPR-Cas9 hedef dışı tahmininde bağlam-duyarlı çizge temsili"`
+- A — `"CRISPR-CAS9 HEDEF DIŞI TAHMİNİNDE BAĞLAM DUYARLI ÇİZGE SİNİR AĞLARININ DEĞERLENDİRİLMESİ"`
 - B — `"Sıralama mı, karar eşiği mi? Hedef dışı tahminde iki ayrı soru"`
 - C — `"Doğrulanmış veri, sızıntısız değerlendirme: bağlam-duyarlı GNN'lerin nadir negatif katkısı"`
 - D — `"Aynı adres, farklı ziyaretler: Graph C ile hedef-gözlem bağlamı"`
@@ -37,7 +37,6 @@ All numbers trace to the thesis anchor pool (§11). No number here is invented.
 
 **Subtitle / one-line thesis candidates** (use one). *(hazır)*
 
-- `"Graph C, aynı fiziksel hedefi farklı hedef-gözlem bağlamlarıyla temsil eder."`
 - `"Bağlam katkısı bir AUPRC zaferi değil, karar eşiği davranışıdır."`
 - `"AUPRC sıralamayı, karar eşiği ise nadir negatif tanıma davranışını gösterir."`
 

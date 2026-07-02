@@ -24,8 +24,8 @@ This sentence makes a contribution claim (a representation and an encoder, evalu
 
 > **`[BAŞLIK: TBD — placeholder]`** The final title is intentionally not chosen yet; it will be decided as the design progresses. The candidates below are placeholders, each claim-safe and contribution-first.
 
-- Candidate A — `"Aynı dizi, farklı bağlam: CRISPR-Cas9 hedef dışı tahmininde bağlam-duyarlı çizge temsili"`
-  Rationale: foregrounds the novel idea (the same target sequence carries different observation contexts) — the Graph C contribution.
+- Candidate A — `"CRISPR-CAS9 HEDEF DIŞI TAHMİNİNDE BAĞLAM DUYARLI ÇİZGE SİNİR AĞLARININ DEĞERLENDİRİLMESİ"`
+  Rationale: matches the official thesis title from `docs/thesis/latex/btu_template/metadata.tex`.
 - Candidate B — `"Sıralama mı, karar eşiği mi? Hedef dışı tahminde iki ayrı soru"`
   Rationale: foregrounds the two-axis insight, which is the poster's most defensible and most interesting claim.
 - Candidate C — `"Doğrulanmış veri, sızıntısız değerlendirme: bağlam-duyarlı GNN'lerin nadir negatif katkısı"`
