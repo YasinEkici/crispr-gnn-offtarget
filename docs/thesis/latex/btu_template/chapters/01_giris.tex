@@ -81,6 +81,32 @@ Literatür birlikte değerlendirildiğinde, CRISPR-Cas9 hedef dışı tahmininde
 
 Bu tez bu boşluğa, Graph A/B/C şemalarını aynı veri sözleşmesi altında karşılaştırarak yanıt vermiştir. Graph C, fiziksel target düğümünü target-observation düğümünden ayırdığı için bağlamı row-level bir temsil olarak modele taşır. Family-aware encoder ve context-edge FiLM bileşenleri, bu bağlamı özellik ailesi ve edge interaction düzeyinde tüketmeye yönelik kontrollü mimari denemelerdir. Sonuçlar, güncel en iyi hedef dışı tahmin edici iddiası kurmak için değil, bağlam duyarlı çizge temsilinin hangi koşullarda yararlı sinyal ürettiğini ve hangi koşullarda güçlü tabular referansın gerisinde kaldığını göstermek için kullanılmıştır.
 
+Bu çalışmalar ile bu tez arasındaki karşılaştırma bir skor kıyası değildir; Çizelge~\ref{tab:literatur-konumlandirma} seçili hedef dışı tahmin çalışmalarını değerlendirme sözleşmesi ekseninde konumlandırır. Literatürdeki çalışmalar çoğunlukla negatif-ağırlıklı, genome-wide bir sıralama evreninde değerlendirilirken, bu tez pozitif-ağırlıklı (prevalans 0.900705) ve yalnızca ölçülmüş bir ikili karar evreninde değerlendirilir; bu nedenle konumlandırma ham skorla değil, soru ve sözleşme ile yapılır.
+
+\begin{table}[htbp]
+\caption{Seçili CRISPR-Cas9 hedef dışı tahmin çalışmalarının değerlendirme sözleşmesi bakımından nitel konumlandırması.}
+\label{tab:literatur-konumlandirma}
+\centering
+\scriptsize
+\renewcommand{\arraystretch}{1.4}
+\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{0.12\textwidth} >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}p{0.095\textwidth} >{\raggedright\arraybackslash}p{0.10\textwidth}}
+\toprule\toprule
+Çalışma & Veri/assay & Split türü & Negatif üretimi & Prevalans & Birincil metrik\\
+\midrule
+DeepCRISPR \btucitep{chuai2018deepcrispr} & Genome-wide tespit (GUIDE-seq, Digenome-seq, BLESS) & Hücre-tipi/senaryo; guide-disjoint belirtilmemiş & Genome-wide mismatch adayları; batch bootstrap & Negatif-ağırlıklı & ROC-AUC, PR-AUC\\
+CRISPR-Net \btucitep{lin2020crisprnet} & CIRCLE-seq, GUIDE-seq & Bağımsız test seti; guide-disjoint belirtilmemiş & Aday gRNA-hedef çiftleri & Negatif-ağırlıklı & PR-AUC, ROC-AUC\\
+CRISPR-IP \btucitep{zhang2022crisprip} & CIRCLE-seq, SITE-seq & Rehber-ayrık çapraz doğrulama (LOGOCV) & Genome-wide aday çiftler & Negatif-ağırlıklı & PR-AUC, ROC-AUC\\
+GCN \btucitep{vinodkumar2021gcn} & HEK293/K562 (30 sgRNA) & Bağlantı tahmini; bootstrap örnekleme & Off-target üretmeyen çiftler (0) & Negatif-ağırlıklı & auROC\\
+CRISPR-M \btucitep{sun2024crisprm} & CIRCLE, GUIDE\_I & LOGOCV + veri-setleri arası & Cas-OFFinder ile üretilmiş (sentetik) & Negatif-ağırlıklı & AUROC, AUPRC\\
+CRISPR-BERT \btucitep{luo2024bert} & Yedi set (K562, HEK293t) & 5-katlı + rehber-dışı (leave-one-sgRNA-out) & Aday negatifler; batch dengeleme & Negatif-ağırlıklı & AUROC, PR-AUC\\
+CCLMoff \btucitep{du2025cclmoff} & 13 tespit teknolojisi & Rehber-dışı + veri-setleri arası & Cas-OFFinder ile üretilmiş (sentetik) & Negatif-ağırlıklı & AUROC, AUPRC\\
+Bu tez & crisprSQL/Mak, ölçülmüş evren & Rehber-ayrık tek bölünme + bootstrap/çoklu tohum & Ölçülmüş negatifler (sentetik yok) & Pozitif-ağırlıklı (0.900705) & AUPRC\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+Etiket tanımı, negatif üretimi ve sınıf prevalansı farklı olduğu için bu modelleri bu tezin ölçülmüş evreninde ya da bu tezin modelini onların evrenlerinde çalıştırmak geçerli bir sayısal karşılaştırma üretmez; konumlandırma bu nedenle zorunlu olarak niteldir. Rehber düzeyinde değerlendirme güncel literatürde de yaygındır \btucitep{zhang2022crisprip,sun2024crisprm,luo2024bert,du2025cclmoff}; dolayısıyla bu tezin katkısı rehber-ayrık bölünmenin kendisi değil, ölçülmüş veri evreni, rehber-ayrık bölünme, eğitim verisiyle ön işleme, yalnız-doğrulama seçimi ve test üzerinde ayar yapmama kararlarının birlikte kurduğu değerlendirme sözleşmesidir.
+
 \section{Hipotez}
 
 Bu tezde üç temel hipotez sınanmıştır.
